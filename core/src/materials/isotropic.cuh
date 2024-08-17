@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../misc/randomizer.cuh"
+#include "../misc/gpu_randomizer.cuh"
 
 class isotropic : public material
 {

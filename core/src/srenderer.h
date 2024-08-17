@@ -4,6 +4,7 @@
 #include "misc/render_parameters.h"
 #include "renderers/renderer.h"
 #include "renderers/gpu_cuda_renderer.h"
+#include "cameras/perspective_camera.cuh"
 
 class srenderer
 {
@@ -17,7 +18,8 @@ void srenderer::render(scene& _scene, const render_parameters& _params)
 {
     std::cout << "[INFO] Init scene" << std::endl;
 
-    camera *cam = new camera(
+    camera* cam = new perspective_camera();
+    cam->initialize(
         vector3(0, 1, 0),
         vector3(0, 1, 0),
         vector3(0, 1, 0),

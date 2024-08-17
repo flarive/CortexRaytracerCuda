@@ -87,21 +87,28 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CudaCompile Include="src\main.cu" />
+    <CudaCompile Include="src\gpu.cu" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\pdf\image_pdf.cuh" />
+    <ClInclude Include="src\pdf\sphere_pdf.cuh" />
+    <ClInclude Include="src\cameras\camera.cuh" />
     <ClInclude Include="src\misc\aabb.cuh" />
     <ClInclude Include="src\misc\color.cuh" />
     <ClInclude Include="src\misc\hit_record.cuh" />
     <ClInclude Include="src\misc\onb.cuh" />
-    <ClInclude Include="src\misc\randomizer.cuh" />
+    <ClInclude Include="src\misc\gpu_randomizer.cuh" />
     <ClInclude Include="src\misc\render_parameters.h" />
+    <ClInclude Include="src\misc\scatter_record.h" />
     <ClInclude Include="src\misc\scene.h" />
     <ClInclude Include="src\misc\singleton.h" />
     <ClInclude Include="src\misc\timer.h" />
+    <ClInclude Include="src\pdf\cosine_pdf.cuh" />
+    <ClInclude Include="src\pdf\mixture_pdf.cuh" />
+    <ClInclude Include="src\pdf\pdf.cuh" />
     <ClInclude Include="src\primitives\box.cuh" />
     <ClInclude Include="src\misc\bvh_node.cuh" />
-    <ClInclude Include="src\cameras\camera.cuh" />
+    <ClInclude Include="src\cameras\perspective_camera.cuh" />
     <ClInclude Include="src\misc\constants.cuh" />
     <ClInclude Include="src\primitives\flip_normals.cuh" />
     <ClInclude Include="src\primitives\translate.cuh" />
@@ -130,6 +137,8 @@
     <ClInclude Include="src\primitives\rotate.cuh" />
     <ClInclude Include="src\materials\dielectric.cuh" />
     <ClInclude Include="src\misc\vector3.cuh" />
+    <ClInclude Include="src\utilities\math_utils.cuh" />
+    <ClInclude Include="src\utilities\uvmapping.cuh" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />

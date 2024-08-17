@@ -1,7 +1,7 @@
 #pragma once
 
 #include "material.cuh"
-#include "../misc/randomizer.cuh"
+#include "../misc/gpu_randomizer.cuh"
 #include "../primitives/hittable.cuh"
 #include "../textures/texture.cuh"
 

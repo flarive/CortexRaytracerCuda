@@ -40,7 +40,7 @@
     <ClInclude Include="src\primitives\volume.cuh">
       <Filter>Headers\primitives</Filter>
     </ClInclude>
-    <ClInclude Include="src\cameras\camera.cuh">
+    <ClInclude Include="src\cameras\perspective_camera.cuh">
       <Filter>Headers\cameras</Filter>
     </ClInclude>
     <ClInclude Include="src\materials\metal.cuh">
@@ -95,7 +95,7 @@
     <ClInclude Include="src\renderers\renderer.h">
       <Filter>Headers\renderers</Filter>
     </ClInclude>
-    <ClInclude Include="src\misc\randomizer.cuh">
+    <ClInclude Include="src\misc\gpu_randomizer.cuh">
       <Filter>Headers\misc</Filter>
     </ClInclude>
     <ClInclude Include="src\misc\timer.h">
@@ -118,6 +118,33 @@
     </ClInclude>
     <ClInclude Include="src\misc\color.cuh">
       <Filter>Headers\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cameras\camera.cuh">
+      <Filter>Headers\cameras\base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pdf\pdf.cuh">
+      <Filter>Headers\pdf\base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\misc\scatter_record.h">
+      <Filter>Headers\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pdf\cosine_pdf.cuh">
+      <Filter>Headers\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pdf\mixture_pdf.cuh">
+      <Filter>Headers\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pdf\sphere_pdf.cuh">
+      <Filter>Headers\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pdf\image_pdf.cuh">
+      <Filter>Headers\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utilities\uvmapping.cuh">
+      <Filter>Headers\utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utilities\math_utils.cuh">
+      <Filter>Headers\utilities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -172,13 +199,22 @@
     <Filter Include="Headers\samplers">
       <UniqueIdentifier>{48894d1f-48b8-42e9-abf0-ceac9960d597}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Headers\cameras\base">
+      <UniqueIdentifier>{97d9cc4c-c95a-47b4-9859-11ca54b2985e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\pdf">
+      <UniqueIdentifier>{3fd566f7-ef92-4425-ac09-42ebe76561d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\pdf\base">
+      <UniqueIdentifier>{4131fafa-f2c9-42b1-b839-87711fe12f09}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="src\gpu.cu">
+      <Filter>Sources\renderers</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <CudaCompile Include="src\main.cu">
-      <Filter>Sources\renderers</Filter>
-    </CudaCompile>
   </ItemGroup>
 </Project>

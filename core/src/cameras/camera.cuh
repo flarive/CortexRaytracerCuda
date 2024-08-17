@@ -2,41 +2,36 @@
 
 #include "../misc/ray.cuh"
 #include "../misc/constants.cuh"
-#include "../misc/randomizer.cuh"
+#include "../misc/gpu_randomizer.cuh"
 
 
 class camera
 {
 public:
-    __device__ camera(vector3 lookfrom, vector3 lookat, vector3 vup, float vfov, float aspect, float aperture, float focus_dist, float t0, float t1)
+    //__device__ camera(vector3 lookfrom, vector3 lookat, vector3 vup, float vfov, float aspect, float aperture, float focus_dist, float t0, float t1)
+    //{
+    //}
+
+
+    
+
+    __device__ camera()
     {
-        time0 = t0;
-        time1 = t1;
-        lens_radius = aperture / 2;
-        float theta = vfov * M_PI / 180;
-        float half_height = tan(theta / 2);
-        float half_width = aspect * half_height;
-        origin = lookfrom;
-        w = unitv(lookfrom - lookat);
-        u = unitv(cross(vup, w));
-        v = cross(w, u);
-        lower_left_corner = origin
-                            - half_width * focus_dist * u
-                            - half_height * focus_dist * v
-                            - focus_dist * w;
-        horizontal = 2*half_width*focus_dist*u;
-        vertical = 2*half_height*focus_dist*v;
     }
 
-    __device__ ray get_ray(float s, float t, curandState *local_rand_state)
-    {
-        vector3 rd = lens_radius * random_in_unit_disk(local_rand_state);
-        vector3 offset = u * rd.x + v * rd.y;
-        float time = time0 + curand_uniform(local_rand_state) * (time1 - time0);
-        return ray(origin + offset,
-                    lower_left_corner + s*horizontal + t*vertical
-                        - origin - offset, time);
-    }
+    __device__ virtual ~camera() = default;
+
+    __device__ virtual void initialize(vector3 lookfrom, vector3 lookat, vector3 vup, float vfov, float aspect, float aperture, float focus_dist, float t0, float t1) = 0;
+
+    /// <summary>
+    /// Fire a given ray and get the hit record (recursive)
+    /// </summary>
+    /// <param name="r"></param>
+    /// <param name="world"></param>
+    /// <returns></returns>
+    //__host__ __device__ virtual const ray get_ray(int i, int j, int s_i, int s_j, sampler* aa_sampler, randomizer* rnd) const = 0;
+    __device__ virtual const ray get_ray(float s, float t, curandState* local_rand_state) const = 0;
+
 
     vector3 origin;
     vector3 lower_left_corner;

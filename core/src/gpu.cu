@@ -11,6 +11,7 @@
 
 #include "misc/bvh_node.cuh"
 #include "cameras/camera.cuh"
+#include "cameras/perspective_camera.cuh"
 #include "primitives/hittable_list.cuh"
 #include "primitives/sphere.cuh"
 #include "primitives/aarect.cuh"
@@ -163,17 +164,17 @@ __global__ void create_cornell_box(hittable **elist, hittable **eworld, camera *
         vector3 lookat(278, 278, 0);
         float dist_to_focus = 10.0;
         float aperture = 0.0;
-        *cam = new camera(
-            lookfrom,
+
+        *cam = new perspective_camera();
+        (*cam)->initialize(lookfrom,
             lookat,
-            vector3(0,1,0),
+            vector3(0, 1, 0),
             40.0,
             float(nx) / float(ny),
             aperture,
             dist_to_focus,
             0.0,
-            1.0
-        );
+            1.0);
     }
 }
 
@@ -328,29 +329,3 @@ void launchGPU(int nx, int ny, int ns, int tx, int ty, const char* filepath, boo
     //
     renderGPU(nx, ny, ns, tx, ty, filepath);
 }
-
-
-//int main(int argc, char* argv[])
-//{
-//    if (argc < 5) {
-//        std::cerr << "Usage: " << argv[0] << " [WIDTH] [HEIGHT] [BOUNCES] [OUTPUT FILENAME]" << std::endl;
-//    }
-//
-//
-//    int nx = std::stoi(std::string(argv[1]));
-//    int ny = std::stoi(std::string(argv[2]));
-//    int ns = std::stoi(std::string(argv[3]));
-//    int tx = 16;
-//    int ty = 16;
-//
-//    const char* filepath = "e:\\test8.png";
-//
-//
-//    
-//
-//
-//
-//    launchGPU(nx, ny, ns, tx, ty, filepath, true);
-//
-//    //renderGPU(nx, ny, ns, tx, ty, filepath);
-//}
