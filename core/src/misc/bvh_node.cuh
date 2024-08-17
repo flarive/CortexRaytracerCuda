@@ -1,8 +1,7 @@
-#ifndef BVHNODEH__
-#define BVHNODEH__
+#pragma once
 
 #include "ray.cuh"
-#include "entitylist.cuh"
+#include "../primitives/entitylist.cuh"
 
 enum Axis { X, Y, Z };
 
@@ -16,7 +15,7 @@ template<Axis axis>
 __device__ void bubble_sort(Entity** e, int n) {
     for (int i = 0; i < n - 1; i++) {
         for (int j = 0; j < n - i - 1; j++) {
-            AABB box_left, box_right;
+            aabb box_left, box_right;
             Entity *ah = e[j];
             Entity *bh = e[j+1];
             
@@ -38,14 +37,14 @@ public:
     __device__ BVHNode(Entity **e, int n, float time0, float time1, curandState& local_rand_state);
 
     __device__ virtual bool hit(const Ray& r, float tmin, float tmax, HitRecord& rec) const;
-    __device__ virtual bool bounding_box(float t0, float t1, AABB& box) const;
+    __device__ virtual bool bounding_box(float t0, float t1, aabb& box) const;
 
     Entity *left;
     Entity *right;
-    AABB box;
+    aabb box;
 };
 
-__device__ bool BVHNode::bounding_box(float t0, float t1, AABB& b) const {
+__device__ bool BVHNode::bounding_box(float t0, float t1, aabb& b) const {
     b = box;
     return true;
 }
@@ -98,9 +97,7 @@ __device__ BVHNode::BVHNode(Entity **e, int n, float time0, float time1, curandS
         right = new BVHNode(e + n/2, n - n/2, time0, time1, local_rand_state);
     }
 
-    AABB box_left, box_right;
+    aabb box_left, box_right;
 
     box = surrounding_box(box_left, box_right);
 }
-
-#endif

@@ -1,8 +1,7 @@
-#ifndef CAMERAH__
-#define CAMERAH__
+#pragma once
 
-#include "ray.cuh"
-#include "constants.cuh"
+#include "../misc/ray.cuh"
+#include "../misc/constants.cuh"
 
 __device__ vector3 random_in_unit_disk(curandState *local_rand_state) {
     vector3 p;
@@ -50,5 +49,3 @@ public:
     float time0, time1;
     float lens_radius;
 };
-
-#endif

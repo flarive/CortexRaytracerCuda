@@ -1,8 +1,7 @@
-#ifndef DIFFUSELIGHTH__
-#define DIFFUSELIGHTH__
+#pragma once
 
 #include "material.cuh"
-#include "texture.cuh"
+#include "../textures/texture.cuh"
 
 class DiffuseLight : public Material {
 public:
@@ -16,5 +15,3 @@ public:
 
     Texture* emit;
 };
-
-#endif

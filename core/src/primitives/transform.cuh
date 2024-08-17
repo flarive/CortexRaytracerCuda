@@ -1,16 +1,15 @@
-#ifndef TRANSFORMH__
-#define TRANSFORMH__
+#pragma once
 
 #define DEGREES_TO_RADIANS(degrees)((M_PI * degrees)/180)
 
-#include "constants.cuh"
+#include "../misc/constants.cuh"
 
 class Translate : public Entity {
 public:
     __device__ Translate(Entity* p, const vector3& displacement) : ptr(p), offset(displacement) {}
 
     __device__ virtual bool hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const;
-    __device__ virtual bool bounding_box(float t0, float t1, AABB& output_box) const;
+    __device__ virtual bool bounding_box(float t0, float t1, aabb& output_box) const;
 
     Entity* ptr;
     vector3 offset;
@@ -27,11 +26,11 @@ __device__ bool Translate::hit(const Ray& r, float t_min, float t_max, HitRecord
     return true;
 }
 
-__device__ bool Translate::bounding_box(float t0, float t1, AABB& output_box) const {
+__device__ bool Translate::bounding_box(float t0, float t1, aabb& output_box) const {
     if (!ptr->bounding_box(t0, t1, output_box))
         return false;
 
-    output_box = AABB(
+    output_box = aabb(
         output_box.min() + offset,
         output_box.max() + offset);
 
@@ -43,7 +42,7 @@ public:
     __device__ RotateY(Entity* p, float angle);
 
     __device__ virtual bool hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const;
-    __device__ virtual bool bounding_box(float t0, float t1, AABB& output_box) const {
+    __device__ virtual bool bounding_box(float t0, float t1, aabb& output_box) const {
         output_box = bbox;
         return hasbox;
     }
@@ -52,7 +51,7 @@ public:
     float sin_theta;
     float cos_theta;
     bool hasbox;
-    AABB bbox;
+    aabb bbox;
 };
 
 __device__ RotateY::RotateY(Entity *p, float angle) : ptr(p) {
@@ -84,7 +83,7 @@ __device__ RotateY::RotateY(Entity *p, float angle) : ptr(p) {
         }
     }
 
-    bbox = AABB(min, max);
+    bbox = aabb(min, max);
 }
 
 __device__ bool RotateY::hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const {
@@ -116,5 +115,3 @@ __device__ bool RotateY::hit(const Ray& r, float t_min, float t_max, HitRecord& 
 
     return true;
 }
-
-#endif

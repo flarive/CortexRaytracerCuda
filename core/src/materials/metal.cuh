@@ -1,8 +1,7 @@
-#ifndef METALH__
-#define METALH__
+#pragma once
 
 #include "material.cuh"
-#include "ray.cuh"
+#include "../misc/ray.cuh"
 
 class Metal : public Material {
 public:
@@ -17,5 +16,3 @@ public:
     vector3 albedo;
     float fuzz;
 };
-
-#endif

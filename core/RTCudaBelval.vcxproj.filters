@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CudaCompile Include="src\main.cu" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\misc\aabb.cuh">
+      <Filter>Headers\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\misc\bvh_node.cuh">
+      <Filter>Headers\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\misc\constants.cuh">
+      <Filter>Headers\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\misc\vector3.cuh">
+      <Filter>Headers\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\misc\ray.cuh">
+      <Filter>Headers\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\primitives\rect.cuh">
+      <Filter>Headers\primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="src\primitives\entity.cuh">
+      <Filter>Headers\primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="src\primitives\entitylist.cuh">
+      <Filter>Headers\primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="src\materials\lambertian.cuh">
+      <Filter>Headers\materials</Filter>
+    </ClInclude>
+    <ClInclude Include="src\materials\isotropic.cuh">
+      <Filter>Headers\materials</Filter>
+    </ClInclude>
+    <ClInclude Include="src\materials\diffuse_light.cuh">
+      <Filter>Headers\materials</Filter>
+    </ClInclude>
+    <ClInclude Include="src\primitives\box.cuh">
+      <Filter>Headers\primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="src\primitives\transform.cuh">
+      <Filter>Headers\primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="src\materials\transparent.cuh">
+      <Filter>Headers\materials</Filter>
+    </ClInclude>
+    <ClInclude Include="src\textures\texture.cuh">
+      <Filter>Headers\textures</Filter>
+    </ClInclude>
+    <ClInclude Include="src\primitives\sphere.cuh">
+      <Filter>Headers\primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="src\primitives\moving_sphere.cuh">
+      <Filter>Headers\primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="src\materials\material.cuh">
+      <Filter>Headers\materials</Filter>
+    </ClInclude>
+    <ClInclude Include="src\primitives\constant_medium.cuh">
+      <Filter>Headers\primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cameras\camera.cuh">
+      <Filter>Headers\cameras</Filter>
+    </ClInclude>
+    <ClInclude Include="src\materials\metal.cuh">
+      <Filter>Headers\materials</Filter>
+    </ClInclude>
+    <ClInclude Include="src\textures\perlin.cuh">
+      <Filter>Headers\textures</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{8fae9fca-5f09-4a9e-929e-ab8c2ab52aaf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources">
+      <UniqueIdentifier>{c10baa9f-b477-46cf-b141-584db965139b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\materials">
+      <UniqueIdentifier>{c77358bf-c3bf-4844-ad55-11faaa712e76}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\primitives">
+      <UniqueIdentifier>{47022d4c-f750-4bfd-87da-8b82c4e11e87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\misc">
+      <UniqueIdentifier>{372cc0bf-48a7-451c-80c7-5cbe755e828e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\textures">
+      <UniqueIdentifier>{84e4a775-dfc0-4721-a193-bddb8ff55688}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\utilities">
+      <UniqueIdentifier>{2d87da14-641c-4bc6-bba5-041b1a1961eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\cameras">
+      <UniqueIdentifier>{e25612e3-fbac-4ac9-a4a3-ae6c3779ff25}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

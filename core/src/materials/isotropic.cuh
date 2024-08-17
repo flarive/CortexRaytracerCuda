@@ -1,5 +1,4 @@
-#ifndef ISOTROPICH__
-#define ISOTROPICH__
+#pragma once
 
 class Isotropic : public Material {
 public:
@@ -13,5 +12,3 @@ public:
 
 Texture* albedo;
 };
-
-#endif

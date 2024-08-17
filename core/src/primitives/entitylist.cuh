@@ -1,5 +1,4 @@
-#ifndef ENTITYLISTH__
-#define ENTITYLISTH__
+#pragma once
 
 #include "entity.cuh"
 
@@ -8,7 +7,7 @@ public:
     __device__ EntityList() {}
     __device__ EntityList(Entity **e, int n) { list = e; list_size = n; allocated_list_size = n; } 
     __device__ virtual bool hit(const Ray& r, float tmin, float tmax, HitRecord& rec) const;
-    __device__ virtual bool bounding_box(float t0, float t1, AABB& box) const;
+    __device__ virtual bool bounding_box(float t0, float t1, aabb& box) const;
     __device__ void add(Entity* e);
 
     Entity **list;
@@ -31,12 +30,12 @@ __device__ bool EntityList::hit(const Ray& r, float tmin, float tmax, HitRecord&
     return hit_anything;
 }
 
-__device__ bool EntityList::bounding_box(float t0, float t1, AABB& box) const {
+__device__ bool EntityList::bounding_box(float t0, float t1, aabb& box) const {
     if (list_size < 1) {
         return false;
     }
 
-    AABB temp_box;
+    aabb temp_box;
     bool first_true = list[0]->bounding_box(t0, t1, temp_box);
     if (!first_true) {
         return false;
@@ -65,5 +64,3 @@ __device__ void EntityList::add(Entity* e) {
     }
     list[list_size++] = e;
 }
-
-#endif

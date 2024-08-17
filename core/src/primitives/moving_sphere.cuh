@@ -1,8 +1,7 @@
-#ifndef MOVINGSPHEREH__
-#define MOVINGSPHEREH__
+#pragma once
 
-#include "aabb.cuh"
-#include "entity.cuh"
+#include "../misc/aabb.cuh"
+#include "../primitives/entity.cuh"
 
 class MovingSphere: public Entity {
 public:
@@ -10,7 +9,7 @@ public:
     __device__ MovingSphere(vector3 cen0, vector3 cen1, float t0, float t1, float r, Material *m)
         : center0(cen0), center1(cen1), time0(t0), time1(t1), radius(r), mat_ptr(m) { };
     __device__ bool hit(const Ray& r, float tmin, float tmax, HitRecord& rec) const;
-    __device__ bool bounding_box(float t0, float t1, AABB& box) const;
+    __device__ bool bounding_box(float t0, float t1, aabb& box) const;
     __device__ vector3 center(float time) const;
 
     vector3 center0, center1;
@@ -50,11 +49,9 @@ __device__ bool MovingSphere::hit(const Ray& r, float tmin, float tmax, HitRecor
     return false;
 }
 
-__device__ bool MovingSphere::bounding_box(float t0, float t1, AABB& box) const {
-    AABB box0(center(t0) - vector3(radius, radius, radius), center(t0) + vector3(radius, radius, radius));
-    AABB box1(center(t1) - vector3(radius, radius, radius), center(t1) + vector3(radius, radius, radius));
+__device__ bool MovingSphere::bounding_box(float t0, float t1, aabb& box) const {
+    aabb box0(center(t0) - vector3(radius, radius, radius), center(t0) + vector3(radius, radius, radius));
+    aabb box1(center(t1) - vector3(radius, radius, radius), center(t1) + vector3(radius, radius, radius));
     box = surrounding_box(box0, box1);
     return true;
 }
-
-#endif

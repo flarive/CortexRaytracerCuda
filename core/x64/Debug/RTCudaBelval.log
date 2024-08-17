@@ -1,6 +1,6 @@
-﻿  Compiling CUDA source file main.cu...
+﻿  Compiling CUDA source file src\main.cu...
   
-  E:\MyProjects\MyOwnRaytracerCuda2\core>"E:\Cuda\bin\nvcc.exe" -gencode=arch=compute_52,code=\"sm_52,compute_52\" --use-local-env -ccbin "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.40.33807\bin\HostX64\x64" -x cu   -IE:\MyProjects\MyOwnRaytracerCuda2\libs -IE:\MyProjects\MyOwnRaytracerCuda2\libs -IE:\Cuda\include -IE:\Cuda\include  -G   --keep-dir x64\Debug  -maxrregcount=0   --machine 64 --compile -cudart static  -g  -DWIN32 -DWIN64 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi /RTC1 /MDd " -Xcompiler "/Fdx64\Debug\vc143.pdb" -o E:\MyProjects\MyOwnRaytracerCuda2\core\x64\Debug\main.cu.obj "E:\MyProjects\MyOwnRaytracerCuda2\core\main.cu" 
+  E:\MyProjects\MyOwnRaytracerCuda2\core>"E:\Cuda\bin\nvcc.exe" -gencode=arch=compute_52,code=\"sm_52,compute_52\" --use-local-env -ccbin "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.40.33807\bin\HostX64\x64" -x cu   -IE:\MyProjects\MyOwnRaytracerCuda2\libs -IE:\MyProjects\MyOwnRaytracerCuda2\libs -IE:\Cuda\include -IE:\Cuda\include  -G   --keep-dir x64\Debug  -maxrregcount=0   --machine 64 --compile -cudart static  -g  -DWIN32 -DWIN64 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi /RTC1 /MDd " -Xcompiler "/Fdx64\Debug\vc143.pdb" -o E:\MyProjects\MyOwnRaytracerCuda2\core\x64\Debug\main.cu.obj "E:\MyProjects\MyOwnRaytracerCuda2\core\src\main.cu" 
 E:\MyProjects\MyOwnRaytracerCuda2\libs\glm\ext\../detail/type_vec2.hpp(97): warning #20012-D: __device__ annotation is ignored on a function("vec") that is explicitly defaulted on its first declaration
     		__declspec(__device__) __declspec(__host__)  vec() = default;
     		           ^
@@ -433,7 +433,7 @@ E:\MyProjects\MyOwnRaytracerCuda2\libs\stb/stb_image.h(6970): warning #550-D: va
           int delays_size = 0;
               ^
   
-E:\MyProjects\MyOwnRaytracerCuda2\core\main.cu(102): warning #177-D: variable "local_rand_state" was declared but never referenced
+E:\MyProjects\MyOwnRaytracerCuda2\core\src\main.cu(103): warning #177-D: variable "local_rand_state" was declared but never referenced
             curandState local_rand_state = *rand_state;
                         ^
   
@@ -519,10 +519,10 @@ E:\MyProjects\MyOwnRaytracerCuda2\libs\Eigen\Eigen\src/Core/arch/GPU/Complex.h(8
   
 CUDACOMPILE : ptxas warning : Stack size for entry function '_Z6renderPN3glm3vecILi3EfLNS_9qualifierE0EEEiiiPP6CameraPP6EntityP17curandStateXORWOW' cannot be statically determined
   main.cu
-  tmpxft_000009f8_00000000-7_main.cudafe1.cpp
-E:\MyProjects\MyOwnRaytracerCuda2\core\main.cu(286): warning C4244: '=' : conversion de 'double' en 'uint8_t', perte possible de données
-E:\MyProjects\MyOwnRaytracerCuda2\core\main.cu(287): warning C4244: '=' : conversion de 'double' en 'uint8_t', perte possible de données
-E:\MyProjects\MyOwnRaytracerCuda2\core\main.cu(288): warning C4244: '=' : conversion de 'double' en 'uint8_t', perte possible de données
+  tmpxft_0000435c_00000000-7_main.cudafe1.cpp
+E:\MyProjects\MyOwnRaytracerCuda2\core\src\main.cu(287): warning C4244: '=' : conversion de 'double' en 'uint8_t', perte possible de données
+E:\MyProjects\MyOwnRaytracerCuda2\core\src\main.cu(288): warning C4244: '=' : conversion de 'double' en 'uint8_t', perte possible de données
+E:\MyProjects\MyOwnRaytracerCuda2\core\src\main.cu(289): warning C4244: '=' : conversion de 'double' en 'uint8_t', perte possible de données
      Création de la bibliothèque E:\MyProjects\MyOwnRaytracerCuda2\x64\Debug\RTCudaBelval2.lib et de l'objet E:\MyProjects\MyOwnRaytracerCuda2\x64\Debug\RTCudaBelval2.exp
 LINK : warning LNK4098: conflit entre la bibliothèque par défaut 'LIBCMT' et les autres bibliothèques ; utilisez /NODEFAULTLIB:library
   RTCudaBelval.vcxproj -> E:\MyProjects\MyOwnRaytracerCuda2\x64\Debug\RTCudaBelval2.exe

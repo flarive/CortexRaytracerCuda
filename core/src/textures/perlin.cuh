@@ -1,5 +1,4 @@
-#ifndef PERLINH__
-#define PERLINH__
+#pragma once
 
 __device__ float* perlin_generate(curandState* local_rand_state) {
     float* p = new float[256];
@@ -47,5 +46,3 @@ public:
     int *perm_y;
     int *perm_z;
 };
-
-#endif

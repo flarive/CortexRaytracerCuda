@@ -1,5 +1,4 @@
-#ifndef RECTH__
-#define RECTH__
+#pragma once
 
 class XYRect : public Entity {
 public:
@@ -9,8 +8,8 @@ public:
     
     __device__ virtual bool hit(const Ray& r, float t0, float t1, HitRecord& rec) const;
 
-    __device__ virtual bool bounding_box(float t0, float t1, AABB& output_box) const {
-        output_box = AABB(vector3(x0, y0, k - 0.0001), vector3(x1, y1, k + 0.0001));
+    __device__ virtual bool bounding_box(float t0, float t1, aabb& output_box) const {
+        output_box = aabb(vector3(x0, y0, k - 0.0001), vector3(x1, y1, k + 0.0001));
         return true;
     }
 
@@ -45,8 +44,8 @@ public:
     
     __device__ virtual bool hit(const Ray& r, float t0, float t1, HitRecord& rec) const;
 
-    __device__ virtual bool bounding_box(float t0, float t1, AABB& output_box) const {
-        output_box = AABB(vector3(x0, k - 0.0001, z0), vector3(x1, k + 0.0001, z1));
+    __device__ virtual bool bounding_box(float t0, float t1, aabb& output_box) const {
+        output_box = aabb(vector3(x0, k - 0.0001, z0), vector3(x1, k + 0.0001, z1));
         return true;
     }
 
@@ -81,8 +80,8 @@ public:
     
     __device__ virtual bool hit(const Ray& r, float t0, float t1, HitRecord& rec) const;
 
-    __device__ virtual bool bounding_box(float t0, float t1, AABB& output_box) const {
-        output_box = AABB(vector3(k - 0.0001, y0, z0), vector3(k + 0.0001, y1, z1));
+    __device__ virtual bool bounding_box(float t0, float t1, aabb& output_box) const {
+        output_box = aabb(vector3(k - 0.0001, y0, z0), vector3(k + 0.0001, y1, z1));
         return true;
     }
 
@@ -121,11 +120,9 @@ public:
         return true;
     }
 
-    __device__ virtual bool bounding_box(float t0, float t1, AABB& output_box) const {
+    __device__ virtual bool bounding_box(float t0, float t1, aabb& output_box) const {
         return ptr->bounding_box(t0, t1, output_box);
     }
 
     Entity* ptr;
 };
-
-#endif

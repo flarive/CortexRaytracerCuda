@@ -1,5 +1,4 @@
-#ifndef TRANSPARENTH__
-#define TRANSPARENTH__
+#pragma once
 
 #include "material.cuh"
 
@@ -55,5 +54,3 @@ public:
 private:
     float ref_idx;
 };
-
-#endif

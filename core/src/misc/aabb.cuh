@@ -1,15 +1,14 @@
-#ifndef AABBH__
-#define AABBH__
+#pragma once
 
 #include "ray.cuh"
 
 __device__ inline float ffmin(float a, float b) { return a < b ? a : b; }
 __device__ inline float ffmax(float a, float b) { return a > b ? a : b; }
 
-class AABB {
+class aabb {
 public:
-    __device__ AABB() {}
-    __device__ AABB(const vector3& a, const vector3& b) : _min(a), _max(b) { }
+    __device__ aabb() {}
+    __device__ aabb(const vector3& a, const vector3& b) : _min(a), _max(b) { }
 
     __device__ vector3 min() const { return _min; }
     __device__ vector3 max() const { return _max; }
@@ -36,14 +35,12 @@ public:
     vector3 _max;
 };
 
-__device__ AABB surrounding_box(AABB box0, AABB box1) {
+__device__ aabb surrounding_box(aabb box0, aabb box1) {
     vector3 small(ffmin(box0.min().x, box1.min().x),
                ffmin(box0.min().y, box1.min().y),
                ffmin(box0.min().z, box1.min().z));
     vector3 big(ffmax(box0.max().x, box1.max().x),
              ffmax(box0.max().y, box1.max().y),
              ffmax(box0.max().z, box1.max().z));
-    return AABB(small, big);
+    return aabb(small, big);
 }
-
-#endif

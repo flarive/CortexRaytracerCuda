@@ -1,5 +1,4 @@
-#ifndef CONSTANTMEDIUMH__
-#define CONSTANTMEDIUMH__
+#pragma once
 
 class ConstantMedium : public Entity {
 public:
@@ -9,7 +8,7 @@ public:
 
     __device__ virtual bool hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const;
 
-    __device__ virtual bool bounding_box(float t0, float t1, AABB& output_box) const {
+    __device__ virtual bool bounding_box(float t0, float t1, aabb& output_box) const {
         return boundary->bounding_box(t0, t1, output_box);
     }
 
@@ -53,5 +52,3 @@ __device__ bool ConstantMedium::hit(const Ray& r, float t_min, float t_max, HitR
 
     return true;
 }
-
-#endif

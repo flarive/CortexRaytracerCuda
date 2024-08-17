@@ -1,5 +1,7 @@
-#ifndef BOXH__
-#define BOXH__
+#pragma once
+
+#include "../misc/aabb.cuh"
+
 
 class Box : public Entity {
 public:
@@ -8,8 +10,8 @@ public:
 
     __device__ virtual bool hit(const Ray& r, float t0, float t1, HitRecord& rec) const;
 
-    __device__ virtual bool bounding_box(float t0, float t1, AABB& output_box) const {
-        output_box = AABB(box_min, box_max);
+    __device__ virtual bool bounding_box(float t0, float t1, aabb& output_box) const {
+        output_box = aabb(box_min, box_max);
         return true;
     }
 
@@ -33,5 +35,3 @@ __device__ Box::Box(const vector3& p0, const vector3& p1, Material* ptr) {
 __device__ bool Box::hit(const Ray& r, float t0, float t1, HitRecord& rec) const {
     return sides.hit(r, t0, t1, rec);
 }
-
-#endif

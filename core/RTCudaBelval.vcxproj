@@ -82,31 +82,31 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CudaCompile Include="main.cu" />
+    <CudaCompile Include="src\main.cu" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\aabb.cuh" />
-    <ClInclude Include="src\box.cuh" />
-    <ClInclude Include="src\bvh_node.cuh" />
-    <ClInclude Include="src\camera.cuh" />
-    <ClInclude Include="src\constants.cuh" />
-    <ClInclude Include="src\constant_medium.cuh" />
-    <ClInclude Include="src\diffuse_light.cuh" />
-    <ClInclude Include="src\entity.cuh" />
-    <ClInclude Include="src\entitylist.cuh" />
-    <ClInclude Include="src\isotropic.cuh" />
-    <ClInclude Include="src\lambertian.cuh" />
-    <ClInclude Include="src\material.cuh" />
-    <ClInclude Include="src\metal.cuh" />
-    <ClInclude Include="src\moving_sphere.cuh" />
-    <ClInclude Include="src\perlin.cuh" />
-    <ClInclude Include="src\ray.cuh" />
-    <ClInclude Include="src\rect.cuh" />
-    <ClInclude Include="src\sphere.cuh" />
-    <ClInclude Include="src\texture.cuh" />
-    <ClInclude Include="src\transform.cuh" />
-    <ClInclude Include="src\transparent.cuh" />
-    <ClInclude Include="src\vector3.cuh" />
+    <ClInclude Include="src\misc\aabb.cuh" />
+    <ClInclude Include="src\primitives\box.cuh" />
+    <ClInclude Include="src\misc\bvh_node.cuh" />
+    <ClInclude Include="src\cameras\camera.cuh" />
+    <ClInclude Include="src\misc\constants.cuh" />
+    <ClInclude Include="src\primitives\constant_medium.cuh" />
+    <ClInclude Include="src\materials\diffuse_light.cuh" />
+    <ClInclude Include="src\primitives\entity.cuh" />
+    <ClInclude Include="src\primitives\entitylist.cuh" />
+    <ClInclude Include="src\materials\isotropic.cuh" />
+    <ClInclude Include="src\materials\lambertian.cuh" />
+    <ClInclude Include="src\materials\material.cuh" />
+    <ClInclude Include="src\materials\metal.cuh" />
+    <ClInclude Include="src\primitives\moving_sphere.cuh" />
+    <ClInclude Include="src\textures\perlin.cuh" />
+    <ClInclude Include="src\misc\ray.cuh" />
+    <ClInclude Include="src\primitives\rect.cuh" />
+    <ClInclude Include="src\primitives\sphere.cuh" />
+    <ClInclude Include="src\textures\texture.cuh" />
+    <ClInclude Include="src\primitives\transform.cuh" />
+    <ClInclude Include="src\materials\transparent.cuh" />
+    <ClInclude Include="src\misc\vector3.cuh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

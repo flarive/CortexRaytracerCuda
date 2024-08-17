@@ -1,5 +1,4 @@
-#ifndef RAYH__
-#define RAYH__
+#pragma once
 
 #include "vector3.cuh"
 
@@ -16,5 +15,3 @@ public:
     vector3 A, B;
     float _time;
 };
-
-#endif

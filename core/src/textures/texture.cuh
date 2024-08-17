@@ -1,5 +1,4 @@
-#ifndef TEXTUREH__
-#define TEXTUREH__
+#pragma once
 
 #include "perlin.cuh"
 
@@ -69,5 +68,3 @@ __device__ vector3 ImageTexture::value(float u, float v, const vector3& p) const
     float b = int(data[3 * i + 3 * nx * j + 2]) / 255.0;
     return vector3(r, g, b);
 }
-
-#endif

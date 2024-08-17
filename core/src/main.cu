@@ -8,22 +8,23 @@
 
 #include <curand_kernel.h>
 
-#include "src\bvh_node.cuh"
-#include "src\camera.cuh"
-#include "src\entitylist.cuh"
-#include "float.h"
-#include "src\sphere.cuh"
-#include "src\rect.cuh"
-#include "src\diffuse_light.cuh"
-#include "src\moving_sphere.cuh"
-#include "src\lambertian.cuh"
-#include "src\metal.cuh"
-#include "src\transparent.cuh"
-#include "src\texture.cuh"
-#include "src\box.cuh"
-#include "src\transform.cuh"
-#include "src\isotropic.cuh"
-#include "src\constant_medium.cuh"
+
+#include "misc/bvh_node.cuh"
+#include "cameras/camera.cuh"
+#include "primitives/entitylist.cuh"
+//#include "float.h"
+#include "primitives\sphere.cuh"
+#include "primitives\rect.cuh"
+#include "materials\diffuse_light.cuh"
+#include "primitives\moving_sphere.cuh"
+#include "materials\lambertian.cuh"
+#include "materials\metal.cuh"
+#include "materials\transparent.cuh"
+#include "textures\texture.cuh"
+#include "primitives\box.cuh"
+#include "primitives\transform.cuh"
+#include "materials\isotropic.cuh"
+#include "primitives\constant_medium.cuh"
 
 
 #define STB_IMAGE_IMPLEMENTATION

@@ -1,10 +1,9 @@
-#ifndef LAMBERTIANH__
-#define LAMBERTIANH__
+#pragma once
 
 #include "material.cuh"
-#include "vector3.cuh"
-#include "entity.cuh"
-#include "texture.cuh"
+#include "../misc/vector3.cuh"
+#include "../primitives/entity.cuh"
+#include "../textures/texture.cuh"
 
 class Lambertian : public Material {
 public:
@@ -18,5 +17,3 @@ public:
 
     Texture* albedo;
 };
-
-#endif
