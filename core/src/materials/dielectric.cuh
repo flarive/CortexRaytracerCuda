@@ -8,13 +8,14 @@ __device__ float schlick(float cosine, float ref_idx) {
     return r0 + (1 - r0) * pow((1 - cosine), 5);
 }
 
-class Transparent : public Material {
+class dielectric : public material
+{
 public:
-    __device__ Transparent(float ri) : ref_idx(ri) {}
+    __device__ dielectric(float ri) : ref_idx(ri) {}
 
 
-    __device__ virtual bool scatter(const Ray& r_in, const HitRecord& rec,
-                            vector3& attenuation, Ray& scattered, curandState *local_rand_state) const {
+    __device__ virtual bool scatter(const ray& r_in, const hit_record& rec,
+                            vector3& attenuation, ray& scattered, curandState *local_rand_state) const {
         vector3 outward_normal;
         vector3 reflected = reflect(r_in.direction(), rec.normal);
         float ni_over_nt;
@@ -43,10 +44,10 @@ public:
         }
 
         if (curand_uniform(local_rand_state) < reflect_prob) {
-            scattered = Ray(rec.p, reflected);
+            scattered = ray(rec.p, reflected);
         }
         else {
-            scattered = Ray(rec.p, refracted);
+            scattered = ray(rec.p, refracted);
         }
 
         return true;

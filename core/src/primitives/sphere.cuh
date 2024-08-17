@@ -1,22 +1,23 @@
 #pragma once
 
 #include "../misc/constants.cuh"
-#include "entity.cuh"
+#include "hittable.cuh"
 #include "../materials/material.cuh"
 
-class Sphere: public Entity {
+class sphere: public hittable
+{
 public:
-    //Sphere() {}
-    __device__ Sphere(vector3 cen, float r, Material* m): center(cen), radius(r), mat_ptr(m) {};
-    __device__ virtual bool hit(const Ray& r, float tmin, float tmax, HitRecord& rec) const;
+    //sphere() {}
+    __device__ sphere(vector3 cen, float r, material* m): center(cen), radius(r), mat_ptr(m) {};
+    __device__ virtual bool hit(const ray& r, float tmin, float tmax, hit_record& rec) const;
     __device__ virtual bool bounding_box(float t0, float t1, aabb& box) const;
     __device__ void get_sphere_uv(const vector3& p, float& u, float& v) const;
     vector3 center;
     float radius;
-    Material* mat_ptr;
+    material* mat_ptr;
 };
 
-__device__ bool Sphere::hit(const Ray& r, float tmin, float tmax, HitRecord& rec) const {
+__device__ bool sphere::hit(const ray& r, float tmin, float tmax, hit_record& rec) const {
     vector3 oc = r.origin() - center;
     float a = dot(r.direction(), r.direction());
     float b = dot(oc, r.direction());
@@ -45,13 +46,13 @@ __device__ bool Sphere::hit(const Ray& r, float tmin, float tmax, HitRecord& rec
     return false;
 }
 
-__device__ bool Sphere::bounding_box(float t0, float t1, aabb& box) const {
+__device__ bool sphere::bounding_box(float t0, float t1, aabb& box) const {
     box = aabb(center - vector3(radius, radius, radius),
                center + vector3(radius, radius, radius));
     return true;
 }
 
-__device__ void Sphere::get_sphere_uv(const vector3& p, float& u, float& v) const {
+__device__ void sphere::get_sphere_uv(const vector3& p, float& u, float& v) const {
     float phi = atan2(p.z, p.x);
     float theta = asin(p.y);
     u = 1-(phi + M_PI) / (2*M_PI);

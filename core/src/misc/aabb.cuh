@@ -13,7 +13,7 @@ public:
     __device__ vector3 min() const { return _min; }
     __device__ vector3 max() const { return _max; }
 
-    __device__ bool hit(const Ray& r, float tmin, float tmax) const {
+    __device__ bool hit(const ray& r, float tmin, float tmax) const {
         // Pixar magic?
         for (int a = 0; a < 3; a++) {
             float invD = 1.0f / r.direction()[a];

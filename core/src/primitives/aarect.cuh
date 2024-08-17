@@ -1,23 +1,25 @@
 #pragma once
 
-class XYRect : public Entity {
+class xy_rect : public hittable
+{
 public:
-    __device__ XYRect() {}
-    __device__ XYRect(float _x0, float _x1, float _y0, float _y1, float _k, Material *mat)
+    __device__ xy_rect() {}
+    __device__ xy_rect(float _x0, float _x1, float _y0, float _y1, float _k, material *mat)
                 : x0(_x0), x1(_x1), y0(_y0), y1(_y1), k(_k), mp(mat) {};
     
-    __device__ virtual bool hit(const Ray& r, float t0, float t1, HitRecord& rec) const;
+    __device__ virtual bool hit(const ray& r, float t0, float t1, hit_record& rec) const;
 
     __device__ virtual bool bounding_box(float t0, float t1, aabb& output_box) const {
         output_box = aabb(vector3(x0, y0, k - 0.0001), vector3(x1, y1, k + 0.0001));
         return true;
     }
 
-    Material* mp;
+    material* mp;
     float x0, x1, y0, y1, k;
 };
 
-__device__ bool XYRect::hit(const Ray& r, float t0, float t1, HitRecord& rec) const {
+__device__ bool xy_rect::hit(const ray& r, float t0, float t1, hit_record& rec) const
+{
     float t = (k - r.origin().z) / r.direction().z;
     if (t < t0 || t > t1)
         return false;
@@ -36,24 +38,26 @@ __device__ bool XYRect::hit(const Ray& r, float t0, float t1, HitRecord& rec) co
     return true;
 }
 
-class XZRect : public Entity {
+class xz_rect : public hittable
+{
 public:
-    __device__ XZRect() {}
-    __device__ XZRect(float _x0, float _x1, float _z0, float _z1, float _k, Material *mat)
+    __device__ xz_rect() {}
+    __device__ xz_rect(float _x0, float _x1, float _z0, float _z1, float _k, material *mat)
                 : x0(_x0), x1(_x1), z0(_z0), z1(_z1), k(_k), mp(mat) {};
     
-    __device__ virtual bool hit(const Ray& r, float t0, float t1, HitRecord& rec) const;
+    __device__ virtual bool hit(const ray& r, float t0, float t1, hit_record& rec) const;
 
     __device__ virtual bool bounding_box(float t0, float t1, aabb& output_box) const {
         output_box = aabb(vector3(x0, k - 0.0001, z0), vector3(x1, k + 0.0001, z1));
         return true;
     }
 
-    Material* mp;
+    material* mp;
     float x0, x1, z0, z1, k;
 };
 
-__device__ bool XZRect::hit(const Ray& r, float t0, float t1, HitRecord& rec) const {
+__device__ bool xz_rect::hit(const ray& r, float t0, float t1, hit_record& rec) const
+{
     float t = (k - r.origin().y) / r.direction().y;
     if (t < t0 || t > t1)
         return false;
@@ -72,24 +76,25 @@ __device__ bool XZRect::hit(const Ray& r, float t0, float t1, HitRecord& rec) co
     return true;
 }
 
-class YZRect : public Entity {
+class yz_rect : public hittable
+{
 public:
-    __device__ YZRect() {}
-    __device__ YZRect(float _y0, float _y1, float _z0, float _z1, float _k, Material *mat)
+    __device__ yz_rect() {}
+    __device__ yz_rect(float _y0, float _y1, float _z0, float _z1, float _k, material *mat)
                 : y0(_y0), y1(_y1), z0(_z0), z1(_z1), k(_k), mp(mat) {};
     
-    __device__ virtual bool hit(const Ray& r, float t0, float t1, HitRecord& rec) const;
+    __device__ virtual bool hit(const ray& r, float t0, float t1, hit_record& rec) const;
 
     __device__ virtual bool bounding_box(float t0, float t1, aabb& output_box) const {
         output_box = aabb(vector3(k - 0.0001, y0, z0), vector3(k + 0.0001, y1, z1));
         return true;
     }
 
-    Material* mp;
+    material* mp;
     float y0, y1, z0, z1, k;
 };
 
-__device__ bool YZRect::hit(const Ray& r, float t0, float t1, HitRecord& rec) const {
+__device__ bool yz_rect::hit(const ray& r, float t0, float t1, hit_record& rec) const {
     float t = (k - r.origin().x) / r.direction().x;
     if (t < t0 || t > t1)
         return false;
@@ -107,22 +112,3 @@ __device__ bool YZRect::hit(const Ray& r, float t0, float t1, HitRecord& rec) co
 
     return true;
 }
-
-class FlipFace : public Entity {
-public:
-    __device__ FlipFace(Entity* e) : ptr(e) {}
-
-    __device__ virtual bool hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const {
-        if (!ptr->hit(r, t_min, t_max, rec))
-            return false;
-
-        rec.front_face = !rec.front_face;
-        return true;
-    }
-
-    __device__ virtual bool bounding_box(float t0, float t1, aabb& output_box) const {
-        return ptr->bounding_box(t0, t1, output_box);
-    }
-
-    Entity* ptr;
-};

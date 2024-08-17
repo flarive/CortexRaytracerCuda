@@ -1,22 +1,23 @@
 #pragma once
 
-#include "entity.cuh"
+#include "hittable.cuh"
 
-class EntityList: public Entity {
+class hittable_list: public hittable
+{
 public:
-    __device__ EntityList() {}
-    __device__ EntityList(Entity **e, int n) { list = e; list_size = n; allocated_list_size = n; } 
-    __device__ virtual bool hit(const Ray& r, float tmin, float tmax, HitRecord& rec) const;
+    __device__ hittable_list() {}
+    __device__ hittable_list(hittable **e, int n) { list = e; list_size = n; allocated_list_size = n; } 
+    __device__ virtual bool hit(const ray& r, float tmin, float tmax, hit_record& rec) const;
     __device__ virtual bool bounding_box(float t0, float t1, aabb& box) const;
-    __device__ void add(Entity* e);
+    __device__ void add(hittable* e);
 
-    Entity **list;
+    hittable **list;
     int list_size;
     int allocated_list_size;
 };
 
-__device__ bool EntityList::hit(const Ray& r, float tmin, float tmax, HitRecord& rec) const {
-    HitRecord temp_rec;
+__device__ bool hittable_list::hit(const ray& r, float tmin, float tmax, hit_record& rec) const {
+    hit_record temp_rec;
     bool hit_anything = false;
     float closest_so_far = tmax;
 
@@ -30,7 +31,7 @@ __device__ bool EntityList::hit(const Ray& r, float tmin, float tmax, HitRecord&
     return hit_anything;
 }
 
-__device__ bool EntityList::bounding_box(float t0, float t1, aabb& box) const {
+__device__ bool hittable_list::bounding_box(float t0, float t1, aabb& box) const {
     if (list_size < 1) {
         return false;
     }
@@ -53,9 +54,9 @@ __device__ bool EntityList::bounding_box(float t0, float t1, aabb& box) const {
     return true;
 }
 
-__device__ void EntityList::add(Entity* e) {
+__device__ void hittable_list::add(hittable* e) {
     if (allocated_list_size <= list_size) {
-        Entity** new_list = new Entity*[list_size*2];
+        hittable** new_list = new hittable*[list_size*2];
         for (int i = 0; i < list_size; i++) {
             new_list[i] = list[i];
         }

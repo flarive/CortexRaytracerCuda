@@ -1,14 +1,15 @@
 #pragma once
 
-class Isotropic : public Material {
+class isotropic : public material
+{
 public:
-    __device__ Isotropic(Texture* a) : albedo(a) {}
+    __device__ isotropic(texture* a) : albedo(a) {}
 
-    __device__ virtual bool scatter(const Ray& r_in, const HitRecord& rec, vector3& attenuation, Ray& scattered, curandState* local_rand_state) const {
-        scattered = Ray(rec.p, random_in_unit_sphere(local_rand_state), r_in.time());
+    __device__ virtual bool scatter(const ray& r_in, const hit_record& rec, vector3& attenuation, ray& scattered, curandState* local_rand_state) const {
+        scattered = ray(rec.p, random_in_unit_sphere(local_rand_state), r_in.time());
         attenuation = albedo->value(rec.u, rec.v, rec.p);
         return true;
     }
 
-Texture* albedo;
+    texture* albedo;
 };

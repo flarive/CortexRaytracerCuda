@@ -433,7 +433,7 @@ E:\MyProjects\MyOwnRaytracerCuda2\libs\stb/stb_image.h(6970): warning #550-D: va
           int delays_size = 0;
               ^
   
-E:\MyProjects\MyOwnRaytracerCuda2\core\src\main.cu(103): warning #177-D: variable "local_rand_state" was declared but never referenced
+E:\MyProjects\MyOwnRaytracerCuda2\core\src\main.cu(110): warning #177-D: variable "local_rand_state" was declared but never referenced
             curandState local_rand_state = *rand_state;
                         ^
   
@@ -517,12 +517,10 @@ E:\MyProjects\MyOwnRaytracerCuda2\libs\Eigen\Eigen\src/Core/arch/GPU/Complex.h(8
               instantiation of "std::complex<T> Eigen::complex_operator_detail::complex_divide_fast(const std::complex<T> &, const std::complex<T> &) [with T=double]" at line 107
               instantiation of "std::complex<T> Eigen::complex_operator_detail::complex_divide(const std::complex<T> &, const std::complex<T> &) [with T=double]" at line 222
   
-CUDACOMPILE : ptxas warning : Stack size for entry function '_Z6renderPN3glm3vecILi3EfLNS_9qualifierE0EEEiiiPP6CameraPP6EntityP17curandStateXORWOW' cannot be statically determined
+CUDACOMPILE : ptxas warning : Stack size for entry function '_Z6renderPN3glm3vecILi3EfLNS_9qualifierE0EEEiiiPP6cameraPP8hittableP17curandStateXORWOW' cannot be statically determined
   main.cu
-  tmpxft_0000435c_00000000-7_main.cudafe1.cpp
-E:\MyProjects\MyOwnRaytracerCuda2\core\src\main.cu(287): warning C4244: '=' : conversion de 'double' en 'uint8_t', perte possible de données
-E:\MyProjects\MyOwnRaytracerCuda2\core\src\main.cu(288): warning C4244: '=' : conversion de 'double' en 'uint8_t', perte possible de données
-E:\MyProjects\MyOwnRaytracerCuda2\core\src\main.cu(289): warning C4244: '=' : conversion de 'double' en 'uint8_t', perte possible de données
-     Création de la bibliothèque E:\MyProjects\MyOwnRaytracerCuda2\x64\Debug\RTCudaBelval2.lib et de l'objet E:\MyProjects\MyOwnRaytracerCuda2\x64\Debug\RTCudaBelval2.exp
-LINK : warning LNK4098: conflit entre la bibliothèque par défaut 'LIBCMT' et les autres bibliothèques ; utilisez /NODEFAULTLIB:library
+  tmpxft_00005a78_00000000-7_main.cudafe1.cpp
+E:\MyProjects\MyOwnRaytracerCuda2\core\src\main.cu(294): warning C4244: '=' : conversion de 'double' en 'uint8_t', perte possible de données
+E:\MyProjects\MyOwnRaytracerCuda2\core\src\main.cu(295): warning C4244: '=' : conversion de 'double' en 'uint8_t', perte possible de données
+E:\MyProjects\MyOwnRaytracerCuda2\core\src\main.cu(296): warning C4244: '=' : conversion de 'double' en 'uint8_t', perte possible de données
   RTCudaBelval.vcxproj -> E:\MyProjects\MyOwnRaytracerCuda2\x64\Debug\RTCudaBelval2.exe

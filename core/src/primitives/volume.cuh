@@ -1,25 +1,27 @@
 #pragma once
 
-class ConstantMedium : public Entity {
+class volume : public hittable
+{
 public:
-    __device__ ConstantMedium(Entity* b, float f, Texture* a, curandState* local_rand_state) : boundary(b), neg_inv_density(-1/f), rand_state(local_rand_state) {
-        phase_function = new Isotropic(a);
+    __device__ volume(hittable* b, float f, texture* a, curandState* local_rand_state) : boundary(b), neg_inv_density(-1/f), rand_state(local_rand_state) {
+        phase_function = new isotropic(a);
     }
 
-    __device__ virtual bool hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const;
+    __device__ virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const;
 
     __device__ virtual bool bounding_box(float t0, float t1, aabb& output_box) const {
         return boundary->bounding_box(t0, t1, output_box);
     }
 
-Entity* boundary;
-Material* phase_function;
+hittable* boundary;
+material* phase_function;
 curandState* rand_state;
 float neg_inv_density;
 };
 
-__device__ bool ConstantMedium::hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const {
-    HitRecord rec1, rec2;
+__device__ bool volume::hit(const ray& r, float t_min, float t_max, hit_record& rec) const
+{
+    hit_record rec1, rec2;
 
     if (!boundary->hit(r, -FLT_MAX, FLT_MAX, rec1))
         return false;

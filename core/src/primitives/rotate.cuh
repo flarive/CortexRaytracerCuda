@@ -2,59 +2,29 @@
 
 #define DEGREES_TO_RADIANS(degrees)((M_PI * degrees)/180)
 
+#include "hittable.cuh"
 #include "../misc/constants.cuh"
 
-class Translate : public Entity {
+
+class rotate : public hittable
+{
 public:
-    __device__ Translate(Entity* p, const vector3& displacement) : ptr(p), offset(displacement) {}
+    __device__ rotate(hittable* p, float angle);
 
-    __device__ virtual bool hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const;
-    __device__ virtual bool bounding_box(float t0, float t1, aabb& output_box) const;
-
-    Entity* ptr;
-    vector3 offset;
-};
-
-__device__ bool Translate::hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const {
-    Ray moved_r(r.origin() - offset, r.direction(), r.time());
-    if (!ptr->hit(moved_r, t_min, t_max, rec))
-        return false;
-
-    rec.p += offset;
-    rec.set_face_normal(moved_r, rec.normal);
-
-    return true;
-}
-
-__device__ bool Translate::bounding_box(float t0, float t1, aabb& output_box) const {
-    if (!ptr->bounding_box(t0, t1, output_box))
-        return false;
-
-    output_box = aabb(
-        output_box.min() + offset,
-        output_box.max() + offset);
-
-    return true;
-}
-
-class RotateY : public Entity {
-public:
-    __device__ RotateY(Entity* p, float angle);
-
-    __device__ virtual bool hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const;
+    __device__ virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const;
     __device__ virtual bool bounding_box(float t0, float t1, aabb& output_box) const {
         output_box = bbox;
         return hasbox;
     }
 
-    Entity* ptr;
+    hittable* ptr;
     float sin_theta;
     float cos_theta;
     bool hasbox;
     aabb bbox;
 };
 
-__device__ RotateY::RotateY(Entity *p, float angle) : ptr(p) {
+__device__ rotate::rotate(hittable *p, float angle) : ptr(p) {
     auto radians = DEGREES_TO_RADIANS(angle);
     sin_theta = sin(radians);
     cos_theta = cos(radians);
@@ -86,7 +56,7 @@ __device__ RotateY::RotateY(Entity *p, float angle) : ptr(p) {
     bbox = aabb(min, max);
 }
 
-__device__ bool RotateY::hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const {
+__device__ bool rotate::hit(const ray& r, float t_min, float t_max, hit_record& rec) const {
     vector3 origin = r.origin();
     vector3 direction = r.direction();
 
@@ -96,7 +66,7 @@ __device__ bool RotateY::hit(const Ray& r, float t_min, float t_max, HitRecord& 
     direction[0] = cos_theta*r.direction()[0] - sin_theta*r.direction()[2];
     direction[2] = sin_theta*r.direction()[0] + cos_theta*r.direction()[2];
 
-    Ray rotated_r(origin, direction, r.time());
+    ray rotated_r(origin, direction, r.time());
 
     if (!ptr->hit(rotated_r, t_min, t_max, rec))
         return false;

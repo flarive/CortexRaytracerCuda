@@ -19,13 +19,7 @@
     <ClInclude Include="src\misc\ray.cuh">
       <Filter>Headers\misc</Filter>
     </ClInclude>
-    <ClInclude Include="src\primitives\rect.cuh">
-      <Filter>Headers\primitives</Filter>
-    </ClInclude>
-    <ClInclude Include="src\primitives\entity.cuh">
-      <Filter>Headers\primitives</Filter>
-    </ClInclude>
-    <ClInclude Include="src\primitives\entitylist.cuh">
+    <ClInclude Include="src\primitives\aarect.cuh">
       <Filter>Headers\primitives</Filter>
     </ClInclude>
     <ClInclude Include="src\materials\lambertian.cuh">
@@ -34,20 +28,11 @@
     <ClInclude Include="src\materials\isotropic.cuh">
       <Filter>Headers\materials</Filter>
     </ClInclude>
-    <ClInclude Include="src\materials\diffuse_light.cuh">
-      <Filter>Headers\materials</Filter>
-    </ClInclude>
     <ClInclude Include="src\primitives\box.cuh">
       <Filter>Headers\primitives</Filter>
     </ClInclude>
-    <ClInclude Include="src\primitives\transform.cuh">
-      <Filter>Headers\primitives</Filter>
-    </ClInclude>
-    <ClInclude Include="src\materials\transparent.cuh">
+    <ClInclude Include="src\materials\dielectric.cuh">
       <Filter>Headers\materials</Filter>
-    </ClInclude>
-    <ClInclude Include="src\textures\texture.cuh">
-      <Filter>Headers\textures</Filter>
     </ClInclude>
     <ClInclude Include="src\primitives\sphere.cuh">
       <Filter>Headers\primitives</Filter>
@@ -55,10 +40,7 @@
     <ClInclude Include="src\primitives\moving_sphere.cuh">
       <Filter>Headers\primitives</Filter>
     </ClInclude>
-    <ClInclude Include="src\materials\material.cuh">
-      <Filter>Headers\materials</Filter>
-    </ClInclude>
-    <ClInclude Include="src\primitives\constant_medium.cuh">
+    <ClInclude Include="src\primitives\volume.cuh">
       <Filter>Headers\primitives</Filter>
     </ClInclude>
     <ClInclude Include="src\cameras\camera.cuh">
@@ -67,8 +49,47 @@
     <ClInclude Include="src\materials\metal.cuh">
       <Filter>Headers\materials</Filter>
     </ClInclude>
-    <ClInclude Include="src\textures\perlin.cuh">
+    <ClInclude Include="src\materials\diffuse_light.cuh">
+      <Filter>Headers\materials\emissive</Filter>
+    </ClInclude>
+    <ClInclude Include="src\materials\material.cuh">
+      <Filter>Headers\materials\base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\textures\texture.cuh">
+      <Filter>Headers\textures\base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\textures\solid_color_texture.cuh">
       <Filter>Headers\textures</Filter>
+    </ClInclude>
+    <ClInclude Include="src\textures\checker_texture.cuh">
+      <Filter>Headers\textures</Filter>
+    </ClInclude>
+    <ClInclude Include="src\textures\perlin_noise_texturer.cuh">
+      <Filter>Headers\textures</Filter>
+    </ClInclude>
+    <ClInclude Include="src\textures\perlin.cuh">
+      <Filter>Headers\textures\fx</Filter>
+    </ClInclude>
+    <ClInclude Include="src\textures\image_texture.cuh">
+      <Filter>Headers\textures</Filter>
+    </ClInclude>
+    <ClInclude Include="src\primitives\hittable.cuh">
+      <Filter>Headers\primitives\base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\primitives\hittable_list.cuh">
+      <Filter>Headers\primitives\base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\misc\hit_record.cuh">
+      <Filter>Headers\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\primitives\flip_normals.cuh">
+      <Filter>Headers\primitives\transforms</Filter>
+    </ClInclude>
+    <ClInclude Include="src\primitives\translate.cuh">
+      <Filter>Headers\primitives\transforms</Filter>
+    </ClInclude>
+    <ClInclude Include="src\primitives\rotate.cuh">
+      <Filter>Headers\primitives\transforms</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -95,6 +116,24 @@
     </Filter>
     <Filter Include="Headers\cameras">
       <UniqueIdentifier>{e25612e3-fbac-4ac9-a4a3-ae6c3779ff25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\materials\base">
+      <UniqueIdentifier>{b51374cd-9f06-4c2b-94b8-4e7855f908ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\materials\emissive">
+      <UniqueIdentifier>{ce1f519e-b94f-4328-98b9-deb2464e7560}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\textures\base">
+      <UniqueIdentifier>{fa9be0bd-7b63-4392-adf7-d974470959f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\textures\fx">
+      <UniqueIdentifier>{84e673d2-5cc9-4b46-9129-09de640d177a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\primitives\base">
+      <UniqueIdentifier>{7eece2b4-bcf1-416d-8c75-6f7b008a201e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\primitives\transforms">
+      <UniqueIdentifier>{ada6e417-1e7f-46e5-8bae-fa6985228fd1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

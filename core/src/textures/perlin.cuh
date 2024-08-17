@@ -25,9 +25,10 @@ __device__ int* perlin_generate_perm(curandState* local_rand_state) {
     return p;
 }
 
-class Perlin {
+class perlin
+{
 public:
-    __device__ Perlin(curandState* local_rand_state) {
+    __device__ perlin(curandState* local_rand_state) {
         ranfloat = perlin_generate(local_rand_state);
         perm_x = perlin_generate_perm(local_rand_state);
         perm_y = perlin_generate_perm(local_rand_state);

@@ -86,26 +86,33 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\misc\aabb.cuh" />
+    <ClInclude Include="src\misc\hit_record.cuh" />
     <ClInclude Include="src\primitives\box.cuh" />
     <ClInclude Include="src\misc\bvh_node.cuh" />
     <ClInclude Include="src\cameras\camera.cuh" />
     <ClInclude Include="src\misc\constants.cuh" />
-    <ClInclude Include="src\primitives\constant_medium.cuh" />
+    <ClInclude Include="src\primitives\flip_normals.cuh" />
+    <ClInclude Include="src\primitives\translate.cuh" />
+    <ClInclude Include="src\primitives\volume.cuh" />
     <ClInclude Include="src\materials\diffuse_light.cuh" />
-    <ClInclude Include="src\primitives\entity.cuh" />
-    <ClInclude Include="src\primitives\entitylist.cuh" />
+    <ClInclude Include="src\primitives\hittable.cuh" />
+    <ClInclude Include="src\primitives\hittable_list.cuh" />
     <ClInclude Include="src\materials\isotropic.cuh" />
     <ClInclude Include="src\materials\lambertian.cuh" />
     <ClInclude Include="src\materials\material.cuh" />
     <ClInclude Include="src\materials\metal.cuh" />
     <ClInclude Include="src\primitives\moving_sphere.cuh" />
+    <ClInclude Include="src\textures\checker_texture.cuh" />
+    <ClInclude Include="src\textures\image_texture.cuh" />
     <ClInclude Include="src\textures\perlin.cuh" />
     <ClInclude Include="src\misc\ray.cuh" />
-    <ClInclude Include="src\primitives\rect.cuh" />
+    <ClInclude Include="src\primitives\aarect.cuh" />
     <ClInclude Include="src\primitives\sphere.cuh" />
+    <ClInclude Include="src\textures\perlin_noise_texturer.cuh" />
+    <ClInclude Include="src\textures\solid_color_texture.cuh" />
     <ClInclude Include="src\textures\texture.cuh" />
-    <ClInclude Include="src\primitives\transform.cuh" />
-    <ClInclude Include="src\materials\transparent.cuh" />
+    <ClInclude Include="src\primitives\rotate.cuh" />
+    <ClInclude Include="src\materials\dielectric.cuh" />
     <ClInclude Include="src\misc\vector3.cuh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

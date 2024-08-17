@@ -11,9 +11,10 @@ __device__ vector3 random_in_unit_disk(curandState *local_rand_state) {
     return p;
 }
 
-class Camera {
+class camera
+{
 public:
-    __device__ Camera(vector3 lookfrom, vector3 lookat, vector3 vup, float vfov, float aspect,
+    __device__ camera(vector3 lookfrom, vector3 lookat, vector3 vup, float vfov, float aspect,
                float aperture, float focus_dist, float t0, float t1) {
         time0 = t0;
         time1 = t1;
@@ -32,11 +33,11 @@ public:
         horizontal = 2*half_width*focus_dist*u;
         vertical = 2*half_height*focus_dist*v;
     }
-    __device__ Ray get_ray(float s, float t, curandState *local_rand_state) {
+    __device__ ray get_ray(float s, float t, curandState *local_rand_state) {
         vector3 rd = lens_radius * random_in_unit_disk(local_rand_state);
         vector3 offset = u * rd.x + v * rd.y;
         float time = time0 + curand_uniform(local_rand_state) * (time1 - time0);
-        return Ray(origin + offset,
+        return ray(origin + offset,
                     lower_left_corner + s*horizontal + t*vertical
                         - origin - offset, time);
     }

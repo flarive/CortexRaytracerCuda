@@ -11,20 +11,27 @@
 
 #include "misc/bvh_node.cuh"
 #include "cameras/camera.cuh"
-#include "primitives/entitylist.cuh"
-//#include "float.h"
-#include "primitives\sphere.cuh"
-#include "primitives\rect.cuh"
-#include "materials\diffuse_light.cuh"
-#include "primitives\moving_sphere.cuh"
-#include "materials\lambertian.cuh"
-#include "materials\metal.cuh"
-#include "materials\transparent.cuh"
-#include "textures\texture.cuh"
-#include "primitives\box.cuh"
-#include "primitives\transform.cuh"
-#include "materials\isotropic.cuh"
-#include "primitives\constant_medium.cuh"
+#include "primitives/hittable_list.cuh"
+#include "primitives/sphere.cuh"
+#include "primitives/aarect.cuh"
+#include "materials/diffuse_light.cuh"
+#include "primitives/moving_sphere.cuh"
+#include "materials/lambertian.cuh"
+#include "materials/metal.cuh"
+#include "materials/dielectric.cuh"
+#include "textures/texture.cuh"
+#include "textures/solid_color_texture.cuh"
+#include "textures/checker_texture.cuh"
+#include "textures/image_texture.cuh"
+#include "primitives/box.cuh"
+
+#include "materials/isotropic.cuh"
+#include "primitives/volume.cuh"
+
+#include "primitives/translate.cuh"
+#include "primitives/rotate.cuh"
+#include "primitives/flip_normals.cuh"
+
 
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -69,14 +76,14 @@ void check_cuda(cudaError_t result, char const* const func, const char* const fi
     }
 }
 
-__device__ vector3 color(const Ray& r, const vector3& background, Entity **world, curandState *local_rand_state) {
-    Ray cur_ray = r;
+__device__ vector3 color(const ray& r, const vector3& background, hittable **world, curandState *local_rand_state) {
+    ray cur_ray = r;
     vector3 cur_attenuation = vector3(1.0, 1.0, 1.0);
     vector3 cur_emitted = vector3(0.0, 0.0, 0.0);
     for(int i = 0; i < 100; i++) {
-        HitRecord rec;
+        hit_record rec;
         if ((*world)->hit(cur_ray, 0.001f, FLT_MAX, rec)) {
-            Ray scattered;
+            ray scattered;
             vector3 attenuation;
             vector3 emitted = rec.mat_ptr->emitted(rec.u, rec.v, rec.p);
             if(rec.mat_ptr->scatter(cur_ray, rec, attenuation, scattered, local_rand_state)) {
@@ -97,24 +104,24 @@ __device__ vector3 color(const Ray& r, const vector3& background, Entity **world
 
 #define RND (curand_uniform(&local_rand_state))
 
-__global__ void create_cornell_box(Entity **elist, Entity **eworld, Camera **camera, int nx, int ny, ImageTexture** texture, curandState *rand_state)
+__global__ void create_cornell_box(hittable **elist, hittable **eworld, camera **cam, int nx, int ny, image_texture** texture, curandState *rand_state)
 {
     if (threadIdx.x == 0 && blockIdx.x == 0) {
         curandState local_rand_state = *rand_state;
         int i = 0;
-        elist[i++] = new FlipFace(new YZRect(0, 555, 0, 555, 555, new Lambertian(new ConstantTexture(vector3(0.12, 0.45, 0.15)))));
-        elist[i++] = new YZRect(0, 555, 0, 555, 0, new Lambertian(new ConstantTexture(vector3(0.65, 0.05, 0.05))));
-        elist[i++] = new XZRect(113, 443, 127, 432, 554, new DiffuseLight(new ConstantTexture(vector3(1.0, 1.0, 1.0))));
-        elist[i++] = new XZRect(0, 555, 0, 555, 0, new Lambertian(new ConstantTexture(vector3(0.73, 0.73, 0.73))));
-        elist[i++] = new FlipFace(new XZRect(0, 555, 0, 555, 555, new Lambertian(new CheckerTexture(
-            new ConstantTexture(vector3(1, 1, 1)),
-            new ConstantTexture(vector3(0, 1, 0))
+        elist[i++] = new flip_normals(new yz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(vector3(0.12, 0.45, 0.15)))));
+        elist[i++] = new yz_rect(0, 555, 0, 555, 0, new lambertian(new solid_color_texture(vector3(0.65, 0.05, 0.05))));
+        elist[i++] = new xz_rect(113, 443, 127, 432, 554, new diffuse_light(new solid_color_texture(vector3(1.0, 1.0, 1.0))));
+        elist[i++] = new xz_rect(0, 555, 0, 555, 0, new lambertian(new solid_color_texture(vector3(0.73, 0.73, 0.73))));
+        elist[i++] = new flip_normals(new xz_rect(0, 555, 0, 555, 555, new lambertian(new checker_texture(
+            new solid_color_texture(vector3(1, 1, 1)),
+            new solid_color_texture(vector3(0, 1, 0))
         ))));
-        elist[i++] = new FlipFace(new XZRect(0, 555, 0, 555, 555, new Lambertian(new CheckerTexture(
-            new ConstantTexture(vector3(1, 1, 1)),
-            new ConstantTexture(vector3(0, 1, 0))
+        elist[i++] = new flip_normals(new xz_rect(0, 555, 0, 555, 555, new lambertian(new checker_texture(
+            new solid_color_texture(vector3(1, 1, 1)),
+            new solid_color_texture(vector3(0, 1, 0))
         ))));
-        elist[i++] = new FlipFace(new XYRect(0, 555, 0, 555, 555, new Lambertian(new ConstantTexture(vector3(0.73, 0.73, 0.73)))));
+        elist[i++] = new flip_normals(new xy_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(vector3(0.73, 0.73, 0.73)))));
 
 
         /*elist[i++] = new ConstantMedium(
@@ -130,7 +137,7 @@ __global__ void create_cornell_box(Entity **elist, Entity **eworld, Camera **cam
             &local_rand_state
         );*/
 
-        elist[i++] = new Box(vector3(0, 0, 295), vector3(165, 330, 165), new Lambertian(new ConstantTexture(vector3(0.73, 0.73, 0.73))));
+        elist[i++] = new box(vector3(0, 0, 295), vector3(165, 330, 165), new lambertian(new solid_color_texture(vector3(0.73, 0.73, 0.73))));
         
 
 
@@ -147,16 +154,16 @@ __global__ void create_cornell_box(Entity **elist, Entity **eworld, Camera **cam
         //    &local_rand_state
         //);
 
-        elist[i++] = new Sphere(vector3(350, 50, 295), 100.0, new Lambertian(new ConstantTexture(vector3(0.8, 0.1, 0.1))));
+        elist[i++] = new sphere(vector3(350, 50, 295), 100.0, new lambertian(new solid_color_texture(vector3(0.8, 0.1, 0.1))));
 
 
-        *eworld = new EntityList(elist, i);
+        *eworld = new hittable_list(elist, i);
 
         vector3 lookfrom(278, 278, -800);
         vector3 lookat(278, 278, 0);
         float dist_to_focus = 10.0;
         float aperture = 0.0;
-        *camera = new Camera(
+        *cam = new camera(
             lookfrom,
             lookat,
             vector3(0,1,0),
@@ -186,14 +193,14 @@ __global__ void render_init(int maxx, int maxy, curandState *rand_state)
     curand_init(1984, pixel_index, 0, &rand_state[pixel_index]);
 }
 
-__global__ void texture_init(unsigned char* tex_data, int nx, int ny, ImageTexture** tex)
+__global__ void texture_init(unsigned char* tex_data, int nx, int ny, image_texture** tex)
 {
     if (threadIdx.x == 0 && blockIdx.x == 0) {
-        *tex = new ImageTexture(tex_data, nx, ny);
+        *tex = new image_texture(tex_data, nx, ny);
     }
 }
 
-__global__ void render(vector3* fb, int max_x, int max_y, int ns, Camera **cam, Entity **world, curandState *randState)
+__global__ void render(vector3* fb, int max_x, int max_y, int ns, camera **cam, hittable **world, curandState *randState)
 {
     int i = threadIdx.x + blockIdx.x * blockDim.x;
     int j = threadIdx.y + blockIdx.y * blockDim.y;
@@ -207,7 +214,7 @@ __global__ void render(vector3* fb, int max_x, int max_y, int ns, Camera **cam, 
     {
         float u = float(i + curand_uniform(&local_rand_state)) / float(max_x);
         float v = float(j + curand_uniform(&local_rand_state)) / float(max_y);
-        Ray r = (*cam)->get_ray(u, v, &local_rand_state);
+        ray r = (*cam)->get_ray(u, v, &local_rand_state);
         col += color(r, background, world, &local_rand_state);
     }
 
@@ -240,8 +247,8 @@ int main(int argc, char* argv[])
     checkCudaErrors(cudaMallocManaged(&tex_data, tex_x * tex_y * tex_n * sizeof(unsigned char)));
     checkCudaErrors(cudaMemcpy(tex_data, tex_data_host, tex_x * tex_y * tex_n * sizeof(unsigned char), cudaMemcpyHostToDevice));
 
-    ImageTexture **texture;
-    checkCudaErrors(cudaMalloc((void **)&texture, sizeof(ImageTexture*)));
+    image_texture**texture;
+    checkCudaErrors(cudaMalloc((void **)&texture, sizeof(image_texture*)));
     texture_init<<<1, 1>>>(tex_data, tex_x, tex_y, texture);
 
     // Allocating CUDA memory
@@ -260,14 +267,14 @@ int main(int argc, char* argv[])
     checkCudaErrors(cudaDeviceSynchronize());
 
     // Building the world
-    Entity **elist;
+    hittable **elist;
     int num_entity = 22 * 22 + 1 + 3;
-    checkCudaErrors(cudaMalloc((void **)&elist, num_entity * sizeof(Entity*)));
-    Entity **eworld;
-    checkCudaErrors(cudaMalloc((void **)&eworld, sizeof(Entity*)));
-    Camera **camera;
-    checkCudaErrors(cudaMalloc((void **)&camera, sizeof(Camera*)));
-    create_cornell_box<<<1, 1>>>(elist, eworld, camera, nx, ny, texture, d_rand_state2);
+    checkCudaErrors(cudaMalloc((void **)&elist, num_entity * sizeof(hittable*)));
+    hittable **eworld;
+    checkCudaErrors(cudaMalloc((void **)&eworld, sizeof(hittable*)));
+    camera** cam;
+    checkCudaErrors(cudaMalloc((void **)&cam, sizeof(camera*)));
+    create_cornell_box<<<1, 1>>>(elist, eworld, cam, nx, ny, texture, d_rand_state2);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
@@ -276,7 +283,7 @@ int main(int argc, char* argv[])
     render_init<<<blocks, threads>>>(nx, ny, d_rand_state);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
-    render<<<blocks, threads>>>(image, nx, ny,  ns, camera, eworld, d_rand_state);
+    render<<<blocks, threads>>>(image, nx, ny,  ns, cam, eworld, d_rand_state);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
@@ -294,7 +301,7 @@ int main(int argc, char* argv[])
     // Clean up
     checkCudaErrors(cudaDeviceSynchronize());
     checkCudaErrors(cudaGetLastError());
-    checkCudaErrors(cudaFree(camera));
+    checkCudaErrors(cudaFree(cam));
     checkCudaErrors(cudaFree(eworld));
     checkCudaErrors(cudaFree(elist));
     checkCudaErrors(cudaFree(d_rand_state));
