@@ -13,7 +13,8 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C406A8B0-52D6-43CE-B48A-EC4204AD757B}</ProjectGuid>
     <RootNamespace>RTCudaBelval</RootNamespace>
-    <ProjectName>RTCudaBelval2</ProjectName>
+    <ProjectName>core</ProjectName>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -49,6 +50,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;WIN64;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)libs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -58,6 +60,7 @@
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
       <Include>$(SolutionDir)libs</Include>
+      <AdditionalOptions>-Xcudafe="--diag_suppress=20012 --diag_suppress=20013 --diag_suppress=20015 --diag_suppress=20208 --diag_suppress=1866" %(AdditionalOptions)</AdditionalOptions>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -68,6 +71,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;WIN64;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)libs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -79,6 +83,7 @@
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
       <Include>$(SolutionDir)libs</Include>
+      <AdditionalOptions>-Xcudafe="--diag_suppress=20012 --diag_suppress=20013 --diag_suppress=20015 --diag_suppress=20208 --diag_suppress=1866" %(AdditionalOptions)</AdditionalOptions>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -86,7 +91,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\misc\aabb.cuh" />
+    <ClInclude Include="src\misc\color.cuh" />
     <ClInclude Include="src\misc\hit_record.cuh" />
+    <ClInclude Include="src\misc\onb.cuh" />
+    <ClInclude Include="src\misc\randomizer.cuh" />
+    <ClInclude Include="src\misc\render_parameters.h" />
+    <ClInclude Include="src\misc\scene.h" />
+    <ClInclude Include="src\misc\singleton.h" />
+    <ClInclude Include="src\misc\timer.h" />
     <ClInclude Include="src\primitives\box.cuh" />
     <ClInclude Include="src\misc\bvh_node.cuh" />
     <ClInclude Include="src\cameras\camera.cuh" />
@@ -102,6 +114,10 @@
     <ClInclude Include="src\materials\material.cuh" />
     <ClInclude Include="src\materials\metal.cuh" />
     <ClInclude Include="src\primitives\moving_sphere.cuh" />
+    <ClInclude Include="src\renderers\gpu_cuda_renderer.h" />
+    <ClInclude Include="src\renderers\renderer.h" />
+    <ClInclude Include="src\samplers\sampler.cuh" />
+    <ClInclude Include="src\srenderer.h" />
     <ClInclude Include="src\textures\checker_texture.cuh" />
     <ClInclude Include="src\textures\image_texture.cuh" />
     <ClInclude Include="src\textures\perlin.cuh" />
@@ -114,6 +130,9 @@
     <ClInclude Include="src\primitives\rotate.cuh" />
     <ClInclude Include="src\materials\dielectric.cuh" />
     <ClInclude Include="src\misc\vector3.cuh" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../misc/randomizer.cuh"
+
 class isotropic : public material
 {
 public:

@@ -154,7 +154,7 @@ __global__ void create_cornell_box(hittable **elist, hittable **eworld, camera *
         //    &local_rand_state
         //);
 
-        elist[i++] = new sphere(vector3(350, 50, 295), 100.0, new lambertian(new solid_color_texture(vector3(0.8, 0.1, 0.1))));
+        elist[i++] = new sphere(vector3(350, 50, 295), 100.0, new lambertian(*texture));
 
 
         *eworld = new hittable_list(elist, i);
@@ -226,22 +226,19 @@ __global__ void render(vector3* fb, int max_x, int max_y, int ns, camera **cam, 
     fb[pixel_index] = col;
 }
 
-int main(int argc, char* argv[])
+void renderGPU(int nx, int ny, int ns, int tx, int ty, const char* filepath)
 {
-    if (argc < 5) {
-        std::cerr << "Usage: " << argv[0] << " [WIDTH] [HEIGHT] [BOUNCES] [OUTPUT FILENAME]" << std::endl;
-    }
-    int nx = std::stoi(std::string(argv[1]));
-    int ny = std::stoi(std::string(argv[2]));
-    int ns = std::stoi(std::string(argv[3]));
-    int tx = 16;
-    int ty = 16;
+    std::cout << "Rendering " << nx << "x" << ny << " " << ns << " samples > " << filepath << std::endl;
     
     // Values
     int num_pixels = nx * ny;
 
     int tex_x, tex_y, tex_n;
     unsigned char *tex_data_host = stbi_load("e:\\earth_diffuse.jpg", &tex_x, &tex_y, &tex_n, 0);
+    if (!tex_data_host) {
+        std::cerr << "Failed to load texture." << std::endl;
+        return;
+    }
 
     unsigned char *tex_data;
     checkCudaErrors(cudaMallocManaged(&tex_data, tex_x * tex_y * tex_n * sizeof(unsigned char)));
@@ -296,7 +293,7 @@ int main(int argc, char* argv[])
             imageHost[(ny - j - 1) * nx * 3 + i * 3 + 2] = 255.99 * image[pixel_index].b;
         }
     }
-    stbi_write_png(argv[4], nx, ny, 3, imageHost, nx * 3);
+    stbi_write_png(filepath, nx, ny, 3, imageHost, nx * 3);
 
     // Clean up
     checkCudaErrors(cudaDeviceSynchronize());
@@ -307,3 +304,53 @@ int main(int argc, char* argv[])
     checkCudaErrors(cudaFree(d_rand_state));
     checkCudaErrors(cudaFree(image));
 }
+
+
+
+void launchGPU(int nx, int ny, int ns, int tx, int ty, const char* filepath, bool quietMode)
+{
+    if (!isGpuAvailable())
+    {
+        return;
+    }
+
+    //std::cout << "Rendering222 " << nx << "x" << ny << " " << ns << " samples > " << filepath << std::endl;
+
+    //std::cout << "[INFO] Use GPU device " << deviceIndex << " " << deviceName << std::endl;
+
+    // https://developer.nvidia.com/blog/accelerated-ray-tracing-cuda/
+    // __global__ - Runs on the GPU, called from the CPU or the GPU*. Executed with <<<dim3>>> arguments.
+    // __device__ - Runs on the GPU, called from the GPU. Can be used with variabiles too.
+    // __host__ - Runs on the CPU, called from the CPU.
+    // 
+    // --expt-relaxed-constexpr -Xcudafe --diag_suppress=esa_on_defaulted_function_ignored --std c++20 --verbose
+    // --expt-relaxed-constexpr --std c++20 -Xcudafe="--diag_suppress=20012 --diag_suppress=20208" 
+    //
+    renderGPU(nx, ny, ns, tx, ty, filepath);
+}
+
+
+//int main(int argc, char* argv[])
+//{
+//    if (argc < 5) {
+//        std::cerr << "Usage: " << argv[0] << " [WIDTH] [HEIGHT] [BOUNCES] [OUTPUT FILENAME]" << std::endl;
+//    }
+//
+//
+//    int nx = std::stoi(std::string(argv[1]));
+//    int ny = std::stoi(std::string(argv[2]));
+//    int ns = std::stoi(std::string(argv[3]));
+//    int tx = 16;
+//    int ty = 16;
+//
+//    const char* filepath = "e:\\test8.png";
+//
+//
+//    
+//
+//
+//
+//    launchGPU(nx, ny, ns, tx, ty, filepath, true);
+//
+//    //renderGPU(nx, ny, ns, tx, ty, filepath);
+//}

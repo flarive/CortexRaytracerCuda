@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <CudaCompile Include="src\main.cu" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="src\misc\aabb.cuh">
       <Filter>Headers\misc</Filter>
     </ClInclude>
@@ -91,6 +88,37 @@
     <ClInclude Include="src\primitives\rotate.cuh">
       <Filter>Headers\primitives\transforms</Filter>
     </ClInclude>
+    <ClInclude Include="src\srenderer.h" />
+    <ClInclude Include="src\renderers\gpu_cuda_renderer.h">
+      <Filter>Headers\renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderers\renderer.h">
+      <Filter>Headers\renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\misc\randomizer.cuh">
+      <Filter>Headers\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\misc\timer.h">
+      <Filter>Headers\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\misc\singleton.h">
+      <Filter>Headers\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\misc\onb.cuh">
+      <Filter>Headers\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\samplers\sampler.cuh">
+      <Filter>Headers\samplers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\misc\render_parameters.h">
+      <Filter>Headers\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\misc\scene.h">
+      <Filter>Headers\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\misc\color.cuh">
+      <Filter>Headers\misc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -135,5 +163,22 @@
     <Filter Include="Headers\primitives\transforms">
       <UniqueIdentifier>{ada6e417-1e7f-46e5-8bae-fa6985228fd1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Headers\renderers">
+      <UniqueIdentifier>{fc871181-877c-4db5-b29e-d4df2b6961f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\renderers">
+      <UniqueIdentifier>{0da2a015-48a8-4a29-bc04-96154d9b97dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\samplers">
+      <UniqueIdentifier>{48894d1f-48b8-42e9-abf0-ceac9960d597}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="src\main.cu">
+      <Filter>Sources\renderers</Filter>
+    </CudaCompile>
   </ItemGroup>
 </Project>

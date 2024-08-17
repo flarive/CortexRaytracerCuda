@@ -2,6 +2,7 @@
 
 #include "material.cuh"
 #include "../misc/ray.cuh"
+#include "../misc/randomizer.cuh"
 
 class metal : public material
 {

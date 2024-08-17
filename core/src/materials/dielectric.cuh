@@ -1,6 +1,7 @@
 #pragma once
 
 #include "material.cuh"
+#include "../misc/randomizer.cuh"
 
 __device__ float schlick(float cosine, float ref_idx) {
     float r0 = (1 - ref_idx) / (1 + ref_idx);
