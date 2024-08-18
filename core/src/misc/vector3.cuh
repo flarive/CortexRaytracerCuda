@@ -3,19 +3,20 @@
 #include <device_launch_parameters.h>
 #include <curand_kernel.h>
 
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#define CUDA_VERSION 12000
 
 // Ensure GLM configuration is compatible with CUDA
 #define GLM_FORCE_CUDA
-#define GLM_FORCE_INLINE
+//#define GLM_FORCE_INLINE
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <glm/detail/setup.hpp>
 #include <glm/detail/type_vec3.hpp>
 
 
-#include <Eigen/Eigen/Core>
-#include <Eigen/Eigen/StdVector>
-#include <Eigen/Eigen/Geometry>
+//#include <Eigen/Eigen/Core>
+//#include <Eigen/Eigen/StdVector>
+//#include <Eigen/Eigen/Geometry>
 
 
 
@@ -27,13 +28,13 @@ using vector2 = glm::fvec2;
 using vector3 = glm::fvec3;
 using vector4 = glm::fvec4;
 
-using matrix3 = glm::dmat3;
-using matrix4 = glm::dmat4;
+using matrix3 = glm::fmat3;
+using matrix4 = glm::fmat4;
 
-using point2 = glm::dvec2;
-using point3 = glm::dvec3;
+using point2 = glm::fvec2;
+using point3 = glm::fvec3;
 
-typedef Eigen::Matrix<float, 5, 1> Vector5d;
+//typedef Eigen::Matrix<float, 5, 1> Vector5d;
 
 
 

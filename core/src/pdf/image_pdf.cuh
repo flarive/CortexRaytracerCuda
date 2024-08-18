@@ -23,7 +23,7 @@ public:
 };
 
 
-
+// TO FIX !!!!!!!!!!!!!
 __device__ image_pdf::image_pdf(image_texture* img)
 	: m_image(img)//, m_width(img->getWidth()), m_height(img->getHeight()), m_channels(3), m_pData(img->get_data_float())
 {

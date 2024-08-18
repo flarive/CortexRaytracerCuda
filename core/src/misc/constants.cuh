@@ -22,37 +22,37 @@
 //
 //const double M_PI_2 = 1.57079632679489661923;   // pi/2
 
-const double SHADOW_ACNE_FIX = 0.00001;
+const float SHADOW_ACNE_FIX = 0.00001f;
 
 // to test !!!!!!!!!!!!!!
 //const float SHADOW_BIAS = 1e-4;
 
-__host__ __device__ inline double get_infinity()
+__host__ __device__ inline float get_infinity()
 {
 	return HUGE_VAL;
 }
 
-__host__ __device__ inline double get_pi()
+__host__ __device__ inline float get_pi()
 {
 	return 3.1415926535897932385;
 }
 
-__host__ __device__ inline double get_2_pi()
+__host__ __device__ inline float get_2_pi()
 {
 	return 6.28318530718;
 }
 
-__host__ __device__ inline double get_1_div_pi()
+__host__ __device__ inline float get_1_div_pi()
 {
 	return 0.318309886183790671538;
 }
 
-__host__ __device__ inline double get_half_pi()
+__host__ __device__ inline float get_half_pi()
 {
 	return 1.57079632679489661923;
 }
 
-__host__ __device__ inline double get_shadow_acne_fix()
+__host__ __device__ inline float get_shadow_acne_fix()
 {
 	return 0.00001;
 }

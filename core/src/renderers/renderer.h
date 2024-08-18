@@ -1,6 +1,6 @@
 #pragma once
 
-#include "misc/scene.h"
+#include "misc/scene.cuh"
 #include "misc/color.cuh"
 #include "cameras/camera.cuh"
 #include "misc/render_parameters.h"

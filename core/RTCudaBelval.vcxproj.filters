@@ -113,7 +113,7 @@
     <ClInclude Include="src\misc\render_parameters.h">
       <Filter>Headers\misc</Filter>
     </ClInclude>
-    <ClInclude Include="src\misc\scene.h">
+    <ClInclude Include="src\misc\scene.cuh">
       <Filter>Headers\misc</Filter>
     </ClInclude>
     <ClInclude Include="src\misc\color.cuh">
@@ -125,7 +125,7 @@
     <ClInclude Include="src\pdf\pdf.cuh">
       <Filter>Headers\pdf\base</Filter>
     </ClInclude>
-    <ClInclude Include="src\misc\scatter_record.h">
+    <ClInclude Include="src\misc\scatter_record.cuh">
       <Filter>Headers\misc</Filter>
     </ClInclude>
     <ClInclude Include="src\pdf\cosine_pdf.cuh">
@@ -144,6 +144,15 @@
       <Filter>Headers\utilities</Filter>
     </ClInclude>
     <ClInclude Include="src\utilities\math_utils.cuh">
+      <Filter>Headers\utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pdf\hittable_pdf.cuh">
+      <Filter>Headers\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pdf\anisotropic_phong_pdf.cuh">
+      <Filter>Headers\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utilities\interval.cuh">
       <Filter>Headers\utilities</Filter>
     </ClInclude>
   </ItemGroup>

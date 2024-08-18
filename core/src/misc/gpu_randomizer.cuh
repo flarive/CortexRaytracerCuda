@@ -3,7 +3,7 @@
 #include "../misc/vector3.cuh"
 #include "../misc/constants.cuh"
 
-//#include <thrust/random.h>
+#define GLM_FORCE_CUDA
 #include <glm/glm.hpp>
 
 
@@ -102,7 +102,7 @@ __device__ inline vector3 random_on_hemisphere(curandState* local_rand_state, co
 __device__ inline bool refract(const vector3& v, const vector3& n, float ni_over_nt, vector3& refracted) {
     vector3 uv = unitv(v);
     float dt = dot(uv, n);
-    float discriminant = 1.0 - ni_over_nt * ni_over_nt * (1 - dt * dt);
+    float discriminant = 1.0f - ni_over_nt * ni_over_nt * (1 - dt * dt);
     if (discriminant > 0) {
         refracted = ni_over_nt * (uv - n * dt) - n * sqrt(discriminant);
         return true;

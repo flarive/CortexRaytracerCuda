@@ -40,6 +40,9 @@
 #include <stb/stb_image.h>
 #include <stb/stb_image_write.h>
 
+
+
+
 // https://github.com/Belval/raytracing
 
 bool isGpuAvailable()
@@ -77,17 +80,17 @@ void check_cuda(cudaError_t result, char const* const func, const char* const fi
     }
 }
 
-__device__ vector3 color(const ray& r, const vector3& background, hittable **world, curandState *local_rand_state) {
+__device__ vector3 get_color(const ray& r, const vector3& background, hittable **world, curandState *local_rand_state) {
     ray cur_ray = r;
     vector3 cur_attenuation = vector3(1.0, 1.0, 1.0);
     vector3 cur_emitted = vector3(0.0, 0.0, 0.0);
     for(int i = 0; i < 100; i++) {
         hit_record rec;
-        if ((*world)->hit(cur_ray, 0.001f, FLT_MAX, rec)) {
+        if ((*world)->hit(cur_ray, interval(0.001f, FLT_MAX), rec, 0, local_rand_state)) {
             ray scattered;
             vector3 attenuation;
-            vector3 emitted = rec.mat_ptr->emitted(rec.u, rec.v, rec.p);
-            if(rec.mat_ptr->scatter(cur_ray, rec, attenuation, scattered, local_rand_state)) {
+            vector3 emitted = rec.mat->emitted(rec.u, rec.v, rec.hit_point);
+            if(rec.mat->scatter(cur_ray, rec, attenuation, scattered, local_rand_state)) {
                 cur_attenuation *= attenuation;
                 cur_emitted += emitted * cur_attenuation;
                 cur_ray = scattered;
@@ -110,19 +113,19 @@ __global__ void create_cornell_box(hittable **elist, hittable **eworld, camera *
     if (threadIdx.x == 0 && blockIdx.x == 0) {
         curandState local_rand_state = *rand_state;
         int i = 0;
-        elist[i++] = new flip_normals(new yz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(vector3(0.12, 0.45, 0.15)))));
-        elist[i++] = new yz_rect(0, 555, 0, 555, 0, new lambertian(new solid_color_texture(vector3(0.65, 0.05, 0.05))));
+        /*elist[i++] = new flip_normals(new yz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(vector3(0.12, 0.45, 0.15)))));
+        elist[i++] = new yz_rect(0, 555, 0, 555, 0, new lambertian(new solid_color_texture(vector3(0.65, 0.05, 0.05))));*/
         elist[i++] = new xz_rect(113, 443, 127, 432, 554, new diffuse_light(new solid_color_texture(vector3(1.0, 1.0, 1.0))));
-        elist[i++] = new xz_rect(0, 555, 0, 555, 0, new lambertian(new solid_color_texture(vector3(0.73, 0.73, 0.73))));
-        elist[i++] = new flip_normals(new xz_rect(0, 555, 0, 555, 555, new lambertian(new checker_texture(
-            new solid_color_texture(vector3(1, 1, 1)),
-            new solid_color_texture(vector3(0, 1, 0))
-        ))));
-        elist[i++] = new flip_normals(new xz_rect(0, 555, 0, 555, 555, new lambertian(new checker_texture(
-            new solid_color_texture(vector3(1, 1, 1)),
-            new solid_color_texture(vector3(0, 1, 0))
-        ))));
-        elist[i++] = new flip_normals(new xy_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(vector3(0.73, 0.73, 0.73)))));
+        //elist[i++] = new xz_rect(0, 555, 0, 555, 0, new lambertian(new solid_color_texture(vector3(0.73, 0.73, 0.73))));
+        //elist[i++] = new flip_normals(new xz_rect(0, 555, 0, 555, 555, new lambertian(new checker_texture(
+        //    new solid_color_texture(vector3(1, 1, 1)),
+        //    new solid_color_texture(vector3(0, 1, 0))
+        //))));
+        //elist[i++] = new flip_normals(new xz_rect(0, 555, 0, 555, 555, new lambertian(new checker_texture(
+        //    new solid_color_texture(vector3(1, 1, 1)),
+        //    new solid_color_texture(vector3(0, 1, 0))
+        //))));
+        //elist[i++] = new flip_normals(new xy_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(vector3(0.73, 0.73, 0.73)))));
 
 
         /*elist[i++] = new ConstantMedium(
@@ -138,7 +141,7 @@ __global__ void create_cornell_box(hittable **elist, hittable **eworld, camera *
             &local_rand_state
         );*/
 
-        elist[i++] = new box(vector3(0, 0, 295), vector3(165, 330, 165), new lambertian(new solid_color_texture(vector3(0.73, 0.73, 0.73))));
+        //elist[i++] = new box(vector3(0, 0, 295), vector3(165, 330, 165), new lambertian(new solid_color_texture(vector3(0.73, 0.73, 0.73))));
         
 
 
@@ -155,7 +158,7 @@ __global__ void create_cornell_box(hittable **elist, hittable **eworld, camera *
         //    &local_rand_state
         //);
 
-        elist[i++] = new sphere(vector3(350, 50, 295), 100.0, new lambertian(*texture));
+        elist[i++] = new sphere(vector3(350.0f, 50.0f, 295.0f), 100.0f, new lambertian(*texture), "Sphere1");
 
 
         *eworld = new hittable_list(elist, i);
@@ -216,7 +219,7 @@ __global__ void render(vector3* fb, int max_x, int max_y, int ns, camera **cam, 
         float u = float(i + curand_uniform(&local_rand_state)) / float(max_x);
         float v = float(j + curand_uniform(&local_rand_state)) / float(max_y);
         ray r = (*cam)->get_ray(u, v, &local_rand_state);
-        col += color(r, background, world, &local_rand_state);
+        col += get_color(r, background, world, &local_rand_state);
     }
 
     randState[pixel_index] = local_rand_state;

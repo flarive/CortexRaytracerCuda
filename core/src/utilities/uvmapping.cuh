@@ -79,69 +79,69 @@ __host__ __device__ extern void get_screen_uv(int x, int y, float texture_width,
 
 
 
-__host__ __device__ float uvmapping::scale_u() const
+__host__ __device__ inline float uvmapping::scale_u() const
 {
 	return m_scale_u;
 }
 
-__host__ __device__ float uvmapping::scale_v() const
+__host__ __device__ inline float uvmapping::scale_v() const
 {
 	return m_scale_v;
 }
 
-__host__ __device__ float uvmapping::offset_u() const
+__host__ __device__ inline float uvmapping::offset_u() const
 {
 	return m_offset_u;
 }
 
-__host__ __device__ float uvmapping::offset_v() const
+__host__ __device__ inline float uvmapping::offset_v() const
 {
 	return m_offset_v;
 }
 
-__host__ __device__ float uvmapping::repeat_u() const
+__host__ __device__ inline float uvmapping::repeat_u() const
 {
 	return m_repeat_u;
 }
 
-__host__ __device__ float uvmapping::repeat_v() const
+__host__ __device__ inline float uvmapping::repeat_v() const
 {
 	return m_repeat_v;
 }
 
 
-__host__ __device__ void uvmapping::scale_u(float su)
+__host__ __device__ inline void uvmapping::scale_u(float su)
 {
 	m_scale_u = su;
 }
 
-__host__ __device__ void uvmapping::scale_v(float sv)
+__host__ __device__ inline void uvmapping::scale_v(float sv)
 {
 	m_scale_v = sv;
 }
 
-__host__ __device__ void uvmapping::offset_u(float ou)
+__host__ __device__ inline void uvmapping::offset_u(float ou)
 {
 	m_offset_u = ou;
 }
 
-__host__ __device__ void uvmapping::offset_v(float ov)
+__host__ __device__ inline void uvmapping::offset_v(float ov)
 {
 	m_offset_v = ov;
 }
 
-__host__ __device__ void uvmapping::repeat_u(float ru)
+__host__ __device__ inline void uvmapping::repeat_u(float ru)
 {
 	m_repeat_u = ru;
 }
 
-__host__ __device__ void uvmapping::repeat_v(float rv)
+__host__ __device__ inline void uvmapping::repeat_v(float rv)
 {
 	m_repeat_v = rv;
 }
 
 
-__host__ __device__ void get_spherical_uv(const point3& p, float& u, float& v)
+__host__ __device__ inline void get_spherical_uv(const point3& p, float& u, float& v)
 {
 	// p: a given point on the sphere of radius one, centered at the origin.
 	// u: returned value [0,1] of angle around the Y axis from X=-1.
@@ -151,13 +151,13 @@ __host__ __device__ void get_spherical_uv(const point3& p, float& u, float& v)
 	//     <0 0 1> yields <0.25 0.50>       < 0  0 -1> yields <0.75 0.50>
 
 	auto theta = acos(-p.y);
-	auto phi = atan2(-p.z, p.x) + M_PI;
+	auto phi = atan2(-p.z, p.x) + get_pi();
 
-	u = phi / (2 * M_PI);
-	v = theta / M_PI;
+	u = phi / (2 * get_pi());
+	v = theta / get_pi();
 }
 
-__host__ __device__ void get_spherical_uv(const point3& p, float texture_width, float texture_height, float render_width, float render_height, float& u, float& v)
+__host__ __device__ inline void get_spherical_uv(const point3& p, float texture_width, float texture_height, float render_width, float render_height, float& u, float& v)
 {
 	// p: a given point on the sphere of radius one, centered at the origin.
 	// u: returned value [0,1] of angle around the Y axis from X=-1.
@@ -167,10 +167,10 @@ __host__ __device__ void get_spherical_uv(const point3& p, float texture_width, 
 	//     <0 0 1> yields <0.25 0.50>       < 0  0 -1> yields <0.75 0.50>
 
 	auto theta = acos(-p.y);
-	auto phi = atan2(-p.z, p.x) + M_PI;
+	auto phi = atan2(-p.z, p.x) + get_pi();
 
-	u = phi / (2 * M_PI);
-	v = theta / M_PI;
+	u = phi / (2 * get_pi());
+	v = theta / get_pi();
 
 	// Calculate aspect ratios
 	float texture_aspect_ratio = texture_width / texture_height;
@@ -185,25 +185,25 @@ __host__ __device__ void get_spherical_uv(const point3& p, float texture_width, 
 	}
 
 	// Normalize u and v
-	u = std::fmod(u, 1.0);
-	if (u < 0.0) u += 1.0;
+	u = std::fmod(u, 1.0f);
+	if (u < 0.0) u += 1.0f;
 
-	v = std::fmod(v, 1.0);
-	if (v < 0.0) v += 1.0;
+	v = std::fmod(v, 1.0f);
+	if (v < 0.0) v += 1.0f;
 }
 
-__host__ __device__ vector3 from_spherical_uv(float u, float v)
+__host__ __device__ inline vector3 from_spherical_uv(float u, float v)
 {
-	float phi = 2 * M_PI * u, theta = M_PI * v;
+	float phi = 2 * get_pi() * u, theta = get_pi() * v;
 	// THIS IS SUPER WEIRD?? Used only (AND KEEP IT THAT WAY) for environment importance sampling
-	phi -= M_PI;
+	phi -= get_pi();
 
 	return vector3(cos(phi) * sin(theta), -cos(theta), -sin(phi) * sin(theta));
 }
 
 
 
-__host__ __device__ void get_sphere_uv(const point3& p, float& u, float& v, const uvmapping& mapping)
+__host__ __device__ inline void get_sphere_uv(const point3& p, float& u, float& v, const uvmapping& mapping)
 {
 	// p: a given point on the sphere of radius one, centered at the origin.
 	// u: returned value [0,1] of angle around the Y axis from X=-1.
@@ -214,22 +214,22 @@ __host__ __device__ void get_sphere_uv(const point3& p, float& u, float& v, cons
 
 	// Calculate spherical coordinates theta and phi
 	auto theta = acos(-p.y); // Angle from the positive y-axis
-	auto phi = atan2(-p.z, p.x) + M_PI; // Angle in the xy-plane around the z-axis
+	auto phi = atan2(-p.z, p.x) + get_pi(); // Angle in the xy-plane around the z-axis
 
 	// Normalize theta and phi to [0, 1] for texture coordinates
-	float s = phi / (2 * M_PI); // Normalize phi to [0, 1] (u-coordinate)
-	float t = theta / M_PI;     // Normalize theta to [0, 1] (v-coordinate)
+	float s = phi / (2 * get_pi()); // Normalize phi to [0, 1] (u-coordinate)
+	float t = theta / get_pi();     // Normalize theta to [0, 1] (v-coordinate)
 
 	// Apply texture repetition (tiling/repeating) to s and t
-	s = fmod(s * mapping.repeat_u(), 1.0); // Apply tiling to s (u-axis)
-	t = fmod(t * mapping.repeat_v(), 1.0); // Apply tiling to t (v-axis)
+	s = fmod(s * mapping.repeat_u(), 1.0f); // Apply tiling to s (u-axis)
+	t = fmod(t * mapping.repeat_v(), 1.0f); // Apply tiling to t (v-axis)
 
 	// Map normalized coordinates (s, t) to (u, v) texture space
 	u = mapping.scale_u() * s + mapping.offset_u();
 	v = mapping.scale_v() * t + mapping.offset_v();
 }
 
-__host__ __device__ void get_torus_uv(const vector3& p, vector3& c, float& u, float& v, float majorRadius, float minorRadius, const uvmapping& mapping)
+__host__ __device__ inline void get_torus_uv(const vector3& p, vector3& c, float& u, float& v, float majorRadius, float minorRadius, const uvmapping& mapping)
 {
 	//double phi = atan2(p.y, p.x);
 	//if (phi < 0) phi += 2 * get_pi(); // Ensure phi is in [0, 2*pi]
@@ -255,7 +255,7 @@ __host__ __device__ void get_torus_uv(const vector3& p, vector3& c, float& u, fl
 
 	// Calculate the angle phi around the major radius in the xy-plane
 	float phi = atan2(p.y, p.x);
-	if (phi < 0) phi += 2 * M_PI; // Ensure phi is in [0, 2*pi]
+	if (phi < 0) phi += 2 * get_pi(); // Ensure phi is in [0, 2*pi]
 
 	// Calculate the point on the major radius circle
 	vector3 majorCirclePoint(c.x + majorRadius * cos(phi), c.y + majorRadius * sin(phi), c.z);
@@ -265,47 +265,47 @@ __host__ __device__ void get_torus_uv(const vector3& p, vector3& c, float& u, fl
 
 	// Calculate the angle theta around the minor radius
 	float theta = atan2(minorVec.z, glm::length(vector2(minorVec.x, minorVec.y)));
-	if (theta < 0) theta += 2 * M_PI; // Ensure theta is in [0, 2*pi]
+	if (theta < 0) theta += 2 * get_pi(); // Ensure theta is in [0, 2*pi]
 
 	// Map phi and theta to the range [0, 1] for u and v coordinates
-	float s = phi / (2 * M_PI);
-	float t = theta / (2 * M_PI);
+	float s = phi / (2 * get_pi());
+	float t = theta / (2 * get_pi());
 
 	// Apply texture repetition (tiling/repeating) to s and t
-	s = fmod(s * mapping.repeat_u(), 1.0); // Apply tiling to s (u-axis)
-	t = fmod(t * mapping.repeat_v(), 1.0); // Apply tiling to t (v-axis)
+	s = fmod(s * mapping.repeat_u(), 1.0f); // Apply tiling to s (u-axis)
+	t = fmod(t * mapping.repeat_v(), 1.0f); // Apply tiling to t (v-axis)
 
 	// Ensure s and t are within [0, 1]
-	if (s < 0) s += 1.0;
-	if (t < 0) t += 1.0;
+	if (s < 0) s += 1.0f;
+	if (t < 0) t += 1.0f;
 
 	// Map normalized coordinates (s, t) to (u, v) texture space
 	u = mapping.scale_u() * s + mapping.offset_u();
 	v = mapping.scale_v() * t + mapping.offset_v();
 }
 
-__host__ __device__ void get_cylinder_uv(const vector3& p, float& u, float& v, float radius, float height, const uvmapping& mapping)
+__host__ __device__ inline void get_cylinder_uv(const vector3& p, float& u, float& v, float radius, float height, const uvmapping& mapping)
 {
 	// Calculate the angle around the cylinder using atan2
 	float theta = std::atan2(p.x, p.z);
 
 	// Map the angle (theta) to the range [0, 1] for u coordinate (s)
-	float s = 1.0 - (theta + M_PI) / (2.0 * M_PI); // Invert theta and map to [0, 1]
+	float s = 1.0f - (theta + get_pi()) / (2.0f * get_pi()); // Invert theta and map to [0, 1]
 
 	// Calculate the vertical height (y-coordinate) relative to the cylinder's height
 	float y = p.y;
-	float t = (y + height / 2.0) / height; // Map y-coordinate to [0, 1] range
+	float t = (y + height / 2.0f) / height; // Map y-coordinate to [0, 1] range
 
 	// Apply texture repetition (tiling/repeating) to s and t
-	s = fmod(s * mapping.repeat_u(), 1.0); // Apply tiling to s (u-axis)
-	t = fmod(t * mapping.repeat_v(), 1.0); // Apply tiling to t (v-axis)
+	s = fmod(s * mapping.repeat_u(), 1.0f); // Apply tiling to s (u-axis)
+	t = fmod(t * mapping.repeat_v(), 1.0f); // Apply tiling to t (v-axis)
 
 	// Map normalized coordinates (s, t) to (u, v) texture space
 	u = mapping.scale_u() * s + mapping.offset_u();
 	v = mapping.scale_v() * t + mapping.offset_v();
 }
 
-__host__ __device__ void get_disk_uv(const vector3& p, float& u, float& v, float radius, const uvmapping& mapping)
+__host__ __device__ inline void get_disk_uv(const vector3& p, float& u, float& v, float radius, const uvmapping& mapping)
 {
 	//// Calculate the angle around the disk using atan2
 	//double theta = std::atan2(p.x, p.z);
@@ -333,25 +333,25 @@ __host__ __device__ void get_disk_uv(const vector3& p, float& u, float& v, float
 	float z = p.z;
 
 	// Map x and z coordinates to the range [0, 1] based on the disk's radius
-	float s = (x / (2.0 * radius)) + 0.5;
-	float t = (z / (2.0 * radius)) + 0.5;
+	float s = (x / (2.0f * radius)) + 0.5f;
+	float t = (z / (2.0f * radius)) + 0.5f;
 
 	// Apply texture repetition (tiling/repeating) to s and t
-	s = fmod(s * mapping.repeat_u(), 1.0); // Apply tiling to s (u-axis)
-	t = fmod(t * mapping.repeat_v(), 1.0); // Apply tiling to t (v-axis)
+	s = fmod(s * mapping.repeat_u(), 1.0f); // Apply tiling to s (u-axis)
+	t = fmod(t * mapping.repeat_v(), 1.0f); // Apply tiling to t (v-axis)
 
 	// Map normalized coordinates (s, t) to (u, v) texture space
 	u = mapping.scale_u() * s + mapping.offset_u();
 	v = mapping.scale_v() * t + mapping.offset_v();
 }
 
-__host__ __device__ void get_cone_uv(const vector3& p, float& u, float& v, float radius, float height, const uvmapping& mapping)
+__host__ __device__ inline void get_cone_uv(const vector3& p, float& u, float& v, float radius, float height, const uvmapping& mapping)
 {
 	// Calculate the angle around the cone using atan2
 	float theta = atan2(p.x, p.z);
 
 	// Map the angle (theta) to the range [0, 1] for u coordinate
-	float s = (theta + M_PI) / (2 * M_PI);
+	float s = (theta + get_pi()) / (2 * get_pi());
 
 	// Calculate the distance from the cone apex to the point
 	float distance = sqrt(p.x * p.x + p.z * p.z);
@@ -360,60 +360,61 @@ __host__ __device__ void get_cone_uv(const vector3& p, float& u, float& v, float
 	float t = distance / radius; // Normalize distance by radius
 
 	// Apply texture repetition (tiling/repeating) to s and t
-	s = fmod(s * mapping.repeat_u(), 1.0); // Apply tiling to s (u-axis)
-	t = fmod(t * mapping.repeat_v(), 1.0); // Apply tiling to t (v-axis)
+	s = fmod(s * mapping.repeat_u(), 1.0f); // Apply tiling to s (u-axis)
+	s = fmod(s * mapping.repeat_u(), 1.0f); // Apply tiling to s (u-axis)
+	t = fmod(t * mapping.repeat_v(), 1.0f); // Apply tiling to t (v-axis)
 
 	// Map normalized coordinates (s, t) to (u, v) texture space
 	u = mapping.scale_u() * s + mapping.offset_u();
 	v = mapping.scale_v() * t + mapping.offset_v();
 }
 
-__host__ __device__ void get_xy_rect_uv(float x, float y, float& u, float& v, float x0, float x1, float y0, float y1, const uvmapping& mapping)
+__host__ __device__ inline void get_xy_rect_uv(float x, float y, float& u, float& v, float x0, float x1, float y0, float y1, const uvmapping& mapping)
 {
 	// Calculate normalized coordinates (s, t) within the range [0, 1]
 	float s = (x - x0) / (x1 - x0);
 	float t = (y - y0) / (y1 - y0);
 
 	// Apply tiling to the normalized coordinates
-	s = fmod(s * mapping.repeat_u(), 1.0); // Apply tiling to s (u-axis)
-	t = fmod(t * mapping.repeat_v(), 1.0); // Apply tiling to t (v-axis)
+	s = fmod(s * mapping.repeat_u(), 1.0f); // Apply tiling to s (u-axis)
+	t = fmod(t * mapping.repeat_v(), 1.0f); // Apply tiling to t (v-axis)
 
 	// Map normalized coordinates (s, t) to (u, v) texture space
 	u = mapping.scale_u() * s + mapping.offset_u();
 	v = mapping.scale_v() * t + mapping.offset_v();
 }
 
-__host__ __device__ void get_xz_rect_uv(float x, float z, float& u, float& v, float x0, float x1, float z0, float z1, const uvmapping& mapping)
+__host__ __device__ inline void get_xz_rect_uv(float x, float z, float& u, float& v, float x0, float x1, float z0, float z1, const uvmapping& mapping)
 {
 	// Calculate normalized coordinates (s, t) within the range [0, 1]
 	float s = (x - x0) / (x1 - x0);
 	float t = (z - z0) / (z1 - z0);
 
 	// Apply tiling to the normalized coordinates
-	s = fmod(s * mapping.repeat_u(), 1.0); // Apply tiling to s (u-axis)
-	t = fmod(t * mapping.repeat_v(), 1.0); // Apply tiling to t (v-axis)
+	s = fmod(s * mapping.repeat_u(), 1.0f); // Apply tiling to s (u-axis)
+	t = fmod(t * mapping.repeat_v(), 1.0f); // Apply tiling to t (v-axis)
 
 	// Map normalized coordinates (s, t) to (u, v) texture space
 	u = mapping.scale_u() * s + mapping.offset_u();
 	v = mapping.scale_v() * t + mapping.offset_v();
 }
 
-__host__ __device__ void get_yz_rect_uv(float y, float z, float& u, float& v, float y0, float y1, float z0, float z1, const uvmapping& mapping)
+__host__ __device__ inline void get_yz_rect_uv(float y, float z, float& u, float& v, float y0, float y1, float z0, float z1, const uvmapping& mapping)
 {
 	// Calculate normalized coordinates (s, t) within the range [0, 1]
 	float s = (y - y0) / (y1 - y0);
 	float t = (z - z0) / (z1 - z0);
 
 	// Apply tiling to the normalized coordinates
-	s = fmod(s * mapping.repeat_u(), 1.0); // Apply tiling to s (u-axis)
-	t = fmod(t * mapping.repeat_v(), 1.0); // Apply tiling to t (v-axis)
+	s = fmod(s * mapping.repeat_u(), 1.0f); // Apply tiling to s (u-axis)
+	t = fmod(t * mapping.repeat_v(), 1.0f); // Apply tiling to t (v-axis)
 
 	// Map normalized coordinates (s, t) to (u, v) texture space
 	u = mapping.scale_u() * s + mapping.offset_u();
 	v = mapping.scale_v() * t + mapping.offset_v();
 }
 
-__host__ __device__ void get_triangle_uv(const vector3 hitpoint, float& u, float& v, const vector3 verts[3], const vector2 vert_uvs[3])
+__host__ __device__ inline void get_triangle_uv(const vector3 hitpoint, float& u, float& v, const vector3 verts[3], const vector2 vert_uvs[3])
 {
 	// https://www.irisa.fr/prive/kadi/Cours_LR2V/Cours/RayTracing_Texturing.pdf
 	// https://computergraphics.stackexchange.com/questions/7738/how-to-assign-calculate-triangle-texture-coordinates
@@ -433,16 +434,16 @@ __host__ __device__ void get_triangle_uv(const vector3 hitpoint, float& u, float
 /// <summary>
 /// Function to calculate texture coordinates using barycentric coordinates
 /// </summary>
-__host__ __device__ vector2 calculateTextureCoordinate(vector2 uv0, vector2 uv1, vector2 uv2, const vector2& barycentricCoords)
+__host__ __device__ inline vector2 calculateTextureCoordinate(vector2 uv0, vector2 uv1, vector2 uv2, const vector2& barycentricCoords)
 {
 	float u = (barycentricCoords.x * uv0.x + barycentricCoords.y * uv1.x + (1.0f - barycentricCoords.x - barycentricCoords.y) * uv2.x);
 	float v = (barycentricCoords.x * uv0.y + barycentricCoords.y * uv1.y + (1.0f - barycentricCoords.x - barycentricCoords.y) * uv2.y);
 
 	// Apply texture repeat (wrap) behavior
-	u = std::fmod(u, 1.0);
-	v = std::fmod(v, 1.0);
-	if (u < 0.0) u += 1.0;
-	if (v < 0.0) v += 1.0;
+	u = std::fmod(u, 1.0f);
+	v = std::fmod(v, 1.0f);
+	if (u < 0.0) u += 1.0f;
+	if (v < 0.0) v += 1.0f;
 
 	return vector2(u, v); // Return texture coordinates
 }
@@ -450,10 +451,10 @@ __host__ __device__ vector2 calculateTextureCoordinate(vector2 uv0, vector2 uv1,
 /// <summary>
 /// TODO ! Could be enhanced by using stb_resize probably !
 /// </summary>
-__host__ __device__ void get_screen_uv(int x, int y, float texture_width, float texture_height, float render_width, float render_height, float& u, float& v)
+__host__ __device__ inline void get_screen_uv(int x, int y, float texture_width, float texture_height, float render_width, float render_height, float& u, float& v)
 {
 	// Calculate normalized coordinates (u, v) within the range [0, 1]
 	// Normalize pixel coordinates to [0, 1] with proper floating-point division
 	u = (x / texture_width) * (texture_width / render_width);
-	v = 1.0 - ((y / texture_height) * (texture_height / render_height));
+	v = 1.0f - ((y / texture_height) * (texture_height / render_height));
 }

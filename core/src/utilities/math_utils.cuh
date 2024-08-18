@@ -3,9 +3,6 @@
 #include "../misc/constants.cuh"
 #include "../misc/vector3.cuh"
 #include "../misc/color.cuh"
-#include <glm/glm.hpp>
-#include <stdlib.h>
-#include <ostream>
 
 template<typename T>
 __host__ __device__ T lerp(const T& a, const T& b, const T& x)
@@ -57,7 +54,7 @@ __host__ __device__ static bool near_zero(vector3 v)
 
 __host__ __device__ inline float degrees_to_radians(float degrees)
 {
-    return degrees * M_PI / 180.0;
+    return degrees * get_pi() / 180.0f;
 }
 
 /// <summary>

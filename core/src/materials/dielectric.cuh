@@ -45,10 +45,10 @@ public:
         }
 
         if (curand_uniform(local_rand_state) < reflect_prob) {
-            scattered = ray(rec.p, reflected);
+            scattered = ray(rec.hit_point, reflected);
         }
         else {
-            scattered = ray(rec.p, refracted);
+            scattered = ray(rec.hit_point, refracted);
         }
 
         return true;

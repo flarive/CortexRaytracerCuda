@@ -1,6 +1,6 @@
 #pragma once
 
-#include "misc/scene.h"
+#include "misc/scene.cuh"
 #include "misc/render_parameters.h"
 #include "renderers/renderer.h"
 #include "renderers/gpu_cuda_renderer.h"
