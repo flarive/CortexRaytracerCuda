@@ -48,7 +48,7 @@ public:
 				}
 				else if (param == "ratio" && !value.empty())
 				{
-					float p1 = 0, p2 = 0;
+					double p1 = 0, p2 = 0;
 
 					std::stringstream test(value);
 					std::string segment;
@@ -70,7 +70,7 @@ public:
 
 					if (p1 > 0 && p2 > 0)
 					{
-						params.ratio = p1 / p2;
+						params.ratio = static_cast<float>(p1 / p2);
 
 						if (params.ratio > 1)
 							params.height = static_cast<unsigned int>(params.width / params.ratio);

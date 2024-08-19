@@ -7,11 +7,10 @@
 
 // Ensure GLM configuration is compatible with CUDA
 #define GLM_FORCE_CUDA
-//#define GLM_FORCE_INLINE
 #include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/detail/setup.hpp>
-#include <glm/detail/type_vec3.hpp>
+//#include <glm/gtc/type_ptr.hpp>
+//#include <glm/detail/setup.hpp>
+//#include <glm/detail/type_vec3.hpp>
 
 
 //#include <Eigen/Eigen/Core>

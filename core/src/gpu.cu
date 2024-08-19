@@ -1,10 +1,10 @@
 #include <iostream>
-#include <string>
+//#include <string>
 
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 
-#include <stdio.h>
+//#include <stdio.h>
 
 #include <curand_kernel.h>
 
@@ -111,7 +111,7 @@ __device__ vector3 get_color(const ray& r, const vector3& background, hittable *
 __global__ void create_cornell_box(hittable **elist, hittable **eworld, camera **cam, int nx, int ny, image_texture** texture, curandState *rand_state)
 {
     if (threadIdx.x == 0 && blockIdx.x == 0) {
-        curandState local_rand_state = *rand_state;
+        //curandState local_rand_state = *rand_state;
         int i = 0;
         /*elist[i++] = new flip_normals(new yz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(vector3(0.12, 0.45, 0.15)))));
         elist[i++] = new yz_rect(0, 555, 0, 555, 0, new lambertian(new solid_color_texture(vector3(0.65, 0.05, 0.05))));*/
@@ -238,7 +238,7 @@ void renderGPU(int nx, int ny, int ns, int tx, int ty, const char* filepath)
     int num_pixels = nx * ny;
 
     int tex_x, tex_y, tex_n;
-    unsigned char *tex_data_host = stbi_load("e:\\earth_diffuse.jpg", &tex_x, &tex_y, &tex_n, 0);
+    unsigned char *tex_data_host = stbi_load("C:\\Users\\flarive\\Documents\\Visual Studio 2022\\Projects\\RT\\data\\models\\earth_diffuse.jpg", &tex_x, &tex_y, &tex_n, 0);
     if (!tex_data_host) {
         std::cerr << "Failed to load texture." << std::endl;
         return;
@@ -292,9 +292,9 @@ void renderGPU(int nx, int ny, int ns, int tx, int ty, const char* filepath)
     for (int j = ny - 1; j >= 0; j--) {
         for (int i = 0; i < nx; i++) {
             size_t pixel_index = j * nx + i;
-            imageHost[(ny - j - 1) * nx * 3 + i * 3] = 255.99 * image[pixel_index].r;
-            imageHost[(ny - j - 1) * nx * 3 + i * 3 + 1] = 255.99 * image[pixel_index].g;
-            imageHost[(ny - j - 1) * nx * 3 + i * 3 + 2] = 255.99 * image[pixel_index].b;
+            imageHost[(ny - j - 1) * nx * 3 + i * 3] = 255.99f * image[pixel_index].r;
+            imageHost[(ny - j - 1) * nx * 3 + i * 3 + 1] = 255.99f * image[pixel_index].g;
+            imageHost[(ny - j - 1) * nx * 3 + i * 3 + 2] = 255.99f * image[pixel_index].b;
         }
     }
     stbi_write_png(filepath, nx, ny, 3, imageHost, nx * 3);

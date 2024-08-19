@@ -34,25 +34,25 @@ __host__ __device__ inline float get_infinity()
 
 __host__ __device__ inline float get_pi()
 {
-	return 3.1415926535897932385;
+	return 3.14159274101257324219f;
 }
 
 __host__ __device__ inline float get_2_pi()
 {
-	return 6.28318530718;
+	return 6.28318530718f;
 }
 
 __host__ __device__ inline float get_1_div_pi()
 {
-	return 0.318309886183790671538;
+	return 0.318309886183790671538f;
 }
 
 __host__ __device__ inline float get_half_pi()
 {
-	return 1.57079632679489661923;
+	return 1.57079632679489661923f;
 }
 
 __host__ __device__ inline float get_shadow_acne_fix()
 {
-	return 0.00001;
+	return 0.00001f;
 }

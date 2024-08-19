@@ -199,7 +199,7 @@ __host__ __device__ inline float color::linear_to_gamma(float linear_component) 
 }
 
 __host__ __device__ inline color color::blend_colors(const color& front, const color& back, float alpha) {
-    return alpha * front + (1.0 - alpha) * back;
+    return alpha * front + (1.0f - alpha) * back;
 }
 
 __host__ __device__ inline color color::blend_with_background(const color& background, const color& object_color, float alpha) {
@@ -224,7 +224,7 @@ __host__ __device__ inline color color::RGBtoHSV(color rgb)
 
     if (delta_val > 0) {
         if (max_val == rgb.r()) {
-            hsv.r(60 * std::fmod((rgb.g() - rgb.b()) / delta_val, 6));
+            hsv.r(60 * std::fmodf((rgb.g() - rgb.b()) / delta_val, 6));
         }
         else if (max_val == rgb.g()) {
             hsv.r(60 * ((rgb.b() - rgb.r()) / delta_val + 2));
@@ -241,8 +241,8 @@ __host__ __device__ inline color color::RGBtoHSV(color rgb)
 __host__ __device__ inline color color::HSVtoRGB(color hsv)
 {
     float chroma = hsv.b() * hsv.g();
-    float fHPrime = fmod(hsv.r() / 60.0f, 6);
-    float x_val = chroma * (1 - fabs(fmod(fHPrime, 2) - 1));
+    float fHPrime = std::fmodf(hsv.r() / 60.0f, 6);
+    float x_val = chroma * (1 - std::fabs(std::fmodf(fHPrime, 2) - 1));
     float m_val = hsv.b() - chroma;
 
     color rgb;
