@@ -8,7 +8,7 @@
 
 #include <curand_kernel.h>
 
-
+#include "misc/vector3.cuh"
 #include "misc/bvh_node.cuh"
 #include "cameras/camera.cuh"
 #include "cameras/perspective_camera.cuh"
@@ -211,7 +211,7 @@ __global__ void render(vector3* fb, int max_x, int max_y, int ns, camera **cam, 
     if((i >= max_x) || (j >= max_y)) return;
     int pixel_index = j*max_x + i;
     curandState local_rand_state = randState[pixel_index];
-    vector3 col(0,0,0);
+    vector3 col(0.0f, 0.0f, 0.0f);
     vector3 background(0, 0, 0);
 
     for(int s=0; s < ns; s++)
@@ -238,7 +238,7 @@ void renderGPU(int nx, int ny, int ns, int tx, int ty, const char* filepath)
     int num_pixels = nx * ny;
 
     int tex_x, tex_y, tex_n;
-    unsigned char *tex_data_host = stbi_load("C:\\Users\\flarive\\Documents\\Visual Studio 2022\\Projects\\RT\\data\\models\\earth_diffuse.jpg", &tex_x, &tex_y, &tex_n, 0);
+    unsigned char *tex_data_host = stbi_load("e:\\earth_diffuse.jpg", &tex_x, &tex_y, &tex_n, 0);
     if (!tex_data_host) {
         std::cerr << "Failed to load texture." << std::endl;
         return;

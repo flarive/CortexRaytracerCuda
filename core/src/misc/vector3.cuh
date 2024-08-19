@@ -1,17 +1,19 @@
 #pragma once
-#include <cuda_runtime.h>
-#include <device_launch_parameters.h>
-#include <curand_kernel.h>
+
 
 #define CUDA_VERSION 12000
 
 // Ensure GLM configuration is compatible with CUDA
 #define GLM_FORCE_CUDA
+//#define GLM_FORCE_INLINE
 #include <glm/glm.hpp>
 //#include <glm/gtc/type_ptr.hpp>
 //#include <glm/detail/setup.hpp>
 //#include <glm/detail/type_vec3.hpp>
 
+#include <cuda_runtime.h>
+#include <device_launch_parameters.h>
+#include <curand_kernel.h>
 
 //#include <Eigen/Eigen/Core>
 //#include <Eigen/Eigen/StdVector>

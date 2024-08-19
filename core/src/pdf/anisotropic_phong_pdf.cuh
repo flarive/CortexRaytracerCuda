@@ -88,7 +88,7 @@ __host__ __device__ vector3 anisotropic_phong_pdf::generate(scatter_record& rec,
 	xi = get_real(local_rand_state);
 	DealWithQuadrants(xi, phase, flip);
 
-	float theta = acos(pow(1. - xi, 1. / (m_nu * c2 + m_nv * s2 + 1.)));
+	float theta = acos(pow(1.0f - xi, 1.0f / (m_nu * c2 + m_nv * s2 + 1.0f)));
 	if (flip)
 		theta = phase - theta;
 	else
@@ -133,25 +133,25 @@ __host__ __device__ void anisotropic_phong_pdf::DealWithQuadrants(float& xi, flo
 	phase = 0;
 	flip = false;
 
-	if (xi < 0.25)
+	if (xi < 0.25f)
 	{
 		xi *= 4;
 	}
-	else if (xi < 0.5)
+	else if (xi < 0.5f)
 	{
-		xi = 1. - 4. * (0.5 - xi);
+		xi = 1.0f - 4.0f * (0.5f - xi);
 		phase = get_pi();
 		flip = true;
 	}
 	else if (xi < 0.75)
 	{
-		xi = 1. - 4. * (0.75 - xi);
+		xi = 1.0f - 4.0f * (0.75f - xi);
 		phase = get_pi();
 	}
 	else
 	{
-		xi = 1. - 4. * (1. - xi);
-		phase = 2. * get_pi();
+		xi = 1.0f - 4.0f * (1.0f - xi);
+		phase = 2.0f * get_pi();
 		flip = true;
 	}
 }

@@ -118,6 +118,14 @@ __host__ __device__ aabb sphere::bounding_box() const
 /// <returns></returns>
 __device__ bool sphere::hit(const ray& r, interval ray_t, hit_record& rec, int depth, curandState* local_rand_state) const
 {
+    //glm::vec3 local_v(1.0f, 2.0f, 3.0f);
+    //glm::vec3 local_v2(1.0f, 2.0f, 3.0f);
+
+    //auto kkk = glm::dot(local_v, local_v2);
+
+
+
+    
     point3 center = is_moving ? sphere_center(r.time()) : center1;
     vector3 oc = r.origin() - center;
     float a = vector_length_squared(r.direction());
