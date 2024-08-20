@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../misc/vector3.cuh"
 #include "../misc/aabb.cuh"
 #include "../misc/ray.cuh"
 
@@ -35,9 +36,9 @@ struct hit_record
 	vector3 tangent{}; // tangent vector calculated from the normal (obj models only)
 	vector3 bitangent{}; // bitangent vector calculated from the normal (obj models only)
 
-	__host__ __device__ inline void set_face_normal(const ray& r, const vector3& outward_normal)
+	__device__ inline void set_face_normal(const vector3& ray_direction, const vector3& outward_normal)
     {
-		front_face = glm::dot(r.direction(), outward_normal) < 0;
+		front_face = dot(ray_direction, outward_normal) < 0.0f;
         normal = front_face ? outward_normal : -outward_normal;
     }
 };

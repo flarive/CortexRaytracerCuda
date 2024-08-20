@@ -118,74 +118,58 @@ __host__ __device__ aabb sphere::bounding_box() const
 /// <returns></returns>
 __device__ bool sphere::hit(const ray& r, interval ray_t, hit_record& rec, int depth, curandState* local_rand_state) const
 {
-    //glm::vec3 local_v(1.0f, 2.0f, 3.0f);
-    //glm::vec3 local_v2(1.0f, 2.0f, 3.0f);
-
-    //auto kkk = glm::dot(local_v, local_v2);
-
-   
-
-    //point3 center = center1;
-
-    //if (is_moving)
-    //{
-    //    center = sphere_center(r.time());
-    //}
-
-    //point3 oc = r.origin() - center;
-
-
-
     point3 center = is_moving ? sphere_center(r.time()) : center1;
     point3 oc = r.origin() - center;
     float a = vector_length_squared(r.direction());
-    float half_b = glm::dot(oc, r.direction());
+    float half_b = dot_vector(vector3(oc.x, oc.y, oc.z), r.direction());
     float c = vector_length_squared(oc) - radius * radius;
 
-    //float discriminant = half_b * half_b - a * c;
-    //if (discriminant < 0) return false;
-    //float sqrtd = sqrt(discriminant);
+    float discriminant = half_b * half_b - a * c;
+    if (discriminant < 0) return false;
+    float sqrtd = sqrt(discriminant);
 
-    //// Find the nearest root that lies in the acceptable range.
-    //float root = (-half_b - sqrtd) / a;
-    //if (!ray_t.surrounds(root)) {
-    //    root = (-half_b + sqrtd) / a;
-    //    if (!ray_t.surrounds(root))
-    //        return false;
-    //}
+    // Find the nearest root that lies in the acceptable range.
+    float root = (-half_b - sqrtd) / a;
+    if (!ray_t.surrounds(root)) {
+        root = (-half_b + sqrtd) / a;
+        if (!ray_t.surrounds(root))
+            return false;
+    }
 
-    //// number of hits encountered by the ray (only the nearest ?)
-    //rec.t = root;
+    // number of hits encountered by the ray (only the nearest ?)
+    rec.t = root;
 
     //// point coordinate of the hit
-    //rec.hit_point = r.at(rec.t);
+    rec.hit_point = r.at(rec.t);
 
-    //// material of the hit object
-    //rec.mat = mat;
+    // material of the hit object
+    rec.mat = mat;
 
-    //// name of the primitive hit by the ray
-    //rec.name = m_name;
-    //rec.bbox = m_bbox;
+    // name of the primitive hit by the ray
+    rec.name = m_name;
+    rec.bbox = m_bbox;
 
-    //// set normal and front-face tracking
-    //vector3 outward_normal = (rec.hit_point - center) / radius;
-    //rec.set_face_normal(r, outward_normal);
+    // set normal and front-face tracking
+    point3 temp = (rec.hit_point - center) / radius;
+    vector3 outward_normal = vector3(temp.x, temp.y, temp.z);
+    rec.set_face_normal(r.direction(), outward_normal);
 
-    //// compute phi and theta for tangent and bitangent calculation
-    //float phi = atan2(outward_normal.z, outward_normal.x);
-    //float theta = acos(outward_normal.y);
+    // compute phi and theta for tangent and bitangent calculation
+    float phi = atan2(outward_normal.z, outward_normal.x);
+    float theta = acos(outward_normal.y);
 
-    //// compute sphere primitive tangent and bitangent for normals
-    //vector3 tan, bitan;
-    //getTangentAndBitangentAroundPoint(outward_normal, radius, phi, theta, tan, bitan);
-
-    //// store tangents and bitangents in the hit record if needed
-    //rec.tangent = tan;
-    //rec.bitangent = bitan;
+    // compute sphere primitive tangent and bitangent for normals
+    vector3 tan, bitan;
+    getTangentAndBitangentAroundPoint(outward_normal, radius, phi, theta, tan, bitan);
 
 
-    //// compute UV coordinates
-    //get_sphere_uv(outward_normal, rec.u, rec.v, m_mapping);
+    // store tangents and bitangents in the hit record if needed
+    rec.tangent = tan;
+    rec.bitangent = bitan;
+
+
+    // compute UV coordinates
+    get_sphere_uv(outward_normal, rec.u, rec.v, m_mapping);
 
     return true;
 }
@@ -245,7 +229,7 @@ __host__ __device__ void sphere::getTangentAndBitangentAroundPoint(const vector3
 
     // hack FL to try having same normal rendering between sphere and obj
     tan.x = p.z;
-    tan.y = 0;
+    tan.y = 0.0f;
     tan.z = -p.x;
 
     // Normalize the tangent

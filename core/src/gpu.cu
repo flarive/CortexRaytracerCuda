@@ -244,6 +244,27 @@ void renderGPU(int nx, int ny, int ns, int tx, int ty, const char* filepath)
         return;
     }
 
+    size_t stackSize;
+
+    // Get the current stack size limit
+    cudaError_t result1 = cudaDeviceGetLimit(&stackSize, cudaLimitStackSize);
+    if (result1 != cudaSuccess) {
+        std::cerr << "Failed to get stack size: " << cudaGetErrorString(result1) << std::endl;
+        return;
+    }
+
+    std::cout << "Current stack size limit: " << stackSize << " bytes" << std::endl;
+
+
+    size_t newStackSize = 2048; // Set the stack size to 1MB per thread
+
+    cudaError_t result2 = cudaDeviceSetLimit(cudaLimitStackSize, newStackSize);
+    if (result2 != cudaSuccess) {
+        std::cerr << "Failed to set stack size: " << cudaGetErrorString(result2) << std::endl;
+        return;
+    }
+
+
     unsigned char *tex_data;
     checkCudaErrors(cudaMallocManaged(&tex_data, tex_x * tex_y * tex_n * sizeof(unsigned char)));
     checkCudaErrors(cudaMemcpy(tex_data, tex_data_host, tex_x * tex_y * tex_n * sizeof(unsigned char), cudaMemcpyHostToDevice));

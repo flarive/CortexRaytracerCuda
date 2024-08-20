@@ -4,8 +4,9 @@
 #define CUDA_VERSION 12000
 
 // Ensure GLM configuration is compatible with CUDA
-#define GLM_FORCE_CUDA
+
 //#define GLM_FORCE_INLINE
+#define GLM_FORCE_CUDA
 #include <glm/glm.hpp>
 //#include <glm/gtc/type_ptr.hpp>
 //#include <glm/detail/setup.hpp>
@@ -84,6 +85,11 @@ __host__ __device__ inline float l2(vector3 v) {
 
 __host__ __device__ inline float l1(vector3 v) {
 	return v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
+}
+
+// Dot product function
+__host__ __device__ inline float dot_vector(const vector3& v1, const vector3& v2) {
+	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 }
 
 __host__ __device__ inline vector3 unitv(vector3 v) {

@@ -8,13 +8,13 @@ class image_texture : public texture
 public:
     __device__ image_texture() {}
     __device__ image_texture(unsigned char* pixels, int A, int B) : data(pixels), nx(A), ny(B) {}
-    __device__ virtual vector3 value(float u, float v, const vector3& p) const;
+    __device__ virtual vector3 value(float u, float v, const point3& p) const;
 
     unsigned char* data;
     int nx, ny;
 };
 
-__device__ vector3 image_texture::value(float u, float v, const vector3& p) const
+__device__ vector3 image_texture::value(float u, float v, const point3& p) const
 {
     int i = u * nx;
     int j = (1 - v) * ny - 0.001;

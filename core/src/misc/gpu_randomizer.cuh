@@ -3,9 +3,9 @@
 #include "../misc/vector3.cuh"
 #include "../misc/constants.cuh"
 
-#define GLM_FORCE_CUDA
-#include <glm/glm.hpp>
-
+//#define GLM_FORCE_CUDA
+//#include <glm/glm.hpp>
+//
 
 
 

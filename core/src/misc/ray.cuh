@@ -71,7 +71,7 @@ __host__ __device__ inline float ray::time() const
 
 __host__ __device__ inline point3 ray::at(float t) const
 {
-    return orig + t * dir;
+    return orig + t * point3(dir.x, dir.y, dir.z);
 }
 
 __host__ __device__ inline vector3 ray::inverseDirection() const
