@@ -90,8 +90,8 @@ public:
 
 private:
     point3 center1{};
-    float radius = 0;
-    material* mat;
+    float radius = 0.0f;
+    material* mat = nullptr;
     bool is_moving = false;
     vector3 center_vec{};
 
@@ -123,59 +123,69 @@ __device__ bool sphere::hit(const ray& r, interval ray_t, hit_record& rec, int d
 
     //auto kkk = glm::dot(local_v, local_v2);
 
+   
+
+    //point3 center = center1;
+
+    //if (is_moving)
+    //{
+    //    center = sphere_center(r.time());
+    //}
+
+    //point3 oc = r.origin() - center;
 
 
-    
+
     point3 center = is_moving ? sphere_center(r.time()) : center1;
-    vector3 oc = r.origin() - center;
+    point3 oc = r.origin() - center;
     float a = vector_length_squared(r.direction());
-    float half_b = dot(oc, r.direction());
+    float half_b = glm::dot(oc, r.direction());
     float c = vector_length_squared(oc) - radius * radius;
 
-    float discriminant = half_b * half_b - a * c;
-    if (discriminant < 0) return false;
-    float sqrtd = sqrt(discriminant);
+    //float discriminant = half_b * half_b - a * c;
+    //if (discriminant < 0) return false;
+    //float sqrtd = sqrt(discriminant);
 
-    // Find the nearest root that lies in the acceptable range.
-    float root = (-half_b - sqrtd) / a;
-    if (!ray_t.surrounds(root)) {
-        root = (-half_b + sqrtd) / a;
-        if (!ray_t.surrounds(root))
-            return false;
-    }
+    //// Find the nearest root that lies in the acceptable range.
+    //float root = (-half_b - sqrtd) / a;
+    //if (!ray_t.surrounds(root)) {
+    //    root = (-half_b + sqrtd) / a;
+    //    if (!ray_t.surrounds(root))
+    //        return false;
+    //}
 
-    // number of hits encountered by the ray (only the nearest ?)
-    rec.t = root;
+    //// number of hits encountered by the ray (only the nearest ?)
+    //rec.t = root;
 
-    // point coordinate of the hit
-    rec.hit_point = r.at(rec.t);
+    //// point coordinate of the hit
+    //rec.hit_point = r.at(rec.t);
 
-    // material of the hit object
-    rec.mat = mat;
+    //// material of the hit object
+    //rec.mat = mat;
 
-    // name of the primitive hit by the ray
-    rec.name = m_name;
-    rec.bbox = m_bbox;
+    //// name of the primitive hit by the ray
+    //rec.name = m_name;
+    //rec.bbox = m_bbox;
 
-    // set normal and front-face tracking
-    vector3 outward_normal = (rec.hit_point - center) / radius;
-    rec.set_face_normal(r, outward_normal);
+    //// set normal and front-face tracking
+    //vector3 outward_normal = (rec.hit_point - center) / radius;
+    //rec.set_face_normal(r, outward_normal);
 
-    // compute phi and theta for tangent and bitangent calculation
-    float phi = atan2(outward_normal.z, outward_normal.x);
-    float theta = acos(outward_normal.y);
+    //// compute phi and theta for tangent and bitangent calculation
+    //float phi = atan2(outward_normal.z, outward_normal.x);
+    //float theta = acos(outward_normal.y);
 
-    // compute sphere primitive tangent and bitangent for normals
-    vector3 tan, bitan;
-    getTangentAndBitangentAroundPoint(outward_normal, radius, phi, theta, tan, bitan);
+    //// compute sphere primitive tangent and bitangent for normals
+    //vector3 tan, bitan;
+    //getTangentAndBitangentAroundPoint(outward_normal, radius, phi, theta, tan, bitan);
 
-    // store tangents and bitangents in the hit record if needed
-    rec.tangent = tan;
-    rec.bitangent = bitan;
+    //// store tangents and bitangents in the hit record if needed
+    //rec.tangent = tan;
+    //rec.bitangent = bitan;
 
 
-    // compute UV coordinates
-    get_sphere_uv(outward_normal, rec.u, rec.v, m_mapping);
+    //// compute UV coordinates
+    //get_sphere_uv(outward_normal, rec.u, rec.v, m_mapping);
 
     return true;
 }
@@ -210,7 +220,7 @@ __device__ vector3 sphere::random(const point3& o, curandState* local_rand_state
 
 
 
-__host__ __device__ point3 sphere::sphere_center(float time) const
+__device__ point3 sphere::sphere_center(float time) const
 {
     // Linearly interpolate from center1 to center2 according to time, where t=0 yields
     // center1, and t=1 yields center2.
