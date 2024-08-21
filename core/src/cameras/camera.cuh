@@ -8,13 +8,6 @@
 class camera
 {
 public:
-    //__device__ camera(vector3 lookfrom, vector3 lookat, vector3 vup, float vfov, float aspect, float aperture, float focus_dist, float t0, float t1)
-    //{
-    //}
-
-
-    
-
     __device__ camera()
     {
     }

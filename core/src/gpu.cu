@@ -35,7 +35,7 @@
 #include "primitives/scale.cuh"
 #include "primitives/flip_normals.cuh"
 
-
+#include "lights/light.cuh"
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -209,52 +209,49 @@ __global__ void texture_init(unsigned char* tex_data, int nx, int ny, image_text
     }
 }
 
-__global__ void render(vector3* fb, int width, int height, int spp, int sqrt_spp, camera **cam, hittable **world, curandState *randState)
+__global__ void render(vector3* fb, int width, int height, int spp, int sqrt_spp, int max_depth, camera **cam, hittable **world, curandState *randState)
 {
     int i = threadIdx.x + blockIdx.x * blockDim.x;
     int j = threadIdx.y + blockIdx.y * blockDim.y;
     if((i >= width) || (j >= height)) return;
     int pixel_index = j* width + i;
     curandState local_rand_state = randState[pixel_index];
-    vector3 col(0.0f, 0.0f, 0.0f);
+    vector3 pixel_color(0.0f, 0.0f, 0.0f);
     vector3 background(0, 0, 0);
 
-    for (int s_j = 0; s_j < sqrt_spp; ++s_j)
-    {
-        for (int s_i = 0; s_i < sqrt_spp; ++s_i)
-        {
-            float u = float(i + curand_uniform(&local_rand_state)) / float(width);
-            float v = float(j + curand_uniform(&local_rand_state)) / float(height);
-            ray r = (*cam)->get_ray(u, v, &local_rand_state);
-            col += get_color(r, background, world, &local_rand_state);
-
-            //ray r = _camera.get_ray(i, j, s_i, s_j, aa_sampler);
-
-            //// pixel color is progressively being refined
-            //pixel_color += _camera.ray_color(r, max_depth, _scene);
-
-            //image[j][i] = pixel_color;
-
-        }
-    }
-
-    //for(int s=0; s < spp; s++)
+    // new
+    //for (int s_j = 0; s_j < sqrt_spp; ++s_j)
     //{
-    //    float u = float(i + curand_uniform(&local_rand_state)) / float(width);
-    //    float v = float(j + curand_uniform(&local_rand_state)) / float(height);
-    //    ray r = (*cam)->get_ray(u, v, &local_rand_state);
-    //    col += get_color(r, background, world, &local_rand_state);
+    //    for (int s_i = 0; s_i < sqrt_spp; ++s_i)
+    //    {
+    //        float u = float(i + curand_uniform(&local_rand_state)) / float(width);
+    //        float v = float(j + curand_uniform(&local_rand_state)) / float(height);
+
+    //        // new
+    //        ray r = (*cam)->get_ray(u, v, s_i, s_j, nullptr, &local_rand_state);
+    //        // pixel color is progressively being refined
+    //        pixel_color += (*cam)->ray_color(r, max_depth, world);
+    //    }
     //}
 
+    // old
+    for(int s=0; s < spp; s++)
+    {
+        float u = float(i + curand_uniform(&local_rand_state)) / float(width);
+        float v = float(j + curand_uniform(&local_rand_state)) / float(height);
+        ray r = (*cam)->get_ray(u, v, &local_rand_state);
+        pixel_color += get_color(r, background, world, &local_rand_state);
+    }
+
     randState[pixel_index] = local_rand_state;
-    col /= float(spp);
-    col[0] = sqrt(col[0]);
-    col[1] = sqrt(col[1]);
-    col[2] = sqrt(col[2]);
-    fb[pixel_index] = col;
+    pixel_color /= float(spp);
+    pixel_color[0] = sqrt(pixel_color[0]);
+    pixel_color[1] = sqrt(pixel_color[1]);
+    pixel_color[2] = sqrt(pixel_color[2]);
+    fb[pixel_index] = pixel_color;
 }
 
-void renderGPU(int width, int height, int spp, int tx, int ty, const char* filepath)
+void renderGPU(int width, int height, int spp, int max_depth, int tx, int ty, const char* filepath)
 {
     std::cout << "Rendering " << width << "x" << height << " " << spp << " samples > " << filepath << std::endl;
 
@@ -333,7 +330,7 @@ void renderGPU(int width, int height, int spp, int tx, int ty, const char* filep
     render_init<<<blocks, threads>>>(width, height, d_rand_state);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
-    render<<<blocks, threads>>>(image, width, height, spp, sqrt_spp, cam, eworld, d_rand_state);
+    render<<<blocks, threads>>>(image, width, height, spp, sqrt_spp, max_depth, cam, eworld, d_rand_state);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
@@ -360,7 +357,7 @@ void renderGPU(int width, int height, int spp, int tx, int ty, const char* filep
 
 
 
-void launchGPU(int nx, int ny, int ns, int tx, int ty, const char* filepath, bool quietMode)
+void launchGPU(int width, int height, int spp, int max_depth, int tx, int ty, const char* filepath, bool quietMode)
 {
     if (!isGpuAvailable())
     {
@@ -379,5 +376,5 @@ void launchGPU(int nx, int ny, int ns, int tx, int ty, const char* filepath, boo
     // --expt-relaxed-constexpr -Xcudafe --diag_suppress=esa_on_defaulted_function_ignored --std c++20 --verbose
     // --expt-relaxed-constexpr --std c++20 -Xcudafe="--diag_suppress=20012 --diag_suppress=20208" 
     //
-    renderGPU(nx, ny, ns, tx, ty, filepath);
+    renderGPU(width, height, spp, max_depth, tx, ty, filepath);
 }

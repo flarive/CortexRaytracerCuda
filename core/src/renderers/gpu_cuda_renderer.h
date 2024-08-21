@@ -14,7 +14,7 @@ public:
 
 
 // Declaration of the CUDA kernel launcher
-extern void launchGPU(int nx, int ny, int ns, int tx, int ty, const char* filepath, bool quietMode);
+extern void launchGPU(int width, int height, int spp, int max_depth, int tx, int ty, const char* filepath, bool quietMode);
 
 
 void gpu_cuda_renderer::render(scene& _scene, camera& camera, const render_parameters& _params, sampler* aa_sampler) const
@@ -24,5 +24,5 @@ void gpu_cuda_renderer::render(scene& _scene, camera& camera, const render_param
 
 	std::cout << "[INFO] Starting GPU Cuda rendering" << std::endl;
 
-	launchGPU(_params.width, _params.height, _params.samplePerPixel, 16, 16, _params.saveFilePath.c_str(), true);
+	launchGPU(_params.width, _params.height, _params.samplePerPixel, _params.recursionMaxDepth, 16, 16, _params.saveFilePath.c_str(), true);
 }

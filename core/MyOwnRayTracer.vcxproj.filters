@@ -161,6 +161,21 @@
     <ClInclude Include="src\primitives\scale.cuh">
       <Filter>Headers\primitives\transforms</Filter>
     </ClInclude>
+    <ClInclude Include="src\scenes\scene_builder.h">
+      <Filter>Headers\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenes\scene_factory.h">
+      <Filter>Headers\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenes\scene_loader.h">
+      <Filter>Headers\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenes\scene_manager.h">
+      <Filter>Headers\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lights\light.cuh">
+      <Filter>Headers\lights</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -223,6 +238,12 @@
     <Filter Include="Headers\pdf\base">
       <UniqueIdentifier>{4131fafa-f2c9-42b1-b839-87711fe12f09}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Headers\scenes">
+      <UniqueIdentifier>{21a1d2d2-3ef3-4bee-8cbc-cf4e2faa8618}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\lights">
+      <UniqueIdentifier>{8d39ce8c-ad18-47a6-8015-2552740fcf0a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="src\gpu.cu">
@@ -231,5 +252,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\scenes\scene_builder.cpp">
+      <Filter>Headers\scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenes\scene_factory.cpp">
+      <Filter>Headers\scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenes\scene_loader.cpp">
+      <Filter>Headers\scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenes\scene_manager.cpp">
+      <Filter>Headers\scenes</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

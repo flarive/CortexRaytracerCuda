@@ -3,6 +3,8 @@
 #include "misc/timer.h"
 #include "srenderer.h"
 
+#include "scenes/scene_manager.h"
+
 
 int main(int argc, char* argv[])
 {

@@ -94,6 +94,7 @@
     <CudaCompile Include="src\gpu.cu" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\lights\light.cuh" />
     <ClInclude Include="src\pdf\anisotropic_phong_pdf.cuh" />
     <ClInclude Include="src\pdf\hittable_pdf.cuh" />
     <ClInclude Include="src\pdf\image_pdf.cuh" />
@@ -132,6 +133,10 @@
     <ClInclude Include="src\renderers\gpu_cuda_renderer.h" />
     <ClInclude Include="src\renderers\renderer.h" />
     <ClInclude Include="src\samplers\sampler.cuh" />
+    <ClInclude Include="src\scenes\scene_builder.h" />
+    <ClInclude Include="src\scenes\scene_factory.h" />
+    <ClInclude Include="src\scenes\scene_loader.h" />
+    <ClInclude Include="src\scenes\scene_manager.h" />
     <ClInclude Include="src\srenderer.h" />
     <ClInclude Include="src\textures\checker_texture.cuh" />
     <ClInclude Include="src\textures\image_texture.cuh" />
@@ -151,6 +156,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\scenes\scene_builder.cpp" />
+    <ClCompile Include="src\scenes\scene_factory.cpp" />
+    <ClCompile Include="src\scenes\scene_loader.cpp" />
+    <ClCompile Include="src\scenes\scene_manager.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
