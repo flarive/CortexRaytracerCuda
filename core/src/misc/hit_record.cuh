@@ -8,14 +8,6 @@ class material;
 
 struct hit_record
 {
-    //float t;
-    //vector3 p;
-    //vector3 normal;
-    //material* mat_ptr;
-    //float u;
-    //float v;
-    //bool front_face;
-
 	point3 hit_point{}; // point (coordinates) where the hit occurred
 	vector3 normal{}; // normal vector where the hit occurred
 	material* mat = nullptr; // material of the object hit by the ray

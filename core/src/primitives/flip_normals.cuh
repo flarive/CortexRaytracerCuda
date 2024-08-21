@@ -45,7 +45,7 @@ __device__ float rt::flip_normals::pdf_value(const point3& o, const vector3& v, 
     return 0.0f;
 }
 
-__device__ vector3 rt::flip_normals::random(const point3& o, curandState* local_rand_state) const
+__device__ vector3 rt::flip_normals::random(const vector3& o, curandState* local_rand_state) const
 {
     return vector3();
 }

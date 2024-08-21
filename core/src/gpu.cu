@@ -146,7 +146,7 @@ __global__ void create_cornell_box(hittable **elist, hittable **eworld, camera *
             &local_rand_state
         );*/
 
-        elist[i++] = new box(vector3(0, 0, 295), vector3(165, 330, 165), new lambertian(new solid_color_texture(vector3(0.73, 0.73, 0.73))));
+        elist[i++] = new rt::translate(new box(vector3(0, 0, 295), vector3(165, 330, 165), new lambertian(new solid_color_texture(vector3(0.73, 0.73, 0.73)))), vector3(120,0,320));
         
 
 
@@ -209,41 +209,62 @@ __global__ void texture_init(unsigned char* tex_data, int nx, int ny, image_text
     }
 }
 
-__global__ void render(vector3* fb, int max_x, int max_y, int ns, camera **cam, hittable **world, curandState *randState)
+__global__ void render(vector3* fb, int width, int height, int spp, int sqrt_spp, camera **cam, hittable **world, curandState *randState)
 {
     int i = threadIdx.x + blockIdx.x * blockDim.x;
     int j = threadIdx.y + blockIdx.y * blockDim.y;
-    if((i >= max_x) || (j >= max_y)) return;
-    int pixel_index = j*max_x + i;
+    if((i >= width) || (j >= height)) return;
+    int pixel_index = j* width + i;
     curandState local_rand_state = randState[pixel_index];
     vector3 col(0.0f, 0.0f, 0.0f);
     vector3 background(0, 0, 0);
 
-    for(int s=0; s < ns; s++)
+    for (int s_j = 0; s_j < sqrt_spp; ++s_j)
     {
-        float u = float(i + curand_uniform(&local_rand_state)) / float(max_x);
-        float v = float(j + curand_uniform(&local_rand_state)) / float(max_y);
-        ray r = (*cam)->get_ray(u, v, &local_rand_state);
-        col += get_color(r, background, world, &local_rand_state);
+        for (int s_i = 0; s_i < sqrt_spp; ++s_i)
+        {
+            float u = float(i + curand_uniform(&local_rand_state)) / float(width);
+            float v = float(j + curand_uniform(&local_rand_state)) / float(height);
+            ray r = (*cam)->get_ray(u, v, &local_rand_state);
+            col += get_color(r, background, world, &local_rand_state);
+
+            //ray r = _camera.get_ray(i, j, s_i, s_j, aa_sampler);
+
+            //// pixel color is progressively being refined
+            //pixel_color += _camera.ray_color(r, max_depth, _scene);
+
+            //image[j][i] = pixel_color;
+
+        }
     }
 
+    //for(int s=0; s < spp; s++)
+    //{
+    //    float u = float(i + curand_uniform(&local_rand_state)) / float(width);
+    //    float v = float(j + curand_uniform(&local_rand_state)) / float(height);
+    //    ray r = (*cam)->get_ray(u, v, &local_rand_state);
+    //    col += get_color(r, background, world, &local_rand_state);
+    //}
+
     randState[pixel_index] = local_rand_state;
-    col /= float(ns);
+    col /= float(spp);
     col[0] = sqrt(col[0]);
     col[1] = sqrt(col[1]);
     col[2] = sqrt(col[2]);
     fb[pixel_index] = col;
 }
 
-void renderGPU(int nx, int ny, int ns, int tx, int ty, const char* filepath)
+void renderGPU(int width, int height, int spp, int tx, int ty, const char* filepath)
 {
-    std::cout << "Rendering " << nx << "x" << ny << " " << ns << " samples > " << filepath << std::endl;
+    std::cout << "Rendering " << width << "x" << height << " " << spp << " samples > " << filepath << std::endl;
+
+    int sqrt_spp = static_cast<int>(sqrt(spp));
     
     // Values
-    int num_pixels = nx * ny;
+    int num_pixels = width * height;
 
     int tex_x, tex_y, tex_n;
-    unsigned char *tex_data_host = stbi_load("C:\\Users\\flarive\\Documents\\Visual Studio 2022\\Projects\\RT\\data\\models\\earth_diffuse.jpg", &tex_x, &tex_y, &tex_n, 0);
+    unsigned char *tex_data_host = stbi_load("e:\\earth_diffuse.jpg", &tex_x, &tex_y, &tex_n, 0);
     if (!tex_data_host) {
         std::cerr << "Failed to load texture." << std::endl;
         return;
@@ -282,7 +303,7 @@ void renderGPU(int nx, int ny, int ns, int tx, int ty, const char* filepath)
 
     // Allocating CUDA memory
     vector3* image;
-    checkCudaErrors(cudaMallocManaged((void**)&image, nx * ny * sizeof(vector3)));
+    checkCudaErrors(cudaMallocManaged((void**)&image, width * height * sizeof(vector3)));
 
     // Allocate random state
     curandState *d_rand_state;
@@ -303,29 +324,29 @@ void renderGPU(int nx, int ny, int ns, int tx, int ty, const char* filepath)
     checkCudaErrors(cudaMalloc((void **)&eworld, sizeof(hittable*)));
     camera** cam;
     checkCudaErrors(cudaMalloc((void **)&cam, sizeof(camera*)));
-    create_cornell_box<<<1, 1>>>(elist, eworld, cam, nx, ny, texture, d_rand_state2);
+    create_cornell_box<<<1, 1>>>(elist, eworld, cam, width, height, texture, d_rand_state2);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
-    dim3 blocks(nx/tx+1,ny/ty+1);
-    dim3 threads(tx,ty);
-    render_init<<<blocks, threads>>>(nx, ny, d_rand_state);
+    dim3 blocks(width / tx+1, height / ty+1);
+    dim3 threads(tx, ty);
+    render_init<<<blocks, threads>>>(width, height, d_rand_state);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
-    render<<<blocks, threads>>>(image, nx, ny,  ns, cam, eworld, d_rand_state);
+    render<<<blocks, threads>>>(image, width, height, spp, sqrt_spp, cam, eworld, d_rand_state);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
-    uint8_t* imageHost = new uint8_t[nx * ny * 3 * sizeof(uint8_t)];
-    for (int j = ny - 1; j >= 0; j--) {
-        for (int i = 0; i < nx; i++) {
-            size_t pixel_index = j * nx + i;
-            imageHost[(ny - j - 1) * nx * 3 + i * 3] = 255.99f * image[pixel_index].r;
-            imageHost[(ny - j - 1) * nx * 3 + i * 3 + 1] = 255.99f * image[pixel_index].g;
-            imageHost[(ny - j - 1) * nx * 3 + i * 3 + 2] = 255.99f * image[pixel_index].b;
+    uint8_t* imageHost = new uint8_t[width * height * 3 * sizeof(uint8_t)];
+    for (int j = height - 1; j >= 0; j--) {
+        for (int i = 0; i < width; i++) {
+            size_t pixel_index = j * width + i;
+            imageHost[(height - j - 1) * width * 3 + i * 3] = 255.99f * image[pixel_index].r;
+            imageHost[(height - j - 1) * width * 3 + i * 3 + 1] = 255.99f * image[pixel_index].g;
+            imageHost[(height - j - 1) * width * 3 + i * 3 + 2] = 255.99f * image[pixel_index].b;
         }
     }
-    stbi_write_png(filepath, nx, ny, 3, imageHost, nx * 3);
+    stbi_write_png(filepath, width, height, 3, imageHost, width * 3);
 
     // Clean up
     checkCudaErrors(cudaDeviceSynchronize());

@@ -17,7 +17,7 @@ namespace rt
 		__host__ __device__ aabb bounding_box() const override;
 
     private:
-        std::shared_ptr<hittable> m_object;
+		hittable* m_object = nullptr;
         vector3 m_pivot{};
         vector3 m_scale{};
     };
@@ -71,9 +71,9 @@ __device__ float  rt::scale::pdf_value(const point3& o, const vector3& v, curand
     return 0.0f;
 }
 
-__device__ vector3  rt::scale::random(const point3& o, curandState* local_rand_state) const
+__device__ vector3 rt::scale::random(const vector3& o, curandState* local_rand_state) const
 {
-    return vector3();
+	return vector3();
 }
 
 __host__ __device__ aabb rt::scale::bounding_box() const

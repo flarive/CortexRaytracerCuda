@@ -151,7 +151,7 @@ __device__ float  rt::rotate::pdf_value(const point3& o, const vector3& v, curan
     return 0.0f;
 }
 
-__device__ vector3  rt::rotate::random(const point3& o, curandState* local_rand_state) const
+__device__ vector3 rt::rotate::random(const vector3& o, curandState* local_rand_state) const
 {
     return vector3();
 }

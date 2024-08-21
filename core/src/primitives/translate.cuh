@@ -10,33 +10,22 @@ namespace rt
     class translate : public hittable
     {
     public:
-        //__device__ translate(hittable* p, const vector3& displacement) : ptr(p), offset(displacement) {}
-
-        //__device__ virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const;
-        //__device__ virtual bool bounding_box(float t0, float t1, aabb& output_box) const;
-
-        //hittable* ptr;
-        //vector3 offset;
-
-
-        __device__ translate(std::shared_ptr<hittable> p, const vector3& displacement);
+        __device__ translate(hittable* p, const vector3& displacement);
 
         __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, curandState* local_rand_state) const override;
         __device__ float pdf_value(const point3& o, const vector3& v, curandState* local_rand_state) const override;
         __device__ vector3 random(const vector3& o, curandState* local_rand_state) const override;
         __host__ __device__ aabb bounding_box() const override;
 
-
-
     private:
-        std::shared_ptr<hittable> m_object;
+        hittable* m_object;
         vector3 m_offset{};
     };
 }
 
 
 
-rt::translate::translate(std::shared_ptr<hittable> p, const vector3& displacement)
+rt::translate::translate(hittable* p, const vector3& displacement)
     : m_object(p), m_offset(displacement)
 {
     setName(p->getName());
@@ -64,7 +53,7 @@ __device__ float  rt::translate::pdf_value(const point3& o, const vector3& v, cu
     return 0.0f;
 }
 
-__device__ vector3  rt::translate::random(const point3& o, curandState* local_rand_state) const
+__device__ vector3 rt::translate::random(const vector3& o, curandState* local_rand_state) const
 {
     return vector3();
 }
