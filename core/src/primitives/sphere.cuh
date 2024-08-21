@@ -152,7 +152,7 @@ __device__ bool sphere::hit(const ray& r, interval ray_t, hit_record& rec, int d
     // set normal and front-face tracking
     point3 temp = (rec.hit_point - center) / radius;
     vector3 outward_normal = vector3(temp.x, temp.y, temp.z);
-    rec.set_face_normal(r.direction(), outward_normal);
+    rec.set_face_normal(r, outward_normal);
 
     // compute phi and theta for tangent and bitangent calculation
     float phi = atan2(outward_normal.z, outward_normal.x);

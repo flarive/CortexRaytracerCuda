@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ray.cuh"
+//#include "ray.cuh"
 #include "../misc/vector3.cuh"
 
 /// <summary>
@@ -85,17 +85,17 @@ private:
 };
 
 
-vector3 onb::LocalToGlobal(float X, float Y, float Z) const
+__device__ vector3 onb::LocalToGlobal(float X, float Y, float Z) const
 {
 	return X * axis[0] + Y * axis[1] + Z * axis[2];
 }
 
-vector3 onb::LocalToGlobal(const vector3& vect) const
+__device__ vector3 onb::LocalToGlobal(const vector3& vect) const
 {
 	return vect.x * axis[0] + vect.y * axis[1] + vect.z * axis[2];
 }
 
-vector3 onb::GlobalToLocal(const vector3& vect) const
+__device__ vector3 onb::GlobalToLocal(const vector3& vect) const
 {
 	return vector3(
 		axis[0].x * vect.x + axis[1].x * vect.y + axis[2].x * vect.z,
@@ -105,17 +105,17 @@ vector3 onb::GlobalToLocal(const vector3& vect) const
 }
 
 
-vector3 onb::local(float a, float b, float c) const
+__device__ vector3 onb::local(float a, float b, float c) const
 {
 	return a * u() + b * v() + c * w();
 }
 
-vector3 onb::local(const vector3& a) const
+__device__ vector3 onb::local(const vector3& a) const
 {
 	return a.x * u() + a.y * v() + a.z * w();
 }
 
-void onb::build_from_w(const vector3& n)
+__device__ void onb::build_from_w(const vector3& n)
 {
 	axis[2] = unit_vector(n);
 	vector3 a = (std::fabs(w().x) > 0.9) ? vector3(0, 1, 0) : vector3(1, 0, 0);
@@ -123,7 +123,7 @@ void onb::build_from_w(const vector3& n)
 	axis[0] = glm::cross(w(), v());
 }
 
-void onb::BuildFrom(const vector3& v)
+__device__ void onb::BuildFrom(const vector3& v)
 {
 	//basis[2] = v.Normalize(); // don't normalize, pass it as normalized already, so avoid useless computations
 	axis[2] = v;
@@ -135,7 +135,7 @@ void onb::BuildFrom(const vector3& v)
 	axis[0] = vector_modulo_operator(axis[1], axis[2]); // x = y % z
 }
 
-void onb::BuildFrom(const vector3& n, const vector3& i)
+__device__ void onb::BuildFrom(const vector3& n, const vector3& i)
 {
 	const float cosine = glm::abs(vector_multiply_to_double(n, i));
 
@@ -151,7 +151,7 @@ void onb::BuildFrom(const vector3& n, const vector3& i)
 	}
 }
 
-void onb::BuildFrom(const vector3& n, const vector3& t, const vector3& b)
+__device__ void onb::BuildFrom(const vector3& n, const vector3& t, const vector3& b)
 {
 	axis[2] = n; // z
 	axis[0] = t;

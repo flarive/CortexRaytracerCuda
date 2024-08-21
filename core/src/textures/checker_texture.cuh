@@ -18,6 +18,6 @@ public:
         }
     }
 
-    texture* odd;
-    texture* even;
+    texture* odd = nullptr;
+    texture* even = nullptr;
 };

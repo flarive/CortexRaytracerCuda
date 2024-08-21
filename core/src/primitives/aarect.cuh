@@ -41,7 +41,7 @@ __host__ __device__ xy_rect::xy_rect(float _x0, float _x1, float _y0, float _y1,
 
     m_mapping = _mapping;
 
-    m_bbox = aabb(point3(x0, y0, k - 0.0001), point3(x1, y1, k + 0.0001));
+    m_bbox = aabb(point3(x0, y0, k - 0.0001f), point3(x1, y1, k + 0.0001f));
 }
 
 __device__ bool xy_rect::hit(const ray& r, interval ray_t, hit_record& rec, int depth, curandState* local_rand_state) const
@@ -161,7 +161,7 @@ __host__ __device__ xz_rect::xz_rect(float _x0, float _x1, float _z0, float _z1,
 
     m_mapping = _mapping;
 
-    m_bbox = aabb(vector3(x0, k - 0.0001, z0), vector3(x1, k + 0.0001, z1));
+    m_bbox = aabb(vector3(x0, k - 0.0001f, z0), vector3(x1, k + 0.0001f, z1));
 }
 
 __device__ bool xz_rect::hit(const ray& r, interval ray_t, hit_record& rec, int depth, curandState* local_rand_state) const
@@ -281,7 +281,7 @@ __host__ __device__ yz_rect::yz_rect(float _y0, float _y1, float _z0, float _z1,
 
     m_mapping = _mapping;
 
-    m_bbox = aabb(vector3(k - 0.0001, y0, z0), vector3(k + 0.0001, y1, z1));
+    m_bbox = aabb(vector3(k - 0.0001f, y0, z0), vector3(k + 0.0001f, y1, z1));
 }
 
 

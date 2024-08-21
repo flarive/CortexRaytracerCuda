@@ -8,9 +8,9 @@
 //#define GLM_FORCE_INLINE
 #define GLM_FORCE_CUDA
 #include <glm/glm.hpp>
-//#include <glm/gtc/type_ptr.hpp>
-//#include <glm/detail/setup.hpp>
-//#include <glm/detail/type_vec3.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/detail/setup.hpp>
+#include <glm/detail/type_vec3.hpp>
 
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>

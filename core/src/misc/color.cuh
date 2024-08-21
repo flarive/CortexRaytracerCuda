@@ -56,7 +56,7 @@ public:
     /// <param name="out"></param>
     /// <param name="pixel_color"></param>
     /// <param name="samples_per_pixel"></param>
-    __host__ __device__ static color prepare_pixel_color(int x, int y, color pixel_color, int samples_per_pixel, bool gamma_correction);
+    __host__ static color prepare_pixel_color(int x, int y, color pixel_color, int samples_per_pixel, bool gamma_correction);
 
     __host__ __device__ static color RGBtoHSV(color rgb);
     __host__ __device__ static color HSVtoRGB(color hsv);
@@ -278,7 +278,7 @@ __host__ __device__ inline bool color::isValidColor()
     return c[0] >= 0 && c[1] >= 0 && c[2] >= 0 && c[3] >= 0;
 }
 
-__host__ __device__ inline color color::prepare_pixel_color(int x, int y, color pixel_color, int samples_per_pixel, bool gamma_correction)
+__host__ inline color color::prepare_pixel_color(int x, int y, color pixel_color, int samples_per_pixel, bool gamma_correction)
 {
     float r = std::isnan(pixel_color.r()) ? 0.0f : pixel_color.r();
     float g = std::isnan(pixel_color.g()) ? 0.0f : pixel_color.g();

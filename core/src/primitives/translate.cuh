@@ -1,18 +1,81 @@
-//#pragma once
-//
-//#include "hittable.cuh"
-//
-//class translate : public hittable
-//{
-//public:
-//    __device__ translate(hittable* p, const vector3& displacement) : ptr(p), offset(displacement) {}
-//
-//    __device__ virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const;
-//    __device__ virtual bool bounding_box(float t0, float t1, aabb& output_box) const;
-//
-//    hittable* ptr;
-//    vector3 offset;
-//};
+#pragma once
+
+#include "hittable.cuh"
+
+namespace rt
+{
+    /// <summary>
+    /// Translate an instance
+    /// </summary>
+    class translate : public hittable
+    {
+    public:
+        //__device__ translate(hittable* p, const vector3& displacement) : ptr(p), offset(displacement) {}
+
+        //__device__ virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const;
+        //__device__ virtual bool bounding_box(float t0, float t1, aabb& output_box) const;
+
+        //hittable* ptr;
+        //vector3 offset;
+
+
+        __device__ translate(std::shared_ptr<hittable> p, const vector3& displacement);
+
+        __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, curandState* local_rand_state) const override;
+        __device__ float pdf_value(const point3& o, const vector3& v, curandState* local_rand_state) const override;
+        __device__ vector3 random(const vector3& o, curandState* local_rand_state) const override;
+        __host__ __device__ aabb bounding_box() const override;
+
+
+
+    private:
+        std::shared_ptr<hittable> m_object;
+        vector3 m_offset{};
+    };
+}
+
+
+
+rt::translate::translate(std::shared_ptr<hittable> p, const vector3& displacement)
+    : m_object(p), m_offset(displacement)
+{
+    setName(p->getName());
+
+    m_bbox = m_object->bounding_box() + m_offset;
+}
+
+bool rt::translate::hit(const ray& r, interval ray_t, hit_record& rec, int depth, curandState* local_rand_state) const
+{
+    // Move the ray backwards by the offset
+    ray offset_r(r.origin() - m_offset, r.direction(), r.time());
+
+    // Determine where (if any) an intersection occurs along the offset ray
+    if (!m_object->hit(offset_r, ray_t, rec, depth, local_rand_state))
+        return false;
+
+    // Move the intersection point forwards by the offset
+    rec.hit_point += m_offset;
+
+    return true;
+}
+
+__device__ float  rt::translate::pdf_value(const point3& o, const vector3& v, curandState* local_rand_state) const
+{
+    return 0.0f;
+}
+
+__device__ vector3  rt::translate::random(const point3& o, curandState* local_rand_state) const
+{
+    return vector3();
+}
+
+aabb rt::translate::bounding_box() const
+{
+    return m_bbox;
+}
+
+
+
 //
 //__device__ bool translate::hit(const ray& r, float t_min, float t_max, hit_record& rec) const {
 //    ray moved_r(r.origin() - offset, r.direction(), r.time());

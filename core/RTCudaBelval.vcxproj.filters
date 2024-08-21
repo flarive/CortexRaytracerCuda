@@ -155,6 +155,12 @@
     <ClInclude Include="src\utilities\interval.cuh">
       <Filter>Headers\utilities</Filter>
     </ClInclude>
+    <ClInclude Include="src\primitives\quad.cuh">
+      <Filter>Headers\primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="src\primitives\scale.cuh">
+      <Filter>Headers\primitives\transforms</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">

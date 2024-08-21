@@ -14,6 +14,7 @@
 #include "cameras/perspective_camera.cuh"
 #include "primitives/hittable_list.cuh"
 #include "primitives/sphere.cuh"
+#include "primitives/quad.cuh"
 #include "primitives/aarect.cuh"
 #include "materials/diffuse_light.cuh"
 #include "primitives/moving_sphere.cuh"
@@ -31,6 +32,7 @@
 
 #include "primitives/translate.cuh"
 #include "primitives/rotate.cuh"
+#include "primitives/scale.cuh"
 #include "primitives/flip_normals.cuh"
 
 
@@ -113,19 +115,22 @@ __global__ void create_cornell_box(hittable **elist, hittable **eworld, camera *
     if (threadIdx.x == 0 && blockIdx.x == 0) {
         //curandState local_rand_state = *rand_state;
         int i = 0;
-        /*elist[i++] = new flip_normals(new yz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(vector3(0.12, 0.45, 0.15)))));
-        elist[i++] = new yz_rect(0, 555, 0, 555, 0, new lambertian(new solid_color_texture(vector3(0.65, 0.05, 0.05))));*/
+        elist[i++] = new rt::flip_normals(new yz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(vector3(0.12, 0.45, 0.15)))));
+        elist[i++] = new yz_rect(0, 555, 0, 555, 0, new lambertian(new solid_color_texture(vector3(0.65, 0.05, 0.05))));
         elist[i++] = new xz_rect(113, 443, 127, 432, 554, new diffuse_light(new solid_color_texture(vector3(1.0, 1.0, 1.0))));
-        //elist[i++] = new xz_rect(0, 555, 0, 555, 0, new lambertian(new solid_color_texture(vector3(0.73, 0.73, 0.73))));
-        //elist[i++] = new flip_normals(new xz_rect(0, 555, 0, 555, 555, new lambertian(new checker_texture(
-        //    new solid_color_texture(vector3(1, 1, 1)),
-        //    new solid_color_texture(vector3(0, 1, 0))
-        //))));
-        //elist[i++] = new flip_normals(new xz_rect(0, 555, 0, 555, 555, new lambertian(new checker_texture(
-        //    new solid_color_texture(vector3(1, 1, 1)),
-        //    new solid_color_texture(vector3(0, 1, 0))
-        //))));
-        //elist[i++] = new flip_normals(new xy_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(vector3(0.73, 0.73, 0.73)))));
+        elist[i++] = new xz_rect(0, 555, 0, 555, 0, new lambertian(new solid_color_texture(vector3(0.73, 0.73, 0.73))));
+        elist[i++] = new rt::flip_normals(new xz_rect(0, 555, 0, 555, 555, new lambertian(new checker_texture(
+            new solid_color_texture(vector3(1, 1, 1)),
+            new solid_color_texture(vector3(0, 1, 0))
+        ))));
+        elist[i++] = new rt::flip_normals(new xz_rect(0, 555, 0, 555, 555, new lambertian(new checker_texture(
+            new solid_color_texture(vector3(1, 1, 1)),
+            new solid_color_texture(vector3(0, 1, 0))
+        ))));
+        
+        // back
+        //elist[i++] = new xy_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(vector3(0.73, 0.73, 0.73))));
+        elist[i++] = new quad(point3(0,0,555), vector3(555,0,0), vector3(0,555,0), new lambertian(new solid_color_texture(vector3(0.73, 0.73, 0.73))));
 
 
         /*elist[i++] = new ConstantMedium(
@@ -141,7 +146,7 @@ __global__ void create_cornell_box(hittable **elist, hittable **eworld, camera *
             &local_rand_state
         );*/
 
-        //elist[i++] = new box(vector3(0, 0, 295), vector3(165, 330, 165), new lambertian(new solid_color_texture(vector3(0.73, 0.73, 0.73))));
+        elist[i++] = new box(vector3(0, 0, 295), vector3(165, 330, 165), new lambertian(new solid_color_texture(vector3(0.73, 0.73, 0.73))));
         
 
 
@@ -238,7 +243,7 @@ void renderGPU(int nx, int ny, int ns, int tx, int ty, const char* filepath)
     int num_pixels = nx * ny;
 
     int tex_x, tex_y, tex_n;
-    unsigned char *tex_data_host = stbi_load("e:\\earth_diffuse.jpg", &tex_x, &tex_y, &tex_n, 0);
+    unsigned char *tex_data_host = stbi_load("C:\\Users\\flarive\\Documents\\Visual Studio 2022\\Projects\\RT\\data\\models\\earth_diffuse.jpg", &tex_x, &tex_y, &tex_n, 0);
     if (!tex_data_host) {
         std::cerr << "Failed to load texture." << std::endl;
         return;
@@ -263,6 +268,8 @@ void renderGPU(int nx, int ny, int ns, int tx, int ty, const char* filepath)
         std::cerr << "Failed to set stack size: " << cudaGetErrorString(result2) << std::endl;
         return;
     }
+
+    std::cout << "New stack size limit: " << newStackSize << " bytes" << std::endl;
 
 
     unsigned char *tex_data;

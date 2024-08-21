@@ -3,18 +3,18 @@
 #include "../misc/vector3.cuh"
 #include "../misc/constants.cuh"
 
-//#define GLM_FORCE_CUDA
-//#include <glm/glm.hpp>
-//
 
-
-
+/// <summary>
+/// Returns a random value between 0.0f and 1.0f
+/// </summary>
+/// <param name="local_rand_state"></param>
+/// <returns></returns>
 __device__ inline float get_real(curandState* local_rand_state)
 {
     return curand_uniform(local_rand_state);
 }
 
-__device__ inline double get_real(curandState* local_rand_state, const double min, const double max)
+__device__ inline float get_real(curandState* local_rand_state, const float min, const float max)
 {
     return min + ((max - min) * get_real(local_rand_state));
 }
@@ -23,8 +23,8 @@ __device__ inline int get_int(curandState* local_rand_state, const int min, cons
 {
     return static_cast<int>(get_real(
         local_rand_state, 
-        static_cast<double>(min),
-        static_cast<double>(max + 1)
+        static_cast<float>(min),
+        static_cast<float>(max + 1)
     ));
 }
 
@@ -33,7 +33,7 @@ __device__ inline vector3 get_vector3(curandState* local_rand_state)
     return vector3(get_real(local_rand_state), get_real(local_rand_state), get_real(local_rand_state));
 }
 
-__device__ inline vector3 get_vector3(curandState* local_rand_state, const double lower, const double upper)
+__device__ inline vector3 get_vector3(curandState* local_rand_state, const float lower, const float upper)
 {
     return vector3(
         get_real(local_rand_state, lower, upper),
@@ -45,9 +45,9 @@ __device__ inline vector3 get_vector3(curandState* local_rand_state, const doubl
 
 __device__ inline vector3 get_unit_vector(curandState* local_rand_state)
 {
-    const double a = get_real(local_rand_state, 0, get_2_pi());
-    const double z = get_real(local_rand_state , -1, 1);
-    const double r = glm::sqrt(1 - (z * z));
+    const float a = get_real(local_rand_state, 0, get_2_pi());
+    const float z = get_real(local_rand_state , -1, 1);
+    const float r = glm::sqrt(1 - (z * z));
 
     return vector3(r * glm::cos(a), r * glm::sin(a), z);
 }
@@ -72,15 +72,15 @@ __device__ inline vector3 random_in_unit_sphere(curandState* local_rand_state)
     return p;
 }
 
-__device__ inline vector3 random_to_sphere(curandState* local_rand_state, double radius, double distance_squared)
+__device__ inline vector3 random_to_sphere(curandState* local_rand_state, float radius, float distance_squared)
 {
-    const double r1 = get_real(local_rand_state);
-    const double r2 = get_real(local_rand_state);
-    double z = 1 + r2 * (glm::sqrt(1 - radius * radius / distance_squared) - 1);
+    const float r1 = get_real(local_rand_state);
+    const float r2 = get_real(local_rand_state);
+    float z = 1 + r2 * (glm::sqrt(1 - radius * radius / distance_squared) - 1);
 
-    double phi = M_2_PI * r1;
-    double x = glm::cos(phi) * glm::sqrt(1 - z * z);
-    double y = glm::sin(phi) * glm::sqrt(1 - z * z);
+    float phi = M_2_PI * r1;
+    float x = glm::cos(phi) * glm::sqrt(1 - z * z);
+    float y = glm::sin(phi) * glm::sqrt(1 - z * z);
 
     return vector3(x, y, z);
 }
@@ -114,13 +114,13 @@ __device__ inline bool refract(const vector3& v, const vector3& n, float ni_over
 
 __device__ inline vector3 random_cosine_direction(curandState* local_rand_state)
 {
-    const double r1 = get_real(local_rand_state);
-    const double r2 = get_real(local_rand_state);
-    const double phi = get_2_pi() * r1;
-    const double z = glm::sqrt(1 - r2);
-    const double r2_sqrt = glm::sqrt(r2);
-    const double x = glm::cos(phi) * r2_sqrt;
-    const double y = glm::sin(phi) * r2_sqrt;
+    const float r1 = get_real(local_rand_state);
+    const float r2 = get_real(local_rand_state);
+    const float phi = get_2_pi() * r1;
+    const float z = glm::sqrt(1 - r2);
+    const float r2_sqrt = glm::sqrt(r2);
+    const float x = glm::cos(phi) * r2_sqrt;
+    const float y = glm::sin(phi) * r2_sqrt;
 
     return vector3(x, y, z);
 }

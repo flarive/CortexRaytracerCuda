@@ -1,28 +1,167 @@
-//#pragma once
-//
+#pragma once
+
 //#define DEGREES_TO_RADIANS(degrees)((M_PI * degrees)/180)
-//
-//#include "hittable.cuh"
-//#include "../misc/constants.cuh"
-//
-//
-//class rotate : public hittable
-//{
-//public:
-//    __device__ rotate(hittable* p, float angle);
-//
-//    __device__ virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const;
-//    __device__ virtual bool bounding_box(float t0, float t1, aabb& output_box) const {
-//        output_box = bbox;
-//        return hasbox;
-//    }
-//
-//    hittable* ptr;
-//    float sin_theta;
-//    float cos_theta;
-//    bool hasbox;
-//    aabb bbox;
-//};
+
+#include "hittable.cuh"
+
+namespace rt
+{
+    class rotate : public hittable
+    {
+    public:
+        //__device__ rotate(hittable* p, float angle);
+
+        //__device__ virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const;
+        //__device__ virtual bool bounding_box(float t0, float t1, aabb& output_box) const {
+        //    output_box = bbox;
+        //    return hasbox;
+        //}
+
+        //hittable* ptr;
+        //float sin_theta;
+        //float cos_theta;
+        //bool hasbox;
+        //aabb bbox;
+
+        __host__ __device__ rotate(std::shared_ptr<hittable> _p, const vector3& _rotation);
+
+        __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, curandState* local_rand_state) const override;
+        __device__ float pdf_value(const point3& o, const vector3& v, curandState* local_rand_state) const override;
+        __device__ vector3 random(const vector3& o, curandState* local_rand_state) const override;
+        __host__ __device__ aabb bounding_box() const override;
+
+
+    private:
+        //std::shared_ptr<hittable> m_object;
+        //double m_sin_theta = 0;
+        //double m_cos_theta = 0;
+        //int m_axis = 0;
+
+
+
+        //glm::dquat m_rotationQuaternion;
+        //vector3 m_center;
+        //vector3 m_halfExtents;
+
+        //point3 m_center;
+
+
+        std::shared_ptr<hittable> m_object;
+        double sin_theta;
+        double cos_theta;
+        aabb bbox;
+
+        vector3 m_rotation{};
+    };
+}
+
+
+rt::rotate::rotate(std::shared_ptr<hittable> _object, const vector3& _rotation) : m_object(_object), m_rotation(_rotation)
+{
+    m_name = _object->getName();
+
+    auto radians_x = degrees_to_radians(_rotation.x);
+    auto radians_y = degrees_to_radians(_rotation.y);
+    auto radians_z = degrees_to_radians(_rotation.z);
+
+
+    matrix4 rotationMatrix(1.0f);
+    rotationMatrix = glm::rotate(rotationMatrix, radians_x, vector3(1.0f, 0.0f, 0.0f));
+    rotationMatrix = glm::rotate(rotationMatrix, radians_y, vector3(0.0f, 1.0f, 0.0f));
+    rotationMatrix = glm::rotate(rotationMatrix, radians_z, vector3(0.0f, 0.0f, 1.0f));
+
+    bbox = m_object->bounding_box();
+
+    point3 min(get_infinity(), get_infinity(), get_infinity());
+    point3 max(-get_infinity(), -get_infinity(), -get_infinity());
+
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 2; j++) {
+            for (int k = 0; k < 2; k++) {
+                vector4 corner(
+                    i * bbox.x.max + (1 - i) * bbox.x.min,
+                    j * bbox.y.max + (1 - j) * bbox.y.min,
+                    k * bbox.z.max + (1 - k) * bbox.z.min,
+                    1.0f
+                );
+
+                vector4 rotatedCorner = rotationMatrix * corner;
+                vector3 tester(rotatedCorner.x, rotatedCorner.y, rotatedCorner.z);
+
+                for (int c = 0; c < 3; c++) {
+                    min[c] = fmin(min[c], tester[c]);
+                    max[c] = fmax(max[c], tester[c]);
+                }
+            }
+        }
+    }
+
+    bbox = aabb(min, max);
+}
+
+bool rt::rotate::hit(const ray& r, interval ray_t, hit_record& rec, int depth, curandState* local_rand_state) const
+{
+    // Change the ray from world space to object space
+    auto origin = r.origin();
+    auto direction = r.direction();
+
+    vector4 origin_vec(origin[0], origin[1], origin[2], 1.0f);
+    vector4 direction_vec(direction[0], direction[1], direction[2], 0.0f);
+
+    auto radians_x = degrees_to_radians(-m_rotation.x);
+    auto radians_y = degrees_to_radians(-m_rotation.y);
+    auto radians_z = degrees_to_radians(-m_rotation.z);
+
+    matrix4 inverseRotationMatrix(1.0f);
+    inverseRotationMatrix = glm::rotate(inverseRotationMatrix, radians_x, vector3(1.0f, 0.0f, 0.0f));
+    inverseRotationMatrix = glm::rotate(inverseRotationMatrix, radians_y, vector3(0.0f, 1.0f, 0.0f));
+    inverseRotationMatrix = glm::rotate(inverseRotationMatrix, radians_z, vector3(0.0f, 0.0f, 1.0f));
+
+    vector4 rotated_origin = inverseRotationMatrix * origin_vec;
+    vector4 rotated_direction = inverseRotationMatrix * direction_vec;
+
+    ray rotated_r(point3(rotated_origin.x, rotated_origin.y, rotated_origin.z),
+        vector3(rotated_direction.x, rotated_direction.y, rotated_direction.z),
+        r.time());
+
+    // Determine whether an intersection exists in object space (and if so, where)
+    if (!m_object->hit(rotated_r, ray_t, rec, depth, local_rand_state))
+        return false;
+
+    // Change the intersection point from object space to world space
+    vector4 hit_point_vec(rec.hit_point[0], rec.hit_point[1], rec.hit_point[2], 1.0f);
+    vector4 normal_vec(rec.normal[0], rec.normal[1], rec.normal[2], 0.0f);
+
+    matrix4 rotationMatrix(1.0f);
+    rotationMatrix = glm::rotate(rotationMatrix, degrees_to_radians(m_rotation.x), vector3(1.0f, 0.0f, 0.0f));
+    rotationMatrix = glm::rotate(rotationMatrix, degrees_to_radians(m_rotation.y), vector3(0.0f, 1.0f, 0.0f));
+    rotationMatrix = glm::rotate(rotationMatrix, degrees_to_radians(m_rotation.z), vector3(0.0f, 0.0f, 1.0f));
+
+    vector4 world_hit_point = rotationMatrix * hit_point_vec;
+    vector4 world_normal = rotationMatrix * normal_vec;
+
+    rec.hit_point = point3(world_hit_point.x, world_hit_point.y, world_hit_point.z);
+    rec.normal = vector3(world_normal.x, world_normal.y, world_normal.z);
+
+    return true;
+}
+
+__device__ float  rt::rotate::pdf_value(const point3& o, const vector3& v, curandState* local_rand_state) const
+{
+    return 0.0f;
+}
+
+__device__ vector3  rt::rotate::random(const point3& o, curandState* local_rand_state) const
+{
+    return vector3();
+}
+
+aabb rt::rotate::bounding_box() const
+{
+    return bbox;
+}
+
+
 //
 //__device__ rotate::rotate(hittable *p, float angle) : ptr(p) {
 //    auto radians = DEGREES_TO_RADIANS(angle);
