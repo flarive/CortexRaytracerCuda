@@ -94,6 +94,7 @@
     <CudaCompile Include="src\gpu.cu" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\lights\directional_light.cuh" />
     <ClInclude Include="src\lights\light.cuh" />
     <ClInclude Include="src\pdf\anisotropic_phong_pdf.cuh" />
     <ClInclude Include="src\pdf\hittable_pdf.cuh" />

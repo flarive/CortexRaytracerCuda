@@ -36,6 +36,7 @@
 #include "primitives/flip_normals.cuh"
 
 #include "lights/light.cuh"
+#include "lights/directional_light.cuh"
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -82,20 +83,25 @@ void check_cuda(cudaError_t result, char const* const func, const char* const fi
     }
 }
 
-__device__ vector3 get_color(const ray& r, const vector3& background, hittable **world, curandState *local_rand_state) {
+__device__ color get_color(const ray& r, const color& background, hittable **world, curandState *local_rand_state)
+{
     ray cur_ray = r;
-    vector3 cur_attenuation = vector3(1.0, 1.0, 1.0);
-    vector3 cur_emitted = vector3(0.0, 0.0, 0.0);
+    color cur_attenuation = color(1.0, 1.0, 1.0);
+    color cur_emitted = color(0.0, 0.0, 0.0);
     for(int i = 0; i < 100; i++) {
         hit_record rec;
-        if ((*world)->hit(cur_ray, interval(0.001f, FLT_MAX), rec, 0, local_rand_state)) {
-            ray scattered;
-            vector3 attenuation;
-            vector3 emitted = rec.mat->emitted(rec.u, rec.v, rec.hit_point);
-            if(rec.mat->scatter(cur_ray, rec, attenuation, scattered, local_rand_state)) {
+        if ((*world)->hit(cur_ray, interval(0.001f, FLT_MAX), rec, 0, local_rand_state))
+        {
+            scatter_record srec;
+            color attenuation;
+            color emitted = rec.mat->emitted(cur_ray, rec, rec.u, rec.v, rec.hit_point, local_rand_state);
+
+            if(rec.mat->scatter(cur_ray, *world, rec, srec, local_rand_state))
+            {
                 cur_attenuation *= attenuation;
                 cur_emitted += emitted * cur_attenuation;
-                cur_ray = scattered;
+                //cur_ray = scattered; // ?????????????
+                cur_ray = srec.skip_pdf_ray; // ?????????????
             }
             else {
                 return cur_emitted + emitted * cur_attenuation;
@@ -216,8 +222,8 @@ __global__ void render(vector3* fb, int width, int height, int spp, int sqrt_spp
     if((i >= width) || (j >= height)) return;
     int pixel_index = j* width + i;
     curandState local_rand_state = randState[pixel_index];
-    vector3 pixel_color(0.0f, 0.0f, 0.0f);
-    vector3 background(0, 0, 0);
+    color pixel_color(0.0f, 0.0f, 0.0f);
+    color background(0, 0, 0);
 
     // new
     //for (int s_j = 0; s_j < sqrt_spp; ++s_j)

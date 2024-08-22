@@ -8,12 +8,12 @@
 class mixture_pdf : public pdf
 {
 public:
-	__host__ __device__ mixture_pdf() : proportion(0.5) { p[0] = nullptr; p[1] = nullptr; }
-	__host__ __device__ mixture_pdf(pdf* p0, pdf* p1) : proportion(0.5) { p[0] = p0; p[1] = p1; }
-	__host__ __device__ mixture_pdf(pdf* p0, pdf* p1, double prop) : proportion(prop) { p[0] = p0; p[1] = p1; }
+	__device__ mixture_pdf() : proportion(0.5) { p[0] = nullptr; p[1] = nullptr; }
+	__device__ mixture_pdf(pdf* p0, pdf* p1) : proportion(0.5) { p[0] = p0; p[1] = p1; }
+	__device__ mixture_pdf(pdf* p0, pdf* p1, double prop) : proportion(prop) { p[0] = p0; p[1] = p1; }
 
-	__host__ __device__ float value(const vector3& direction, curandState* local_rand_state) const override;
-	__host__ __device__ vector3 generate(scatter_record& rec, curandState* local_rand_state) override;
+	__device__ float value(const vector3& direction, curandState* local_rand_state) const override;
+	__device__ vector3 generate(scatter_record& rec, curandState* local_rand_state) override;
 
 public:
 	double proportion = 0.0;
@@ -22,12 +22,12 @@ public:
 
 
 
-__host__ __device__ float mixture_pdf::value(const vector3& direction, curandState* local_rand_state) const
+__device__ float mixture_pdf::value(const vector3& direction, curandState* local_rand_state) const
 {
 	return proportion * (p[0]->value(direction, local_rand_state)) + (1.0 - proportion) * (p[1]->value(direction, local_rand_state));
 }
 
-__host__ __device__ vector3 mixture_pdf::generate(scatter_record& rec, curandState* local_rand_state)
+__device__ vector3 mixture_pdf::generate(scatter_record& rec, curandState* local_rand_state)
 {
 	if (get_real(local_rand_state) < proportion)
 	{

@@ -37,17 +37,17 @@ public:
 		return axis[i];
 	}
 
-	__device__ vector3 u() const
+	__host__ __device__ vector3 u() const
 	{
 		return axis[0];
 	}
 
-	__device__ vector3 v() const
+	__host__ __device__ vector3 v() const
 	{
 		return axis[1];
 	}
 
-	__device__ vector3 w() const
+	__host__ __device__ vector3 w() const
 	{
 		return axis[2];
 	}

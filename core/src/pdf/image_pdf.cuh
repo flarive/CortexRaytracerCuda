@@ -9,10 +9,10 @@
 class image_pdf : public pdf
 {
 public:
-	__host__ __device__ image_pdf(image_texture* img);
+	__device__ image_pdf(image_texture* img);
 
-	__host__ __device__ float value(const vector3& direction, curandState* local_rand_state) const override;
-	__host__ __device__ vector3 generate(scatter_record& rec, curandState* local_rand_state) override;
+	__device__ float value(const vector3& direction, curandState* local_rand_state) const override;
+	__device__ vector3 generate(scatter_record& rec, curandState* local_rand_state) override;
 
 public:
 	image_texture* m_image = nullptr;

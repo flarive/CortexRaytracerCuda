@@ -8,7 +8,7 @@
 class anisotropic_phong_pdf : public pdf
 {
 public:
-	__host__ __device__ anisotropic_phong_pdf(const vector3& inc, const vector3& norm, double Nu, double Nv)
+	__device__ anisotropic_phong_pdf(const vector3& inc, const vector3& norm, double Nu, double Nv)
 		: m_incident(inc), m_onb(norm, inc), m_nu(Nu), m_nv(Nv)
 	{
 		const double nu1 = m_nu + 1.;
@@ -17,8 +17,8 @@ public:
 		m_prefactor2 = sqrt(nu1 * nv1) / (2. * get_pi());
 	}
 
-	__host__ __device__ float value(const vector3& direction, curandState* local_rand_state) const override;
-	__host__ __device__ vector3 generate(scatter_record& rec, curandState* local_rand_state) override;
+	__device__ float value(const vector3& direction, curandState* local_rand_state) const override;
+	__device__ vector3 generate(scatter_record& rec, curandState* local_rand_state) override;
 
 private:
 	__host__ __device__ inline static double Schlick(const double val, float cosine)
@@ -58,7 +58,7 @@ private:
 
 
 
-__host__ __device__ float anisotropic_phong_pdf::value(const vector3& direction, curandState* local_rand_state) const
+__device__ float anisotropic_phong_pdf::value(const vector3& direction, curandState* local_rand_state) const
 {
 	const float cosine = vector_multiply_to_double(direction, m_onb.Normal());
 	if (cosine < 0) return 0;
@@ -66,7 +66,7 @@ __host__ __device__ float anisotropic_phong_pdf::value(const vector3& direction,
 	return cosine * get_1_div_pi();
 }
 
-__host__ __device__ vector3 anisotropic_phong_pdf::generate(scatter_record& rec, curandState* local_rand_state)
+__device__ vector3 anisotropic_phong_pdf::generate(scatter_record& rec, curandState* local_rand_state)
 {
 	float phase;
 	bool flip;

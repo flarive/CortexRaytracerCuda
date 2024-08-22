@@ -173,8 +173,11 @@
     <ClInclude Include="src\scenes\scene_manager.h">
       <Filter>Headers\scenes</Filter>
     </ClInclude>
-    <ClInclude Include="src\lights\light.cuh">
+    <ClInclude Include="src\lights\directional_light.cuh">
       <Filter>Headers\lights</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lights\light.cuh">
+      <Filter>Headers\lights\base</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -243,6 +246,9 @@
     </Filter>
     <Filter Include="Headers\lights">
       <UniqueIdentifier>{8d39ce8c-ad18-47a6-8015-2552740fcf0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\lights\base">
+      <UniqueIdentifier>{d43cdebc-9769-4a7f-96c7-781d130c5c3d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

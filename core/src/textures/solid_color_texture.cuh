@@ -8,10 +8,10 @@ class solid_color_texture : public texture
 {
 public:
     __device__ solid_color_texture() {}
-    __device__ solid_color_texture(vector3 c) : color(c) {}
-    __device__ virtual vector3 value(float u, float v, const point3& p) const {
-        return color;
+    __device__ solid_color_texture(color c) : m_color(c) {}
+    __device__ virtual color value(float u, float v, const point3& p) const {
+        return m_color;
     }
 
-    vector3 color;
+    color m_color;
 };

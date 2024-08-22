@@ -9,12 +9,12 @@
 class hittable_pdf : public pdf
 {
 public:
-    __host__ __device__ hittable_pdf(const hittable& _objects, const point3& _origin)
+    __device__ hittable_pdf(const hittable& _objects, const point3& _origin)
         : objects(_objects), origin(_origin)
     {}
 
-    __host__ __device__ float value(const vector3& direction, curandState* local_rand_state) const override;
-    __host__ __device__ vector3 generate(scatter_record& rec, curandState* local_rand_state) override;
+    __device__ float value(const vector3& direction, curandState* local_rand_state) const override;
+    __device__ vector3 generate(scatter_record& rec, curandState* local_rand_state) override;
 
 
 private:
@@ -22,12 +22,12 @@ private:
     point3 origin;
 };
 
-__host__ __device__ float hittable_pdf::value(const vector3& direction, curandState* local_rand_state) const
+__device__ float hittable_pdf::value(const vector3& direction, curandState* local_rand_state) const
 {
     return objects.pdf_value(origin, direction, local_rand_state);
 }
 
-__host__ __device__ vector3 hittable_pdf::generate(scatter_record& rec, curandState* local_rand_state)
+__device__ vector3 hittable_pdf::generate(scatter_record& rec, curandState* local_rand_state)
 {
     return objects.random(origin, local_rand_state);
 }
