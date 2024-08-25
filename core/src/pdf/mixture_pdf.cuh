@@ -8,33 +8,63 @@
 class mixture_pdf : public pdf
 {
 public:
-	__device__ mixture_pdf() : proportion(0.5) { p[0] = nullptr; p[1] = nullptr; }
-	__device__ mixture_pdf(pdf* p0, pdf* p1) : proportion(0.5) { p[0] = p0; p[1] = p1; }
-	__device__ mixture_pdf(pdf* p0, pdf* p1, double prop) : proportion(prop) { p[0] = p0; p[1] = p1; }
+	__device__ mixture_pdf() : proportion(0.5f) { p0 = nullptr; p1 = nullptr; }
+	__device__ mixture_pdf(pdf* _p0, pdf* _p1) : proportion(0.5f) { p0 = _p0; p1 = _p1; }
+	__device__ mixture_pdf(pdf* _p0, pdf* _p1, float _prop) : proportion(_prop) { p0 = _p0; p1 = _p1; }
+
+	__device__ ~mixture_pdf();
 
 	__device__ float value(const vector3& direction, curandState* local_rand_state) const override;
 	__device__ vector3 generate(scatter_record& rec, curandState* local_rand_state) override;
 
-public:
-	double proportion = 0.0;
-	pdf* p[2];
+	__host__ __device__ virtual pdfTypeID getTypeID() const { return pdfTypeID::pdfMixture; }
+
+private:
+	float proportion = 0.0f;
+	pdf* p0 = nullptr;
+	pdf* p1 = nullptr;
 };
 
 
 
-__device__ float mixture_pdf::value(const vector3& direction, curandState* local_rand_state) const
+__device__ inline float mixture_pdf::value(const vector3& direction, curandState* local_rand_state) const
 {
-	return proportion * (p[0]->value(direction, local_rand_state)) + (1.0 - proportion) * (p[1]->value(direction, local_rand_state));
+	return proportion * (p0->value(direction, local_rand_state)) + (1.0f - proportion) * (p1->value(direction, local_rand_state));
 }
 
-__device__ vector3 mixture_pdf::generate(scatter_record& rec, curandState* local_rand_state)
+__device__ inline vector3 mixture_pdf::generate(scatter_record& rec, curandState* local_rand_state)
 {
+	//if (p[0] == nullptr || p[1] == nullptr)
+	//{
+	//	printf("mixture_pdf assertion failed !\n");
+	//	return vector3();
+	//}
+
+	//printf("mixture_pdf::return ?\n");
+
 	if (get_real(local_rand_state) < proportion)
 	{
-		return p[0]->generate(rec, local_rand_state);
+		auto v0 = p0->generate(rec, local_rand_state);
+		printf("mixture_pdf::return p[0]->generate %f %f %f\n", v0.x, v0.y, v0.z);
+		return v0;
 	}
 	else
 	{
-		return p[1]->generate(rec, local_rand_state);
+		auto v1 = p1->generate(rec, local_rand_state);
+		printf("mixture_pdf::return p[0]->generate %f %f %f\n", v1.x, v1.y, v1.z);
+		return v1;
+	}
+}
+
+// Destructor implementation
+__device__ inline mixture_pdf::~mixture_pdf()
+{
+	if (p0) {
+		delete p0;
+		p0 = nullptr;
+	}
+	if (p1) {
+		delete p1;
+		p1 = nullptr;
 	}
 }

@@ -54,7 +54,7 @@ __host__ __device__ static bool near_zero(vector3 v)
 
 __host__ __device__ inline float degrees_to_radians(float degrees)
 {
-    return degrees * get_pi() / 180.0f;
+    return degrees * M_PI / 180.0f;
 }
 
 /// <summary>

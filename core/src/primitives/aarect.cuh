@@ -14,6 +14,8 @@ public:
     __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, curandState* local_rand_state) const override;
     __host__ __device__ aabb bounding_box() const override;
 
+    __host__ __device__ virtual HittableTypeID getTypeID() const { return HittableTypeID::hittableAaRectType; }
+
 private:
 
     material* mp = nullptr;
@@ -37,7 +39,7 @@ __host__ __device__ xy_rect::xy_rect(float _x0, float _x1, float _y0, float _y1,
     if (_name != nullptr)
         setName(_name);
     else
-        setName(new char[7] {"XYRect"});
+        setName("XYRect");
 
     m_mapping = _mapping;
 
@@ -157,7 +159,7 @@ __host__ __device__ xz_rect::xz_rect(float _x0, float _x1, float _z0, float _z1,
     if (_name != nullptr)
         setName(_name);
     else
-        setName(new char[7] {"XZRect"});
+        setName("XZRect");
 
     m_mapping = _mapping;
 
@@ -254,6 +256,8 @@ public:
 
     __host__ __device__ aabb bounding_box() const override;
 
+    __host__ __device__ virtual HittableTypeID getTypeID() const { return HittableTypeID::hittableAaRectType; }
+
 private:
     material* mp = nullptr;
     float y0 = 0, y1 = 0, z0 = 0, z1 = 0, k = 0;
@@ -277,7 +281,7 @@ __host__ __device__ yz_rect::yz_rect(float _y0, float _y1, float _z0, float _z1,
     if (_name != nullptr)
         setName(_name);
     else
-        setName(new char[7] {"YZRect"});
+        setName("YZRect");
 
     m_mapping = _mapping;
 

@@ -1,13 +1,13 @@
 #pragma once
 
-__device__ float* perlin_generate(curandState* local_rand_state) {
+__device__ inline float* perlin_generate(curandState* local_rand_state) {
     float* p = new float[256];
     for (int i = 0; i < 256; ++i)
         p[i] = curand_uniform(local_rand_state);
     return p;
 }
 
-__device__ void permute(int *p, int n, curandState* local_rand_state) {
+__device__ inline void permute(int *p, int n, curandState* local_rand_state) {
     for (int i = n-1; i > 0; i--) {
         int target = int(curand_uniform(local_rand_state)*(i+1));
         int tmp = p[i];
@@ -17,7 +17,7 @@ __device__ void permute(int *p, int n, curandState* local_rand_state) {
     return;
 }
 
-__device__ int* perlin_generate_perm(curandState* local_rand_state) {
+__device__ inline int* perlin_generate_perm(curandState* local_rand_state) {
     int * p = new int[256];
     for (int i = 0; i < 256; i++)
         p[i] = i;

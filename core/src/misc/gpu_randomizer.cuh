@@ -78,7 +78,7 @@ __device__ inline vector3 random_to_sphere(curandState* local_rand_state, float 
     const float r2 = get_real(local_rand_state);
     float z = 1 + r2 * (glm::sqrt(1 - radius * radius / distance_squared) - 1);
 
-    float phi = M_2_PI * r1;
+    float phi = get_m_2_pi() * r1;
     float x = glm::cos(phi) * glm::sqrt(1 - z * z);
     float y = glm::sin(phi) * glm::sqrt(1 - z * z);
 

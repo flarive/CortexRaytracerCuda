@@ -2,8 +2,7 @@
 
 #include "flip_normals.cuh"
 #include "../misc/aabb.cuh"
-
-
+#include "../utilities/cuda_utils.cuh"
 
 class box : public hittable
 {
@@ -16,10 +15,9 @@ public:
     __device__ float pdf_value(const point3& o, const vector3& v, curandState* local_rand_state) const override;
     __device__ vector3 random(const vector3& o, curandState* local_rand_state) const override;
 
+    __host__ __device__ virtual HittableTypeID getTypeID() const { return HittableTypeID::hittableBoxType; }
+
     __host__ __device__ aabb bounding_box() const override;
-
-
-
 
 private:
     vector3 pmin{}, pmax{};
@@ -48,22 +46,22 @@ __host__ __device__ box::box(const vector3& _center, const vector3& _size, mater
     list_ptr = new hittable_list();
 
     // font face
-    list_ptr->add(new xy_rect(pmin.x, pmax.x, pmin.y, pmax.y, pmax.z, _mat, _mapping));
+    list_ptr->add(new xy_rect(pmin.x, pmax.x, pmin.y, pmax.y, pmax.z, _mat, _mapping, concat(_name, "_front")));
 
     // back face
-    list_ptr->add(new rt::flip_normals(new xy_rect(pmin.x, pmax.x, pmin.y, pmax.y, pmin.z, _mat, _mapping)));
+    list_ptr->add(new rt::flip_normals(new xy_rect(pmin.x, pmax.x, pmin.y, pmax.y, pmin.z, _mat, _mapping, concat(_name, "back"))));
 
     // top face
-    list_ptr->add(new xz_rect(pmin.x, pmax.x, pmin.z, pmax.z, pmax.y, _mat, _mapping));
+    list_ptr->add(new xz_rect(pmin.x, pmax.x, pmin.z, pmax.z, pmax.y, _mat, _mapping, concat(_name, "_face")));
 
     // bottom face
-    list_ptr->add(new rt::flip_normals(new xz_rect(pmin.x, pmax.x, pmin.z, pmax.z, pmin.y, _mat, _mapping)));
+    list_ptr->add(new rt::flip_normals(new xz_rect(pmin.x, pmax.x, pmin.z, pmax.z, pmin.y, _mat, _mapping, concat(_name, "_bottom"))));
 
     // right face
-    list_ptr->add(new yz_rect(pmin.y, pmax.y, pmin.z, pmax.z, pmax.x, _mat, _mapping));
+    list_ptr->add(new yz_rect(pmin.y, pmax.y, pmin.z, pmax.z, pmax.x, _mat, _mapping, concat(_name, "_right")));
 
     // left face
-    list_ptr->add(new rt::flip_normals(new yz_rect(pmin.y, pmax.y, pmin.z, pmax.z, pmin.x, _mat, _mapping)));
+    list_ptr->add(new rt::flip_normals(new yz_rect(pmin.y, pmax.y, pmin.z, pmax.z, pmin.x, _mat, _mapping, concat(_name, "_left"))));
 
     m_bbox = aabb(pmin, pmax);
 }
@@ -78,11 +76,10 @@ __device__ float box::pdf_value(const point3& o, const vector3& v, curandState* 
     return 0.0f;
 }
 
-__device__ vector3 box::random(const point3& o, curandState* local_rand_state) const
+__device__ vector3 box::random(const vector3& o, curandState* local_rand_state) const
 {
     return vector3();
 }
-
 
 aabb box::bounding_box() const
 {

@@ -10,12 +10,14 @@ namespace rt
     class translate : public hittable
     {
     public:
-        __device__ translate(hittable* p, const vector3& displacement);
+        __host__ __device__ translate(hittable* p, const vector3& displacement);
 
         __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, curandState* local_rand_state) const override;
         __device__ float pdf_value(const point3& o, const vector3& v, curandState* local_rand_state) const override;
         __device__ vector3 random(const vector3& o, curandState* local_rand_state) const override;
         __host__ __device__ aabb bounding_box() const override;
+
+        __host__ __device__ virtual HittableTypeID getTypeID() const { return HittableTypeID::hittableTransformTranslateType; }
 
     private:
         hittable* m_object;
@@ -25,7 +27,7 @@ namespace rt
 
 
 
-rt::translate::translate(hittable* p, const vector3& displacement)
+__host__ __device__ rt::translate::translate(hittable* p, const vector3& displacement)
     : m_object(p), m_offset(displacement)
 {
     setName(p->getName());
@@ -33,7 +35,7 @@ rt::translate::translate(hittable* p, const vector3& displacement)
     m_bbox = m_object->bounding_box() + m_offset;
 }
 
-bool rt::translate::hit(const ray& r, interval ray_t, hit_record& rec, int depth, curandState* local_rand_state) const
+__device__ bool rt::translate::hit(const ray& r, interval ray_t, hit_record& rec, int depth, curandState* local_rand_state) const
 {
     // Move the ray backwards by the offset
     ray offset_r(r.origin() - m_offset, r.direction(), r.time());
@@ -58,7 +60,7 @@ __device__ vector3 rt::translate::random(const vector3& o, curandState* local_ra
     return vector3();
 }
 
-aabb rt::translate::bounding_box() const
+__host__ __device__ aabb rt::translate::bounding_box() const
 {
     return m_bbox;
 }

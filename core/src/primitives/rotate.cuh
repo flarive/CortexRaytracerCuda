@@ -23,12 +23,14 @@ namespace rt
         //bool hasbox;
         //aabb bbox;
 
-        __host__ __device__ rotate(std::shared_ptr<hittable> _p, const vector3& _rotation);
+        __host__ __device__ rotate(hittable* _p, const vector3& _rotation);
 
         __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, curandState* local_rand_state) const override;
         __device__ float pdf_value(const point3& o, const vector3& v, curandState* local_rand_state) const override;
         __device__ vector3 random(const vector3& o, curandState* local_rand_state) const override;
         __host__ __device__ aabb bounding_box() const override;
+
+        __host__ __device__ virtual HittableTypeID getTypeID() const { return HittableTypeID::hittableTransformRotateType; }
 
 
     private:
@@ -46,9 +48,9 @@ namespace rt
         //point3 m_center;
 
 
-        std::shared_ptr<hittable> m_object;
-        double sin_theta;
-        double cos_theta;
+        hittable* m_object;
+        float sin_theta = 0.0f;
+        float cos_theta = 0.0f;
         aabb bbox;
 
         vector3 m_rotation{};
@@ -56,7 +58,7 @@ namespace rt
 }
 
 
-rt::rotate::rotate(std::shared_ptr<hittable> _object, const vector3& _rotation) : m_object(_object), m_rotation(_rotation)
+__host__ __device__ rt::rotate::rotate(hittable* _object, const vector3& _rotation) : m_object(_object), m_rotation(_rotation)
 {
     m_name = _object->getName();
 
@@ -99,7 +101,7 @@ rt::rotate::rotate(std::shared_ptr<hittable> _object, const vector3& _rotation) 
     bbox = aabb(min, max);
 }
 
-bool rt::rotate::hit(const ray& r, interval ray_t, hit_record& rec, int depth, curandState* local_rand_state) const
+__device__ bool rt::rotate::hit(const ray& r, interval ray_t, hit_record& rec, int depth, curandState* local_rand_state) const
 {
     // Change the ray from world space to object space
     auto origin = r.origin();
@@ -156,7 +158,7 @@ __device__ vector3 rt::rotate::random(const vector3& o, curandState* local_rand_
     return vector3();
 }
 
-aabb rt::rotate::bounding_box() const
+__host__ __device__ aabb rt::rotate::bounding_box() const
 {
     return bbox;
 }

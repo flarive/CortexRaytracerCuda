@@ -16,6 +16,8 @@ namespace rt
 		__device__ vector3 random(const vector3& o, curandState* local_rand_state) const override;
 		__host__ __device__ aabb bounding_box() const override;
 
+		__host__ __device__ virtual HittableTypeID getTypeID() const { return HittableTypeID::hittableTransformScaleType; }
+
     private:
 		hittable* m_object = nullptr;
         vector3 m_pivot{};

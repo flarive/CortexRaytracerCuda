@@ -5,6 +5,8 @@
 #include "../textures/texture.cuh"
 
 #include "../pdf/cosine_pdf.cuh"
+#include "../textures/solid_color_texture.cuh"
+
 
 /// <summary>
 /// Diffuse material
@@ -37,7 +39,7 @@ public:
     {
     }
 
-    __host__ __device__ lambertian(const color& _color, double _transparency, double _refraction_index)
+    __host__ __device__ lambertian(const color& _color, float _transparency, float _refraction_index)
         : material(new solid_color_texture(_color), nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, _transparency, _refraction_index)
     {
     }
@@ -47,11 +49,12 @@ public:
     {
     }
 
-    __host__ __device__ lambertian(texture* _albedo, double _transparency, double _refraction_index)
+    __host__ __device__ lambertian(texture* _albedo, float _transparency, float _refraction_index)
         : material(_albedo, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, _transparency, _refraction_index)
     {
     }
 
+    __host__ __device__ ~lambertian();
 
 
     /// <summary>
@@ -62,27 +65,27 @@ public:
     /// <param name="attenuation"></param>
     /// <param name="scattered"></param>
     /// <returns></returns>
-    __host__ __device__ bool scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, curandState* local_rand_state) const override;
+    __device__ bool scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, curandState* local_rand_state) const override;
+
     __host__ __device__ float scattering_pdf(const ray& r_in, const hit_record& rec, const ray& scattered) const override;
 };
 
 
-__host__ __device__ bool lambertian::scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, curandState* local_rand_state) const
+__device__ inline bool lambertian::scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, curandState* local_rand_state) const
 {
     // Check if the material is transparent (e.g., glass)
-    if (m_transparency > 0)
-    {
-        // Compute the refracted ray direction
-        vector3 refracted_direction = glm::refract(r_in.direction(), rec.normal, m_refractiveIndex);
-        //srec.attenuation = color(1.0, 1.0, 1.0); // Fully transparent
-        srec.attenuation = m_diffuse_texture->value(rec.u, rec.v, rec.hit_point) * color(m_transparency);
-        srec.skip_pdf = true;
-        srec.skip_pdf_ray = ray(rec.hit_point, refracted_direction, r_in.time());
-        return true;
+    //if (m_transparency > 0)
+    //{
+    //    // Compute the refracted ray direction
+    //    vector3 refracted_direction = glm::refract(r_in.direction(), rec.normal, m_refractiveIndex);
+    //    srec.attenuation = m_diffuse_texture->value(rec.u, rec.v, rec.hit_point) * color(m_transparency);
+    //    srec.skip_pdf = true;
+    //    srec.skip_pdf_ray = ray(rec.hit_point, refracted_direction, r_in.time());
+    //    return true;
 
-        // Total internal reflection (TIR)
-        // Handle this case if needed
-    }
+    //    // Total internal reflection (TIR)
+    //    // Handle this case if needed
+    //}
 
 
     srec.attenuation = m_diffuse_texture->value(rec.u, rec.v, rec.hit_point);
@@ -92,8 +95,14 @@ __host__ __device__ bool lambertian::scatter(const ray& r_in, const hittable_lis
     return true;
 }
 
-__host__ __device__ float lambertian::scattering_pdf(const ray& r_in, const hit_record& rec, const ray& scattered) const
+__host__ __device__ inline float lambertian::scattering_pdf(const ray& r_in, const hit_record& rec, const ray& scattered) const
 {
-    auto cos_theta = glm::dot(rec.normal, unit_vector(scattered.direction()));
-    return cos_theta < 0 ? 0 : cos_theta / M_PI;
+    float cos_theta = glm::dot(rec.normal, unit_vector(scattered.direction()));
+    return cos_theta < 0 ? 0.0f : cos_theta / M_PI;
+}
+
+// Destructor implementation
+__host__ __device__ inline lambertian::~lambertian()
+{
+    
 }

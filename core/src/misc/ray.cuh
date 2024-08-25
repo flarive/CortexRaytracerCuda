@@ -31,6 +31,8 @@ public:
     {
     }
 
+    __device__ ~ray() = default;
+
 
     __host__ __device__ point3 origin() const;
 

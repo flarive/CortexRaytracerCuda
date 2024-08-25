@@ -36,7 +36,10 @@
 #include "primitives/flip_normals.cuh"
 
 #include "lights/light.cuh"
+#include "lights/omni_light.cuh"
 #include "lights/directional_light.cuh"
+
+#include "utilities/bitmap_image.cuh"
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -83,112 +86,301 @@ void check_cuda(cudaError_t result, char const* const func, const char* const fi
     }
 }
 
-__device__ color get_color(const ray& r, const color& background, hittable **world, curandState *local_rand_state)
-{
-    ray cur_ray = r;
-    color cur_attenuation = color(1.0, 1.0, 1.0);
-    color cur_emitted = color(0.0, 0.0, 0.0);
-    for(int i = 0; i < 100; i++) {
-        hit_record rec;
-        if ((*world)->hit(cur_ray, interval(0.001f, FLT_MAX), rec, 0, local_rand_state))
-        {
-            scatter_record srec;
-            color attenuation;
-            color emitted = rec.mat->emitted(cur_ray, rec, rec.u, rec.v, rec.hit_point, local_rand_state);
+//__device__ color get_color(const ray& r, const color& background, hittable **world, hittable_list* lights, curandState *local_rand_state)
+//{
+//    ray cur_ray = r;
+//    color cur_attenuation = color(1.0, 1.0, 1.0);
+//    color cur_emitted = color(0.0, 0.0, 0.0);
+//
+//    //for(int i = 0; i < 100; i++) {
+//        hit_record rec;
+//        if ((*world)->hit(cur_ray, interval(0.001f, FLT_MAX), rec, 0, local_rand_state))
+//        {
+//            scatter_record srec;
+//            color attenuation;
+//            color emitted = rec.mat->emitted(cur_ray, rec, rec.u, rec.v, rec.hit_point, local_rand_state);
+//
+//            if(rec.mat->scatter(cur_ray, lights, rec, srec, local_rand_state))
+//            {
+//                cur_attenuation *= attenuation;
+//                cur_emitted += emitted * cur_attenuation;
+//                //cur_ray = scattered; // ?????????????
+//                cur_ray = srec.skip_pdf_ray; // ?????????????
+//            }
+//            else {
+//                return cur_emitted + emitted * cur_attenuation;
+//            }
+//        }
+//        else {
+//            return cur_emitted;
+//        }
+//    //}
+//    return cur_emitted; // exceeded recursion
+//}
 
-            if(rec.mat->scatter(cur_ray, *world, rec, srec, local_rand_state))
-            {
-                cur_attenuation *= attenuation;
-                cur_emitted += emitted * cur_attenuation;
-                //cur_ray = scattered; // ?????????????
-                cur_ray = srec.skip_pdf_ray; // ?????????????
-            }
-            else {
-                return cur_emitted + emitted * cur_attenuation;
-            }
-        }
-        else {
-            return cur_emitted;
-        }
+__device__ color ray_color(const ray& r, int depth, hittable_list& _world, hittable_list& _lights, curandState* local_rand_state)
+{
+    
+    //printf("ray_color %i %i %i\n", r.x, r.y, depth);
+
+
+    // If we've exceeded the ray bounce limit, no more light is gathered.
+    if (depth <= 0)
+    {
+        // return background solid color
+        return color::red();// background_color;
     }
-    return cur_emitted; // exceeded recursion
+
+    hit_record rec;
+
+    vector3 unit_dir = unit_vector(r.direction());
+
+    // If the ray hits nothing, return the background color.
+    // 0.001 is to fix shadow acne interval
+    if (!_world.hit(r, interval(0.00001f, HUGE_VAL), rec, depth, local_rand_state))
+    {
+        //if (background_texture)
+        //{
+        //    return get_background_image_color(r.x, r.y, unit_dir, background_texture, background_iskybox);
+        //}
+        //else
+        //{
+        //    return background_color;
+        //}
+
+        return color::black();
+    }
+
+
+    //printf("ray_color 0000\n");
+
+    // ray hit a world object
+    scatter_record srec;
+    color color_from_emission = rec.mat->emitted(r, rec, rec.u, rec.v, rec.hit_point, local_rand_state);
+
+    // hack for invisible primitives (such as lights)
+    //if (color_from_emission.a() == 0.0f)
+    //{
+    //    // rethrow a new ray
+    //    _world.hit(r, interval(rec.t + 0.001f, HUGE_VAL), rec, depth, local_rand_state);
+    //}
+
+    if (!rec.mat->scatter(r, _lights, rec, srec, local_rand_state))
+    {
+        free(rec.mat);
+        free(srec.pdf_ptr);
+        return color_from_emission;
+    }
+
+    //printf("ray_color 1111\n");
+
+    if (_lights.object_count == 0)
+    {
+        // no lights
+        // no importance sampling
+        free(rec.mat);
+        free(srec.pdf_ptr);
+        return srec.attenuation * ray_color(srec.skip_pdf_ray, depth - 1, _world, _lights, local_rand_state);
+    }
+
+    // no importance sampling
+    if (srec.skip_pdf)
+    {
+        free(rec.mat);
+        free(srec.pdf_ptr);
+        return srec.attenuation * ray_color(srec.skip_pdf_ray, depth - 1, _world, _lights, local_rand_state);
+    }
+
+    hittable_pdf* light_ptr = new hittable_pdf(_lights, rec.hit_point);
+
+
+    mixture_pdf *p;
+
+    //if (background_texture && background_iskybox)
+    //{
+    //    mixture_pdf p_objs(light_ptr, srec.pdf_ptr, 0.5f);
+    //    p = mixture_pdf(new mixture_pdf(p_objs), background_pdf, 0.8f);
+    //}
+    //else
+    //{
+    p = new mixture_pdf(light_ptr, srec.pdf_ptr);
+    //}
+
+
+    //printf("ray_color 2222\n");
+
+    ray scattered = ray(rec.hit_point, p->generate(srec, local_rand_state), r.time());
+    float pdf_val = p->value(scattered.direction(), local_rand_state);
+    float scattering_pdf = rec.mat->scattering_pdf(r, rec, scattered);
+
+    //printf("ray_color 3333\n");
+
+    color final_color;
+
+    //if (background_texture)
+    //{
+        // with background image
+        //bool double_sided = false;
+        //if (rec.mat->has_alpha_texture(double_sided))
+        //{
+        //    // render transparent object (having an alpha texture)
+        //    color background_behind = rec.mat->get_diffuse_pixel_color(rec);
+
+        //    ray ray_behind(rec.hit_point, r.direction(), r.x, r.y, r.time());
+        //    color background_infrontof = ray_color(ray_behind, depth - 1, _scene, local_rand_state);
+
+        //    hit_record rec_behind;
+        //    if (_scene.get_world().hit(ray_behind, interval(0.001f, get_infinity()), rec_behind, depth, local_rand_state))
+        //    {
+        //        // another object is behind the alpha textured object, display it behind
+        //        scatter_record srec_behind;
+
+        //        if (double_sided)
+        //        {
+        //            if (rec_behind.mat->scatter(ray_behind, _scene.get_emissive_objects(), rec_behind, srec_behind, local_rand_state))
+        //            {
+        //                final_color = color::blend_colors(background_behind, background_infrontof, srec.alpha_value);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            if (rec_behind.mat->scatter(ray_behind, _scene.get_emissive_objects(), rec_behind, srec_behind, local_rand_state) && rec.front_face)
+        //            {
+        //                final_color = color::blend_colors(background_behind, background_infrontof, srec.alpha_value);
+        //            }
+        //            else
+        //            {
+        //                final_color = background_infrontof;
+        //            }
+        //        }
+        //    }
+        //    else
+        //    {
+        //        // no other object behind the alpha textured object, just display background image
+        //        if (double_sided)
+        //        {
+        //            final_color = color::blend_colors(color_from_emission + background_behind, ray_color(ray(rec.hit_point, r.direction(), r.x, r.y, r.time()), depth - 1, _scene, local_rand_state), srec.alpha_value);
+        //        }
+        //        else
+        //        {
+        //            final_color = get_background_image_color(r.x, r.y, unit_dir, background_texture, background_iskybox);
+        //        }
+        //    }
+        //}
+        //else
+        //{
+        //    // render opaque object
+        //    color color_from_scatter = ray_color(scattered, depth - 1, _scene, local_rand_state) / pdf_val;
+        //    final_color = color_from_emission + srec.attenuation * scattering_pdf * color_from_scatter;
+        //}
+    //}
+    //else
+    //{
+        // with background color
+        color sample_color = ray_color(scattered, depth - 1, _world, _lights, local_rand_state);
+        color color_from_scatter = (srec.attenuation * scattering_pdf * sample_color) / pdf_val;
+
+        //bool double_sided = false;
+        //if (rec.mat->has_alpha_texture(double_sided))
+        //{
+        //    // render transparent object (having an alpha texture)
+        //    final_color = color::blend_colors(color_from_emission + color_from_scatter, ray_color(ray(rec.hit_point, r.direction(), r.x, r.y, r.time()), depth - 1, _world, _lights, local_rand_state), srec.alpha_value);
+        //}
+        //else
+        //{
+            // render opaque object
+            final_color = color_from_emission + color_from_scatter;
+        //}
+    //}
+
+    //printf("ray_color returns %i/%i %i %f %f %f\n", r.x, r.y, depth, final_color.r(), final_color.g(), final_color.b());
+
+    p->~mixture_pdf();
+    //rec.~hit_record();
+    light_ptr->~hittable_pdf();
+    
+    //free(srec.pdf_ptr);
+
+    return final_color;
 }
 
 #define RND (curand_uniform(&local_rand_state))
 
-__global__ void create_cornell_box(hittable **elist, hittable **eworld, camera **cam, int nx, int ny, image_texture** texture, curandState *rand_state)
+__global__ void create_cornell_box(scene** myscene, hittable_list **elist, hittable_list **elights,  camera **cam, int nx, int ny, int spp, int sqrt_spp, image_texture** texture, curandState *rand_state)
 {
-    if (threadIdx.x == 0 && blockIdx.x == 0) {
-        //curandState local_rand_state = *rand_state;
-        int i = 0;
-        elist[i++] = new rt::flip_normals(new yz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(vector3(0.12, 0.45, 0.15)))));
-        elist[i++] = new yz_rect(0, 555, 0, 555, 0, new lambertian(new solid_color_texture(vector3(0.65, 0.05, 0.05))));
-        elist[i++] = new xz_rect(113, 443, 127, 432, 554, new diffuse_light(new solid_color_texture(vector3(1.0, 1.0, 1.0))));
-        elist[i++] = new xz_rect(0, 555, 0, 555, 0, new lambertian(new solid_color_texture(vector3(0.73, 0.73, 0.73))));
-        elist[i++] = new rt::flip_normals(new xz_rect(0, 555, 0, 555, 555, new lambertian(new checker_texture(
-            new solid_color_texture(vector3(1, 1, 1)),
-            new solid_color_texture(vector3(0, 1, 0))
-        ))));
-        elist[i++] = new rt::flip_normals(new xz_rect(0, 555, 0, 555, 555, new lambertian(new checker_texture(
-            new solid_color_texture(vector3(1, 1, 1)),
-            new solid_color_texture(vector3(0, 1, 0))
-        ))));
+    if (threadIdx.x == 0 && blockIdx.x == 0)
+    {
+        curandState local_rand_state = *rand_state;
+
+        *myscene = new scene();
+
+        *elights = new hittable_list("llllll");
+
+        *elist = new hittable_list("zzzzzzzz");
+
+        //int i = 0;
+        (*elist)->add(new rt::flip_normals(new yz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(color(0.12, 0.45, 0.15))), "MyLeft")));
+        (*elist)->add(new yz_rect(0, 555, 0, 555, 0, new lambertian(new solid_color_texture(color(0.65, 0.05, 0.05))), "MyRight"));
+        (*elist)->add(new xz_rect(113, 443, 127, 432, 554, new diffuse_light(new solid_color_texture(color(1.0, 1.0, 1.0))), "fakeLight"));
+        (*elist)->add(new xz_rect(0, 555, 0, 555, 0, new lambertian(new solid_color_texture(color(0.73, 0.73, 0.73))), "MyGround"));
+        (*elist)->add(new rt::flip_normals(new xz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(color(0.73, 0.73, 0.73))), "MyTop")));
+        (*elist)->add(new rt::flip_normals(new xz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(color(0.73, 0.73, 0.73))), "MyBottom")));
         
         // back
-        //elist[i++] = new xy_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(vector3(0.73, 0.73, 0.73))));
-        elist[i++] = new quad(point3(0,0,555), vector3(555,0,0), vector3(0,555,0), new lambertian(new solid_color_texture(vector3(0.73, 0.73, 0.73))));
+        (*elist)->add(new quad(point3(0,0,555), vector3(555,0,0), vector3(0,555,0), new lambertian(new solid_color_texture(color(0.73, 0.73, 0.73))), "MyBack"));
+
+        // light
+        //elist[i++] = new omni_light(point3(0, 0, 555), 1.0f, 1.0f, color(1,1,1), "MyLight", false);
 
 
-        /*elist[i++] = new ConstantMedium(
-            new Translate(
-                new RotateY(
-                    new Box(vector3(0, 0, 0), vector3(165, 330, 165), new Lambertian(new ConstantTexture(vector3(0.73, 0.73, 0.73)))),
-                    15
-                ),
-                vector3(265, 0, 295)
-            ),
-            0.05,
-            new ConstantTexture(vector3(0, 0, 0)),
-            &local_rand_state
-        );*/
 
-        elist[i++] = new rt::translate(new box(vector3(0, 0, 295), vector3(165, 330, 165), new lambertian(new solid_color_texture(vector3(0.73, 0.73, 0.73)))), vector3(120,0,320));
+
+        //elist[i++] = new rt::translate(new box(vector3(0, 0, 295), vector3(165, 330, 165), new lambertian(new solid_color_texture(color(0.73, 0.73, 0.73))), "MyBox"), vector3(120,0,320));
         
 
 
-        //elist[i++] = new ConstantMedium(
-        //    new Translate(
-        //        new RotateY(
-        //            new Box(vector3(0, 0, 0), vector3(165, 165, 165), new Lambertian(new ConstantTexture(vector3(0.73, 0.73, 0.73)))),
-        //            -18
-        //        ),
-        //        vector3(130, 0, 65)
-        //    ),
-        //    0.01,
-        //    new ConstantTexture(vector3(0.8, 0.8, 0.8)),
-        //    &local_rand_state
-        //);
-
-        elist[i++] = new sphere(vector3(350.0f, 50.0f, 295.0f), 100.0f, new lambertian(*texture), "Sphere1");
+        //(*elist)->add(new sphere(vector3(350.0f, 50.0f, 295.0f), 100.0f, new lambertian(*texture), "MySphere"));
+        (*elist)->add(new sphere(vector3(350.0f, 50.0f, 295.0f), 100.0f, new lambertian(new solid_color_texture(color(0.99, 0.13, 0.73))), "MySphere"));
 
 
-        *eworld = new hittable_list(elist, i);
+        //*eworld = new hittable_list(elist, i);
+
+
+        
+
+
+        //(*myscene)->add(new omni_light(point3(0, 0, 555), 1.0f, 1.0f, color(1, 1, 1), "MyLight", false));
+
+        (*elights)->add(new omni_light(point3(0, 0, 555), 1.0f, 1.0f, color(1, 1, 1), "MyLight", false));
+
 
         vector3 lookfrom(278, 278, -800);
         vector3 lookat(278, 278, 0);
-        float dist_to_focus = 10.0;
-        float aperture = 0.0;
+        float dist_to_focus = 10.0f;
+        float aperture = 0.0f;
 
         *cam = new perspective_camera();
         (*cam)->initialize(lookfrom,
             lookat,
             vector3(0, 1, 0),
-            40.0,
+            40.0f,
             float(nx) / float(ny),
             aperture,
             dist_to_focus,
-            0.0,
-            1.0);
+            sqrt_spp, 
+            0.0f,
+            1.0f);
+
+        //printf("test %i/%i\n", (*elist)->object_count, (*elist)->object_capacity);
+
+        //for (int i = 0; i < (*elist)->object_count; i++)
+        //    printf("test obj %i %s\n", (*elist)->objects[i]->getTypeID(), (*elist)->objects[i]->getName());
+
+        
+        //(*myscene)->set(*elist);
+        //(*myscene)->set_camera(*cam);
+        //(*myscene)->extract_emissive_objects();
+        //(*myscene)->build_optimized_world(local_rand_state);
     }
 }
 
@@ -208,14 +400,14 @@ __global__ void render_init(int maxx, int maxy, curandState *rand_state)
     curand_init(1984, pixel_index, 0, &rand_state[pixel_index]);
 }
 
-__global__ void texture_init(unsigned char* tex_data, int nx, int ny, image_texture** tex)
+__global__ void texture_init(unsigned char* tex_data, int width, int height, int channels, image_texture** tex)
 {
     if (threadIdx.x == 0 && blockIdx.x == 0) {
-        *tex = new image_texture(tex_data, nx, ny);
+        *tex = new image_texture(bitmap_image(tex_data, width, height, channels));
     }
 }
 
-__global__ void render(vector3* fb, int width, int height, int spp, int sqrt_spp, int max_depth, camera **cam, hittable **world, curandState *randState)
+__global__ void render(color* fb, int width, int height, int spp, int sqrt_spp, int max_depth, hittable_list **world, hittable_list **lights, camera** cam, curandState *randState)
 {
     int i = threadIdx.x + blockIdx.x * blockDim.x;
     int j = threadIdx.y + blockIdx.y * blockDim.y;
@@ -226,28 +418,35 @@ __global__ void render(vector3* fb, int width, int height, int spp, int sqrt_spp
     color background(0, 0, 0);
 
     // new
-    //for (int s_j = 0; s_j < sqrt_spp; ++s_j)
-    //{
-    //    for (int s_i = 0; s_i < sqrt_spp; ++s_i)
-    //    {
-    //        float u = float(i + curand_uniform(&local_rand_state)) / float(width);
-    //        float v = float(j + curand_uniform(&local_rand_state)) / float(height);
+    for (int s_j = 0; s_j < sqrt_spp; ++s_j)
+    {
+        for (int s_i = 0; s_i < sqrt_spp; ++s_i)
+        {
+            //float u = float(i + curand_uniform(&local_rand_state)) / float(width);
+            //float v = float(j + curand_uniform(&local_rand_state)) / float(height);
 
-    //        // new
-    //        ray r = (*cam)->get_ray(u, v, s_i, s_j, nullptr, &local_rand_state);
-    //        // pixel color is progressively being refined
-    //        pixel_color += (*cam)->ray_color(r, max_depth, world);
-    //    }
-    //}
+            // new
+            ray r = (*cam)->get_ray(i, j, s_i, s_j, nullptr, &local_rand_state);
+
+
+            // pixel color is progressively being refined
+            //pixel_color += (*cam)->ray_color(r, max_depth, **_scene, &local_rand_state);
+            pixel_color += ray_color(r, max_depth, **world, **lights, &local_rand_state);
+        }
+    }
+    
+
+
+
 
     // old
-    for(int s=0; s < spp; s++)
-    {
-        float u = float(i + curand_uniform(&local_rand_state)) / float(width);
-        float v = float(j + curand_uniform(&local_rand_state)) / float(height);
-        ray r = (*cam)->get_ray(u, v, &local_rand_state);
-        pixel_color += get_color(r, background, world, &local_rand_state);
-    }
+    //for(int s=0; s < spp; s++)
+    //{
+    //    float u = float(i + curand_uniform(&local_rand_state)) / float(width);
+    //    float v = float(j + curand_uniform(&local_rand_state)) / float(height);
+    //    ray r = (*cam)->get_ray(u, v, &local_rand_state);
+    //    pixel_color += get_color(r, background, world, lights, &local_rand_state);
+    //}
 
     randState[pixel_index] = local_rand_state;
     pixel_color /= float(spp);
@@ -261,17 +460,6 @@ void renderGPU(int width, int height, int spp, int max_depth, int tx, int ty, co
 {
     std::cout << "Rendering " << width << "x" << height << " " << spp << " samples > " << filepath << std::endl;
 
-    int sqrt_spp = static_cast<int>(sqrt(spp));
-    
-    // Values
-    int num_pixels = width * height;
-
-    int tex_x, tex_y, tex_n;
-    unsigned char *tex_data_host = stbi_load("e:\\earth_diffuse.jpg", &tex_x, &tex_y, &tex_n, 0);
-    if (!tex_data_host) {
-        std::cerr << "Failed to load texture." << std::endl;
-        return;
-    }
 
     size_t stackSize;
 
@@ -296,17 +484,33 @@ void renderGPU(int width, int height, int spp, int max_depth, int tx, int ty, co
     std::cout << "New stack size limit: " << newStackSize << " bytes" << std::endl;
 
 
+    int sqrt_spp = static_cast<int>(sqrt(spp));
+    
+    // Values
+    int num_pixels = width * height;
+
+    int tex_x, tex_y, tex_n;
+    unsigned char *tex_data_host = stbi_load("e:\\earth_diffuse.jpg", &tex_x, &tex_y, &tex_n, 0);
+    if (!tex_data_host) {
+        std::cerr << "Failed to load texture." << std::endl;
+        return;
+    }
+
     unsigned char *tex_data;
     checkCudaErrors(cudaMallocManaged(&tex_data, tex_x * tex_y * tex_n * sizeof(unsigned char)));
     checkCudaErrors(cudaMemcpy(tex_data, tex_data_host, tex_x * tex_y * tex_n * sizeof(unsigned char), cudaMemcpyHostToDevice));
 
     image_texture**texture;
     checkCudaErrors(cudaMalloc((void **)&texture, sizeof(image_texture*)));
-    texture_init<<<1, 1>>>(tex_data, tex_x, tex_y, texture);
+    texture_init<<<1, 1>>>(tex_data, tex_x, tex_y, tex_n, texture);
+
+
+
+
 
     // Allocating CUDA memory
-    vector3* image;
-    checkCudaErrors(cudaMallocManaged((void**)&image, width * height * sizeof(vector3)));
+    color* image;
+    checkCudaErrors(cudaMallocManaged((void**)&image, width * height * sizeof(color)));
 
     // Allocate random state
     curandState *d_rand_state;
@@ -320,23 +524,36 @@ void renderGPU(int width, int height, int spp, int max_depth, int tx, int ty, co
     checkCudaErrors(cudaDeviceSynchronize());
 
     // Building the world
-    hittable **elist;
-    int num_entity = 22 * 22 + 1 + 3;
-    checkCudaErrors(cudaMalloc((void **)&elist, num_entity * sizeof(hittable*)));
-    hittable **eworld;
-    checkCudaErrors(cudaMalloc((void **)&eworld, sizeof(hittable*)));
+    hittable_list **elist;
+    //int num_entity = 22 * 22 + 1 + 3;
+    checkCudaErrors(cudaMalloc((void**)&elist, sizeof(hittable_list*)));
+
+    //hittable_list **eworld;
+    //checkCudaErrors(cudaMalloc((void**)&eworld, sizeof(hittable_list*)));
+
+    hittable_list **elights;
+    checkCudaErrors(cudaMalloc((void**)&elights, sizeof(hittable_list*)));
+    
     camera** cam;
-    checkCudaErrors(cudaMalloc((void **)&cam, sizeof(camera*)));
-    create_cornell_box<<<1, 1>>>(elist, eworld, cam, width, height, texture, d_rand_state2);
+    checkCudaErrors(cudaMalloc((void**)&cam, sizeof(camera*)));
+
+    scene** myscene;
+    checkCudaErrors(cudaMalloc((void**)&myscene, sizeof(scene*)));
+
+
+    create_cornell_box<<<1, 1>>>(myscene, elist, elights, cam, width, height, spp, sqrt_spp, texture, d_rand_state2);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
+
+
     dim3 blocks(width / tx+1, height / ty+1);
     dim3 threads(tx, ty);
+
     render_init<<<blocks, threads>>>(width, height, d_rand_state);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
-    render<<<blocks, threads>>>(image, width, height, spp, sqrt_spp, max_depth, cam, eworld, d_rand_state);
+    render<<<blocks, threads>>>(image, width, height, spp, sqrt_spp, max_depth, elist, elights, cam, d_rand_state);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
@@ -344,9 +561,9 @@ void renderGPU(int width, int height, int spp, int max_depth, int tx, int ty, co
     for (int j = height - 1; j >= 0; j--) {
         for (int i = 0; i < width; i++) {
             size_t pixel_index = j * width + i;
-            imageHost[(height - j - 1) * width * 3 + i * 3] = 255.99f * image[pixel_index].r;
-            imageHost[(height - j - 1) * width * 3 + i * 3 + 1] = 255.99f * image[pixel_index].g;
-            imageHost[(height - j - 1) * width * 3 + i * 3 + 2] = 255.99f * image[pixel_index].b;
+            imageHost[(height - j - 1) * width * 3 + i * 3] = 255.99f * image[pixel_index].r();
+            imageHost[(height - j - 1) * width * 3 + i * 3 + 1] = 255.99f * image[pixel_index].g();
+            imageHost[(height - j - 1) * width * 3 + i * 3 + 2] = 255.99f * image[pixel_index].b();
         }
     }
     stbi_write_png(filepath, width, height, 3, imageHost, width * 3);
@@ -355,12 +572,12 @@ void renderGPU(int width, int height, int spp, int max_depth, int tx, int ty, co
     checkCudaErrors(cudaDeviceSynchronize());
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaFree(cam));
-    checkCudaErrors(cudaFree(eworld));
+    checkCudaErrors(cudaFree(elights));
     checkCudaErrors(cudaFree(elist));
+    checkCudaErrors(cudaFree(myscene));
     checkCudaErrors(cudaFree(d_rand_state));
     checkCudaErrors(cudaFree(image));
 }
-
 
 
 void launchGPU(int width, int height, int spp, int max_depth, int tx, int ty, const char* filepath, bool quietMode)
@@ -383,4 +600,10 @@ void launchGPU(int width, int height, int spp, int max_depth, int tx, int ty, co
     // --expt-relaxed-constexpr --std c++20 -Xcudafe="--diag_suppress=20012 --diag_suppress=20208" 
     //
     renderGPU(width, height, spp, max_depth, tx, ty, filepath);
+}
+
+
+int main(int argc, char* argv[])
+{
+    launchGPU(512, 288, 10, 2, 16, 16, "e:\\ttt.png", true);
 }

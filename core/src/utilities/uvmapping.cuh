@@ -151,10 +151,10 @@ __host__ __device__ inline void get_spherical_uv(const point3& p, float& u, floa
 	//     <0 0 1> yields <0.25 0.50>       < 0  0 -1> yields <0.75 0.50>
 
 	auto theta = acos(-p.y);
-	auto phi = atan2(-p.z, p.x) + get_pi();
+	auto phi = atan2(-p.z, p.x) + M_PI;
 
-	u = phi / (2 * get_pi());
-	v = theta / get_pi();
+	u = phi / (2 * M_PI);
+	v = theta / M_PI;
 }
 
 __host__ __device__ inline void get_spherical_uv(const point3& p, float texture_width, float texture_height, float render_width, float render_height, float& u, float& v)
@@ -167,10 +167,10 @@ __host__ __device__ inline void get_spherical_uv(const point3& p, float texture_
 	//     <0 0 1> yields <0.25 0.50>       < 0  0 -1> yields <0.75 0.50>
 
 	auto theta = acos(-p.y);
-	auto phi = atan2(-p.z, p.x) + get_pi();
+	auto phi = atan2(-p.z, p.x) + M_PI;
 
-	u = phi / (2 * get_pi());
-	v = theta / get_pi();
+	u = phi / (2 * M_PI);
+	v = theta / M_PI;
 
 	// Calculate aspect ratios
 	float texture_aspect_ratio = texture_width / texture_height;
@@ -194,9 +194,9 @@ __host__ __device__ inline void get_spherical_uv(const point3& p, float texture_
 
 __host__ __device__ inline vector3 from_spherical_uv(float u, float v)
 {
-	float phi = 2 * get_pi() * u, theta = get_pi() * v;
+	float phi = 2 * M_PI * u, theta = M_PI * v;
 	// THIS IS SUPER WEIRD?? Used only (AND KEEP IT THAT WAY) for environment importance sampling
-	phi -= get_pi();
+	phi -= M_PI;
 
 	return vector3(cos(phi) * sin(theta), -cos(theta), -sin(phi) * sin(theta));
 }
@@ -214,11 +214,11 @@ __host__ __device__ inline void get_sphere_uv(const point3& p, float& u, float& 
 
 	// Calculate spherical coordinates theta and phi
 	auto theta = acos(-p.y); // Angle from the positive y-axis
-	auto phi = atan2(-p.z, p.x) + get_pi(); // Angle in the xy-plane around the z-axis
+	auto phi = atan2(-p.z, p.x) + M_PI; // Angle in the xy-plane around the z-axis
 
 	// Normalize theta and phi to [0, 1] for texture coordinates
-	float s = phi / (2 * get_pi()); // Normalize phi to [0, 1] (u-coordinate)
-	float t = theta / get_pi();     // Normalize theta to [0, 1] (v-coordinate)
+	float s = phi / (2 * M_PI); // Normalize phi to [0, 1] (u-coordinate)
+	float t = theta / M_PI;     // Normalize theta to [0, 1] (v-coordinate)
 
 	// Apply texture repetition (tiling/repeating) to s and t
 	s = fmod(s * mapping.repeat_u(), 1.0f); // Apply tiling to s (u-axis)
@@ -255,7 +255,7 @@ __host__ __device__ inline void get_torus_uv(const vector3& p, vector3& c, float
 
 	// Calculate the angle phi around the major radius in the xy-plane
 	float phi = atan2(p.y, p.x);
-	if (phi < 0) phi += 2 * get_pi(); // Ensure phi is in [0, 2*pi]
+	if (phi < 0) phi += 2 * M_PI; // Ensure phi is in [0, 2*pi]
 
 	// Calculate the point on the major radius circle
 	vector3 majorCirclePoint(c.x + majorRadius * cos(phi), c.y + majorRadius * sin(phi), c.z);
@@ -265,11 +265,11 @@ __host__ __device__ inline void get_torus_uv(const vector3& p, vector3& c, float
 
 	// Calculate the angle theta around the minor radius
 	float theta = atan2(minorVec.z, glm::length(vector2(minorVec.x, minorVec.y)));
-	if (theta < 0) theta += 2 * get_pi(); // Ensure theta is in [0, 2*pi]
+	if (theta < 0) theta += 2 * M_PI; // Ensure theta is in [0, 2*pi]
 
 	// Map phi and theta to the range [0, 1] for u and v coordinates
-	float s = phi / (2 * get_pi());
-	float t = theta / (2 * get_pi());
+	float s = phi / (2 * M_PI);
+	float t = theta / (2 * M_PI);
 
 	// Apply texture repetition (tiling/repeating) to s and t
 	s = fmod(s * mapping.repeat_u(), 1.0f); // Apply tiling to s (u-axis)
@@ -290,7 +290,7 @@ __host__ __device__ inline void get_cylinder_uv(const vector3& p, float& u, floa
 	float theta = std::atan2(p.x, p.z);
 
 	// Map the angle (theta) to the range [0, 1] for u coordinate (s)
-	float s = 1.0f - (theta + get_pi()) / (2.0f * get_pi()); // Invert theta and map to [0, 1]
+	float s = 1.0f - (theta + M_PI) / (2.0f * M_PI); // Invert theta and map to [0, 1]
 
 	// Calculate the vertical height (y-coordinate) relative to the cylinder's height
 	float y = p.y;
@@ -351,7 +351,7 @@ __host__ __device__ inline void get_cone_uv(const vector3& p, float& u, float& v
 	float theta = atan2(p.x, p.z);
 
 	// Map the angle (theta) to the range [0, 1] for u coordinate
-	float s = (theta + get_pi()) / (2 * get_pi());
+	float s = (theta + M_PI) / (2 * M_PI);
 
 	// Calculate the distance from the cone apex to the point
 	float distance = sqrt(p.x * p.x + p.z * p.z);

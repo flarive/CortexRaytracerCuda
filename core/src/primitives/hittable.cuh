@@ -7,27 +7,27 @@
 
 
 __host__ __device__ enum class HittableTypeID {
-	hittableBaseType,
-	hittableListType,
-	hittableBVHNodeType,
-	hittableAaRectType,
-	hittableBoxType,
-	hittableConeType,
-	hittableCylinderType,
-	hittableDiskType,
-	hittableQuadType,
-	hittableSphereType,
-	hittableTorusType,
-	hittableTriangleType,
-	hittableVolumeType,
-	hittableTransformFlipNormaldType,
-	hittableTransformRotateType,
-	hittableTransformTranslateType,
-	hittableTransformScaleType,
-	lightType,
-	lightOmniType,
-	lightDirectionalType,
-	lightSpotType
+	hittableBaseType = 0,
+	hittableListType = 1,
+	hittableBVHNodeType = 2,
+	hittableAaRectType = 3,
+	hittableBoxType = 4,
+	hittableConeType = 5,
+	hittableCylinderType = 6,
+	hittableDiskType = 7,
+	hittableQuadType = 8,
+	hittableSphereType = 9,
+	hittableTorusType = 10,
+	hittableTriangleType = 11,
+	hittableVolumeType = 12,
+	hittableTransformFlipNormalType = 13,
+	hittableTransformRotateType = 14,
+	hittableTransformTranslateType = 15,
+	hittableTransformScaleType = 16,
+	lightType = 17,
+	lightOmniType = 18,
+	lightDirectionalType = 19,
+	lightSpotType = 20
 };
 
 
@@ -56,11 +56,15 @@ public:
 	__host__ __device__ void setName(char* _name)
 	{
 		m_name = _name;
+
+		//printf("setName1 %s\n", m_name);
 	}
 
 	__host__ __device__ void setName(const char* _name)
 	{
 		m_name = const_cast<char*>(_name);
+
+		//printf("setName2 %s\n", m_name);
 	}
 
 	__host__ __device__ char* getName() const
@@ -69,8 +73,9 @@ public:
 	}
 
 
+
 protected:
-	aabb m_bbox{};
-	uvmapping m_mapping{};
-	char* m_name = nullptr;
+	aabb m_bbox;
+	uvmapping m_mapping;
+	char* m_name;
 };

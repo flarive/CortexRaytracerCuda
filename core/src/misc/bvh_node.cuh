@@ -2,10 +2,11 @@
 
 #include "ray.cuh"
 #include "../primitives/hittable.cuh"
+#include "../misc/gpu_randomizer.cuh"
 
 enum axis2 { X, Y, Z };
 
-__device__ void swap(hittable*& p1, hittable*& p2) {
+__device__ void inline swap(hittable*& p1, hittable*& p2) {
     hittable* temp = p1;
     *p1 = *p2;
     p2 = temp;
@@ -34,10 +35,11 @@ __device__ void bubble_sort(hittable** e, int n) {
 class bvh_node: public hittable
 {
 public:
-    __device__ bvh_node() {}
-    __device__ bvh_node(hittable **e, int n, float time0, float time1, curandState& local_rand_state, const char* name = nullptr);
+    //__device__ bvh_node() {}
 
-    //__host__ __device__ bvh_node(hittable** src_objects, size_t start, size_t end, curandState* local_rand_state, const char* name = nullptr);
+
+    //__device__ bvh_node(hittable **e, int n, float time0, float time1, curandState& local_rand_state, const char* name = nullptr);
+    __device__ bvh_node(hittable** src_objects, int start, int end, curandState* local_rand_state, const char* name = nullptr);
 
     __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, curandState* local_rand_state) const override;
     __host__ __device__ aabb bounding_box() const override;
@@ -105,84 +107,88 @@ private:
 
 
 // to remove old !!!!!!!!
-__device__ bvh_node::bvh_node(hittable **e, int n, float time0, float time1, curandState& local_rand_state, const char* name)
-{
-    int axis = int(3 * curand_uniform(&local_rand_state));
-
-    if (axis == 0)
-        bubble_sort<X>(e, n);
-    else if (axis == 1)
-        bubble_sort<Y>(e, n);
-    else
-        bubble_sort<Z>(e, n);
-
-    if (n == 1) {
-        m_left = m_right = e[0];
-    }
-    else if (n == 2) {
-        m_left = e[0];
-        m_right = e[1];
-    }
-    else {
-        m_left = new bvh_node(e, n/2, time0, time1, local_rand_state);
-        m_right = new bvh_node(e + n/2, n - n/2, time0, time1, local_rand_state);
-    }
-
-    aabb box_left, box_right;
-
-    m_bbox = surrounding_box(box_left, box_right);
-}
-
-
-
-
-// new one (mine)
-//__host__ __device__ bvh_node::bvh_node(hittable** src_objects, size_t start, size_t end, curandState* local_rand_state, const char* name)
+//__device__ inline bvh_node::bvh_node(hittable **e, int n, float time0, float time1, curandState& local_rand_state, const char* name)
 //{
 //    if (name != nullptr)
 //        setName(name);
 //    else
-//        setName(new char[8] {"BVHNode"});
+//        setName("BVHNode");
+//    
+//    int axis = int(3 * curand_uniform(&local_rand_state));
 //
-//    int axis = get_int(local_rand_state, 0, 2);
-//    auto comparator = (axis == 0) ? box_x_compare
-//        : (axis == 1) ? box_y_compare
-//        : box_z_compare;
+//    if (axis == 0)
+//        bubble_sort<X>(e, n);
+//    else if (axis == 1)
+//        bubble_sort<Y>(e, n);
+//    else
+//        bubble_sort<Z>(e, n);
 //
-//    size_t object_span = end - start;
-//
-//    if (object_span == 1) {
-//        m_left = m_right = src_objects[start];
+//    if (n == 1) {
+//        m_left = m_right = e[0];
 //    }
-//    else if (object_span == 2) {
-//        if (comparator(src_objects[start], src_objects[start + 1])) {
-//            m_left = src_objects[start];
-//            m_right = src_objects[start + 1];
-//        }
-//        else {
-//            m_left = src_objects[start + 1];
-//            m_right = src_objects[start];
-//        }
+//    else if (n == 2) {
+//        m_left = e[0];
+//        m_right = e[1];
 //    }
 //    else {
-//        // Manual sort instead of thrust::sort
-//        for (size_t i = start; i < end; ++i) {
-//            for (size_t j = i + 1; j < end; ++j) {
-//                if (!comparator(src_objects[i], src_objects[j])) {
-//                    swap(&src_objects[i], &src_objects[j]);
-//                }
-//            }
-//        }
-//
-//        auto mid = start + object_span / 2;
-//        m_left = new bvh_node(src_objects, start, mid);
-//        m_right = new bvh_node(src_objects, mid, end);
+//        m_left = new bvh_node(e, n/2, time0, time1, local_rand_state);
+//        m_right = new bvh_node(e + n/2, n - n/2, time0, time1, local_rand_state);
 //    }
 //
-//    m_bbox = aabb(m_left->bounding_box(), m_right->bounding_box());
+//    aabb box_left, box_right;
+//
+//    m_bbox = surrounding_box(box_left, box_right);
 //}
 
-__device__ bool bvh_node::hit(const ray& r, interval ray_t, hit_record& rec, int depth, curandState* local_rand_state) const
+
+
+// new one (mine)
+__device__ inline bvh_node::bvh_node(hittable** src_objects, int start, int end, curandState* local_rand_state, const char* name)
+{
+    if (name != nullptr)
+        setName(name);
+    else
+        setName("BVHNode");
+
+    int axis = get_int(local_rand_state, 0, 2);
+    auto comparator = (axis == 0) ? box_x_compare
+        : (axis == 1) ? box_y_compare
+        : box_z_compare;
+
+    size_t object_span = end - start;
+
+    if (object_span == 1) {
+        m_left = m_right = src_objects[start];
+    }
+    else if (object_span == 2) {
+        if (comparator(src_objects[start], src_objects[start + 1])) {
+            m_left = src_objects[start];
+            m_right = src_objects[start + 1];
+        }
+        else {
+            m_left = src_objects[start + 1];
+            m_right = src_objects[start];
+        }
+    }
+    else {
+        // Manual sort instead of thrust::sort
+        for (size_t i = start; i < end; ++i) {
+            for (size_t j = i + 1; j < end; ++j) {
+                if (!comparator(src_objects[i], src_objects[j])) {
+                    swap(&src_objects[i], &src_objects[j]);
+                }
+            }
+        }
+
+        auto mid = start + object_span / 2;
+        m_left = new bvh_node(src_objects, start, mid, local_rand_state, "left");
+        m_right = new bvh_node(src_objects, mid, end, local_rand_state, "right");
+    }
+
+    m_bbox = aabb(m_left->bounding_box(), m_right->bounding_box());
+}
+
+__device__ bool inline bvh_node::hit(const ray& r, interval ray_t, hit_record& rec, int depth, curandState* local_rand_state) const
 {
     if (!m_bbox.hit(r, ray_t))
         return false;
@@ -193,44 +199,44 @@ __device__ bool bvh_node::hit(const ray& r, interval ray_t, hit_record& rec, int
     return hit_left || hit_right;
 }
 
-__device__ float bvh_node::pdf_value(const point3& o, const vector3& v, curandState* local_rand_state) const
+__device__ inline float bvh_node::pdf_value(const point3& o, const vector3& v, curandState* local_rand_state) const
 {
     return 0.0;
 }
 
-__device__ vector3 bvh_node::random(const vector3& o, curandState* local_rand_state) const
+__device__ inline vector3 bvh_node::random(const vector3& o, curandState* local_rand_state) const
 {
     return vector3(1, 0, 0);
 }
 
-__host__ __device__ aabb bvh_node::bounding_box() const
+__host__ __device__ inline aabb bvh_node::bounding_box() const
 {
     return m_bbox;
 }
 
 
 
-__host__ __device__ bool bvh_node::box_compare(const hittable* a, const hittable* b, int axis_index)
+__host__ __device__ inline bool bvh_node::box_compare(const hittable* a, const hittable* b, int axis_index)
 {
     return a->bounding_box().axis(axis_index).min < b->bounding_box().axis(axis_index).min;
 }
 
-__host__ __device__ bool bvh_node::box_x_compare(const hittable* a, const hittable* b)
+__host__ __device__ inline bool bvh_node::box_x_compare(const hittable* a, const hittable* b)
 {
     return box_compare(a, b, 0);
 }
 
-__host__ __device__ bool bvh_node::box_y_compare(const hittable* a, const hittable* b)
+__host__ __device__ inline bool bvh_node::box_y_compare(const hittable* a, const hittable* b)
 {
     return box_compare(a, b, 1);
 }
 
-__host__ __device__ bool bvh_node::box_z_compare(const hittable* a, const hittable* b)
+__host__ __device__ inline bool bvh_node::box_z_compare(const hittable* a, const hittable* b)
 {
     return box_compare(a, b, 2);
 }
 
-__host__ __device__ void bvh_node::swap(hittable** a, hittable** b)
+__host__ __device__ inline void bvh_node::swap(hittable** a, hittable** b)
 {
     hittable* temp = *a;
     *a = *b;

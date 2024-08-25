@@ -6,8 +6,18 @@
 #include "../primitives/hittable.cuh"
 
 // avoid circular dependency
-class scatter_record;
+struct scatter_record;
 
+
+__host__ __device__ enum class pdfTypeID {
+	pdfBaseType = 0,
+	pdfCosine = 1,
+	pdfHittable = 2,
+	pdfImage = 3,
+	pdfMixture = 4,
+	pdfSphere = 5,
+	pdfAnisotropicPhong = 6
+};
 
 /// <summary>
 /// Probability Distribution Function (henceforth PDF).

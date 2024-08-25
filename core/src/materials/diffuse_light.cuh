@@ -2,6 +2,7 @@
 
 #include "material.cuh"
 #include "../textures/texture.cuh"
+#include "../textures/solid_color_texture.cuh"
 
 class diffuse_light : public material
 {
@@ -23,12 +24,12 @@ public:
     __host__ __device__ diffuse_light(color _c)
         : m_emit(new solid_color_texture(_c)), m_intensity(1.0), m_invisible(true), m_directional(true) {}
 
-    __host__ __device__ diffuse_light(color _c, double _intensity, bool _directional, bool _invisible)
+    __host__ __device__ diffuse_light(color _c, float _intensity, bool _directional, bool _invisible)
         : m_emit(new solid_color_texture(_c)), m_intensity(_intensity), m_directional(_directional), m_invisible(_invisible)
     {
     }
 
-    __host__ __device__ color emitted(const ray& r_in, const hit_record& rec, float u, float v, const point3& p, curandState* local_rand_state) const override;
+    __device__ color emitted(const ray& r_in, const hit_record& rec, float u, float v, const point3& p, curandState* local_rand_state) const override;
 
 
 private:
@@ -39,7 +40,7 @@ private:
 };
 
 
-__host__ __device__ color diffuse_light::emitted(const ray& r_in, const hit_record& rec, float u, float v, const point3& p, curandState* local_rand_state) const
+__device__ inline color diffuse_light::emitted(const ray& r_in, const hit_record& rec, float u, float v, const point3& p, curandState* local_rand_state) const
 {
     // Material emission, directional or not
     if (m_directional)

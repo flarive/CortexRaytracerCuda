@@ -6,7 +6,7 @@
 #include "scenes/scene_manager.h"
 
 
-int main(int argc, char* argv[])
+int main8(int argc, char* argv[])
 {
 	render_parameters params = render_parameters::getArgs(argc, argv);
 

@@ -14,16 +14,20 @@ public:
 		const double nu1 = m_nu + 1.;
 		const double nv1 = m_nv + 1.;
 		m_prefactor1 = sqrt(nu1 / nv1);
-		m_prefactor2 = sqrt(nu1 * nv1) / (2. * get_pi());
+		m_prefactor2 = sqrt(nu1 * nv1) / (2.0f * M_PI);
 	}
+
+	__device__ ~anisotropic_phong_pdf() = default;
 
 	__device__ float value(const vector3& direction, curandState* local_rand_state) const override;
 	__device__ vector3 generate(scatter_record& rec, curandState* local_rand_state) override;
 
+	__host__ __device__ virtual pdfTypeID getTypeID() const { return pdfTypeID::pdfAnisotropicPhong; }
+
 private:
 	__host__ __device__ inline static double Schlick(const double val, float cosine)
 	{
-		return val + (1. - val) * pow(1. - cosine, 5.);
+		return val + (1.0f - val) * pow(1.0f - cosine, 5.0f);
 	}
 
 	__host__ __device__ inline vector3 GetSpecularReflected(const vector3& h, float kh) const
@@ -33,7 +37,7 @@ private:
 
 	__host__ __device__ inline double GetSpecularPDH(const vector3& h, float kh, float cos2, float sin2) const
 	{
-		return GetHPDH(h, cos2, sin2) / (4. * kh);
+		return GetHPDH(h, cos2, sin2) / (4.0f * kh);
 	}
 
 	__host__ __device__ inline double GetHPDH(const vector3& h, float cos2, float sin2) const
@@ -49,16 +53,16 @@ private:
 	vector3 m_incident{};
 	onb m_onb;
 
-	float m_nu = 0.0;
-	float m_nv = 0.0;
+	float m_nu = 0.0f;
+	float m_nv = 0.0f;
 
-	float m_prefactor1 = 0.0;
-	float m_prefactor2 = 0.0;
+	float m_prefactor1 = 0.0f;
+	float m_prefactor2 = 0.0f;
 };
 
 
 
-__device__ float anisotropic_phong_pdf::value(const vector3& direction, curandState* local_rand_state) const
+__device__ inline float anisotropic_phong_pdf::value(const vector3& direction, curandState* local_rand_state) const
 {
 	const float cosine = vector_multiply_to_double(direction, m_onb.Normal());
 	if (cosine < 0) return 0;
@@ -66,7 +70,7 @@ __device__ float anisotropic_phong_pdf::value(const vector3& direction, curandSt
 	return cosine * get_1_div_pi();
 }
 
-__device__ vector3 anisotropic_phong_pdf::generate(scatter_record& rec, curandState* local_rand_state)
+__device__ inline vector3 anisotropic_phong_pdf::generate(scatter_record& rec, curandState* local_rand_state)
 {
 	float phase;
 	bool flip;
@@ -128,7 +132,7 @@ __device__ vector3 anisotropic_phong_pdf::generate(scatter_record& rec, curandSt
 	return GetSpecularReflected(h, kh);
 }
 
-__host__ __device__ void anisotropic_phong_pdf::DealWithQuadrants(float& xi, float& phase, bool& flip)
+__host__ __device__ inline void anisotropic_phong_pdf::DealWithQuadrants(float& xi, float& phase, bool& flip)
 {
 	phase = 0;
 	flip = false;
@@ -140,18 +144,18 @@ __host__ __device__ void anisotropic_phong_pdf::DealWithQuadrants(float& xi, flo
 	else if (xi < 0.5f)
 	{
 		xi = 1.0f - 4.0f * (0.5f - xi);
-		phase = get_pi();
+		phase = M_PI;
 		flip = true;
 	}
 	else if (xi < 0.75)
 	{
 		xi = 1.0f - 4.0f * (0.75f - xi);
-		phase = get_pi();
+		phase = M_PI;
 	}
 	else
 	{
 		xi = 1.0f - 4.0f * (1.0f - xi);
-		phase = 2.0f * get_pi();
+		phase = 2.0f * M_PI;
 		flip = true;
 	}
 }

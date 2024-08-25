@@ -6,17 +6,11 @@
 class directional_light : public light
 {
 public:
-    __host__ __device__ directional_light(const point3& _position, const vector3& _u, const vector3& _v, double _intensity, color _color, const char* _name = "QuadLight", bool _invisible = true);
+    __host__ __device__ directional_light(const point3& _position, const vector3& _u, const vector3& _v, float _intensity, color _color, const char* _name = "QuadLight", bool _invisible = true);
 
 
     __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, curandState* local_rand_state) const override;
     __device__ float pdf_value(const point3& origin, const vector3& v, curandState* local_rand_state) const override;
-
-    __host__ __device__ void set_bounding_box();
-    __host__ __device__ aabb bounding_box() const override;
-
-
-    __host__ __device__ bool is_interior(float a, float b, hit_record& rec) const;
 
     /// <summary>
     /// Random special implementation for quad light (override base)
@@ -24,6 +18,16 @@ public:
     /// <param name="origin"></param>
     /// <returns></returns>
     __device__ vector3 random(const point3& origin, curandState* local_rand_state) const override;
+
+    __host__ __device__ void set_bounding_box();
+    __host__ __device__ aabb bounding_box() const override;
+
+
+    __host__ __device__ bool is_interior(float a, float b, hit_record& rec) const;
+
+    __host__ __device__ virtual HittableTypeID getTypeID() const { return HittableTypeID::lightDirectionalType; }
+
+    
 
 
 private:
@@ -36,7 +40,7 @@ private:
 };
 
 
-__host__ __device__ directional_light::directional_light(const point3& _position, const vector3& _u, const vector3& _v, double _intensity, color _color, const char* _name, bool _invisible)
+__host__ __device__ directional_light::directional_light(const point3& _position, const vector3& _u, const vector3& _v, float _intensity, color _color, const char* _name, bool _invisible)
     : light(_position, _intensity, _color, _invisible, _name), m_u(_u), m_v(_v)
 {
     m_mat = new diffuse_light(m_color, _intensity, true, m_invisible);

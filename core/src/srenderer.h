@@ -18,21 +18,8 @@ void srenderer::render(scene& _scene, const render_parameters& _params)
 {
     std::cout << "[INFO] Init scene" << std::endl;
 
-    camera* cam = new perspective_camera();
-    cam->initialize(
-        vector3(0, 1, 0),
-        vector3(0, 1, 0),
-        vector3(0, 1, 0),
-        40.0,
-        float(_params.width) / float(_params.height),
-        1.0,
-        2.0,
-        0.0,
-        1.0
-    );
-
-    //camera* camera = _scene.get_camera();
-    //camera->initialize(_params);
+    camera* cam = _scene.get_camera();
+    //cam->initialize(camera->lookfrom, camera->lookat, camera->vup, camera->vfov, camera->aspect_ratio, 1.0f, camera->focus_dist, 0, 1, camera->getSqrtSpp());
 
     //_scene.extract_emissive_objects();
 

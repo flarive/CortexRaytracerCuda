@@ -11,8 +11,12 @@ class image_pdf : public pdf
 public:
 	__device__ image_pdf(image_texture* img);
 
+	__device__ ~image_pdf();
+
 	__device__ float value(const vector3& direction, curandState* local_rand_state) const override;
 	__device__ vector3 generate(scatter_record& rec, curandState* local_rand_state) override;
+
+	__host__ __device__ virtual pdfTypeID getTypeID() const { return pdfTypeID::pdfImage; }
 
 public:
 	image_texture* m_image = nullptr;
@@ -22,13 +26,12 @@ public:
 	float* m_pData;
 };
 
-
-// TO FIX !!!!!!!!!!!!!
 __device__ image_pdf::image_pdf(image_texture* img)
-	: m_image(img)//, m_width(img->getWidth()), m_height(img->getHeight()), m_channels(3), m_pData(img->get_data_float())
+	: m_image(img), m_width(img->getWidth()), m_height(img->getHeight()), m_channels(3), m_pData(img->get_data_float())
 {
 	unsigned int k = 0;
-	float angleFrac = get_pi() / m_height;
+	float angleFrac = M_PI / m_height;
+	float angleFrac = M_PI / m_height;
 	float theta = static_cast<float>(angleFrac) * 0.5f;
 	float sinTheta = 0.f;
 	float* pSinTheta = (float*)malloc(sizeof(float) * m_height);
@@ -73,7 +76,7 @@ __device__ image_pdf::image_pdf(image_texture* img)
 	}
 }
 
-__device__ float image_pdf::value(const vector3& direction, curandState* local_rand_state) const
+__device__ inline float image_pdf::value(const vector3& direction, curandState* local_rand_state) const
 {
 	float _u, _v;
 	get_spherical_uv(unit_vector(direction), _u, _v);
@@ -85,8 +88,8 @@ __device__ float image_pdf::value(const vector3& direction, curandState* local_r
 	if (v < 0) v = 0;
 	if (v >= m_width) v = m_width - 1;
 
-	float angleFrac = get_pi() / float(m_height);
-	float invPdfNorm = (2.f * float(get_pi() * get_pi())) / float(m_width * m_height);
+	float angleFrac = M_PI / float(m_height);
+	float invPdfNorm = (2.0f * float(get_pi() * get_pi())) / float(m_width * m_height);
 	float* pVDist = &m_pBuffer[m_height * u];
 	// compute the actual PDF
 	float pdfU = (u == 0) ? (m_pUDist[0]) : (m_pUDist[u] - m_pUDist[u - 1]);
@@ -99,7 +102,7 @@ __device__ float image_pdf::value(const vector3& direction, curandState* local_r
 	return Pdf;
 }
 
-__device__ vector3 image_pdf::generate(scatter_record& rec, curandState* local_rand_state)
+__device__ inline vector3 image_pdf::generate(scatter_record& rec, curandState* local_rand_state)
 {
 	double r1 = get_real(local_rand_state);
 	double r2 = get_real(local_rand_state);
@@ -117,4 +120,29 @@ __device__ vector3 image_pdf::generate(scatter_record& rec, curandState* local_r
 	return from_spherical_uv(_u, _v);
 }
 
+// Destructor implementation
+__device__ inline image_pdf::~image_pdf()
+{
+	if (m_image) {
+		delete m_image;
+		m_image = nullptr;
+	}
 
+	if (m_pUDist)
+	{
+		delete m_pUDist;
+		m_pUDist = nullptr;
+	}
+
+	if (m_pBuffer)
+	{
+		delete m_pBuffer;
+		m_pBuffer = nullptr;
+	}
+
+	if (m_pData)
+	{
+		delete m_pData;
+		m_pData = nullptr;
+	}
+}

@@ -4,7 +4,7 @@
 #include "ray.cuh"
 #include "../pdf/pdf.cuh"
 
-class scatter_record
+struct scatter_record
 {
 public:
 	color attenuation{};
@@ -15,5 +15,13 @@ public:
 	color diffuseColor{};  // used only by AnisotropicPhong
 	color specularColor{}; // used only by AnisotropicPhong
 
-	float alpha_value = 1.0; // If no alpha texture, return 1.0 (fully opaque)
+	float alpha_value = 1.0f; // If no alpha texture, return 1.0 (fully opaque)
+
+	__device__ ~scatter_record()
+	{
+		if (pdf_ptr) {
+			delete pdf_ptr;
+			pdf_ptr = nullptr;
+		}
+	}
 };

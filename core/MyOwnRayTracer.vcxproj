@@ -65,7 +65,15 @@
       <TargetMachinePlatform>64</TargetMachinePlatform>
       <Include>$(SolutionDir)libs</Include>
       <AdditionalOptions>-Xcudafe="--diag_suppress=20012 --diag_suppress=20013 --diag_suppress=20015 --diag_suppress=20208 --diag_suppress=1866" %(AdditionalOptions)</AdditionalOptions>
+      <GenerateLineInfo>false</GenerateLineInfo>
+      <PtxAsOptionV>false</PtxAsOptionV>
     </CudaCompile>
+    <CudaLink>
+      <GPUDebugInfo>true</GPUDebugInfo>
+    </CudaLink>
+    <CudaLink>
+      <Optimization>Od</Optimization>
+    </CudaLink>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -96,6 +104,7 @@
   <ItemGroup>
     <ClInclude Include="src\lights\directional_light.cuh" />
     <ClInclude Include="src\lights\light.cuh" />
+    <ClInclude Include="src\lights\omni_light.cuh" />
     <ClInclude Include="src\pdf\anisotropic_phong_pdf.cuh" />
     <ClInclude Include="src\pdf\hittable_pdf.cuh" />
     <ClInclude Include="src\pdf\image_pdf.cuh" />
@@ -151,6 +160,8 @@
     <ClInclude Include="src\primitives\rotate.cuh" />
     <ClInclude Include="src\materials\dielectric.cuh" />
     <ClInclude Include="src\misc\vector3.cuh" />
+    <ClInclude Include="src\utilities\bitmap_image.cuh" />
+    <ClInclude Include="src\utilities\cuda_utils.cuh" />
     <ClInclude Include="src\utilities\interval.cuh" />
     <ClInclude Include="src\utilities\math_utils.cuh" />
     <ClInclude Include="src\utilities\uvmapping.cuh" />

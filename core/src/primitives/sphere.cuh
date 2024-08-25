@@ -35,7 +35,7 @@ public:
         if (_name != nullptr)
             setName(_name);
         else
-            setName(new char[7] {"Sphere"});
+            setName("Sphere");
 
         // calculate moving sphere bounding box for ray optimizations
         vector3 rvec = vector3(radius, radius, radius);
@@ -52,7 +52,7 @@ public:
         if (_name != nullptr)
             setName(_name);
         else
-            setName(new char[7] {"Sphere"});
+            setName("Sphere");
 
         m_mapping = _mapping;
 
@@ -183,7 +183,7 @@ __device__ float sphere::pdf_value(const point3& o, const vector3& v, curandStat
         return 0;
 
     auto cos_theta_max = sqrt(1 - radius * radius / vector_length_squared(center1 - o));
-    auto solid_angle = 2 * get_pi() * (1 - cos_theta_max);
+    auto solid_angle = 2 * M_PI * (1 - cos_theta_max);
 
     return  1 / solid_angle;
 }

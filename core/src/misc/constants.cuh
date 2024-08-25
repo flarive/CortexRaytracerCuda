@@ -56,3 +56,8 @@ __host__ __device__ inline float get_shadow_acne_fix()
 {
 	return 0.00001f;
 }
+
+__host__ __device__ inline float get_m_2_pi()
+{
+	return 0.636619772367581343076f;
+}
