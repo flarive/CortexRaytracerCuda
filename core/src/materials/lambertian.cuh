@@ -74,22 +74,27 @@ public:
 __device__ inline bool lambertian::scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, curandState* local_rand_state) const
 {
     // Check if the material is transparent (e.g., glass)
-    //if (m_transparency > 0)
-    //{
-    //    // Compute the refracted ray direction
-    //    vector3 refracted_direction = glm::refract(r_in.direction(), rec.normal, m_refractiveIndex);
-    //    srec.attenuation = m_diffuse_texture->value(rec.u, rec.v, rec.hit_point) * color(m_transparency);
-    //    srec.skip_pdf = true;
-    //    srec.skip_pdf_ray = ray(rec.hit_point, refracted_direction, r_in.time());
-    //    return true;
+    if (m_transparency > 0)
+    {
+        // Compute the refracted ray direction
+        vector3 refracted_direction = glm::refract(r_in.direction(), rec.normal, m_refractiveIndex);
+        srec.attenuation = m_diffuse_texture->value(rec.u, rec.v, rec.hit_point) * color(m_transparency);
+        srec.skip_pdf = true;
+        srec.skip_pdf_ray = ray(rec.hit_point, refracted_direction, r_in.time());
+        return true;
 
-    //    // Total internal reflection (TIR)
-    //    // Handle this case if needed
-    //}
-
+        // Total internal reflection (TIR)
+        // Handle this case if needed
+    }
 
     srec.attenuation = m_diffuse_texture->value(rec.u, rec.v, rec.hit_point);
-    srec.pdf_ptr = new cosine_pdf(rec.normal);
+
+
+    cosine_pdf derivedInstance = cosine_pdf(rec.normal);
+    pdf& instance = derivedInstance;
+
+
+    srec.pdf_ptr = instance;
     srec.skip_pdf = false;
 
     return true;

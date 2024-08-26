@@ -77,5 +77,5 @@ public:
 protected:
 	aabb m_bbox;
 	uvmapping m_mapping;
-	char* m_name;
+	char* m_name = nullptr;
 };

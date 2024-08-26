@@ -8,7 +8,7 @@ struct scatter_record
 {
 public:
 	color attenuation{};
-	pdf* pdf_ptr = nullptr;
+	pdf pdf_ptr;
 	bool skip_pdf = false; // is specular
 	ray skip_pdf_ray; // specular_ray
 
@@ -16,12 +16,4 @@ public:
 	color specularColor{}; // used only by AnisotropicPhong
 
 	float alpha_value = 1.0f; // If no alpha texture, return 1.0 (fully opaque)
-
-	__device__ ~scatter_record()
-	{
-		if (pdf_ptr) {
-			/*delete pdf_ptr;
-			pdf_ptr = nullptr;*/
-		}
-	}
 };

@@ -11,12 +11,16 @@ class image_pdf : public pdf
 public:
 	__device__ image_pdf(image_texture* img);
 
+	__device__ image_pdf* clone() const override {
+		return new image_pdf(*this);
+	}
+
 	__device__ ~image_pdf();
 
 	__device__ float value(const vector3& direction, curandState* local_rand_state) const override;
-	__device__ vector3 generate(scatter_record& rec, curandState* local_rand_state) override;
+	__device__ vector3 generate(scatter_record& rec, curandState* local_rand_state) const override;
 
-	__host__ __device__ virtual pdfTypeID getTypeID() const { return pdfTypeID::pdfImage; }
+	__device__ pdfTypeID getTypeID() const override { return pdfTypeID::pdfImage; }
 
 public:
 	image_texture* m_image = nullptr;
@@ -102,7 +106,7 @@ __device__ inline float image_pdf::value(const vector3& direction, curandState* 
 	return Pdf;
 }
 
-__device__ inline vector3 image_pdf::generate(scatter_record& rec, curandState* local_rand_state)
+__device__ inline vector3 image_pdf::generate(scatter_record& rec, curandState* local_rand_state) const
 {
 	double r1 = get_real(local_rand_state);
 	double r2 = get_real(local_rand_state);
