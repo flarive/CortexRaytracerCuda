@@ -9,7 +9,7 @@ class interval
 public:
     float min, max;
 
-    __host__ __device__ interval() : min(+get_infinity()), max(-get_infinity())
+    __host__ __device__ interval() : min(+INFINITY), max(-INFINITY)
     {
     }
 
@@ -58,12 +58,12 @@ public:
 
 __host__ __device__ inline const interval interval::get_empty()
 {
-    return interval(+get_infinity(), -get_infinity());
+    return interval(+INFINITY, -INFINITY);
 }
 
 __host__ __device__ inline const interval interval::get_universe()
 {
-    return interval(-get_infinity(), +get_infinity());
+    return interval(-INFINITY, +INFINITY);
 }
 
 

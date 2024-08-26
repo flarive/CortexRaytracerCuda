@@ -29,7 +29,7 @@ private:
 
 __device__ inline float mixture_pdf::value(const vector3& direction, curandState* local_rand_state) const
 {
-	return proportion * (p0->value(direction, local_rand_state)) + (1.0f - proportion) * (p1->value(direction, local_rand_state));
+	return proportion*(p0->value(direction, local_rand_state)) + (1.0f - proportion) * (p1->value(direction, local_rand_state));
 }
 
 __device__ inline vector3 mixture_pdf::generate(scatter_record& rec, curandState* local_rand_state)
@@ -41,6 +41,8 @@ __device__ inline vector3 mixture_pdf::generate(scatter_record& rec, curandState
 	//}
 
 	//printf("mixture_pdf::return ?\n");
+
+	// isnan()
 
 	if (get_real(local_rand_state) < proportion)
 	{
@@ -59,6 +61,8 @@ __device__ inline vector3 mixture_pdf::generate(scatter_record& rec, curandState
 // Destructor implementation
 __device__ inline mixture_pdf::~mixture_pdf()
 {
+	//printf("Calling mixture_pdf destructor\n");
+
 	if (p0) {
 		delete p0;
 		p0 = nullptr;

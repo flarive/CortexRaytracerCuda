@@ -74,8 +74,8 @@ __host__ __device__ rt::rotate::rotate(hittable* _object, const vector3& _rotati
 
     bbox = m_object->bounding_box();
 
-    point3 min(get_infinity(), get_infinity(), get_infinity());
-    point3 max(-get_infinity(), -get_infinity(), -get_infinity());
+    point3 min(INFINITY, INFINITY, INFINITY);
+    point3 max(-INFINITY, -INFINITY, -INFINITY);
 
     for (int i = 0; i < 2; i++) {
         for (int j = 0; j < 2; j++) {

@@ -137,7 +137,7 @@ __device__ color ray_color(const ray& r, int depth, hittable_list& _world, hitta
 
     // If the ray hits nothing, return the background color.
     // 0.001 is to fix shadow acne interval
-    if (!_world.hit(r, interval(0.00001f, HUGE_VAL), rec, depth, local_rand_state))
+    if (!_world.hit(r, interval(SHADOW_ACNE_FIX, INFINITY), rec, depth, local_rand_state))
     {
         //if (background_texture)
         //{
@@ -167,8 +167,8 @@ __device__ color ray_color(const ray& r, int depth, hittable_list& _world, hitta
 
     if (!rec.mat->scatter(r, _lights, rec, srec, local_rand_state))
     {
-        free(rec.mat);
-        free(srec.pdf_ptr);
+        //free(rec.mat);
+        //free(srec.pdf_ptr);
         return color_from_emission;
     }
 
@@ -178,16 +178,16 @@ __device__ color ray_color(const ray& r, int depth, hittable_list& _world, hitta
     {
         // no lights
         // no importance sampling
-        free(rec.mat);
-        free(srec.pdf_ptr);
+        /*free(rec.mat);
+        free(srec.pdf_ptr);*/
         return srec.attenuation * ray_color(srec.skip_pdf_ray, depth - 1, _world, _lights, local_rand_state);
     }
 
     // no importance sampling
     if (srec.skip_pdf)
     {
-        free(rec.mat);
-        free(srec.pdf_ptr);
+        /*free(rec.mat);
+        free(srec.pdf_ptr);*/
         return srec.attenuation * ray_color(srec.skip_pdf_ray, depth - 1, _world, _lights, local_rand_state);
     }
 
@@ -230,7 +230,7 @@ __device__ color ray_color(const ray& r, int depth, hittable_list& _world, hitta
         //    color background_infrontof = ray_color(ray_behind, depth - 1, _scene, local_rand_state);
 
         //    hit_record rec_behind;
-        //    if (_scene.get_world().hit(ray_behind, interval(0.001f, get_infinity()), rec_behind, depth, local_rand_state))
+        //    if (_scene.get_world().hit(ray_behind, interval(0.001f, INFINITY), rec_behind, depth, local_rand_state))
         //    {
         //        // another object is behind the alpha textured object, display it behind
         //        scatter_record srec_behind;
@@ -296,7 +296,6 @@ __device__ color ray_color(const ray& r, int depth, hittable_list& _world, hitta
     //printf("ray_color returns %i/%i %i %f %f %f\n", r.x, r.y, depth, final_color.r(), final_color.g(), final_color.b());
 
     p->~mixture_pdf();
-    //rec.~hit_record();
     light_ptr->~hittable_pdf();
     
     //free(srec.pdf_ptr);
@@ -306,17 +305,17 @@ __device__ color ray_color(const ray& r, int depth, hittable_list& _world, hitta
 
 #define RND (curand_uniform(&local_rand_state))
 
-__global__ void create_cornell_box(scene** myscene, hittable_list **elist, hittable_list **elights,  camera **cam, int nx, int ny, int spp, int sqrt_spp, image_texture** texture, curandState *rand_state)
+__global__ void create_cornell_box(hittable_list **elist, hittable_list **elights,  camera **cam, int nx, int ny, int spp, int sqrt_spp, image_texture** texture, curandState *rand_state)
 {
     if (threadIdx.x == 0 && blockIdx.x == 0)
     {
         curandState local_rand_state = *rand_state;
 
-        *myscene = new scene();
+        //*myscene = new scene();
 
-        *elights = new hittable_list("llllll");
+        *elights = new hittable_list();
 
-        *elist = new hittable_list("zzzzzzzz");
+        *elist = new hittable_list();
 
         //int i = 0;
         (*elist)->add(new rt::flip_normals(new yz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(color(0.12, 0.45, 0.15))), "MyLeft")));
@@ -461,6 +460,10 @@ void renderGPU(int width, int height, int spp, int max_depth, int tx, int ty, co
     std::cout << "Rendering " << width << "x" << height << " " << spp << " samples > " << filepath << std::endl;
 
 
+
+
+
+
     size_t stackSize;
 
     // Get the current stack size limit
@@ -484,13 +487,53 @@ void renderGPU(int width, int height, int spp, int max_depth, int tx, int ty, co
     std::cout << "New stack size limit: " << newStackSize << " bytes" << std::endl;
 
 
+
+
+
+
+
+    // cuda initialization via cudaMalloc
+    //size_t limit = 0;
+
+    //cudaDeviceGetLimit(&limit, cudaLimitStackSize);
+    //printf("cudaLimitStackSize: %u\n", (unsigned)limit);
+    //cudaDeviceGetLimit(&limit, cudaLimitPrintfFifoSize);
+    //printf("cudaLimitPrintfFifoSize: %u\n", (unsigned)limit);
+    //cudaDeviceGetLimit(&limit, cudaLimitMallocHeapSize);
+    //printf("cudaLimitMallocHeapSize: %u\n", (unsigned)limit);
+
+    //std::cout << "default settings of cuda context" << std::endl;
+    //
+    //limit = 10;
+
+    //cudaDeviceSetLimit(cudaLimitStackSize, limit);
+    //cudaDeviceSetLimit(cudaLimitPrintfFifoSize, limit);
+    //cudaDeviceSetLimit(cudaLimitMallocHeapSize, limit);
+
+    //std::cout << "set limit to 10 for all settings" << std::endl;
+    //
+
+    //limit = 0;
+
+    //cudaDeviceGetLimit(&limit, cudaLimitStackSize);
+    //printf("New cudaLimitStackSize: %u\n", (unsigned)limit);
+    //cudaDeviceGetLimit(&limit, cudaLimitPrintfFifoSize);
+    //printf("New cudaLimitPrintfFifoSize: %u\n", (unsigned)limit);
+    //cudaDeviceGetLimit(&limit, cudaLimitMallocHeapSize);
+    //printf("New cudaLimitMallocHeapSize: %u\n", (unsigned)limit);
+
+
+
+
+
+
     int sqrt_spp = static_cast<int>(sqrt(spp));
     
     // Values
     int num_pixels = width * height;
 
     int tex_x, tex_y, tex_n;
-    unsigned char *tex_data_host = stbi_load("e:\\earth_diffuse.jpg", &tex_x, &tex_y, &tex_n, 0);
+    unsigned char *tex_data_host = stbi_load("C:\\Users\\flarive\\Documents\\Visual Studio 2022\\Projects\\RT\\data\\models\\earth_diffuse.jpg", &tex_x, &tex_y, &tex_n, 0);
     if (!tex_data_host) {
         std::cerr << "Failed to load texture." << std::endl;
         return;
@@ -537,11 +580,11 @@ void renderGPU(int width, int height, int spp, int max_depth, int tx, int ty, co
     camera** cam;
     checkCudaErrors(cudaMalloc((void**)&cam, sizeof(camera*)));
 
-    scene** myscene;
-    checkCudaErrors(cudaMalloc((void**)&myscene, sizeof(scene*)));
+    //scene** myscene;
+    //checkCudaErrors(cudaMalloc((void**)&myscene, sizeof(scene*)));
 
 
-    create_cornell_box<<<1, 1>>>(myscene, elist, elights, cam, width, height, spp, sqrt_spp, texture, d_rand_state2);
+    create_cornell_box<<<1, 1>>>(elist, elights, cam, width, height, spp, sqrt_spp, texture, d_rand_state2);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
@@ -574,7 +617,7 @@ void renderGPU(int width, int height, int spp, int max_depth, int tx, int ty, co
     checkCudaErrors(cudaFree(cam));
     checkCudaErrors(cudaFree(elights));
     checkCudaErrors(cudaFree(elist));
-    checkCudaErrors(cudaFree(myscene));
+    //checkCudaErrors(cudaFree(myscene));
     checkCudaErrors(cudaFree(d_rand_state));
     checkCudaErrors(cudaFree(image));
 }
@@ -605,5 +648,5 @@ void launchGPU(int width, int height, int spp, int max_depth, int tx, int ty, co
 
 int main(int argc, char* argv[])
 {
-    launchGPU(512, 288, 10, 2, 16, 16, "e:\\ttt.png", true);
+    launchGPU(512, 288, 10, 2, 16, 16, "d:\\ttt.png", true);
 }

@@ -136,7 +136,7 @@ __device__ float quad::pdf_value(const point3& origin, const vector3& v, curandS
 {
     hit_record rec;
 
-    if (!this->hit(ray(origin, v), interval(get_shadow_acne_fix(), get_infinity()), rec, 0, local_rand_state))
+    if (!this->hit(ray(origin, v), interval(SHADOW_ACNE_FIX, INFINITY), rec, 0, local_rand_state))
         return 0;
 
     auto distance_squared = rec.t * rec.t * vector_length_squared(v);

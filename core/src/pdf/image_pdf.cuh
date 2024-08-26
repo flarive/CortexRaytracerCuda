@@ -89,7 +89,7 @@ __device__ inline float image_pdf::value(const vector3& direction, curandState* 
 	if (v >= m_width) v = m_width - 1;
 
 	float angleFrac = M_PI / float(m_height);
-	float invPdfNorm = (2.0f * float(get_pi() * get_pi())) / float(m_width * m_height);
+	float invPdfNorm = (2.0f * float(M_PI * M_PI)) / float(m_width * m_height);
 	float* pVDist = &m_pBuffer[m_height * u];
 	// compute the actual PDF
 	float pdfU = (u == 0) ? (m_pUDist[0]) : (m_pUDist[u] - m_pUDist[u - 1]);
@@ -123,6 +123,8 @@ __device__ inline vector3 image_pdf::generate(scatter_record& rec, curandState* 
 // Destructor implementation
 __device__ inline image_pdf::~image_pdf()
 {
+	printf("Calling image_pdf destructor\n");
+
 	if (m_image) {
 		delete m_image;
 		m_image = nullptr;

@@ -45,7 +45,7 @@ __device__ inline vector3 get_vector3(curandState* local_rand_state, const float
 
 __device__ inline vector3 get_unit_vector(curandState* local_rand_state)
 {
-    const float a = get_real(local_rand_state, 0, get_2_pi());
+    const float a = get_real(local_rand_state, 0, M_DOUBLE_PI);
     const float z = get_real(local_rand_state , -1, 1);
     const float r = glm::sqrt(1 - (z * z));
 
@@ -78,7 +78,7 @@ __device__ inline vector3 random_to_sphere(curandState* local_rand_state, float 
     const float r2 = get_real(local_rand_state);
     float z = 1 + r2 * (glm::sqrt(1 - radius * radius / distance_squared) - 1);
 
-    float phi = get_m_2_pi() * r1;
+    float phi = 2 * M_PI * r1;
     float x = glm::cos(phi) * glm::sqrt(1 - z * z);
     float y = glm::sin(phi) * glm::sqrt(1 - z * z);
 
@@ -116,7 +116,7 @@ __device__ inline vector3 random_cosine_direction(curandState* local_rand_state)
 {
     const float r1 = get_real(local_rand_state);
     const float r2 = get_real(local_rand_state);
-    const float phi = get_2_pi() * r1;
+    const float phi = M_DOUBLE_PI * r1;
     const float z = glm::sqrt(1 - r2);
     const float r2_sqrt = glm::sqrt(r2);
     const float x = glm::cos(phi) * r2_sqrt;

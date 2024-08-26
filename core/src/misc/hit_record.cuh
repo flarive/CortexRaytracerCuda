@@ -34,7 +34,7 @@ struct hit_record
 	__device__ inline void set_face_normal(const ray& r, const vector3& outward_normal)
     {
 		front_face = dot(r.direction(), outward_normal) < 0.0f;
-        normal = front_face ? outward_normal : -outward_normal;
+		normal = front_face ? outward_normal : -outward_normal;
     }
 };
 
@@ -42,6 +42,8 @@ struct hit_record
 
 __device__ inline hit_record::~hit_record()
 {
+	//printf("Calling hit_record destructor\n");
+	
 	//if (name) {
 	//	delete[] name;
 	//	name = nullptr;

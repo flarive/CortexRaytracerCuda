@@ -152,7 +152,7 @@ __device__ inline color camera::ray_color(const ray& r, int depth, scene& _scene
 
     // If the ray hits nothing, return the background color.
     // 0.001 is to fix shadow acne interval
-    if (!www.hit(r, interval(get_shadow_acne_fix(), get_infinity()), rec, depth, local_rand_state))
+    if (!www.hit(r, interval(SHADOW_ACNE_FIX, INFINITY), rec, depth, local_rand_state))
     {
         if (background_texture)
         {
@@ -172,7 +172,7 @@ __device__ inline color camera::ray_color(const ray& r, int depth, scene& _scene
     if (color_from_emission.a() == 0.0f)
     {
         // rethrow a new ray
-        www.hit(r, interval(rec.t + 0.001f, get_infinity()), rec, depth, local_rand_state);
+        www.hit(r, interval(rec.t + 0.001f, INFINITY), rec, depth, local_rand_state);
     }
 
 
@@ -210,8 +210,8 @@ __device__ inline color camera::ray_color(const ray& r, int depth, scene& _scene
     }
 
     ray scattered = ray(rec.hit_point, p.generate(srec, local_rand_state), r.time());
-    double pdf_val = p.value(scattered.direction(), local_rand_state);
-    double scattering_pdf = rec.mat->scattering_pdf(r, rec, scattered);
+    float pdf_val = p.value(scattered.direction(), local_rand_state);
+    float scattering_pdf = rec.mat->scattering_pdf(r, rec, scattered);
 
     color final_color;
 
@@ -228,7 +228,7 @@ __device__ inline color camera::ray_color(const ray& r, int depth, scene& _scene
             color background_infrontof = ray_color(ray_behind, depth - 1, _scene, local_rand_state);
 
             hit_record rec_behind;
-            if (_scene.get_world().hit(ray_behind, interval(0.001f, get_infinity()), rec_behind, depth, local_rand_state))
+            if (_scene.get_world().hit(ray_behind, interval(0.001f, INFINITY), rec_behind, depth, local_rand_state))
             {
                 // another object is behind the alpha textured object, display it behind
                 scatter_record srec_behind;
