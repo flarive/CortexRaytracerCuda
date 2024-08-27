@@ -120,11 +120,14 @@ void check_cuda(cudaError_t result, char const* const func, const char* const fi
 
 __device__ color ray_color(const ray& r, int depth, hittable_list& _world, hittable_list& _lights, curandState* local_rand_state)
 {
+    printf("depth %i %i %i\n", r.x, r.y, depth);
+    
     // If we've exceeded the ray bounce limit, no more light is gathered.
     if (depth <= 0)
     {
         // return background solid color
-        return color::red();// background_color;
+        printf("exit !!! %i %i\n", r.x, r.y);
+        return color::yellow();// background_color;
     }
 
     hit_record rec;
@@ -152,11 +155,11 @@ __device__ color ray_color(const ray& r, int depth, hittable_list& _world, hitta
     color color_from_emission = rec.mat->emitted(r, rec, rec.u, rec.v, rec.hit_point, local_rand_state);
 
     // hack for invisible primitives (such as lights)
-    //if (color_from_emission.a() == 0.0f)
-    //{
-    //    // rethrow a new ray
-    //    _world.hit(r, interval(rec.t + 0.001f, HUGE_VAL), rec, depth, local_rand_state);
-    //}
+    if (color_from_emission.a() == 0.0f)
+    {
+        // rethrow a new ray
+        _world.hit(r, interval(rec.t + 0.001f, INFINITY), rec, depth, local_rand_state);
+    }
 
     if (!rec.mat->scatter(r, _lights, rec, srec, local_rand_state))
     {
@@ -181,7 +184,7 @@ __device__ color ray_color(const ray& r, int depth, hittable_list& _world, hitta
     hittable_pdf* hpdf = new hittable_pdf(_lights, rec.hit_point);
 
 
-    mixture_pdf *mpdf;
+    mixture_pdf* mpdf;
 
     //if (background_texture && background_iskybox)
     //{
@@ -198,7 +201,7 @@ __device__ color ray_color(const ray& r, int depth, hittable_list& _world, hitta
     float pdf_val = mpdf->value(scattered.direction(), local_rand_state);
     float scattering_pdf = rec.mat->scattering_pdf(r, rec, scattered);
 
-    color final_color;
+    color final_color(0,0,0);
 
     //if (background_texture)
     //{
@@ -276,14 +279,13 @@ __device__ color ray_color(const ray& r, int depth, hittable_list& _world, hitta
         //}
     //}
 
-    printf("ray_color returns %i/%i %i %f %f %f\n", r.x, r.y, depth, final_color.r(), final_color.g(), final_color.b());
+    //printf("ray_color returns %i/%i %i %f %f %f\n", r.x, r.y, depth, final_color.r(), final_color.g(), final_color.b());
 
     
 
     delete(mpdf);
     delete(hpdf);
-    
-    //free(srec.pdf_ptr);
+
 
     return final_color;
 }
@@ -319,7 +321,7 @@ __global__ void create_cornell_box(hittable_list **elist, hittable_list **elight
 
 
 
-        //elist[i++] = new rt::translate(new box(vector3(0, 0, 295), vector3(165, 330, 165), new lambertian(new solid_color_texture(color(0.73, 0.73, 0.73))), "MyBox"), vector3(120,0,320));
+        (*elist)->add(new rt::translate(new box(vector3(0, 0, 295), vector3(165, 330, 165), new lambertian(new solid_color_texture(color(0.73, 0.73, 0.73))), "MyBox"), vector3(120,0,320)));
         
 
 
@@ -327,15 +329,21 @@ __global__ void create_cornell_box(hittable_list **elist, hittable_list **elight
         (*elist)->add(new sphere(vector3(350.0f, 50.0f, 295.0f), 100.0f, new lambertian(new solid_color_texture(color(0.99, 0.13, 0.73))), "MySphere"));
 
 
+        //(*elist)->add(new omni_light(point3(0, 0, 555), 1.0f, 1.0f, color(1, 1, 1), "MyLight", true));
+
         //*eworld = new hittable_list(elist, i);
 
 
         
+        // calculate bounding boxes to speed up ray computing
+        //hittable* ppp = new bvh_node((*elist)->objects, 0, (*elist)->object_count, &local_rand_state);
+        //*elist = new hittable_list(ppp);
+
 
 
         //(*myscene)->add(new omni_light(point3(0, 0, 555), 1.0f, 1.0f, color(1, 1, 1), "MyLight", false));
 
-        (*elights)->add(new omni_light(point3(0, 0, 555), 1.0f, 1.0f, color(1, 1, 1), "MyLight", false));
+        (*elights)->add(new omni_light(point3(0, 0, 555), 1.0f, 1.0f, color(1, 1, 1), "MyLight", true));
 
 
         vector3 lookfrom(278, 278, -800);
@@ -399,7 +407,7 @@ __global__ void render(color* fb, int width, int height, int spp, int sqrt_spp, 
     int pixel_index = j* width + i;
     curandState local_rand_state = randState[pixel_index];
     color pixel_color(0, 0, 0);
-    color background(0, 0, 0);
+    //color background(0, 0, 0);
 
     // new
     for (int s_j = 0; s_j < sqrt_spp; ++s_j)
@@ -409,7 +417,6 @@ __global__ void render(color* fb, int width, int height, int spp, int sqrt_spp, 
             //float u = float(i + curand_uniform(&local_rand_state)) / float(width);
             //float v = float(j + curand_uniform(&local_rand_state)) / float(height);
 
-            // new
             ray r = (*cam)->get_ray(i, j, s_i, s_j, nullptr, &local_rand_state);
 
 
@@ -456,7 +463,7 @@ void renderGPU(int width, int height, int spp, int max_depth, int tx, int ty, co
     std::cout << "Current stack size limit: " << stackSize << " bytes" << std::endl;
 
 
-    size_t newStackSize = 2048; // Set the stack size to 1MB per thread
+    const size_t newStackSize = 4096 * 10; // Set the stack size to 1MB per thread
 
     cudaError_t result2 = cudaDeviceSetLimit(cudaLimitStackSize, newStackSize);
     if (result2 != cudaSuccess) {
@@ -468,8 +475,15 @@ void renderGPU(int width, int height, int spp, int max_depth, int tx, int ty, co
 
 
 
+    const size_t newMallowHeapSize = size_t(1024) * size_t(1024) * size_t(1024);
 
+    cudaError_t result3 = cudaDeviceSetLimit(cudaLimitMallocHeapSize, newMallowHeapSize);
+    if (result3 != cudaSuccess) {
+        std::cerr << "Failed to set malloc heap size: " << cudaGetErrorString(result3) << std::endl;
+        return;
+    }
 
+    std::cout << "New malloc heap limit: " << newMallowHeapSize << " bytes" << std::endl;
 
 
     // cuda initialization via cudaMalloc
@@ -513,7 +527,7 @@ void renderGPU(int width, int height, int spp, int max_depth, int tx, int ty, co
     int num_pixels = width * height;
 
     int tex_x, tex_y, tex_n;
-    unsigned char *tex_data_host = stbi_load("C:\\Users\\flarive\\Documents\\Visual Studio 2022\\Projects\\RT\\data\\models\\earth_diffuse.jpg", &tex_x, &tex_y, &tex_n, 0);
+    unsigned char *tex_data_host = stbi_load("e:\\earth_diffuse.jpg", &tex_x, &tex_y, &tex_n, 0);
     if (!tex_data_host) {
         std::cerr << "Failed to load texture." << std::endl;
         return;
@@ -626,7 +640,7 @@ void launchGPU(int width, int height, int spp, int max_depth, int tx, int ty, co
 }
 
 
-int main(int argc, char* argv[])
-{
-    launchGPU(512, 288, 10, 2, 16, 16, "d:\\ttt.png", true);
-}
+//int main(int argc, char* argv[])
+//{
+//    launchGPU(256, 144, 10, 2, 16, 16, "e:\\ttt2.png", true);
+//}

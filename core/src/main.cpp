@@ -6,7 +6,7 @@
 #include "scenes/scene_manager.h"
 
 
-int main8(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
 	render_parameters params = render_parameters::getArgs(argc, argv);
 
@@ -26,7 +26,7 @@ int main8(int argc, char* argv[])
     // Stop measuring time
     renderTimer.stop();
 
-    if (!params.quietMode)
+    //if (!params.quietMode)
         renderTimer.displayTime();
 
     std::cout << "[INFO] Finished !" << std::endl;
