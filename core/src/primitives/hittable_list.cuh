@@ -63,7 +63,7 @@ public:
 
 
 
-    __host__ __device__ HittableTypeID getTypeID() const override { return HittableTypeID::hittableListType; }
+    __host__ __device__ virtual HittableTypeID getTypeID() const { return HittableTypeID::hittableListType; }
 
 
     __host__ __device__ void clear();

@@ -41,7 +41,7 @@ public:
     /// <returns></returns>
     __device__ vector3 random(const point3& o, curandState* local_rand_state) const override;
 
-    __host__ __device__ HittableTypeID getTypeID() const override { return HittableTypeID::lightOmniType; }
+    __host__ __device__ virtual HittableTypeID getTypeID() const { return HittableTypeID::lightOmniType; }
 
 
 private:

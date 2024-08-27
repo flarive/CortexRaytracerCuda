@@ -27,36 +27,8 @@ __host__ __device__ enum class pdfTypeID {
 class pdf
 {
 public:
-	__device__ pdf() = default;
-
-	// Clone method
-	__device__ virtual pdf* clone() const {
-		return new pdf(*this);
-	}
-
-
 	__device__ virtual ~pdf() {}
 
-	__device__ virtual float value(const vector3& direction, curandState* local_rand_state) const
-	{
-		return 0.0f;
-	}
-
-	__device__ virtual vector3 generate(scatter_record& rec, curandState* local_rand_state) const
-	{
-		return vector3(0, 0, 0);
-	}
-
-	__device__ virtual pdfTypeID getTypeID() const { return pdfTypeID::pdfBaseType; }
+	__device__ virtual float value(const vector3& direction, curandState* local_rand_state) const = 0;
+	__device__ virtual vector3 generate(scatter_record& rec, curandState* local_rand_state) = 0;
 };
-
-
-//__device__ float pdf::value(const vector3& direction, curandState* local_rand_state) const
-//{
-//	return 0.0f;
-//}
-//
-//__device__ vector3 pdf::generate(scatter_record& rec, curandState* local_rand_state) const
-//{
-//	return vector3(0,0,0);
-//}

@@ -17,16 +17,12 @@ public:
 		m_prefactor2 = sqrt(nu1 * nv1) / (2.0f * M_PI);
 	}
 
-	__device__ anisotropic_phong_pdf* clone() const override {
-		return new anisotropic_phong_pdf(*this);
-	}
-
 	__device__ ~anisotropic_phong_pdf() = default;
 
 	__device__ float value(const vector3& direction, curandState* local_rand_state) const override;
-	__device__ vector3 generate(scatter_record& rec, curandState* local_rand_state) const override;
+	__device__ vector3 generate(scatter_record& rec, curandState* local_rand_state) override;
 
-	__device__ pdfTypeID getTypeID() const override { return pdfTypeID::pdfAnisotropicPhong; }
+	__host__ __device__ virtual pdfTypeID getTypeID() const { return pdfTypeID::pdfAnisotropicPhong; }
 
 private:
 	__host__ __device__ inline static double Schlick(const double val, float cosine)
@@ -71,10 +67,10 @@ __device__ inline float anisotropic_phong_pdf::value(const vector3& direction, c
 	const float cosine = vector_multiply_to_double(direction, m_onb.Normal());
 	if (cosine < 0) return 0;
 
-	return cosine * M_1_PI;
+	return cosine * get_1_div_pi();
 }
 
-__device__ inline vector3 anisotropic_phong_pdf::generate(scatter_record& rec, curandState* local_rand_state) const
+__device__ inline vector3 anisotropic_phong_pdf::generate(scatter_record& rec, curandState* local_rand_state)
 {
 	float phase;
 	bool flip;
@@ -82,7 +78,7 @@ __device__ inline vector3 anisotropic_phong_pdf::generate(scatter_record& rec, c
 	float xi = get_real(local_rand_state);
 	DealWithQuadrants(xi, phase, flip);
 
-	float phi = atan(m_prefactor1 * tan(M_PI_2 * xi));
+	float phi = atan(m_prefactor1 * tan(get_half_pi() * xi));
 	if (flip)
 		phi = phase - phi;
 	else
@@ -131,7 +127,7 @@ __device__ inline vector3 anisotropic_phong_pdf::generate(scatter_record& rec, c
 	}
 
 	// I don't like the white specular color that's typical in obj files, mix it with the diffuse color
-	rec.attenuation = 0.8f * rec.specularColor + 0.2f * rec.diffuseColor;
+	rec.attenuation = 0.8 * rec.specularColor + 0.2f * rec.diffuseColor;
 
 	return GetSpecularReflected(h, kh);
 }

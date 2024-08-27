@@ -148,7 +148,7 @@ __device__ color ray_color(const ray& r, int depth, hittable_list& _world, hitta
         //    return background_color;
         //}
 
-        return color::green();
+        return color::black();
     }
 
 
@@ -159,14 +159,16 @@ __device__ color ray_color(const ray& r, int depth, hittable_list& _world, hitta
     color color_from_emission = rec.mat->emitted(r, rec, rec.u, rec.v, rec.hit_point, local_rand_state);
 
     // hack for invisible primitives (such as lights)
-    if (color_from_emission.a() == 0.0f)
-    {
-        // rethrow a new ray
-        _world.hit(r, interval(rec.t + 0.001f, INFINITY), rec, depth, local_rand_state);
-    }
+    //if (color_from_emission.a() == 0.0f)
+    //{
+    //    // rethrow a new ray
+    //    _world.hit(r, interval(rec.t + 0.001f, HUGE_VAL), rec, depth, local_rand_state);
+    //}
 
     if (!rec.mat->scatter(r, _lights, rec, srec, local_rand_state))
     {
+        //free(rec.mat);
+        //free(srec.pdf_ptr);
         return color_from_emission;
     }
 
@@ -176,33 +178,23 @@ __device__ color ray_color(const ray& r, int depth, hittable_list& _world, hitta
     {
         // no lights
         // no importance sampling
+        /*free(rec.mat);
+        free(srec.pdf_ptr);*/
         return srec.attenuation * ray_color(srec.skip_pdf_ray, depth - 1, _world, _lights, local_rand_state);
     }
 
     // no importance sampling
     if (srec.skip_pdf)
     {
+        /*free(rec.mat);
+        free(srec.pdf_ptr);*/
         return srec.attenuation * ray_color(srec.skip_pdf_ray, depth - 1, _world, _lights, local_rand_state);
     }
 
-    hittable_pdf light_ptr = hittable_pdf(_lights, rec.hit_point);
-
-    
-    if (srec.pdf_ptr.getTypeID() == pdfTypeID::pdfCosine)
-    {
-        int qq = 0;
-    }
-    else if (srec.pdf_ptr.getTypeID() == pdfTypeID::pdfMixture)
-    {
-        int qq = 0;
-    }
-    else if (srec.pdf_ptr.getTypeID() == pdfTypeID::pdfBaseType)
-    {
-        int qq = 0;
-    }
+    hittable_pdf* light_ptr = new hittable_pdf(_lights, rec.hit_point);
 
 
-    mixture_pdf p = mixture_pdf(light_ptr, srec.pdf_ptr);
+    mixture_pdf *p;
 
     //if (background_texture && background_iskybox)
     //{
@@ -211,14 +203,14 @@ __device__ color ray_color(const ray& r, int depth, hittable_list& _world, hitta
     //}
     //else
     //{
-    //p = mixture_pdf(light_ptr, srec.pdf_ptr);
+    p = new mixture_pdf(light_ptr, srec.pdf_ptr);
     //}
 
 
     //printf("ray_color 2222\n");
 
-    ray scattered = ray(rec.hit_point, p.generate(srec, local_rand_state), r.time());
-    float pdf_val = p.value(scattered.direction(), local_rand_state);
+    ray scattered = ray(rec.hit_point, p->generate(srec, local_rand_state), r.time());
+    float pdf_val = p->value(scattered.direction(), local_rand_state);
     float scattering_pdf = rec.mat->scattering_pdf(r, rec, scattered);
 
     //printf("ray_color 3333\n");
@@ -301,6 +293,13 @@ __device__ color ray_color(const ray& r, int depth, hittable_list& _world, hitta
         //}
     //}
 
+    //printf("ray_color returns %i/%i %i %f %f %f\n", r.x, r.y, depth, final_color.r(), final_color.g(), final_color.b());
+
+    p->~mixture_pdf();
+    light_ptr->~hittable_pdf();
+    
+    //free(srec.pdf_ptr);
+
     return final_color;
 }
 
@@ -339,7 +338,9 @@ __global__ void create_cornell_box(hittable_list **elist, hittable_list **elight
         
 
 
-        (*elist)->add(new sphere(vector3(350.0f, 50.0f, 295.0f), 100.0f, new lambertian(*texture), "MySphere"));
+        //(*elist)->add(new sphere(vector3(350.0f, 50.0f, 295.0f), 100.0f, new lambertian(*texture), "MySphere"));
+        (*elist)->add(new sphere(vector3(350.0f, 50.0f, 295.0f), 100.0f, new lambertian(new solid_color_texture(color(0.99, 0.13, 0.73))), "MySphere"));
+
 
         //*eworld = new hittable_list(elist, i);
 
@@ -532,7 +533,7 @@ void renderGPU(int width, int height, int spp, int max_depth, int tx, int ty, co
     int num_pixels = width * height;
 
     int tex_x, tex_y, tex_n;
-    unsigned char *tex_data_host = stbi_load("e:\\earth_diffuse.jpg", &tex_x, &tex_y, &tex_n, 0);
+    unsigned char *tex_data_host = stbi_load("C:\\Users\\flarive\\Documents\\Visual Studio 2022\\Projects\\RT\\data\\models\\earth_diffuse.jpg", &tex_x, &tex_y, &tex_n, 0);
     if (!tex_data_host) {
         std::cerr << "Failed to load texture." << std::endl;
         return;
@@ -647,5 +648,5 @@ void launchGPU(int width, int height, int spp, int max_depth, int tx, int ty, co
 
 int main(int argc, char* argv[])
 {
-    launchGPU(512, 288, 10, 2, 16, 16, "e:\\ttt.png", true);
+    launchGPU(512, 288, 10, 2, 16, 16, "d:\\ttt.png", true);
 }

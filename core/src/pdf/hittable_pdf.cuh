@@ -14,16 +14,12 @@ public:
     {
     }
 
-    __device__ hittable_pdf* clone() const override {
-        return new hittable_pdf(*this);
-    }
-
     __device__ ~hittable_pdf() = default;
 
     __device__ float value(const vector3& direction, curandState* local_rand_state) const override;
-    __device__ vector3 generate(scatter_record& rec, curandState* local_rand_state) const override;
+    __device__ vector3 generate(scatter_record& rec, curandState* local_rand_state) override;
 
-    __device__ pdfTypeID getTypeID() const override { return pdfTypeID::pdfHittable; }
+    __host__ __device__ virtual pdfTypeID getTypeID() const { return pdfTypeID::pdfHittable; }
 
 
 private:
@@ -36,7 +32,7 @@ __device__ inline float hittable_pdf::value(const vector3& direction, curandStat
     return objects.pdf_value(origin, direction, local_rand_state);
 }
 
-__device__ inline vector3 hittable_pdf::generate(scatter_record& rec, curandState* local_rand_state) const
+__device__ inline vector3 hittable_pdf::generate(scatter_record& rec, curandState* local_rand_state)
 {
     return objects.random(origin, local_rand_state);
 }

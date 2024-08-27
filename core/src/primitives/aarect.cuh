@@ -14,7 +14,7 @@ public:
     __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, curandState* local_rand_state) const override;
     __host__ __device__ aabb bounding_box() const override;
 
-    __host__ __device__ HittableTypeID getTypeID() const override { return HittableTypeID::hittableAaRectType; }
+    __host__ __device__ virtual HittableTypeID getTypeID() const { return HittableTypeID::hittableAaRectType; }
 
 private:
 
@@ -133,7 +133,7 @@ public:
 
     __host__ __device__ aabb bounding_box() const override;
 
-    __host__ __device__ HittableTypeID getTypeID() const override { return HittableTypeID::hittableAaRectType; }
+    __host__ __device__ virtual HittableTypeID getTypeID() const { return HittableTypeID::hittableAaRectType; }
 
 private:
     material* mp = nullptr;
@@ -256,7 +256,7 @@ public:
 
     __host__ __device__ aabb bounding_box() const override;
 
-    __host__ __device__ HittableTypeID getTypeID() const override { return HittableTypeID::hittableAaRectType; }
+    __host__ __device__ virtual HittableTypeID getTypeID() const { return HittableTypeID::hittableAaRectType; }
 
 private:
     material* mp = nullptr;

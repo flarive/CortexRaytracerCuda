@@ -25,7 +25,7 @@ public:
 
     __host__ __device__ bool is_interior(float a, float b, hit_record& rec) const;
 
-    __host__ __device__ HittableTypeID getTypeID() const override { return HittableTypeID::lightDirectionalType; }
+    __host__ __device__ virtual HittableTypeID getTypeID() const { return HittableTypeID::lightDirectionalType; }
 
     
 

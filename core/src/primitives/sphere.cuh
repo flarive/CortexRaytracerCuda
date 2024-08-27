@@ -64,7 +64,7 @@ public:
 
     __host__ __device__ aabb bounding_box() const override;
 
-    __host__ __device__ HittableTypeID getTypeID() const override { return HittableTypeID::hittableSphereType; }
+    __host__ __device__ virtual HittableTypeID getTypeID() const { return HittableTypeID::hittableSphereType; }
 
     /// <summary>
     /// Logic of sphere ray hit detection
