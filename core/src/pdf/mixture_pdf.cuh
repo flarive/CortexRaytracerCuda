@@ -25,8 +25,6 @@ private:
 	pdf* p1 = nullptr;
 };
 
-
-
 __device__ inline float mixture_pdf::value(const vector3& direction, curandState* local_rand_state) const
 {
 	return proportion*(p0->value(direction, local_rand_state)) + (1.0f - proportion) * (p1->value(direction, local_rand_state));
@@ -34,35 +32,22 @@ __device__ inline float mixture_pdf::value(const vector3& direction, curandState
 
 __device__ inline vector3 mixture_pdf::generate(scatter_record& rec, curandState* local_rand_state)
 {
-	//if (p[0] == nullptr || p[1] == nullptr)
-	//{
-	//	printf("mixture_pdf assertion failed !\n");
-	//	return vector3();
-	//}
-
-	//printf("mixture_pdf::return ?\n");
-
-	// isnan()
-
 	if (get_real(local_rand_state) < proportion)
 	{
 		auto v0 = p0->generate(rec, local_rand_state);
-		printf("mixture_pdf::return p[0]->generate %f %f %f\n", v0.x, v0.y, v0.z);
+		//printf("mixture_pdf::return p[0]->generate %f %f %f\n", v0.x, v0.y, v0.z);
 		return v0;
 	}
 	else
 	{
 		auto v1 = p1->generate(rec, local_rand_state);
-		printf("mixture_pdf::return p[0]->generate %f %f %f\n", v1.x, v1.y, v1.z);
+		//printf("mixture_pdf::return p[1]->generate %f %f %f\n", v1.x, v1.y, v1.z);
 		return v1;
 	}
 }
 
-// Destructor implementation
 __device__ inline mixture_pdf::~mixture_pdf()
 {
-	//printf("Calling mixture_pdf destructor\n");
-
 	if (p0) {
 		delete p0;
 		p0 = nullptr;

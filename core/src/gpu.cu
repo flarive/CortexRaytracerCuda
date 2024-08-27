@@ -120,10 +120,6 @@ void check_cuda(cudaError_t result, char const* const func, const char* const fi
 
 __device__ color ray_color(const ray& r, int depth, hittable_list& _world, hittable_list& _lights, curandState* local_rand_state)
 {
-    
-    //printf("ray_color %i %i %i\n", r.x, r.y, depth);
-
-
     // If we've exceeded the ray bounce limit, no more light is gathered.
     if (depth <= 0)
     {
@@ -151,9 +147,6 @@ __device__ color ray_color(const ray& r, int depth, hittable_list& _world, hitta
         return color::black();
     }
 
-
-    //printf("ray_color 0000\n");
-
     // ray hit a world object
     scatter_record srec;
     color color_from_emission = rec.mat->emitted(r, rec, rec.u, rec.v, rec.hit_point, local_rand_state);
@@ -167,8 +160,6 @@ __device__ color ray_color(const ray& r, int depth, hittable_list& _world, hitta
 
     if (!rec.mat->scatter(r, _lights, rec, srec, local_rand_state))
     {
-        //free(rec.mat);
-        //free(srec.pdf_ptr);
         return color_from_emission;
     }
 
@@ -178,23 +169,19 @@ __device__ color ray_color(const ray& r, int depth, hittable_list& _world, hitta
     {
         // no lights
         // no importance sampling
-        /*free(rec.mat);
-        free(srec.pdf_ptr);*/
         return srec.attenuation * ray_color(srec.skip_pdf_ray, depth - 1, _world, _lights, local_rand_state);
     }
 
     // no importance sampling
     if (srec.skip_pdf)
     {
-        /*free(rec.mat);
-        free(srec.pdf_ptr);*/
         return srec.attenuation * ray_color(srec.skip_pdf_ray, depth - 1, _world, _lights, local_rand_state);
     }
 
-    hittable_pdf* light_ptr = new hittable_pdf(_lights, rec.hit_point);
+    hittable_pdf* hpdf = new hittable_pdf(_lights, rec.hit_point);
 
 
-    mixture_pdf *p;
+    mixture_pdf *mpdf;
 
     //if (background_texture && background_iskybox)
     //{
@@ -203,17 +190,13 @@ __device__ color ray_color(const ray& r, int depth, hittable_list& _world, hitta
     //}
     //else
     //{
-    p = new mixture_pdf(light_ptr, srec.pdf_ptr);
+    mpdf = new mixture_pdf(hpdf, srec.pdf_ptr);
     //}
 
 
-    //printf("ray_color 2222\n");
-
-    ray scattered = ray(rec.hit_point, p->generate(srec, local_rand_state), r.time());
-    float pdf_val = p->value(scattered.direction(), local_rand_state);
+    ray scattered = ray(rec.hit_point, mpdf->generate(srec, local_rand_state), r.time());
+    float pdf_val = mpdf->value(scattered.direction(), local_rand_state);
     float scattering_pdf = rec.mat->scattering_pdf(r, rec, scattered);
-
-    //printf("ray_color 3333\n");
 
     color final_color;
 
@@ -293,10 +276,12 @@ __device__ color ray_color(const ray& r, int depth, hittable_list& _world, hitta
         //}
     //}
 
-    //printf("ray_color returns %i/%i %i %f %f %f\n", r.x, r.y, depth, final_color.r(), final_color.g(), final_color.b());
+    printf("ray_color returns %i/%i %i %f %f %f\n", r.x, r.y, depth, final_color.r(), final_color.g(), final_color.b());
 
-    p->~mixture_pdf();
-    light_ptr->~hittable_pdf();
+    
+
+    delete(mpdf);
+    delete(hpdf);
     
     //free(srec.pdf_ptr);
 
@@ -413,7 +398,7 @@ __global__ void render(color* fb, int width, int height, int spp, int sqrt_spp, 
     if((i >= width) || (j >= height)) return;
     int pixel_index = j* width + i;
     curandState local_rand_state = randState[pixel_index];
-    color pixel_color(0.0f, 0.0f, 0.0f);
+    color pixel_color(0, 0, 0);
     color background(0, 0, 0);
 
     // new
@@ -458,11 +443,6 @@ __global__ void render(color* fb, int width, int height, int spp, int sqrt_spp, 
 void renderGPU(int width, int height, int spp, int max_depth, int tx, int ty, const char* filepath)
 {
     std::cout << "Rendering " << width << "x" << height << " " << spp << " samples > " << filepath << std::endl;
-
-
-
-
-
 
     size_t stackSize;
 
