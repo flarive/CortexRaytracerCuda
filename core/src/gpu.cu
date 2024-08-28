@@ -135,7 +135,7 @@ __device__ color ray_color(const ray& r, int i, int j, int depth, hittable_list&
         // return background solid color
         /*if (r.x == 0 && r.y == 0)*/
        
-        printf("exceeded the ray bounce limit for pixel %i %i depth %i\n", i, j, depth);
+        //printf("exceeded the ray bounce limit for pixel %i %i depth %i\n", i, j, depth);
 
         return color::black();// background_color;
     }
@@ -323,8 +323,7 @@ __global__ void create_cornell_box(hittable_list **elist, hittable_list **elight
         (*elist)->add(new rt::flip_normals(new yz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(color(0.12, 0.45, 0.15))), "MyLeft")));
         (*elist)->add(new yz_rect(0, 555, 0, 555, 0, new lambertian(new solid_color_texture(color(0.65, 0.05, 0.05))), "MyRight"));
         
-        //(*elist)->add(new xz_rect(113, 443, 127, 432, 554, new diffuse_light(new solid_color_texture(color(50.0, 50.0, 50.0))), "fakeLight"));
-        (*elist)->add(new directional_light(point3(278, 554, 332), vector3(-130, 0, 0), vector3(0, 0, -105), 15.0f, color(50, 50, 50), "MyLight", false));
+        (*elist)->add(new directional_light(point3(278, 554, 332), vector3(-180, 0, 0), vector3(0, 0, -180), 15.0f, color(50, 50, 50), "MyLight", false));
 
         (*elist)->add(new xz_rect(0, 555, 0, 555, 0, new lambertian(new solid_color_texture(color(0.73, 0.73, 0.73))), "MyGround"));
         (*elist)->add(new rt::flip_normals(new xz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(color(0.73, 0.73, 0.73))), "MyTop")));
