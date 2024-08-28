@@ -14,7 +14,7 @@ class camera
 {
 public:
 
-    float  aspect_ratio = 1.0;             // Ratio of image width over height
+    float   aspect_ratio = 1.0;             // Ratio of image width over height
     int     image_width = 400;              // Rendered image width in pixel count
     int     samples_per_pixel = 10;         // Count of random samples for each pixel (antialiasing)
     int     max_depth = 10;                 // Maximum number of ray bounces into scene
@@ -79,7 +79,7 @@ public:
         return pixel_delta_v;
     }
 
-    __device__ virtual void initialize(vector3 lookfrom, vector3 lookat, vector3 vup, float vfov, float aspect, float aperture, float focus_dist, float t0, float t1, int sqrt_spp) = 0;
+    __device__ virtual void initialize(vector3 lookfrom, vector3 lookat, vector3 vup, int width, float ratio, float vfov, float focus_dist, float t0, float t1, int sqrt_spp) = 0;
 
     /// <summary>
     /// Fire a given ray and get the hit record (recursive)

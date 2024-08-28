@@ -19,7 +19,7 @@ public:
     /// Initialize camera with settings
     /// </summary>
     /// <param name="params"></param>
-    __device__ void initialize(vector3 lookfrom, vector3 lookat, vector3 vup, float vfov, float aspect, float aperture, float focus_dist, float t0, float t1, int sqrt_spp) override;
+    __device__ void initialize(vector3 lookfrom, vector3 lookat, vector3 vup, int width, float ratio, float vfov, float focus_dist, float t0, float t1, int sqrt_spp) override;
 
     /// <summary>
     /// Get a randomly-sampled camera ray for the pixel at location i,j, originating from the camera defocus disk,
@@ -64,8 +64,11 @@ public:
 
 
 
-__device__ inline void perspective_camera::initialize(vector3 lookfrom, vector3 lookat, vector3 vup, float vfov, float aspect, float aperture, float focus_dist, float t0, float t1, int sqrt_spp)
+__device__ inline void perspective_camera::initialize(vector3 lookfrom, vector3 lookat, vector3 vup, int width, float ratio, float vfov, float focus_dist, float t0, float t1, int sqrt_spp)
 {
+    image_width = width;
+    aspect_ratio = ratio;
+
     // Calculate the image height, and ensure that it's at least 1.
     image_height = static_cast<int>(image_width / aspect_ratio);
     image_height = (image_height < 1) ? 1 : image_height;
@@ -78,8 +81,8 @@ __device__ inline void perspective_camera::initialize(vector3 lookfrom, vector3 
 
     // Determine viewport dimensions.
     float theta = degrees_to_radians(vfov);
-    float h = tan(theta / 2);
-    float viewport_height = 2 * h * focus_dist;
+    float h = tan(theta / 2.0f);
+    float viewport_height = 2.0f * h * focus_dist;
     float viewport_width = viewport_height * (static_cast<float>(image_width) / image_height);
 
 
@@ -107,7 +110,7 @@ __device__ inline void perspective_camera::initialize(vector3 lookfrom, vector3 
     pixel00_loc = viewport_upper_left + 0.5f * (pixel_delta_u + pixel_delta_v);
 
     // Calculate the camera defocus disk basis vectors.
-    float defocus_radius = focus_dist * tan(degrees_to_radians(defocus_angle / 2));
+    float defocus_radius = focus_dist * tan(degrees_to_radians(defocus_angle / 2.0f));
     defocus_disk_u = u * defocus_radius;
     defocus_disk_v = v * defocus_radius;
 }
