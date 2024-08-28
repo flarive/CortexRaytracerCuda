@@ -137,163 +137,165 @@ protected:
 __device__ inline color camera::ray_color(const ray& r, int depth, scene& _scene, curandState* local_rand_state)
 {
     // If we've exceeded the ray bounce limit, no more light is gathered.
-    if (depth <= 0)
-    {
-        // return background solid color
-        return background_color;
-    }
+    //if (depth <= 0)
+    //{
+    //    // return background solid color
+    //    return background_color;
+    //}
 
-    hit_record rec;
+    //hit_record rec;
 
-    vector3 unit_dir = unit_vector(r.direction());
+    //vector3 unit_dir = unit_vector(r.direction());
 
-    hittable_list www = _scene.get_world();
-    hittable_list eee = _scene.get_emissive_objects();
+    //hittable_list www = _scene.get_world();
+    //hittable_list eee = _scene.get_emissive_objects();
 
-    // If the ray hits nothing, return the background color.
-    // 0.001 is to fix shadow acne interval
-    if (!www.hit(r, interval(SHADOW_ACNE_FIX, INFINITY), rec, depth, local_rand_state))
-    {
-        if (background_texture)
-        {
-            return get_background_image_color(r.x, r.y, unit_dir, background_texture, background_iskybox);
-        }
-        else
-        {
-            return background_color;
-        }
-    }
+    //// If the ray hits nothing, return the background color.
+    //// 0.001 is to fix shadow acne interval
+    //if (!www.hit(r, interval(SHADOW_ACNE_FIX, INFINITY), rec, depth, local_rand_state))
+    //{
+    //    if (background_texture)
+    //    {
+    //        return get_background_image_color(r.x, r.y, unit_dir, background_texture, background_iskybox);
+    //    }
+    //    else
+    //    {
+    //        return background_color;
+    //    }
+    //}
 
-    // ray hit a world object
-    scatter_record srec;
-    color color_from_emission = rec.mat->emitted(r, rec, rec.u, rec.v, rec.hit_point, local_rand_state);
+    //// ray hit a world object
+    //scatter_record srec;
+    //color color_from_emission = rec.mat->emitted(r, rec, rec.u, rec.v, rec.hit_point, local_rand_state);
 
-    // hack for invisible primitives (such as lights)
-    if (color_from_emission.a() == 0.0f)
-    {
-        // rethrow a new ray
-        www.hit(r, interval(rec.t + 0.001f, INFINITY), rec, depth, local_rand_state);
-    }
+    //// hack for invisible primitives (such as lights)
+    //if (color_from_emission.a() == 0.0f)
+    //{
+    //    // rethrow a new ray
+    //    www.hit(r, interval(rec.t + 0.001f, INFINITY), rec, depth, local_rand_state);
+    //}
 
 
-    //hittable_list ppppp = _scene.get_emissive_objects();
-    //printf("found %i emissive objects\n", ppppp.object_count);
+    ////hittable_list ppppp = _scene.get_emissive_objects();
+    ////printf("found %i emissive objects\n", ppppp.object_count);
 
-    if (!rec.mat->scatter(r, eee, rec, srec, local_rand_state))
-    {
-        return color_from_emission;
-    }
+    //if (!rec.mat->scatter(r, eee, rec, srec, local_rand_state))
+    //{
+    //    return color_from_emission;
+    //}
 
-    if (eee.object_count == 0)
-    {
-        // no lights
-        // no importance sampling
-        return srec.attenuation * ray_color(srec.skip_pdf_ray, depth - 1, _scene, local_rand_state);
-    }
+    //if (eee.object_count == 0)
+    //{
+    //    // no lights
+    //    // no importance sampling
+    //    return srec.attenuation * ray_color(srec.skip_pdf_ray, depth - 1, _scene, local_rand_state);
+    //}
 
-    // no importance sampling
-    if (srec.skip_pdf)
-        return srec.attenuation * ray_color(srec.skip_pdf_ray, depth - 1, _scene, local_rand_state);
+    //// no importance sampling
+    //if (srec.skip_pdf)
+    //    return srec.attenuation * ray_color(srec.skip_pdf_ray, depth - 1, _scene, local_rand_state);
 
-    auto light_ptr = new hittable_pdf(eee, rec.hit_point);
+    //auto light_ptr = new hittable_pdf(eee, rec.hit_point);
 
-    mixture_pdf p;
+    //mixture_pdf p;
 
-    if (background_texture && background_iskybox)
-    {
-        mixture_pdf p_objs(light_ptr, srec.pdf_ptr, 0.5f);
-        p = mixture_pdf(new mixture_pdf(p_objs), background_pdf, 0.8f);
-    }
-    else
-    {
-        p = mixture_pdf(light_ptr, srec.pdf_ptr);
-    }
+    //if (background_texture && background_iskybox)
+    //{
+    //    mixture_pdf p_objs(light_ptr, srec.pdf_ptr, 0.5f);
+    //    p = mixture_pdf(new mixture_pdf(p_objs), background_pdf, 0.8f);
+    //}
+    //else
+    //{
+    //    p = mixture_pdf(light_ptr, srec.pdf_ptr);
+    //}
 
-    ray scattered = ray(rec.hit_point, p.generate(srec, local_rand_state), r.time());
-    float pdf_val = p.value(scattered.direction(), local_rand_state);
-    float scattering_pdf = rec.mat->scattering_pdf(r, rec, scattered);
+    //ray scattered = ray(rec.hit_point, p.generate(srec, local_rand_state), r.time());
+    //float pdf_val = p.value(scattered.direction(), local_rand_state);
+    //float scattering_pdf = rec.mat->scattering_pdf(r, rec, scattered);
 
-    color final_color;
+    //color final_color;
 
-    if (background_texture)
-    {
-        // with background image
-        bool double_sided = false;
-        if (rec.mat->has_alpha_texture(double_sided))
-        {
-            // render transparent object (having an alpha texture)
-            color background_behind = rec.mat->get_diffuse_pixel_color(rec);
+    //if (background_texture)
+    //{
+    //    // with background image
+    //    bool double_sided = false;
+    //    if (rec.mat->has_alpha_texture(double_sided))
+    //    {
+    //        // render transparent object (having an alpha texture)
+    //        color background_behind = rec.mat->get_diffuse_pixel_color(rec);
 
-            ray ray_behind(rec.hit_point, r.direction(), r.x, r.y, r.time());
-            color background_infrontof = ray_color(ray_behind, depth - 1, _scene, local_rand_state);
+    //        ray ray_behind(rec.hit_point, r.direction(), r.x, r.y, r.time());
+    //        color background_infrontof = ray_color(ray_behind, depth - 1, _scene, local_rand_state);
 
-            hit_record rec_behind;
-            if (_scene.get_world().hit(ray_behind, interval(0.001f, INFINITY), rec_behind, depth, local_rand_state))
-            {
-                // another object is behind the alpha textured object, display it behind
-                scatter_record srec_behind;
+    //        hit_record rec_behind;
+    //        if (_scene.get_world().hit(ray_behind, interval(0.001f, INFINITY), rec_behind, depth, local_rand_state))
+    //        {
+    //            // another object is behind the alpha textured object, display it behind
+    //            scatter_record srec_behind;
 
-                if (double_sided)
-                {
-                    if (rec_behind.mat->scatter(ray_behind, _scene.get_emissive_objects(), rec_behind, srec_behind, local_rand_state))
-                    {
-                        final_color = color::blend_colors(background_behind, background_infrontof, srec.alpha_value);
-                    }
-                }
-                else
-                {
-                    if (rec_behind.mat->scatter(ray_behind, _scene.get_emissive_objects(), rec_behind, srec_behind, local_rand_state) && rec.front_face)
-                    {
-                        final_color = color::blend_colors(background_behind, background_infrontof, srec.alpha_value);
-                    }
-                    else
-                    {
-                        final_color = background_infrontof;
-                    }
-                }
-            }
-            else
-            {
-                // no other object behind the alpha textured object, just display background image
-                if (double_sided)
-                {
-                    final_color = color::blend_colors(color_from_emission + background_behind, ray_color(ray(rec.hit_point, r.direction(), r.x, r.y, r.time()), depth - 1, _scene, local_rand_state), srec.alpha_value);
-                }
-                else
-                {
-                    final_color = get_background_image_color(r.x, r.y, unit_dir, background_texture, background_iskybox);
-                }
-            }
-        }
-        else
-        {
-            // render opaque object
-            color color_from_scatter = ray_color(scattered, depth - 1, _scene, local_rand_state) / pdf_val;
-            final_color = color_from_emission + srec.attenuation * scattering_pdf * color_from_scatter;
-        }
-    }
-    else
-    {
-        // with background color
-        color sample_color = ray_color(scattered, depth - 1, _scene, local_rand_state);
-        color color_from_scatter = (srec.attenuation * scattering_pdf * sample_color) / pdf_val;
+    //            if (double_sided)
+    //            {
+    //                if (rec_behind.mat->scatter(ray_behind, _scene.get_emissive_objects(), rec_behind, srec_behind, local_rand_state))
+    //                {
+    //                    final_color = color::blend_colors(background_behind, background_infrontof, srec.alpha_value);
+    //                }
+    //            }
+    //            else
+    //            {
+    //                if (rec_behind.mat->scatter(ray_behind, _scene.get_emissive_objects(), rec_behind, srec_behind, local_rand_state) && rec.front_face)
+    //                {
+    //                    final_color = color::blend_colors(background_behind, background_infrontof, srec.alpha_value);
+    //                }
+    //                else
+    //                {
+    //                    final_color = background_infrontof;
+    //                }
+    //            }
+    //        }
+    //        else
+    //        {
+    //            // no other object behind the alpha textured object, just display background image
+    //            if (double_sided)
+    //            {
+    //                final_color = color::blend_colors(color_from_emission + background_behind, ray_color(ray(rec.hit_point, r.direction(), r.x, r.y, r.time()), depth - 1, _scene, local_rand_state), srec.alpha_value);
+    //            }
+    //            else
+    //            {
+    //                final_color = get_background_image_color(r.x, r.y, unit_dir, background_texture, background_iskybox);
+    //            }
+    //        }
+    //    }
+    //    else
+    //    {
+    //        // render opaque object
+    //        color color_from_scatter = ray_color(scattered, depth - 1, _scene, local_rand_state) / pdf_val;
+    //        final_color = color_from_emission + srec.attenuation * scattering_pdf * color_from_scatter;
+    //    }
+    //}
+    //else
+    //{
+    //    // with background color
+    //    color sample_color = ray_color(scattered, depth - 1, _scene, local_rand_state);
+    //    color color_from_scatter = (srec.attenuation * scattering_pdf * sample_color) / pdf_val;
 
-        bool double_sided = false;
-        if (rec.mat->has_alpha_texture(double_sided))
-        {
-            // render transparent object (having an alpha texture)
-            final_color = color::blend_colors(color_from_emission + color_from_scatter, ray_color(ray(rec.hit_point, r.direction(), r.x, r.y, r.time()), depth - 1, _scene, local_rand_state), srec.alpha_value);
-        }
-        else
-        {
-            // render opaque object
-            final_color = color_from_emission + color_from_scatter;
-        }
-    }
+    //    bool double_sided = false;
+    //    if (rec.mat->has_alpha_texture(double_sided))
+    //    {
+    //        // render transparent object (having an alpha texture)
+    //        final_color = color::blend_colors(color_from_emission + color_from_scatter, ray_color(ray(rec.hit_point, r.direction(), r.x, r.y, r.time()), depth - 1, _scene, local_rand_state), srec.alpha_value);
+    //    }
+    //    else
+    //    {
+    //        // render opaque object
+    //        final_color = color_from_emission + color_from_scatter;
+    //    }
+    //}
 
-    //printf("ray_color returns %f %f %f\n", final_color.r(), final_color.g(), final_color.b());
+    ////printf("ray_color returns %f %f %f\n", final_color.r(), final_color.g(), final_color.b());
 
-    return final_color;
+    //return final_color;
+
+    return color(0, 0, 0);
 }
 
 

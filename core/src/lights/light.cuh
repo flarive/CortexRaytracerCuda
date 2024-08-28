@@ -47,7 +47,3 @@ protected:
     bool m_invisible = true;
     color m_color{};
 };
-
-
-
-

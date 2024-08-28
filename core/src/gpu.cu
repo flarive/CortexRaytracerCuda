@@ -120,14 +120,22 @@ void check_cuda(cudaError_t result, char const* const func, const char* const fi
 
 __device__ color ray_color(const ray& r, int depth, hittable_list& _world, hittable_list& _lights, curandState* local_rand_state)
 {
-    printf("depth %i %i %i\n", r.x, r.y, depth);
+    //if (r.x == 100 && r.y == 100)
+    //    printf("ray_color enter %i %i %i\n", r.x, r.y, depth);
+
+    //if (depth < 4)
+    //{
+    //    printf("??????????? %i %i %i\n", r.x, r.y, depth);
+    //}
     
     // If we've exceeded the ray bounce limit, no more light is gathered.
     if (depth <= 0)
     {
         // return background solid color
-        printf("exit !!! %i %i\n", r.x, r.y);
-        return color::yellow();// background_color;
+        /*if (r.x == 0 && r.y == 0)
+            printf("exit !!! %i %i %i\n", r.x, r.y, depth);*/
+
+        return color::black();// background_color;
     }
 
     hit_record rec;
@@ -136,7 +144,7 @@ __device__ color ray_color(const ray& r, int depth, hittable_list& _world, hitta
 
     // If the ray hits nothing, return the background color.
     // 0.001 is to fix shadow acne interval
-    if (!_world.hit(r, interval(SHADOW_ACNE_FIX, INFINITY), rec, depth, local_rand_state))
+    if (!_world.hit(r, interval(SHADOW_ACNE_FIX, FLT_MAX), rec, depth, local_rand_state))
     {
         //if (background_texture)
         //{
@@ -158,7 +166,7 @@ __device__ color ray_color(const ray& r, int depth, hittable_list& _world, hitta
     if (color_from_emission.a() == 0.0f)
     {
         // rethrow a new ray
-        _world.hit(r, interval(rec.t + 0.001f, INFINITY), rec, depth, local_rand_state);
+        _world.hit(r, interval(rec.t + 0.001f, FLT_MAX), rec, depth, local_rand_state);
     }
 
     if (!rec.mat->scatter(r, _lights, rec, srec, local_rand_state))
@@ -166,18 +174,20 @@ __device__ color ray_color(const ray& r, int depth, hittable_list& _world, hitta
         return color_from_emission;
     }
 
-    //printf("ray_color 1111\n");
+    
 
     if (_lights.object_count == 0)
     {
         // no lights
         // no importance sampling
+        printf("recurse 1 %i %i %i\n", r.x, r.y, depth);
         return srec.attenuation * ray_color(srec.skip_pdf_ray, depth - 1, _world, _lights, local_rand_state);
     }
 
     // no importance sampling
     if (srec.skip_pdf)
     {
+        printf("recurse 2 %i %i %i\n", r.x, r.y, depth);
         return srec.attenuation * ray_color(srec.skip_pdf_ray, depth - 1, _world, _lights, local_rand_state);
     }
 
@@ -263,6 +273,9 @@ __device__ color ray_color(const ray& r, int depth, hittable_list& _world, hitta
     //else
     //{
         // with background color
+        //if (r.x == 100 && r.y == 100)
+        //    printf("recurse 3 %i %i %i\n", r.x, r.y, depth - 1);
+
         color sample_color = ray_color(scattered, depth - 1, _world, _lights, local_rand_state);
         color color_from_scatter = (srec.attenuation * scattering_pdf * sample_color) / pdf_val;
 
@@ -307,7 +320,10 @@ __global__ void create_cornell_box(hittable_list **elist, hittable_list **elight
         //int i = 0;
         (*elist)->add(new rt::flip_normals(new yz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(color(0.12, 0.45, 0.15))), "MyLeft")));
         (*elist)->add(new yz_rect(0, 555, 0, 555, 0, new lambertian(new solid_color_texture(color(0.65, 0.05, 0.05))), "MyRight"));
-        (*elist)->add(new xz_rect(113, 443, 127, 432, 554, new diffuse_light(new solid_color_texture(color(1.0, 1.0, 1.0))), "fakeLight"));
+        
+        //(*elist)->add(new xz_rect(113, 443, 127, 432, 554, new diffuse_light(new solid_color_texture(color(50.0, 50.0, 50.0))), "fakeLight"));
+        (*elist)->add(new directional_light(point3(278, 554, 332), vector3(-130, 0, 0), vector3(0, 0, -105), 15.0f, color(50, 50, 50), "MyLight", false));
+
         (*elist)->add(new xz_rect(0, 555, 0, 555, 0, new lambertian(new solid_color_texture(color(0.73, 0.73, 0.73))), "MyGround"));
         (*elist)->add(new rt::flip_normals(new xz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(color(0.73, 0.73, 0.73))), "MyTop")));
         (*elist)->add(new rt::flip_normals(new xz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(color(0.73, 0.73, 0.73))), "MyBottom")));
@@ -325,8 +341,8 @@ __global__ void create_cornell_box(hittable_list **elist, hittable_list **elight
         
 
 
-        //(*elist)->add(new sphere(vector3(350.0f, 50.0f, 295.0f), 100.0f, new lambertian(*texture), "MySphere"));
-        (*elist)->add(new sphere(vector3(350.0f, 50.0f, 295.0f), 100.0f, new lambertian(new solid_color_texture(color(0.99, 0.13, 0.73))), "MySphere"));
+        (*elist)->add(new sphere(vector3(350.0f, 50.0f, 295.0f), 100.0f, new lambertian(*texture), "MySphere"));
+        //(*elist)->add(new sphere(vector3(350.0f, 50.0f, 295.0f), 100.0f, new lambertian(new solid_color_texture(color(0.99, 0.13, 0.73))), "MySphere"));
 
 
         //(*elist)->add(new omni_light(point3(0, 0, 555), 1.0f, 1.0f, color(1, 1, 1), "MyLight", true));
@@ -343,13 +359,27 @@ __global__ void create_cornell_box(hittable_list **elist, hittable_list **elight
 
         //(*myscene)->add(new omni_light(point3(0, 0, 555), 1.0f, 1.0f, color(1, 1, 1), "MyLight", false));
 
-        (*elights)->add(new omni_light(point3(0, 0, 555), 1.0f, 1.0f, color(1, 1, 1), "MyLight", true));
+
+
+        // temp extract_emissive_objects
+        for (int i = 0; i < (*elist)->object_count; i++)
+        {
+            if ((*elist)->objects[i]->getTypeID() == HittableTypeID::lightDirectionalType)
+            {
+                light* derived = static_cast<light*>((*elist)->objects[i]);
+                if (derived)
+                {
+                    (*elights)->add((*elist)->objects[i]);
+                }
+            }
+        }
+
 
 
         vector3 lookfrom(278, 278, -800);
         vector3 lookat(278, 278, 0);
         float dist_to_focus = 10.0f;
-        float aperture = 0.0f;
+        float aperture = 1.0f;
 
         *cam = new perspective_camera();
         (*cam)->initialize(lookfrom,
@@ -359,9 +389,9 @@ __global__ void create_cornell_box(hittable_list **elist, hittable_list **elight
             float(nx) / float(ny),
             aperture,
             dist_to_focus,
-            sqrt_spp, 
             0.0f,
-            1.0f);
+            1.0f,
+            sqrt_spp);
 
         //printf("test %i/%i\n", (*elist)->object_count, (*elist)->object_capacity);
 
@@ -404,30 +434,43 @@ __global__ void render(color* fb, int width, int height, int spp, int sqrt_spp, 
     int i = threadIdx.x + blockIdx.x * blockDim.x;
     int j = threadIdx.y + blockIdx.y * blockDim.y;
     if((i >= width) || (j >= height)) return;
+
+    //if (i == 100 && j == 100)
+    //    printf("%i %i\n", i, j);
+
     int pixel_index = j* width + i;
     curandState local_rand_state = randState[pixel_index];
     color pixel_color(0, 0, 0);
-    //color background(0, 0, 0);
 
     // new
     for (int s_j = 0; s_j < sqrt_spp; ++s_j)
     {
         for (int s_i = 0; s_i < sqrt_spp; ++s_i)
         {
-            //float u = float(i + curand_uniform(&local_rand_state)) / float(width);
-            //float v = float(j + curand_uniform(&local_rand_state)) / float(height);
+            /*float u = float(i + curand_uniform(&local_rand_state)) / float(width);
+            float v = float(j + curand_uniform(&local_rand_state)) / float(height);*/
 
             ray r = (*cam)->get_ray(i, j, s_i, s_j, nullptr, &local_rand_state);
 
+            //if (r.x == 100 && r.y == 100)
+            //    printf("ray r.x=%i r.y=%i s_j=%i s_i=%i\n", r.x, r.y, s_j, s_i);
 
             // pixel color is progressively being refined
-            //pixel_color += (*cam)->ray_color(r, max_depth, **_scene, &local_rand_state);
-            pixel_color += ray_color(r, max_depth, **world, **lights, &local_rand_state);
+            color tmp = ray_color(r, max_depth, **world, **lights, &local_rand_state);
+
+            //if (r.x == 100 && r.y == 100)
+            //    printf("progressive pixel color for %i %i = %f %f %f\n", i, j, tmp.r(), tmp.g(), tmp.b());
+
+
+            pixel_color += tmp;
+
+
+            
         }
     }
     
-
-
+    //if (i == 100 && j == 100)
+    //    printf("final pixel color for %i %i = %f %f %f\n", i, j, pixel_color.r(), pixel_color.g(), pixel_color.b());
 
 
     // old
@@ -527,7 +570,7 @@ void renderGPU(int width, int height, int spp, int max_depth, int tx, int ty, co
     int num_pixels = width * height;
 
     int tex_x, tex_y, tex_n;
-    unsigned char *tex_data_host = stbi_load("e:\\earth_diffuse.jpg", &tex_x, &tex_y, &tex_n, 0);
+    unsigned char *tex_data_host = stbi_load("C:\\Users\\flarive\\Documents\\Visual Studio 2022\\Projects\\RT\\data\\models\\earth_diffuse.jpg", &tex_x, &tex_y, &tex_n, 0);
     if (!tex_data_host) {
         std::cerr << "Failed to load texture." << std::endl;
         return;
@@ -598,9 +641,14 @@ void renderGPU(int width, int height, int spp, int max_depth, int tx, int ty, co
     for (int j = height - 1; j >= 0; j--) {
         for (int i = 0; i < width; i++) {
             size_t pixel_index = j * width + i;
-            imageHost[(height - j - 1) * width * 3 + i * 3] = 255.99f * image[pixel_index].r();
-            imageHost[(height - j - 1) * width * 3 + i * 3 + 1] = 255.99f * image[pixel_index].g();
-            imageHost[(height - j - 1) * width * 3 + i * 3 + 2] = 255.99f * image[pixel_index].b();
+
+            color fix = color::prepare_pixel_color(i, j, image[pixel_index], spp, false);
+
+            static const interval intensity(0.000, 0.999);
+
+            imageHost[(height - j - 1) * width * 3 + i * 3] = 256 * intensity.clamp(fix.r());
+            imageHost[(height - j - 1) * width * 3 + i * 3 + 1] = 256 * intensity.clamp(fix.g());
+            imageHost[(height - j - 1) * width * 3 + i * 3 + 2] = 256 * intensity.clamp(fix.b());
         }
     }
     stbi_write_png(filepath, width, height, 3, imageHost, width * 3);

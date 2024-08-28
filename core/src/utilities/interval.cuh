@@ -33,7 +33,7 @@ public:
         return min < x && x < max;
     }
 
-    __host__ __device__ double clamp(float x) const
+    __host__ __device__ float clamp(float x) const
     {
         // clamp smaller or bigger value to the min/max interval values
         if (x < min) return min;
