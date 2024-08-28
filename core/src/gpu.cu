@@ -118,22 +118,24 @@ void check_cuda(cudaError_t result, char const* const func, const char* const fi
 //    return cur_emitted; // exceeded recursion
 //}
 
-__device__ color ray_color(const ray& r, int depth, hittable_list& _world, hittable_list& _lights, curandState* local_rand_state)
+__device__ color ray_color(const ray& r, int i, int j, int depth, hittable_list& _world, hittable_list& _lights, curandState* local_rand_state)
 {
     //if (r.x == 100 && r.y == 100)
     //    printf("ray_color enter %i %i %i\n", r.x, r.y, depth);
 
-    //if (depth < 4)
+
+    //if (depth < 3)
     //{
-    //    printf("??????????? %i %i %i\n", r.x, r.y, depth);
+    //    printf("pixel %i %i depth = %i\n", i, j, depth);
     //}
-    
+
     // If we've exceeded the ray bounce limit, no more light is gathered.
     if (depth <= 0)
     {
         // return background solid color
-        /*if (r.x == 0 && r.y == 0)
-            printf("exit !!! %i %i %i\n", r.x, r.y, depth);*/
+        /*if (r.x == 0 && r.y == 0)*/
+       
+        printf("exceeded the ray bounce limit for pixel %i %i depth %i\n", i, j, depth);
 
         return color::black();// background_color;
     }
@@ -181,14 +183,14 @@ __device__ color ray_color(const ray& r, int depth, hittable_list& _world, hitta
         // no lights
         // no importance sampling
         printf("recurse 1 %i %i %i\n", r.x, r.y, depth);
-        return srec.attenuation * ray_color(srec.skip_pdf_ray, depth - 1, _world, _lights, local_rand_state);
+        return srec.attenuation * ray_color(srec.skip_pdf_ray, i, j, depth - 1, _world, _lights, local_rand_state);
     }
 
     // no importance sampling
     if (srec.skip_pdf)
     {
         printf("recurse 2 %i %i %i\n", r.x, r.y, depth);
-        return srec.attenuation * ray_color(srec.skip_pdf_ray, depth - 1, _world, _lights, local_rand_state);
+        return srec.attenuation * ray_color(srec.skip_pdf_ray, i, j, depth - 1, _world, _lights, local_rand_state);
     }
 
     hittable_pdf* hpdf = new hittable_pdf(_lights, rec.hit_point);
@@ -276,7 +278,7 @@ __device__ color ray_color(const ray& r, int depth, hittable_list& _world, hitta
         //if (r.x == 100 && r.y == 100)
         //    printf("recurse 3 %i %i %i\n", r.x, r.y, depth - 1);
 
-        color sample_color = ray_color(scattered, depth - 1, _world, _lights, local_rand_state);
+        color sample_color = ray_color(scattered, i, j, depth - 1, _world, _lights, local_rand_state);
         color color_from_scatter = (srec.attenuation * scattering_pdf * sample_color) / pdf_val;
 
         //bool double_sided = false;
@@ -456,7 +458,7 @@ __global__ void render(color* fb, int width, int height, int spp, int sqrt_spp, 
             //    printf("ray r.x=%i r.y=%i s_j=%i s_i=%i\n", r.x, r.y, s_j, s_i);
 
             // pixel color is progressively being refined
-            color tmp = ray_color(r, max_depth, **world, **lights, &local_rand_state);
+            color tmp = ray_color(r, i, j, max_depth, **world, **lights, &local_rand_state);
 
             //if (r.x == 100 && r.y == 100)
             //    printf("progressive pixel color for %i %i = %f %f %f\n", i, j, tmp.r(), tmp.g(), tmp.b());
@@ -637,14 +639,14 @@ void renderGPU(int width, int height, int spp, int max_depth, int tx, int ty, co
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
+    static const interval intensity(0.000, 0.999);
+
     uint8_t* imageHost = new uint8_t[width * height * 3 * sizeof(uint8_t)];
     for (int j = height - 1; j >= 0; j--) {
         for (int i = 0; i < width; i++) {
             size_t pixel_index = j * width + i;
 
             color fix = color::prepare_pixel_color(i, j, image[pixel_index], spp, false);
-
-            static const interval intensity(0.000, 0.999);
 
             imageHost[(height - j - 1) * width * 3 + i * 3] = 256 * intensity.clamp(fix.r());
             imageHost[(height - j - 1) * width * 3 + i * 3 + 1] = 256 * intensity.clamp(fix.g());
