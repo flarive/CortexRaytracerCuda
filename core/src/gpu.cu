@@ -260,7 +260,7 @@ __device__ color ray_color(const ray& r, int i, int j, int depth, hittable_list&
     //{
         // with background color
         //if (r.x == 100 && r.y == 100)
-        //    printf("recurse 3 %i %i %i\n", r.x, r.y, depth - 1);
+        //printf("recurse 3 %i %i %i\n", i, j, depth - 1);
 
         color sample_color = ray_color(scattered, i, j, depth - 1, _world, _lights, local_rand_state);
         color color_from_scatter = (srec.attenuation * scattering_pdf * sample_color) / pdf_val;
@@ -357,7 +357,11 @@ __global__ void create_cornell_box(hittable_list **elist, hittable_list **elight
         //for (int i = 0; i < (*elist)->object_count; i++)
         //    printf("test obj %i %s\n", (*elist)->objects[i]->getTypeID(), (*elist)->objects[i]->getName());
 
-        
+        // calculate bounding boxes to speed up ray computing
+        hittable* ppp = new bvh_node((*elist)->objects, 0, (*elist)->object_count, &local_rand_state);
+        *elist = new hittable_list(ppp);
+
+
         //(*myscene)->set(*elist);
         //(*myscene)->set_camera(*cam);
         //(*myscene)->extract_emissive_objects();
@@ -412,6 +416,15 @@ __global__ void render(color* fb, int width, int height, int spp, int sqrt_spp, 
             pixel_color += ray_color(r, i, j, max_depth, **world, **lights, &local_rand_state);
         }
     }
+
+
+    //for (int k = 0; k < 2; k++)
+    //{
+    //    ray r = (*cam)->get_ray(i, j, k, k, nullptr, &local_rand_state);
+
+    //    // pixel color is progressively being refined
+    //    pixel_color += ray_color(r, i, j, max_depth, **world, **lights, &local_rand_state);
+    //}
 
     // old
     //for(int s=0; s < spp; s++)
