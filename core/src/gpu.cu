@@ -86,37 +86,40 @@ void check_cuda(cudaError_t result, char const* const func, const char* const fi
     }
 }
 
-//__device__ color get_color(const ray& r, const color& background, hittable **world, hittable_list* lights, curandState *local_rand_state)
-//{
-//    ray cur_ray = r;
-//    color cur_attenuation = color(1.0, 1.0, 1.0);
-//    color cur_emitted = color(0.0, 0.0, 0.0);
-//
-//    //for(int i = 0; i < 100; i++) {
-//        hit_record rec;
-//        if ((*world)->hit(cur_ray, interval(0.001f, FLT_MAX), rec, 0, local_rand_state))
-//        {
-//            scatter_record srec;
-//            color attenuation;
-//            color emitted = rec.mat->emitted(cur_ray, rec, rec.u, rec.v, rec.hit_point, local_rand_state);
-//
-//            if(rec.mat->scatter(cur_ray, lights, rec, srec, local_rand_state))
-//            {
-//                cur_attenuation *= attenuation;
-//                cur_emitted += emitted * cur_attenuation;
-//                //cur_ray = scattered; // ?????????????
-//                cur_ray = srec.skip_pdf_ray; // ?????????????
-//            }
-//            else {
-//                return cur_emitted + emitted * cur_attenuation;
-//            }
-//        }
-//        else {
-//            return cur_emitted;
-//        }
-//    //}
-//    return cur_emitted; // exceeded recursion
-//}
+__device__ color ray_color2(const ray& r, int i, int j, int depth, hittable_list& _world, hittable_list& _lights, curandState *local_rand_state)
+{
+    ray cur_ray = r;
+    color cur_attenuation = color(1.0, 1.0, 1.0);
+    color cur_emitted = color(0.0, 0.0, 0.0);
+
+    //for(int i = 0; i < 100; i++) {
+        hit_record rec;
+        if (_world.hit(cur_ray, interval(0.001f, FLT_MAX), rec, 0, local_rand_state))
+        {
+            scatter_record srec;
+            ray scattered;
+            color attenuation;
+            color emitted = rec.mat->emitted(cur_ray, rec, rec.u, rec.v, rec.hit_point, local_rand_state);
+
+            if(rec.mat->scatter(cur_ray, _lights, rec, srec, local_rand_state))
+            {
+                
+                scattered = srec.skip_pdf_ray;
+
+                cur_attenuation *= attenuation;
+                cur_emitted += emitted * cur_attenuation;
+                cur_ray = scattered;
+            }
+            else {
+                return cur_emitted + emitted * cur_attenuation;
+            }
+        }
+        else {
+            return cur_emitted;
+        }
+    //}
+    return cur_emitted; // exceeded recursion
+}
 
 __device__ color ray_color(const ray& r, int i, int j, int depth, hittable_list& _world, hittable_list& _lights, curandState* local_rand_state)
 {
@@ -320,8 +323,8 @@ __global__ void create_cornell_box(hittable_list **elist, hittable_list **elight
         // sphere
         (*elist)->add(new sphere(vector3(350.0f, 50.0f, 295.0f), 100.0f, new lambertian(*texture), "MySphere"));
 
-
-        (*elist)->add(new directional_light(point3(278, 554, 332), vector3(-180, 0, 0), vector3(0, 0, -180), 1.5f, color(15, 15, 15), "MyLight", false));
+        // light
+        (*elist)->add(new directional_light(point3(278, 554, 332), vector3(-305, 0, 0), vector3(0, 0, -305), 1.5f, color(2.0, 2.0, 2.0), "MyLight", false));
 
 
 
@@ -519,7 +522,7 @@ void renderGPU(int width, int height, int spp, int max_depth, int tx, int ty, co
     int num_pixels = width * height;
 
     int tex_x, tex_y, tex_n;
-    unsigned char *tex_data_host = stbi_load("e:\\earth_diffuse.jpg", &tex_x, &tex_y, &tex_n, 0);
+    unsigned char *tex_data_host = stbi_load("C:\\Users\\flarive\\Documents\\Visual Studio 2022\\Projects\\RT\\data\\models\\earth_diffuse.jpg", &tex_x, &tex_y, &tex_n, 0);
     if (!tex_data_host) {
         std::cerr << "Failed to load texture." << std::endl;
         return;
