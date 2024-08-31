@@ -19,7 +19,7 @@ public:
     /// Initialize camera with settings
     /// </summary>
     /// <param name="params"></param>
-    __device__ void initialize(vector3 lookfrom, vector3 lookat, vector3 vup, int width, float ratio, float vfov, float focus_dist, float t0, float t1, int sqrt_spp) override;
+    __device__ void initialize(vector3 lookfrom, vector3 lookat, vector3 vup, int width, float ratio, float vfov, float focus_dist, float aperture, float t0, float t1, int sqrt_spp) override;
 
     /// <summary>
     /// Get a randomly-sampled camera ray for the pixel at location i,j, originating from the camera defocus disk,
@@ -28,7 +28,7 @@ public:
     /// <param name="i"></param>
     /// <param name="j"></param>
     /// <returns></returns>
-    __device__ const ray get_ray(int i, int j, int s_i, int s_j, sampler* aa_sampler, curandState* local_rand_state) const override;
+    __device__ const ray get_ray(float i, float j, int s_i, int s_j, sampler* aa_sampler, curandState* local_rand_state) const override;
 
     /*__device__ void initialize(vector3 lookfrom, vector3 lookat, vector3 vup, float vfov, float aspect, float aperture, float focus_dist, float t0, float t1) override
     {
@@ -64,7 +64,7 @@ public:
 
 
 
-__device__ inline void perspective_camera::initialize(vector3 lookfrom, vector3 lookat, vector3 vup, int width, float ratio, float vfov, float focus_dist, float t0, float t1, int sqrt_spp)
+__device__ inline void perspective_camera::initialize(vector3 lookfrom, vector3 lookat, vector3 vup, int width, float ratio, float vfov, float aperture, float focus_dist, float t0, float t1, int sqrt_spp)
 {
     image_width = width;
     aspect_ratio = ratio;
@@ -86,6 +86,11 @@ __device__ inline void perspective_camera::initialize(vector3 lookfrom, vector3 
     float viewport_width = viewport_height * (static_cast<float>(image_width) / image_height);
 
 
+    time0 = t0;
+    time1 = t1;
+
+    lens_radius = aperture / 2;
+
     //sqrt_spp = static_cast<int>(glm::sqrt(samples_per_pixel));
     recip_sqrt_spp = 1.0f / sqrt_spp;
 
@@ -93,6 +98,23 @@ __device__ inline void perspective_camera::initialize(vector3 lookfrom, vector3 
     w = unit_vector(lookfrom - lookat);
     u = unit_vector(glm::cross(vup, w));
     v = glm::cross(w, u);
+
+    // ?????????
+
+    //float theta = vfov * M_PI / 180;
+    float half_height = tan(theta / 2);
+    float half_width = ratio * half_height;
+
+
+    origin = lookfrom;
+    lower_left_corner = origin
+        - half_width * focus_dist * u
+        - half_height * focus_dist * v
+        - focus_dist * w;
+    horizontal = 2 * half_width * focus_dist * u;
+    vertical = 2 * half_height * focus_dist * v;
+
+
 
     // Calculate the vectors across the horizontal and down the vertical viewport edges.
     vector3 viewport_u = viewport_width * u;    // Vector across viewport horizontal edge
@@ -115,28 +137,37 @@ __device__ inline void perspective_camera::initialize(vector3 lookfrom, vector3 
     defocus_disk_v = v * defocus_radius;
 }
 
-__device__ inline const ray perspective_camera::get_ray(int i, int j, int s_i, int s_j, sampler* aa_sampler, curandState* local_rand_state) const
+__device__ inline const ray perspective_camera::get_ray(float s, float t, int s_i, int s_j, sampler* aa_sampler, curandState* local_rand_state) const
 {
-    vector3 pixel_center = pixel00_loc + (vector3(i) * pixel_delta_u) + (vector3(j) * pixel_delta_v);
+    vector3 ray_direction = lens_radius * random_in_unit_disk(local_rand_state);
+    vector3 offset = u * ray_direction.x + v * ray_direction.y;
+    float time = time0 + curand_uniform(local_rand_state) * (time1 - time0);
 
-    // Apply antialiasing
-    vector3 pixel_sample{};
-
-    //if (aa_sampler)
-    //{
-    //    // using given anti aliasing sampler
-    //    pixel_sample = pixel_center + aa_sampler->generate_samples(s_i, s_j);
-    //}
-    //else
-    //{
-        // no anti aliasing
-        pixel_sample = pixel_center;
-    //}
-
-
-    auto ray_origin = (defocus_angle <= 0) ? center : defocus_disk_sample(local_rand_state);
-    auto ray_direction = pixel_sample - ray_origin;
-    auto ray_time = get_real(local_rand_state); // for motion blur
-
-    return ray(ray_origin, ray_direction, i, j, ray_time);
+    return ray(origin + offset, lower_left_corner + s * horizontal + t * vertical - origin - offset, time);
 }
+//
+//__device__ inline const ray perspective_camera::get_ray(int i, int j, int s_i, int s_j, sampler* aa_sampler, curandState* local_rand_state) const
+//{
+//    vector3 pixel_center = pixel00_loc + (vector3(i) * pixel_delta_u) + (vector3(j) * pixel_delta_v);
+//
+//    // Apply antialiasing
+//    vector3 pixel_sample{};
+//
+//    //if (aa_sampler)
+//    //{
+//    //    // using given anti aliasing sampler
+//    //    pixel_sample = pixel_center + aa_sampler->generate_samples(s_i, s_j);
+//    //}
+//    //else
+//    //{
+//        // no anti aliasing
+//        pixel_sample = pixel_center;
+//    //}
+//
+//
+//    auto ray_origin = (defocus_angle <= 0) ? center : defocus_disk_sample(local_rand_state);
+//    auto ray_direction = pixel_sample - ray_origin;
+//    auto ray_time = get_real(local_rand_state); // for motion blur
+//
+//    return ray(ray_origin, ray_direction, i, j, ray_time);
+//}

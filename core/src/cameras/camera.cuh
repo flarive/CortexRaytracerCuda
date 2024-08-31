@@ -79,7 +79,7 @@ public:
         return pixel_delta_v;
     }
 
-    __device__ virtual void initialize(vector3 lookfrom, vector3 lookat, vector3 vup, int width, float ratio, float vfov, float focus_dist, float t0, float t1, int sqrt_spp) = 0;
+    __device__ virtual void initialize(vector3 lookfrom, vector3 lookat, vector3 vup, int width, float ratio, float vfov, float aperture, float focus_dist, float t0, float t1, int sqrt_spp) = 0;
 
     /// <summary>
     /// Fire a given ray and get the hit record (recursive)
@@ -87,7 +87,7 @@ public:
     /// <param name="r"></param>
     /// <param name="world"></param>
     /// <returns></returns>
-    __device__ virtual const ray get_ray(int i, int j, int s_i, int s_j, sampler* aa_sampler, curandState* local_rand_state) const = 0;
+    __device__ virtual const ray get_ray(float i, float j, int s_i, int s_j, sampler* aa_sampler, curandState* local_rand_state) const = 0;
 
     /// <summary>
     /// Calculate ray color
@@ -120,6 +120,14 @@ protected:
     vector3     u{}, v{}, w{};     // Camera frame basis vectors
     vector3     defocus_disk_u{};  // Defocus disk horizontal radius
     vector3     defocus_disk_v{};  // Defocus disk vertical radius
+
+    float time0, time1;
+    float lens_radius;
+
+    vector3 origin;
+    vector3 lower_left_corner;
+    vector3 horizontal;
+    vector3 vertical;
 
 
 

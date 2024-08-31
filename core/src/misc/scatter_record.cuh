@@ -20,8 +20,8 @@ public:
 	__device__ ~scatter_record()
 	{
 		if (pdf_ptr) {
-			/*delete pdf_ptr;
-			pdf_ptr = nullptr;*/
+			delete pdf_ptr;
+			pdf_ptr = nullptr;
 		}
 	}
 };

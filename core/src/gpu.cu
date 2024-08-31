@@ -86,39 +86,72 @@ void check_cuda(cudaError_t result, char const* const func, const char* const fi
     }
 }
 
-__device__ color ray_color2(const ray& r, int i, int j, int depth, hittable_list& _world, hittable_list& _lights, curandState *local_rand_state)
+//__device__ color ray_color2(const ray& r, int i, int j, int depth, hittable_list& _world, hittable_list& _lights, curandState *local_rand_state)
+//{
+//    ray cur_ray = r;
+//    color cur_attenuation = color(1.0, 1.0, 1.0);
+//    color cur_emitted = color(0.0, 0.0, 0.0);
+//
+//    //for(int i = 0; i < 100; i++) {
+//        hit_record rec;
+//        if (_world.hit(cur_ray, interval(0.001f, FLT_MAX), rec, 0, local_rand_state))
+//        {
+//            scatter_record srec;
+//            //ray scattered;
+//            color attenuation;
+//            color emitted = rec.mat->emitted(cur_ray, rec, rec.u, rec.v, rec.hit_point, local_rand_state);
+//
+//            if(rec.mat->scatter(cur_ray, _lights, rec, srec, local_rand_state))
+//            {
+//                cur_attenuation *= attenuation;
+//                cur_emitted += emitted * cur_attenuation;
+//                cur_ray = srec.skip_pdf_ray;
+//            }
+//            else {
+//                return cur_emitted + emitted * cur_attenuation;
+//            }
+//        }
+//        else {
+//            return cur_emitted;
+//        }
+//    //}
+//    return cur_emitted; // exceeded recursion
+//}
+
+__device__ color ray_color_iterative(const ray& r, int i, int j, int depth, hittable_list& _world, hittable_list& _lights, curandState* local_rand_state)
 {
-    ray cur_ray = r;
-    color cur_attenuation = color(1.0, 1.0, 1.0);
-    color cur_emitted = color(0.0, 0.0, 0.0);
+    color result_color = color::black();
+    ray current_ray = r;
+    color current_attenuation = color(1.0f, 1.0f, 1.0f);
 
-    //for(int i = 0; i < 100; i++) {
+    for (int current_depth = depth; current_depth > 0; --current_depth) {
         hit_record rec;
-        if (_world.hit(cur_ray, interval(0.001f, FLT_MAX), rec, 0, local_rand_state))
-        {
-            scatter_record srec;
-            ray scattered;
-            color attenuation;
-            color emitted = rec.mat->emitted(cur_ray, rec, rec.u, rec.v, rec.hit_point, local_rand_state);
-
-            if(rec.mat->scatter(cur_ray, _lights, rec, srec, local_rand_state))
-            {
-                
-                scattered = srec.skip_pdf_ray;
-
-                cur_attenuation *= attenuation;
-                cur_emitted += emitted * cur_attenuation;
-                cur_ray = scattered;
-            }
-            else {
-                return cur_emitted + emitted * cur_attenuation;
-            }
+        if (!_world.hit(current_ray, interval(SHADOW_ACNE_FIX, FLT_MAX), rec, current_depth, local_rand_state)) {
+            break;
         }
-        else {
-            return cur_emitted;
+
+        scatter_record srec;
+        color emitted = rec.mat->emitted(current_ray, rec, rec.u, rec.v, rec.hit_point, local_rand_state);
+
+        if (!rec.mat->scatter(current_ray, _lights, rec, srec, local_rand_state)) {
+            result_color += current_attenuation * emitted;
+            break;
         }
-    //}
-    return cur_emitted; // exceeded recursion
+
+        hittable_pdf hpdf(_lights, rec.hit_point);
+        mixture_pdf mpdf(&hpdf, srec.pdf_ptr);
+
+        ray scattered = ray(rec.hit_point, mpdf.generate(srec, local_rand_state), current_ray.time());
+        float pdf_val = mpdf.value(scattered.direction(), local_rand_state);
+        float scattering_pdf = rec.mat->scattering_pdf(current_ray, rec, scattered);
+
+        result_color += current_attenuation * emitted;
+        current_attenuation *= srec.attenuation * scattering_pdf / pdf_val;
+
+        current_ray = scattered;
+    }
+
+    return result_color;
 }
 
 __device__ color ray_color(const ray& r, int i, int j, int depth, hittable_list& _world, hittable_list& _lights, curandState* local_rand_state)
@@ -180,10 +213,10 @@ __device__ color ray_color(const ray& r, int i, int j, int depth, hittable_list&
         return srec.attenuation * ray_color(srec.skip_pdf_ray, i, j, depth - 1, _world, _lights, local_rand_state);
     }
 
-    hittable_pdf* hpdf = new hittable_pdf(_lights, rec.hit_point);
+    //hittable_pdf* hpdf = new hittable_pdf(_lights, rec.hit_point);
 
 
-    mixture_pdf* mpdf;
+    //mixture_pdf* mpdf;
 
     //if (background_texture && background_iskybox)
     //{
@@ -192,12 +225,15 @@ __device__ color ray_color(const ray& r, int i, int j, int depth, hittable_list&
     //}
     //else
     //{
-    mpdf = new mixture_pdf(hpdf, srec.pdf_ptr);
+    //mpdf = new mixture_pdf(hpdf, srec.pdf_ptr);
     //}
 
+    hittable_pdf hpdf(_lights, rec.hit_point);
+    mixture_pdf mpdf(&hpdf, srec.pdf_ptr);
 
-    ray scattered = ray(rec.hit_point, mpdf->generate(srec, local_rand_state), r.time());
-    float pdf_val = mpdf->value(scattered.direction(), local_rand_state);
+
+    ray scattered = ray(rec.hit_point, mpdf.generate(srec, local_rand_state), r.time());
+    float pdf_val = mpdf.value(scattered.direction(), local_rand_state);
     float scattering_pdf = rec.mat->scattering_pdf(r, rec, scattered);
 
     color final_color(0,0,0);
@@ -262,9 +298,6 @@ __device__ color ray_color(const ray& r, int i, int j, int depth, hittable_list&
     //else
     //{
         // with background color
-        //if (r.x == 100 && r.y == 100)
-        //printf("recurse 3 %i %i %i\n", i, j, depth - 1);
-
         color sample_color = ray_color(scattered, i, j, depth - 1, _world, _lights, local_rand_state);
         color color_from_scatter = (srec.attenuation * scattering_pdf * sample_color) / pdf_val;
 
@@ -281,17 +314,15 @@ __device__ color ray_color(const ray& r, int i, int j, int depth, hittable_list&
         //}
     //}
 
-
-    delete(mpdf);
-    delete(hpdf);
-
-
+    //delete hpdf;
+    //delete mpdf;
+     
     return final_color;
 }
 
 #define RND (curand_uniform(&local_rand_state))
 
-__global__ void create_cornell_box(hittable_list **elist, hittable_list **elights,  camera **cam, int width, int height, int spp, int sqrt_spp, image_texture** texture, curandState *rand_state)
+__global__ void create_cornell_box(hittable_list **elist, hittable_list **elights,  camera **cam, int width, int height, float ratio, int spp, int sqrt_spp, image_texture** texture, curandState *rand_state)
 {
     if (threadIdx.x == 0 && blockIdx.x == 0)
     {
@@ -303,11 +334,8 @@ __global__ void create_cornell_box(hittable_list **elist, hittable_list **elight
 
         *elist = new hittable_list();
 
-        //int i = 0;
         (*elist)->add(new rt::flip_normals(new yz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(color(0.12, 0.45, 0.15))), "MyLeft")));
         (*elist)->add(new yz_rect(0, 555, 0, 555, 0, new lambertian(new solid_color_texture(color(0.65, 0.05, 0.05))), "MyRight"));
-        
-
         (*elist)->add(new xz_rect(0, 555, 0, 555, 0, new lambertian(new solid_color_texture(color(0.73, 0.73, 0.73))), "MyGround"));
         (*elist)->add(new rt::flip_normals(new xz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(color(0.73, 0.73, 0.73))), "MyTop")));
         (*elist)->add(new rt::flip_normals(new xz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(color(0.73, 0.73, 0.73))), "MyBottom")));
@@ -324,7 +352,7 @@ __global__ void create_cornell_box(hittable_list **elist, hittable_list **elight
         (*elist)->add(new sphere(vector3(350.0f, 50.0f, 295.0f), 100.0f, new lambertian(*texture), "MySphere"));
 
         // light
-        (*elist)->add(new directional_light(point3(278, 554, 332), vector3(-305, 0, 0), vector3(0, 0, -305), 1.5f, color(2.0, 2.0, 2.0), "MyLight", false));
+        (*elist)->add(new directional_light(point3(278, 554, 332), vector3(-305, 0, 0), vector3(0, 0, -305), 1.5f, color(10.0, 10.0, 10.0), "MyLight", false));
 
 
 
@@ -347,10 +375,11 @@ __global__ void create_cornell_box(hittable_list **elist, hittable_list **elight
             vector3(278, 278, -800),
             vector3(278, 278, 0),
             vector3(0, 1, 0),
-            256,
-            1.0f,
+            width,
+            ratio,
             40.0f,
-            100.0f,
+            0.0f,
+            10.0f,
             0.0f,
             1.0f,
             sqrt_spp);
@@ -361,8 +390,7 @@ __global__ void create_cornell_box(hittable_list **elist, hittable_list **elight
         //    printf("test obj %i %s\n", (*elist)->objects[i]->getTypeID(), (*elist)->objects[i]->getName());
 
         // calculate bounding boxes to speed up ray computing
-        hittable* ppp = new bvh_node((*elist)->objects, 0, (*elist)->object_count, &local_rand_state);
-        *elist = new hittable_list(ppp);
+        *elist = new hittable_list(new bvh_node((*elist)->objects, 0, (*elist)->object_count, &local_rand_state));
 
 
         //(*myscene)->set(*elist);
@@ -399,24 +427,27 @@ __global__ void render(color* fb, int width, int height, int spp, int sqrt_spp, 
 {
     int i = threadIdx.x + blockIdx.x * blockDim.x;
     int j = threadIdx.y + blockIdx.y * blockDim.y;
-    if((i >= width) || (j >= height)) return;
+    if ((i >= width) || (j >= height)) return;
 
     int pixel_index = j* width + i;
     curandState local_rand_state = randState[pixel_index];
     color pixel_color(0, 0, 0);
+
+    //if (!_params.quietMode)
+    //    std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
 
     // new
     for (int s_j = 0; s_j < sqrt_spp; ++s_j)
     {
         for (int s_i = 0; s_i < sqrt_spp; ++s_i)
         {
-            /*float u = float(i + curand_uniform(&local_rand_state)) / float(width);
-            float v = float(j + curand_uniform(&local_rand_state)) / float(height);*/
+            float u = float(i + curand_uniform(&local_rand_state)) / float(width);
+            float v = float(j + curand_uniform(&local_rand_state)) / float(height);
 
-            ray r = (*cam)->get_ray(i, j, s_i, s_j, nullptr, &local_rand_state);
+            ray r = (*cam)->get_ray(u, v, s_i, s_j, nullptr, &local_rand_state);
 
             // pixel color is progressively being refined
-            pixel_color += ray_color(r, i, j, max_depth, **world, **lights, &local_rand_state);
+            pixel_color += ray_color_iterative(r, i, j, max_depth, **world, **lights, &local_rand_state);
         }
     }
 
@@ -439,6 +470,10 @@ __global__ void render(color* fb, int width, int height, int spp, int sqrt_spp, 
     //}
 
     randState[pixel_index] = local_rand_state;
+    //pixel_color /= float(spp);
+    //pixel_color[0] = sqrt(pixel_color[0]);
+    //pixel_color[1] = sqrt(pixel_color[1]);
+    //pixel_color[2] = sqrt(pixel_color[2]);
     fb[pixel_index] = pixel_color;
 }
 
@@ -470,15 +505,15 @@ void renderGPU(int width, int height, int spp, int max_depth, int tx, int ty, co
 
 
 
-    const size_t newMallowHeapSize = size_t(1024) * size_t(1024) * size_t(1024);
+    const size_t newMallocHeapSize = size_t(1024) * size_t(1024) * size_t(1024);
 
-    cudaError_t result3 = cudaDeviceSetLimit(cudaLimitMallocHeapSize, newMallowHeapSize);
+    cudaError_t result3 = cudaDeviceSetLimit(cudaLimitMallocHeapSize, newMallocHeapSize);
     if (result3 != cudaSuccess) {
         std::cerr << "Failed to set malloc heap size: " << cudaGetErrorString(result3) << std::endl;
         return;
     }
 
-    std::cout << "New malloc heap limit: " << newMallowHeapSize << " bytes" << std::endl;
+    std::cout << "New malloc heap limit: " << newMallocHeapSize << " bytes" << std::endl;
 
 
     // cuda initialization via cudaMalloc
@@ -513,7 +548,7 @@ void renderGPU(int width, int height, int spp, int max_depth, int tx, int ty, co
 
 
 
-
+    float ratio = (float)height / (float)width;
 
 
     int sqrt_spp = static_cast<int>(sqrt(spp));
@@ -522,7 +557,7 @@ void renderGPU(int width, int height, int spp, int max_depth, int tx, int ty, co
     int num_pixels = width * height;
 
     int tex_x, tex_y, tex_n;
-    unsigned char *tex_data_host = stbi_load("C:\\Users\\flarive\\Documents\\Visual Studio 2022\\Projects\\RT\\data\\models\\earth_diffuse.jpg", &tex_x, &tex_y, &tex_n, 0);
+    unsigned char *tex_data_host = stbi_load("E:\\earth_diffuse.jpg", &tex_x, &tex_y, &tex_n, 0);
     if (!tex_data_host) {
         std::cerr << "Failed to load texture." << std::endl;
         return;
@@ -573,7 +608,7 @@ void renderGPU(int width, int height, int spp, int max_depth, int tx, int ty, co
     //checkCudaErrors(cudaMalloc((void**)&myscene, sizeof(scene*)));
 
 
-    create_cornell_box<<<1, 1>>>(elist, elights, cam, width, height, spp, sqrt_spp, texture, d_rand_state2);
+    create_cornell_box<<<1, 1>>>(elist, elights, cam, width, height, ratio, spp, sqrt_spp, texture, d_rand_state2);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
@@ -585,6 +620,10 @@ void renderGPU(int width, int height, int spp, int max_depth, int tx, int ty, co
     render_init<<<blocks, threads>>>(width, height, d_rand_state);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
+
+    printf("Init with %u/%u blocks of %u/%u threads", blocks.x, blocks.y, threads.x, threads.y);
+
+
     render<<<blocks, threads>>>(image, width, height, spp, sqrt_spp, max_depth, elist, elights, cam, d_rand_state);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());

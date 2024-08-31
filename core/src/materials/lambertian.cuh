@@ -88,24 +88,25 @@ __device__ inline bool lambertian::scatter(const ray& r_in, const hittable_list&
     //}
 
 
-    //srec.attenuation = m_diffuse_texture->value(rec.u, rec.v, rec.hit_point);
-    //srec.pdf_ptr = new cosine_pdf(rec.normal);
-    //srec.skip_pdf = false;
-
-    //return true;
-
-    
-
-
-    vector3 target = rec.hit_point + rec.normal + random_in_unit_sphere(local_rand_state);
-    srec.skip_pdf_ray = ray(rec.hit_point, target - rec.hit_point, r_in.time());
     srec.attenuation = m_diffuse_texture->value(rec.u, rec.v, rec.hit_point);
-    
-    // slow !!!!!!!!!!!
     srec.pdf_ptr = new cosine_pdf(rec.normal);
     srec.skip_pdf = false;
 
     return true;
+
+    
+
+
+    //vector3 target = rec.hit_point + rec.normal + random_in_unit_sphere(local_rand_state);
+    //srec.skip_pdf_ray = ray(rec.hit_point, target - rec.hit_point, r_in.time());
+    //srec.attenuation = m_diffuse_texture->value(rec.u, rec.v, rec.hit_point);
+
+    ////auto zzzz = cosine_pdf(rec.normal);
+    ////
+    ////srec.pdf_ptr = &zzzz;
+    //srec.skip_pdf = true;
+
+    //return true;
 }
 
 __host__ __device__ inline float lambertian::scattering_pdf(const ray& r_in, const hit_record& rec, const ray& scattered) const

@@ -146,14 +146,6 @@ __host__ __device__ inline hittable* hittable_list::back()
 
 __host__ __device__ inline void hittable_list::add(hittable* e)
 {
-    //printf("add before %s %i/%i\n", e->getName(), object_count, object_capacity);
-
-    if (e == nullptr || e->getName() == "")
-    {
-        printf("DIRTY DATA !!!!!\n");
-        return;
-    }
-
     if (object_capacity <= object_count)
     {
         hittable** new_list = new hittable*[object_count == 0 ? 2 : object_count * 2];
@@ -168,7 +160,7 @@ __host__ __device__ inline void hittable_list::add(hittable* e)
     objects[object_count] = e;
     object_count++;
 
-    printf("add to hittable_list %s %i/%i\n", e->getName(), object_count, object_capacity);
+    //printf("add to hittable_list %s %i/%i\n", e->getName(), object_count, object_capacity);
 
     m_bbox = aabb(m_bbox, e->bounding_box());
 }
