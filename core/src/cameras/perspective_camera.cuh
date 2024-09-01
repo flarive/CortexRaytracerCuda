@@ -146,23 +146,23 @@ __device__ inline const ray perspective_camera::get_ray(float s, float t, int s_
     return ray(origin + offset, lower_left_corner + s * horizontal + t * vertical - origin - offset, time);
 }
 
-//__device__ inline const ray perspective_camera::get_ray(int i, int j, int s_i, int s_j, sampler* aa_sampler, curandState* local_rand_state) const
+//__device__ inline const ray perspective_camera::get_ray(float s, float t, int s_i, int s_j, sampler* aa_sampler, curandState* local_rand_state) const
 //{
 //    vector3 pixel_center = pixel00_loc + (vector3(i) * pixel_delta_u) + (vector3(j) * pixel_delta_v);
 //
 //    // Apply antialiasing
 //    vector3 pixel_sample{};
 //
-//    //if (aa_sampler)
-//    //{
-//    //    // using given anti aliasing sampler
-//    //    pixel_sample = pixel_center + aa_sampler->generate_samples(s_i, s_j);
-//    //}
-//    //else
-//    //{
+//    if (aa_sampler)
+//    {
+//        // using given anti aliasing sampler
+//        pixel_sample = pixel_center + aa_sampler->generate_samples(s_i, s_j, local_rand_state);
+//    }
+//    else
+//    {
 //        // no anti aliasing
 //        pixel_sample = pixel_center;
-//    //}
+//    }
 //
 //
 //    auto ray_origin = (defocus_angle <= 0) ? center : defocus_disk_sample(local_rand_state);

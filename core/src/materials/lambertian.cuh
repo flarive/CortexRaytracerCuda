@@ -90,11 +90,15 @@ __device__ inline bool lambertian::scatter(const ray& r_in, const hittable_list&
 
     srec.attenuation = m_diffuse_texture->value(rec.u, rec.v, rec.hit_point);
     srec.pdf_ptr = new cosine_pdf(rec.normal);
+
+    if (srec.pdf_ptr == nullptr)
+        printf("-----------------------NULL cosine_pdf !!!\n");
+
     srec.skip_pdf = false;
 
     return true;
 
-    
+
 
 
     //vector3 target = rec.hit_point + rec.normal + random_in_unit_sphere(local_rand_state);

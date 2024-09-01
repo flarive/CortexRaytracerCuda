@@ -5,28 +5,12 @@
 #include "../misc/aabb.cuh"
 #include "../misc/gpu_randomizer.cuh"
 
-
-
 class hittable_list: public hittable
 {
 public:
-    //__device__ hittable_list() {}
-    //__device__ hittable_list(hittable **e, int n) { list = e; list_size = n; allocated_list_size = n; } 
-    //__device__ virtual bool hit(const ray& r, float tmin, float tmax, hit_record& rec) const;
-    //__device__ virtual bool bounding_box(float t0, float t1, aabb& box) const;
-    //__device__ void add(hittable* e);
-
-    //hittable **list;
-    //int list_size;
-    //int allocated_list_size;
-
     hittable** objects;
     unsigned int object_count = 0;
     unsigned int object_capacity = 0;
-
-    //__host__ __device__ hittable_list(const char* _name = nullptr);
-    //__host__ __device__ hittable_list(hittable* object, const char* _name = nullptr);
-    //__host__ __device__ hittable_list(hittable** l, int n, const char* _name = nullptr);
 
     __host__ __device__ hittable_list(const char* _name = nullptr) : objects(nullptr), object_count(0), object_capacity(0)
     {
@@ -38,8 +22,6 @@ public:
 
     __host__ __device__ hittable_list(hittable* object, const char* _name = nullptr) : objects(nullptr), object_count(0), object_capacity(0)
     {
-        //printf("hittable_list ctor %s\n", object ? object->getName() : "NULL");
-        
         if (_name != nullptr)
             setName(_name);
         else
@@ -91,10 +73,6 @@ public:
     __host__ __device__ aabb bounding_box() const override;
 };
 
-
-
-
-
 __host__ __device__ inline void hittable_list::clear()
 {
     printf("clear %i objects\n", object_count);
@@ -112,38 +90,6 @@ __host__ __device__ inline hittable* hittable_list::back()
     return objects[object_count - 1];
 }
 
-
-//__host__ __device__ inline void hittable_list::add(hittable* object)
-//{
-//    printf("add %s\n", object->getName());
-//    
-//    if (object_count == object_capacity)
-//    {
-//        // Increase the capacity
-//        int new_capacity = object_capacity == 0 ? 1 : 2 * object_capacity;
-//        hittable** new_objects = new hittable*[new_capacity];
-//
-//        // Copy the old objects to the new array
-//        for (int i = 0; i < object_count; i++)
-//        {
-//            new_objects[i] = objects[i];
-//        }
-//
-//        // Delete the old array
-//        delete[] objects;
-//
-//        // Point to the new array
-//        objects = new_objects;
-//        object_capacity = new_capacity;
-//    }
-//
-//    // Add the new object
-//    //objects[object_count] = object;
-//    //object_count++;
-//
-//    m_bbox = aabb(m_bbox, object->bounding_box());
-//}
-
 __host__ __device__ inline void hittable_list::add(hittable* e)
 {
     if (object_capacity <= object_count)
@@ -159,8 +105,6 @@ __host__ __device__ inline void hittable_list::add(hittable* e)
     
     objects[object_count] = e;
     object_count++;
-
-    //printf("add to hittable_list %s %i/%i\n", e->getName(), object_count, object_capacity);
 
     m_bbox = aabb(m_bbox, e->bounding_box());
 }
@@ -215,20 +159,6 @@ __device__ inline bool hittable_list::hit(const ray& r, interval ray_t, hit_reco
     }
 
     return hit_anything;
-
-
-    //hit_record temp_rec;
-    //bool hit_anything = false;
-    //float closest_so_far = ray_t.max;
-
-    //for (int i = 0; i < list_size; i++) {
-    //    if (list[i]->hit(r, tmin, closest_so_far, temp_rec)) {
-    //        hit_anything = true;
-    //        closest_so_far = temp_rec.t;
-    //        rec = temp_rec;
-    //    }
-    //}
-    //return hit_anything;
 }
 
 __host__ __device__ inline aabb hittable_list::bounding_box() const
@@ -249,7 +179,6 @@ __device__ inline float hittable_list::pdf_value(const point3& o, const vector3&
     return sum;
 }
 
-//
 ///// <summary>
 ///// Random special implementation for hittable list (override base)
 ///// </summary>
@@ -259,50 +188,25 @@ __device__ inline vector3 hittable_list::random(const vector3& o, curandState* l
 {
     if (object_count > 0)
     {
-        return objects[get_int(local_rand_state, 0, object_count - 1)]->random(o, local_rand_state);
+        int r = 0;
+        
+        if (object_count > 1)
+            r = get_int(local_rand_state, 0, object_count - 1);
+
+        if (r >= object_count)
+        {
+            printf("Error: index out of bounds! lll = %d, object_count = %d\n", r, object_count);
+            return vector3(); // Or handle the error accordingly
+        }
+
+        if (!objects[r])
+        {
+            printf("Error: nullptr encountered at objects[%d]!\n", r);
+            return vector3(); // Or handle the error accordingly
+        }
+
+        return objects[r]->random(o, local_rand_state);
     }
 
     return vector3();
 }
-
-
-// old !!!!!!!!!!!
-//__device__ bool hittable_list::hit(const ray& r, float tmin, float tmax, hit_record& rec) const {
-//    hit_record temp_rec;
-//    bool hit_anything = false;
-//    float closest_so_far = tmax;
-//
-//    for (int i = 0; i < object_count; i++) {
-//        if (objects[i]->hit(r, tmin, closest_so_far, temp_rec)) {
-//            hit_anything = true;
-//            closest_so_far = temp_rec.t;
-//            rec = temp_rec;
-//        }
-//    }
-//    return hit_anything;
-//}
-
-//__device__ bool hittable_list::bounding_box(float t0, float t1, aabb& box) const
-//{
-//    if (list_size < 1) {
-//        return false;
-//    }
-//
-//    aabb temp_box;
-//    bool first_true = objects[0]->bounding_box(t0, t1, temp_box);
-//    if (!first_true) {
-//        return false;
-//    } else {
-//        box = temp_box;
-//    }
-//    
-//    for (int i = 1; i < object_count; i++) {
-//        if (objects[i]->bounding_box(t0, t1, temp_box)) {
-//            box = surrounding_box(box, temp_box);
-//        } else {
-//            return false;
-//        }
-//    }
-//    return true;
-//}
-

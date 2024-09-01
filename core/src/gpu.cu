@@ -449,9 +449,9 @@ __global__ void render(color* fb, int width, int height, int spp, int sqrt_spp, 
     curandState local_rand_state = randState[pixel_index];
     color pixel_color(0, 0, 0);
 
-    if (threadIdx.x == 0 && blockIdx.x == 0) {
-        printf("Scanlines remaining: %i\n", (height - j));
-    }
+    //if (threadIdx.x == 0 && blockIdx.x == 0) {
+    //    printf("Scanlines remaining: %i\n", (height - j));
+    //}
 
     // new
     for (int s_j = 0; s_j < sqrt_spp; ++s_j)
@@ -496,6 +496,10 @@ __global__ void render(color* fb, int width, int height, int spp, int sqrt_spp, 
 
 void setupCuda(const cudaDeviceProp& prop)
 {
+    
+    // If you get a null pointer (either from device malloc or device new) you have run out of heap space.
+    // https://forums.developer.nvidia.com/t/allocating-memory-from-device-and-cudalimitmallocheapsize/70441
+    
     size_t stackSize;
 
     // Get the current stack size limit
@@ -508,7 +512,7 @@ void setupCuda(const cudaDeviceProp& prop)
     std::cout << "Current stack size limit: " << stackSize << " bytes" << std::endl;
 
 
-    const size_t newStackSize = 4096 * 10; // Set the stack size to 1MB per thread
+    const size_t newStackSize = 4096; // Set the stack size to 1MB per thread
 
     cudaError_t result2 = cudaDeviceSetLimit(cudaLimitStackSize, newStackSize);
     if (result2 != cudaSuccess) {
