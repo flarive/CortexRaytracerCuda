@@ -57,7 +57,7 @@ __host__ __device__ inline void scene::set(hittable_list* _objects)
 	
 	printf("adding %i objects to scene world\n", _objects->object_count);
 
-	for (int i = 0; i < _objects->object_count; i++)
+	for (unsigned int i = 0; i < _objects->object_count; i++)
 	{
 		add(_objects->objects[i]);
 	}

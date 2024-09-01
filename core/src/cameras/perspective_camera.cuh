@@ -123,8 +123,8 @@ __device__ inline void perspective_camera::initialize(vector3 lookfrom, vector3 
 
 
     // Calculate the horizontal and vertical delta vectors from pixel to pixel.
-    pixel_delta_u = viewport_u / vector3(image_width);
-    pixel_delta_v = viewport_v / vector3(image_height);
+    pixel_delta_u = viewport_u / vector3((float)image_width);
+    pixel_delta_v = viewport_v / vector3((float)image_height);
 
 
     // Calculate the location of the upper left pixel.
@@ -145,7 +145,7 @@ __device__ inline const ray perspective_camera::get_ray(float s, float t, int s_
 
     return ray(origin + offset, lower_left_corner + s * horizontal + t * vertical - origin - offset, time);
 }
-//
+
 //__device__ inline const ray perspective_camera::get_ray(int i, int j, int s_i, int s_j, sampler* aa_sampler, curandState* local_rand_state) const
 //{
 //    vector3 pixel_center = pixel00_loc + (vector3(i) * pixel_delta_u) + (vector3(j) * pixel_delta_v);

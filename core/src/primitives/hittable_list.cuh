@@ -21,8 +21,8 @@ public:
     //int allocated_list_size;
 
     hittable** objects;
-    int object_count = 0;
-    int object_capacity = 0;
+    unsigned int object_count = 0;
+    unsigned int object_capacity = 0;
 
     //__host__ __device__ hittable_list(const char* _name = nullptr);
     //__host__ __device__ hittable_list(hittable* object, const char* _name = nullptr);
@@ -99,7 +99,7 @@ __host__ __device__ inline void hittable_list::clear()
 {
     printf("clear %i objects\n", object_count);
     
-    for (int i = 0; i < object_count; i++)
+    for (unsigned int i = 0; i < object_count; i++)
     {
         delete objects[i];
     }
@@ -149,7 +149,7 @@ __host__ __device__ inline void hittable_list::add(hittable* e)
     if (object_capacity <= object_count)
     {
         hittable** new_list = new hittable*[object_count == 0 ? 2 : object_count * 2];
-        for (int i = 0; i < object_count; i++) {
+        for (unsigned int i = 0; i < object_count; i++) {
             new_list[i] = objects[i];
         }
         objects = new_list;
@@ -167,7 +167,7 @@ __host__ __device__ inline void hittable_list::add(hittable* e)
 
 __host__ __device__ inline hittable* hittable_list::get(const char* name)
 {
-    for (int i = 0; i < object_count; i++)
+    for (unsigned int i = 0; i < object_count; i++)
     {
         if (objects[i]->getName() == name)
         {
@@ -181,13 +181,13 @@ __host__ __device__ inline hittable* hittable_list::get(const char* name)
 __host__ __device__ inline bool hittable_list::remove(hittable* object)
 {
     bool found = false;
-    for (int i = 0; i < object_count; i++)
+    for (unsigned int i = 0; i < object_count; i++)
     {
         if (objects[i] == object)
         {
             found = true;
             delete objects[i];
-            for (int j = i; j < object_count - 1; j++)
+            for (unsigned int j = i; j < object_count - 1; j++)
             {
                 objects[j] = objects[j + 1];
             }
@@ -204,7 +204,7 @@ __device__ inline bool hittable_list::hit(const ray& r, interval ray_t, hit_reco
     bool hit_anything = false;
     float closest_so_far = ray_t.max;
 
-    for (int i = 0; i < object_count; i++)
+    for (unsigned int i = 0; i < object_count; i++)
     {
         if (objects[i]->hit(r, interval(ray_t.min, closest_so_far), temp_rec, depth, local_rand_state))
         {
@@ -241,7 +241,7 @@ __device__ inline float hittable_list::pdf_value(const point3& o, const vector3&
     float weight = 1.0f / object_count;
     float sum = 0.0f;
 
-    for (int i = 0; i < object_count; i++)
+    for (unsigned int i = 0; i < object_count; i++)
     {
         sum += weight * objects[i]->pdf_value(o, v, local_rand_state);
     }

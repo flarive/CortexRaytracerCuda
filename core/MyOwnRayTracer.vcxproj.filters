@@ -107,9 +107,6 @@
     <ClInclude Include="src\misc\onb.cuh">
       <Filter>Headers\misc</Filter>
     </ClInclude>
-    <ClInclude Include="src\samplers\sampler.cuh">
-      <Filter>Headers\samplers</Filter>
-    </ClInclude>
     <ClInclude Include="src\misc\render_parameters.h">
       <Filter>Headers\misc</Filter>
     </ClInclude>
@@ -188,6 +185,15 @@
     <ClInclude Include="src\utilities\bitmap_image.cuh">
       <Filter>Headers\utilities</Filter>
     </ClInclude>
+    <ClInclude Include="src\samplers\random_sampler.cuh">
+      <Filter>Headers\samplers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\samplers\sampler.cuh">
+      <Filter>Headers\samplers\base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\samplers\msaa_sampler.cuh">
+      <Filter>Headers\samplers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -258,6 +264,9 @@
     </Filter>
     <Filter Include="Headers\lights\base">
       <UniqueIdentifier>{d43cdebc-9769-4a7f-96c7-781d130c5c3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\samplers\base">
+      <UniqueIdentifier>{fe79e818-62d7-48d0-9cbe-19d70e40baef}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

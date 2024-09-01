@@ -31,5 +31,9 @@ int main(int argc, char* argv[])
 
     std::cout << "[INFO] Finished !" << std::endl;
 
+    std::string dummy;
+    std::cout << "Enter to continue..." << std::endl;
+    std::getline(std::cin, dummy);
+
     exit(EXIT_SUCCESS);
 }

@@ -51,18 +51,31 @@
 
 // https://github.com/Belval/raytracing
 
-bool isGpuAvailable()
+bool isGpuAvailable(cudaDeviceProp& prop)
 {
     int devicesCount;
     cudaGetDeviceCount(&devicesCount);
     for (int deviceIndex = 0; deviceIndex < devicesCount; ++deviceIndex)
     {
-        cudaDeviceProp deviceProperties;
-        cudaGetDeviceProperties(&deviceProperties, deviceIndex);
-        if (deviceProperties.major >= 2 && deviceProperties.minor >= 0)
+        cudaGetDeviceProperties(&prop, deviceIndex);
+        if (prop.major >= 2 && prop.minor >= 0)
         {
-            std::cout << "Use GPU device " << deviceIndex << " " << deviceProperties.name << std::endl;
-            
+            printf("Use GPU device %d %s\n", deviceIndex, prop.name);
+            printf("Number of multiprocessors on device: %d\n", prop.multiProcessorCount);
+            printf("Memory Clock Rate (MHz): %d\n", prop.memoryClockRate / 1024);
+            printf("Memory Bus Width (bits): %d\n", prop.memoryBusWidth);
+            printf("Peak Memory Bandwidth (GB/s): %.1f\n", 2.0 * prop.memoryClockRate * (prop.memoryBusWidth / 8) / 1.0e6);
+            printf("Total global memory (Gbytes) %.1f\n", (float)(prop.totalGlobalMem) / 1024.0 / 1024.0 / 1024.0);
+            printf("Shared memory per block (Kbytes) %.1f\n", (float)(prop.sharedMemPerBlock) / 1024.0);
+            printf("minor-major: %d-%d\n", prop.minor, prop.major);
+            printf("Warp-size: %d\n", prop.warpSize);
+            printf("Concurrent kernels: %s\n", prop.concurrentKernels ? "yes" : "no");
+            printf("Concurrent computation/communication: %s\n", prop.deviceOverlap ? "yes" : "no");
+
+            printf("Maximum size of each dimension of a grid: %i x %i x %i\n", prop.maxGridSize[0], prop.maxGridSize[1], prop.maxGridSize[2]);
+            printf("Maximum size of each dimension of a block: %i x %i x %i\n", prop.maxThreadsDim[0], prop.maxThreadsDim[1], prop.maxThreadsDim[2]);
+            printf("Maximum number of threads per block: %i\n", prop.maxThreadsPerBlock);
+
             cudaSetDevice(deviceIndex);
 
             return true;
@@ -124,16 +137,19 @@ __device__ color ray_color_iterative(const ray& r, int i, int j, int depth, hitt
     ray current_ray = r;
     color current_attenuation = color(1.0f, 1.0f, 1.0f);
 
-    for (int current_depth = depth; current_depth > 0; --current_depth) {
+    for (int current_depth = depth; current_depth > 0; --current_depth)
+    {
         hit_record rec;
-        if (!_world.hit(current_ray, interval(SHADOW_ACNE_FIX, FLT_MAX), rec, current_depth, local_rand_state)) {
+        if (!_world.hit(current_ray, interval(SHADOW_ACNE_FIX, FLT_MAX), rec, current_depth, local_rand_state))
+        {
             break;
         }
 
         scatter_record srec;
         color emitted = rec.mat->emitted(current_ray, rec, rec.u, rec.v, rec.hit_point, local_rand_state);
 
-        if (!rec.mat->scatter(current_ray, _lights, rec, srec, local_rand_state)) {
+        if (!rec.mat->scatter(current_ray, _lights, rec, srec, local_rand_state))
+        {
             result_color += current_attenuation * emitted;
             break;
         }
@@ -352,7 +368,7 @@ __global__ void create_cornell_box(hittable_list **elist, hittable_list **elight
         (*elist)->add(new sphere(vector3(350.0f, 50.0f, 295.0f), 100.0f, new lambertian(*texture), "MySphere"));
 
         // light
-        (*elist)->add(new directional_light(point3(278, 554, 332), vector3(-305, 0, 0), vector3(0, 0, -305), 1.5f, color(10.0, 10.0, 10.0), "MyLight", false));
+        (*elist)->add(new directional_light(point3(278, 554, 332), vector3(-305, 0, 0), vector3(0, 0, -305), 1.0f, color(10.0, 10.0, 10.0), "MyLight", false));
 
 
 
@@ -433,8 +449,9 @@ __global__ void render(color* fb, int width, int height, int spp, int sqrt_spp, 
     curandState local_rand_state = randState[pixel_index];
     color pixel_color(0, 0, 0);
 
-    //if (!_params.quietMode)
-    //    std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
+    if (threadIdx.x == 0 && blockIdx.x == 0) {
+        printf("Scanlines remaining: %i\n", (height - j));
+    }
 
     // new
     for (int s_j = 0; s_j < sqrt_spp; ++s_j)
@@ -477,10 +494,8 @@ __global__ void render(color* fb, int width, int height, int spp, int sqrt_spp, 
     fb[pixel_index] = pixel_color;
 }
 
-void renderGPU(int width, int height, int spp, int max_depth, int tx, int ty, const char* filepath)
+void setupCuda(const cudaDeviceProp& prop)
 {
-    std::cout << "Rendering " << width << "x" << height << " " << spp << " samples > " << filepath << std::endl;
-
     size_t stackSize;
 
     // Get the current stack size limit
@@ -545,6 +560,13 @@ void renderGPU(int width, int height, int spp, int max_depth, int tx, int ty, co
     //printf("New cudaLimitPrintfFifoSize: %u\n", (unsigned)limit);
     //cudaDeviceGetLimit(&limit, cudaLimitMallocHeapSize);
     //printf("New cudaLimitMallocHeapSize: %u\n", (unsigned)limit);
+}
+
+void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int max_depth, int tx, int ty, const char* filepath)
+{
+    std::cout << "Rendering " << width << "x" << height << " " << spp << " samples > " << filepath << std::endl;
+
+    setupCuda(prop);
 
 
 
@@ -567,9 +589,16 @@ void renderGPU(int width, int height, int spp, int max_depth, int tx, int ty, co
     checkCudaErrors(cudaMallocManaged(&tex_data, tex_x * tex_y * tex_n * sizeof(unsigned char)));
     checkCudaErrors(cudaMemcpy(tex_data, tex_data_host, tex_x * tex_y * tex_n * sizeof(unsigned char), cudaMemcpyHostToDevice));
 
+
+
+    //dim3 init_blocks(1, 1);
+    //dim3 init_threads(1, 1);
+
+
+
     image_texture**texture;
     checkCudaErrors(cudaMalloc((void **)&texture, sizeof(image_texture*)));
-    texture_init<<<1, 1>>>(tex_data, tex_x, tex_y, tex_n, texture);
+    texture_init<<<1, 1 >>>(tex_data, tex_x, tex_y, tex_n, texture);
 
 
 
@@ -612,34 +641,36 @@ void renderGPU(int width, int height, int spp, int max_depth, int tx, int ty, co
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
+    dim3 render_blocks(width / tx+1, height / ty+1);
+    dim3 render_threads(tx, ty);
 
-
-    dim3 blocks(width / tx+1, height / ty+1);
-    dim3 threads(tx, ty);
-
-    render_init<<<blocks, threads>>>(width, height, d_rand_state);
+    render_init<<<render_blocks, render_threads>>>(width, height, d_rand_state);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
-    printf("Init with %u/%u blocks of %u/%u threads", blocks.x, blocks.y, threads.x, threads.y);
+    printf("Render with %u/%u blocks of %u/%u threads", render_blocks.x, render_blocks.y, render_threads.x, render_threads.y);
 
 
-    render<<<blocks, threads>>>(image, width, height, spp, sqrt_spp, max_depth, elist, elights, cam, d_rand_state);
+    render<<<render_blocks, render_threads>>>(image, width, height, spp, sqrt_spp, max_depth, elist, elights, cam, d_rand_state);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
-    static const interval intensity(0.000, 0.999);
+    static const interval intensity(0.000f, 0.999f);
 
     uint8_t* imageHost = new uint8_t[width * height * 3 * sizeof(uint8_t)];
-    for (int j = 0; j < height; j++) {
+    for (int j = height - 1; j >= 0; j--) {
         for (int i = 0; i < width; i++) {
             size_t pixel_index = j * width + i;
 
             color fix = color::prepare_pixel_color(i, j, image[pixel_index], spp, false);
 
-            imageHost[j * width * 3 + i * 3] = 256 * intensity.clamp(fix.r());
-            imageHost[j * width * 3 + i * 3 + 1] = 256 * intensity.clamp(fix.g());
-            imageHost[j * width * 3 + i * 3 + 2] = 256 * intensity.clamp(fix.b());
+            //imageHost[j * width * 3 + i * 3] = (size_t)(256.0f * intensity.clamp(fix.r()));
+            //imageHost[j * width * 3 + i * 3 + 1] = (size_t)(256.0f * intensity.clamp(fix.g()));
+            //imageHost[j * width * 3 + i * 3 + 2] = (size_t)(256.0f * intensity.clamp(fix.b()));
+
+            imageHost[(height - j - 1) * width * 3 + i * 3] = (size_t)(255.99f * intensity.clamp(fix.r()));
+            imageHost[(height - j - 1) * width * 3 + i * 3 + 1] = (size_t)(255.99f * intensity.clamp(fix.g()));
+            imageHost[(height - j - 1) * width * 3 + i * 3 + 2] = (size_t)(255.99f * intensity.clamp(fix.b()));
         }
     }
 
@@ -659,7 +690,9 @@ void renderGPU(int width, int height, int spp, int max_depth, int tx, int ty, co
 
 void launchGPU(int width, int height, int spp, int max_depth, int tx, int ty, const char* filepath, bool quietMode)
 {
-    if (!isGpuAvailable())
+    cudaDeviceProp prop;
+    
+    if (!isGpuAvailable(prop))
     {
         return;
     }
@@ -676,7 +709,7 @@ void launchGPU(int width, int height, int spp, int max_depth, int tx, int ty, co
     // --expt-relaxed-constexpr -Xcudafe --diag_suppress=esa_on_defaulted_function_ignored --std c++20 --verbose
     // --expt-relaxed-constexpr --std c++20 -Xcudafe="--diag_suppress=20012 --diag_suppress=20208" 
     //
-    renderGPU(width, height, spp, max_depth, tx, ty, filepath);
+    renderGPU(prop, width, height, spp, max_depth, tx, ty, filepath);
 }
 
 

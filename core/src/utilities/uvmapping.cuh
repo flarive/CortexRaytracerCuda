@@ -48,16 +48,16 @@ public:
 	__host__ __device__ void repeat_v(float rv);
 
 private:
-	float m_scale_u = 1.0;
-	float m_scale_v = 1.0;
-	float m_offset_u = 0.0;
-	float m_offset_v = 0.0;
-	float m_repeat_u = 0.0;
-	float m_repeat_v = 0.0;
+	float m_scale_u = 1.0f;
+	float m_scale_v = 1.0f;
+	float m_offset_u = 0.0f;
+	float m_offset_v = 0.0f;
+	float m_repeat_u = 0.0f;
+	float m_repeat_v = 0.0f;
 };
 
 __host__ __device__ extern void get_spherical_uv(const point3& p, float& u, float& v);
-__host__ __device__ extern void get_spherical_uv(const point3& p, float texture_width, float texture_height, float render_width, float render_height, float& u, float& v);
+__host__ __device__ extern void get_spherical_uv(const point3& p, int texture_width, int texture_height, int render_width, int render_height, float& u, float& v);
 __host__ __device__ extern vector3 from_spherical_uv(float u, float v);
 
 
@@ -75,7 +75,7 @@ __host__ __device__ extern void get_yz_rect_uv(float y, float z, float& u, float
 __host__ __device__ extern void get_triangle_uv(const vector3 hitpoint, float& u, float& v, const vector3 verts[3], const vector2 vert_uvs[3]);
 __host__ __device__ extern vector2 calculateTextureCoordinate(vector2 uv0, vector2 uv1, vector2 uv2, const vector2& barycentricCoords);
 
-__host__ __device__ extern void get_screen_uv(int x, int y, float texture_width, float texture_height, float render_width, float render_height, float& u, float& v);
+__host__ __device__ extern void get_screen_uv(int x, int y, int texture_width, int texture_height, int render_width, int render_height, float& u, float& v);
 
 
 
@@ -157,7 +157,7 @@ __host__ __device__ inline void get_spherical_uv(const point3& p, float& u, floa
 	v = theta / M_PI;
 }
 
-__host__ __device__ inline void get_spherical_uv(const point3& p, float texture_width, float texture_height, float render_width, float render_height, float& u, float& v)
+__host__ __device__ inline void get_spherical_uv(const point3& p, int texture_width, int texture_height, int render_width, int render_height, float& u, float& v)
 {
 	// p: a given point on the sphere of radius one, centered at the origin.
 	// u: returned value [0,1] of angle around the Y axis from X=-1.
@@ -173,8 +173,8 @@ __host__ __device__ inline void get_spherical_uv(const point3& p, float texture_
 	v = theta / M_PI;
 
 	// Calculate aspect ratios
-	float texture_aspect_ratio = texture_width / texture_height;
-	float render_aspect_ratio = render_width / render_height;
+	float texture_aspect_ratio = (float)texture_width / (float)texture_height;
+	float render_aspect_ratio = (float)render_width / (float)render_height;
 
 	// Adjust u and v to maintain aspect ratio
 	if (texture_aspect_ratio > render_aspect_ratio) {
@@ -451,10 +451,10 @@ __host__ __device__ inline vector2 calculateTextureCoordinate(vector2 uv0, vecto
 /// <summary>
 /// TODO ! Could be enhanced by using stb_resize probably !
 /// </summary>
-__host__ __device__ inline void get_screen_uv(int x, int y, float texture_width, float texture_height, float render_width, float render_height, float& u, float& v)
+__host__ __device__ inline void get_screen_uv(int x, int y, int texture_width, int texture_height, int render_width, int render_height, float& u, float& v)
 {
 	// Calculate normalized coordinates (u, v) within the range [0, 1]
 	// Normalize pixel coordinates to [0, 1] with proper floating-point division
-	u = (x / texture_width) * (texture_width / render_width);
-	v = 1.0f - ((y / texture_height) * (texture_height / render_height));
+	u = (x / (float)texture_width) * ((float)texture_width / (float)render_width);
+	v = 1.0f - ((y / (float)texture_height) * ((float)texture_height / (float)render_height));
 }

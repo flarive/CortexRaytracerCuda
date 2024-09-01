@@ -60,6 +60,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <AdditionalDependencies>cudart_static.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:libcmtd.lib /NODEFAULTLIB:msvcrtd.lib %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
@@ -91,11 +92,12 @@
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Console</SubSystem>
       <AdditionalDependencies>cudart_static.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:libcmtd.lib /NODEFAULTLIB:msvcrtd.lib %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
       <Include>$(SolutionDir)libs</Include>
-      <AdditionalOptions>-Xcudafe="--diag_suppress=20012 --diag_suppress=20013 --diag_suppress=20015 --diag_suppress=20208 --diag_suppress=1866" %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>-Xcudafe="--diag_suppress=20012 --diag_suppress=20013 --diag_suppress=20015 --diag_suppress=20208 --diag_suppress=1866 --diag_suppress=550" %(AdditionalOptions)</AdditionalOptions>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -142,6 +144,8 @@
     <ClInclude Include="src\primitives\moving_sphere.cuh" />
     <ClInclude Include="src\renderers\gpu_cuda_renderer.h" />
     <ClInclude Include="src\renderers\renderer.h" />
+    <ClInclude Include="src\samplers\msaa_sampler.cuh" />
+    <ClInclude Include="src\samplers\random_sampler.cuh" />
     <ClInclude Include="src\samplers\sampler.cuh" />
     <ClInclude Include="src\scenes\scene_builder.h" />
     <ClInclude Include="src\scenes\scene_factory.h" />

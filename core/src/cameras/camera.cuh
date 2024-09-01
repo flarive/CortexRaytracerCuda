@@ -44,37 +44,37 @@ public:
     __device__ virtual ~camera() = default;
 
 
-    __device__ const int getImageHeight() const
+    __device__ int getImageHeight() const
     {
         return image_height;
     }
 
-    __device__ const int getImageWidth() const
+    __device__ int getImageWidth() const
     {
         return image_width;
     }
 
-    __device__ const int getSqrtSpp() const
+    __device__ int getSqrtSpp() const
     {
         return sqrt_spp;
     }
 
-    __device__ const int getMaxDepth() const
+    __device__ int getMaxDepth() const
     {
         return max_depth;
     }
 
-    __device__ const int getSamplePerPixel() const
+    __device__ int getSamplePerPixel() const
     {
         return samples_per_pixel;
     }
 
-    __device__ const vector3 get_pixel_delta_u() const
+    __device__ vector3 get_pixel_delta_u() const
     {
         return pixel_delta_u;
     }
 
-    __device__ const vector3 get_pixel_delta_v() const
+    __device__ vector3 get_pixel_delta_v() const
     {
         return pixel_delta_v;
     }
@@ -109,7 +109,7 @@ public:
     //float lens_radius;
 
 protected:
-    int			image_height = 0;    // Rendered image height
+    int		image_height = 0;    // Rendered image height
     int			sqrt_spp = 0;        // Square root of number of samples per pixel
     float		recip_sqrt_spp = 0.0f;  // 1 / sqrt_spp
 
@@ -121,13 +121,15 @@ protected:
     vector3     defocus_disk_u{};  // Defocus disk horizontal radius
     vector3     defocus_disk_v{};  // Defocus disk vertical radius
 
-    float time0, time1;
-    float lens_radius;
 
-    vector3 origin;
-    vector3 lower_left_corner;
-    vector3 horizontal;
-    vector3 vertical;
+    // new
+    float time0 = 0.0f, time1 = 0.0f;
+    float lens_radius = 0.0;
+
+    vector3 origin{};
+    vector3 lower_left_corner{};
+    vector3 horizontal{};
+    vector3 vertical{};
 
 
 

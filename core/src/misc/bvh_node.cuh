@@ -155,7 +155,7 @@ __device__ inline bvh_node::bvh_node(hittable** src_objects, int start, int end,
         : (axis == 1) ? box_y_compare
         : box_z_compare;
 
-    size_t object_span = end - start;
+    int object_span = end - start;
 
     if (object_span == 1) {
         m_left = m_right = src_objects[start];
@@ -180,7 +180,7 @@ __device__ inline bvh_node::bvh_node(hittable** src_objects, int start, int end,
             }
         }
 
-        auto mid = start + object_span / 2;
+        int mid = start + object_span / 2;
         m_left = new bvh_node(src_objects, start, mid, local_rand_state, "left");
         m_right = new bvh_node(src_objects, mid, end, local_rand_state, "right");
     }
