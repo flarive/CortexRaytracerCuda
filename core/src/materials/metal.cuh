@@ -1,9 +1,9 @@
-//#pragma once
-//
-//#include "material.cuh"
-//#include "../misc/ray.cuh"
-//#include "../misc/gpu_randomizer.cuh"
-//
+#pragma once
+
+#include "material.cuh"
+#include "../misc/ray.cuh"
+#include "../misc/gpu_randomizer.cuh"
+
 //class metal : public material
 //{
 //public:
@@ -18,3 +18,46 @@
 //    vector3 albedo;
 //    float fuzz;
 //};
+
+
+/// <summary>
+/// Metal material
+/// For polished metals the ray won’t be randomly scattered
+/// Ray is reflected 90°
+/// color albedo -> reflective power of a surface (snow or mirror = 1, black object = 0)
+/// </summary>
+class metal : public material
+{
+public:
+    __host__ __device__ metal(const color& _color, float _fuzz);
+
+    /// <summary>
+    /// Tells how ray should be reflected when hitting a metal object
+    /// </summary>
+    /// <param name="r_in"></param>
+    /// <param name="rec"></param>
+    /// <param name="attenuation"></param>
+    /// <param name="scattered"></param>
+    /// <returns></returns>
+    __device__ bool scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, curandState* local_rand_state) const override;
+
+
+private:
+    float m_fuzz = 0.0f; // kind of blur amount (0 = none)
+};
+
+
+__host__ __device__ metal::metal(const color& _color, float _fuzz) : material(new solid_color_texture(_color)), m_fuzz(_fuzz < 1 ? _fuzz : 1)
+{
+
+}
+
+__device__ bool metal::scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, curandState* local_rand_state) const
+{
+    srec.attenuation = m_diffuse_texture->value(rec.u, rec.v, rec.hit_point);
+    srec.pdf_ptr = nullptr;
+    srec.skip_pdf = true;
+    vector3 reflected = glm::reflect(unit_vector(r_in.direction()), rec.normal);
+    srec.skip_pdf_ray = ray(rec.hit_point, reflected + m_fuzz * random_in_unit_sphere(local_rand_state), r_in.time());
+    return true;
+}

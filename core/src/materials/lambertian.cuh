@@ -7,7 +7,6 @@
 #include "../pdf/cosine_pdf.cuh"
 #include "../textures/solid_color_texture.cuh"
 
-
 /// <summary>
 /// Diffuse material
 /// More accurate representation of real diffuse objects
@@ -22,18 +21,6 @@
 class lambertian : public material
 {
 public:
-    //__device__ lambertian(texture* a) : albedo(a) {}
-
-    //__device__ virtual bool scatter(const ray& r_in, const hit_record& rec, vector3& attenuation, ray& scattered, curandState *local_rand_state) const
-    //{
-    //    vector3 target = rec.hit_point + rec.normal + random_in_unit_sphere(local_rand_state);
-    //    scattered = ray(rec.hit_point, target - rec.hit_point, r_in.time());
-    //    attenuation = albedo->value(rec.u, rec.v, rec.hit_point);
-    //    return true;
-    //}
-
-    //texture* albedo;
-
     __host__ __device__ lambertian(const color& _color)
         : material(new solid_color_texture(_color))
     {
@@ -86,31 +73,63 @@ __device__ inline bool lambertian::scatter(const ray& r_in, const hittable_list&
     //    // Total internal reflection (TIR)
     //    // Handle this case if needed
     //}
+    //srec.attenuation = m_diffuse_texture->value(rec.u, rec.v, rec.hit_point);
+    //srec.pdf_ptr = new cosine_pdf(rec.normal);
+    //srec.skip_pdf = false;
 
+    //return true;
 
+    // Check that the diffuse texture is not null
+    if (m_diffuse_texture == nullptr) {
+        printf("Error: m_diffuse_texture is null.\n");
+        return false;
+    }
+
+    // Check for valid transparency value
+    if (m_transparency < 0.0f || m_transparency > 1.0f) {
+        printf("Error: Invalid transparency value.\n");
+        return false;
+    }
+
+    // ????????????????????????
+    // Check for valid refractive index
+    //if (m_refractiveIndex < 1.0f) {
+    //    printf("Error: Invalid refractive index.\n");
+    //    return false;
+    //}
+
+    // If the material is transparent (e.g., glass)
+    if (m_transparency > 0)
+    {
+        // Compute the refracted ray direction
+        vector3 refracted_direction = glm::refract(r_in.direction(), rec.normal, m_refractiveIndex);
+
+        // Check that refracted_direction is normalized
+        float length_squared = glm::dot(refracted_direction, refracted_direction);
+        if (fabs(length_squared - 1.0f) > 0.001f) {
+            printf("Error: Refracted direction is not normalized.\n");
+            return false;
+        }
+
+        srec.attenuation = m_diffuse_texture->value(rec.u, rec.v, rec.hit_point) * color(m_transparency);
+        srec.skip_pdf = true;
+        srec.skip_pdf_ray = ray(rec.hit_point, refracted_direction, r_in.time());
+        return true;
+    }
+
+    // Handle non-transparent materials
     srec.attenuation = m_diffuse_texture->value(rec.u, rec.v, rec.hit_point);
-    srec.pdf_ptr = new cosine_pdf(rec.normal);
 
-    if (srec.pdf_ptr == nullptr)
-        printf("-----------------------NULL cosine_pdf !!!\n");
+    // Check if allocation of cosine_pdf is successful
+    srec.pdf_ptr = new cosine_pdf(rec.normal);
+    if (srec.pdf_ptr == nullptr) {
+        printf("Error: Memory allocation for srec.pdf_ptr failed.\n");
+        return false;
+    }
 
     srec.skip_pdf = false;
 
     return true;
-
-
-
-
-    //vector3 target = rec.hit_point + rec.normal + random_in_unit_sphere(local_rand_state);
-    //srec.skip_pdf_ray = ray(rec.hit_point, target - rec.hit_point, r_in.time());
-    //srec.attenuation = m_diffuse_texture->value(rec.u, rec.v, rec.hit_point);
-
-    ////auto zzzz = cosine_pdf(rec.normal);
-    ////
-    ////srec.pdf_ptr = &zzzz;
-    //srec.skip_pdf = true;
-
-    //return true;
 }
 
 __host__ __device__ inline float lambertian::scattering_pdf(const ray& r_in, const hit_record& rec, const ray& scattered) const
