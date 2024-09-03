@@ -1,7 +1,5 @@
 #pragma once
 
-#include "../misc/gpu_randomizer.cuh"
-
 #include "../pdf/sphere_pdf.cuh"
 
 //class isotropic : public material
