@@ -201,8 +201,6 @@ __host__ __device__ inline vector3 from_spherical_uv(float u, float v)
 	return vector3(cos(phi) * sin(theta), -cos(theta), -sin(phi) * sin(theta));
 }
 
-
-
 __host__ __device__ inline void get_sphere_uv(const point3& p, float& u, float& v, const uvmapping& mapping)
 {
 	// p: a given point on the sphere of radius one, centered at the origin.

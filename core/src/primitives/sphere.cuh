@@ -167,7 +167,6 @@ __device__ bool sphere::hit(const ray& r, interval ray_t, hit_record& rec, int d
     rec.tangent = tan;
     rec.bitangent = bitan;
 
-
     // compute UV coordinates
     get_sphere_uv(outward_normal, rec.u, rec.v, m_mapping);
 

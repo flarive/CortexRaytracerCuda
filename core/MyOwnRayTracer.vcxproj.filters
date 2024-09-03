@@ -197,6 +197,18 @@
     <ClInclude Include="src\materials\diffuse_spot_light.cuh">
       <Filter>Headers\materials\emissive</Filter>
     </ClInclude>
+    <ClInclude Include="src\outputs\standard_output.cuh">
+      <Filter>Headers\outputs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\outputs\output.cuh">
+      <Filter>Headers\outputs\base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\outputs\namedpipes_output.cuh">
+      <Filter>Headers\outputs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\outputs\no_output.cuh">
+      <Filter>Headers\outputs</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -270,6 +282,12 @@
     </Filter>
     <Filter Include="Headers\samplers\base">
       <UniqueIdentifier>{fe79e818-62d7-48d0-9cbe-19d70e40baef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\outputs">
+      <UniqueIdentifier>{35299049-014c-435f-b462-99aac6c99bd4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\outputs\base">
+      <UniqueIdentifier>{97918348-2ac6-417a-b361-bc412d44f511}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

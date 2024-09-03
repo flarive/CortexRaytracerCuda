@@ -120,6 +120,8 @@ __device__ inline bool lambertian::scatter(const ray& r_in, const hittable_list&
     // Handle non-transparent materials
     srec.attenuation = m_diffuse_texture->value(rec.u, rec.v, rec.hit_point);
 
+    //printf("%f %f %f\n", srec.attenuation.r(), srec.attenuation.g(), srec.attenuation.b());
+
     // Check if allocation of cosine_pdf is successful
     srec.pdf_ptr = new cosine_pdf(rec.normal);
     if (srec.pdf_ptr == nullptr) {

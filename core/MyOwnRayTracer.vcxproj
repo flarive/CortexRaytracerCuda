@@ -107,6 +107,10 @@
     <ClInclude Include="src\lights\light.cuh" />
     <ClInclude Include="src\lights\omni_light.cuh" />
     <ClInclude Include="src\materials\diffuse_spot_light.cuh" />
+    <ClInclude Include="src\outputs\namedpipes_output.cuh" />
+    <ClInclude Include="src\outputs\no_output.cuh" />
+    <ClInclude Include="src\outputs\output.cuh" />
+    <ClInclude Include="src\outputs\standard_output.cuh" />
     <ClInclude Include="src\pdf\anisotropic_phong_pdf.cuh" />
     <ClInclude Include="src\pdf\hittable_pdf.cuh" />
     <ClInclude Include="src\pdf\image_pdf.cuh" />

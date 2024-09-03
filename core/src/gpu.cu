@@ -131,210 +131,46 @@ void check_cuda(cudaError_t result, char const* const func, const char* const fi
 //    return cur_emitted; // exceeded recursion
 //}
 
-__device__ color ray_color_iterative(const ray& r, int i, int j, int depth, hittable_list& _world, hittable_list& _lights, curandState* local_rand_state)
-{
-    color result_color = color::black();
-    ray current_ray = r;
-    color current_attenuation = color(1.0f, 1.0f, 1.0f);
+//__device__ color ray_color_iterative(const ray& r, int i, int j, int depth, hittable_list& _world, hittable_list& _lights, curandState* local_rand_state)
+//{
+//    color result_color = color::black();
+//    ray current_ray = r;
+//    color current_attenuation = color(1.0f, 1.0f, 1.0f);
+//
+//    for (int current_depth = depth; current_depth > 0; --current_depth)
+//    {
+//        hit_record rec;
+//        if (!_world.hit(current_ray, interval(SHADOW_ACNE_FIX, FLT_MAX), rec, current_depth, local_rand_state))
+//        {
+//            break;
+//        }
+//
+//        scatter_record srec;
+//        color emitted = rec.mat->emitted(current_ray, rec, rec.u, rec.v, rec.hit_point, local_rand_state);
+//
+//        if (!rec.mat->scatter(current_ray, _lights, rec, srec, local_rand_state))
+//        {
+//            result_color += current_attenuation * emitted;
+//            break;
+//        }
+//
+//        hittable_pdf hpdf(_lights, rec.hit_point);
+//        mixture_pdf mpdf(&hpdf, srec.pdf_ptr);
+//
+//        ray scattered = ray(rec.hit_point, mpdf.generate(srec, local_rand_state), current_ray.time());
+//        float pdf_val = mpdf.value(scattered.direction(), local_rand_state);
+//        float scattering_pdf = rec.mat->scattering_pdf(current_ray, rec, scattered);
+//
+//        result_color += current_attenuation * emitted;
+//        current_attenuation *= srec.attenuation * scattering_pdf / pdf_val;
+//
+//        current_ray = scattered;
+//    }
+//
+//    return result_color;
+//}
+//
 
-    for (int current_depth = depth; current_depth > 0; --current_depth)
-    {
-        hit_record rec;
-        if (!_world.hit(current_ray, interval(SHADOW_ACNE_FIX, FLT_MAX), rec, current_depth, local_rand_state))
-        {
-            break;
-        }
-
-        scatter_record srec;
-        color emitted = rec.mat->emitted(current_ray, rec, rec.u, rec.v, rec.hit_point, local_rand_state);
-
-        if (!rec.mat->scatter(current_ray, _lights, rec, srec, local_rand_state))
-        {
-            result_color += current_attenuation * emitted;
-            break;
-        }
-
-        hittable_pdf hpdf(_lights, rec.hit_point);
-        mixture_pdf mpdf(&hpdf, srec.pdf_ptr);
-
-        ray scattered = ray(rec.hit_point, mpdf.generate(srec, local_rand_state), current_ray.time());
-        float pdf_val = mpdf.value(scattered.direction(), local_rand_state);
-        float scattering_pdf = rec.mat->scattering_pdf(current_ray, rec, scattered);
-
-        result_color += current_attenuation * emitted;
-        current_attenuation *= srec.attenuation * scattering_pdf / pdf_val;
-
-        current_ray = scattered;
-    }
-
-    return result_color;
-}
-
-__device__ color ray_color(const ray& r, int i, int j, int depth, hittable_list& _world, hittable_list& _lights, curandState* local_rand_state)
-{
-    // If we've exceeded the ray bounce limit, no more light is gathered.
-    if (depth <= 0)
-    {
-        return color::black();// background_color;
-    }
-
-    hit_record rec;
-
-    vector3 unit_dir = unit_vector(r.direction());
-
-    // If the ray hits nothing, return the background color.
-    // 0.001 is to fix shadow acne interval
-    if (!_world.hit(r, interval(SHADOW_ACNE_FIX, FLT_MAX), rec, depth, local_rand_state))
-    {
-        //if (background_texture)
-        //{
-        //    return get_background_image_color(r.x, r.y, unit_dir, background_texture, background_iskybox);
-        //}
-        //else
-        //{
-        //    return background_color;
-        //}
-
-        return color::black();
-    }
-
-    // ray hit a world object
-    scatter_record srec;
-    color color_from_emission = rec.mat->emitted(r, rec, rec.u, rec.v, rec.hit_point, local_rand_state);
-
-    // hack for invisible primitives (such as lights)
-    if (color_from_emission.a() == 0.0f)
-    {
-        // rethrow a new ray
-        _world.hit(r, interval(rec.t + 0.001f, FLT_MAX), rec, depth, local_rand_state);
-    }
-
-    if (!rec.mat->scatter(r, _lights, rec, srec, local_rand_state))
-    {
-        return color_from_emission;
-    }
-
-    
-
-    if (_lights.object_count == 0)
-    {
-        // no lights
-        // no importance sampling
-        return srec.attenuation * ray_color(srec.skip_pdf_ray, i, j, depth - 1, _world, _lights, local_rand_state);
-    }
-
-    // no importance sampling
-    if (srec.skip_pdf)
-    {
-        return srec.attenuation * ray_color(srec.skip_pdf_ray, i, j, depth - 1, _world, _lights, local_rand_state);
-    }
-
-    //hittable_pdf* hpdf = new hittable_pdf(_lights, rec.hit_point);
-
-
-    //mixture_pdf* mpdf;
-
-    //if (background_texture && background_iskybox)
-    //{
-    //    mixture_pdf p_objs(light_ptr, srec.pdf_ptr, 0.5f);
-    //    p = mixture_pdf(new mixture_pdf(p_objs), background_pdf, 0.8f);
-    //}
-    //else
-    //{
-    //mpdf = new mixture_pdf(hpdf, srec.pdf_ptr);
-    //}
-
-    hittable_pdf hpdf(_lights, rec.hit_point);
-    mixture_pdf mpdf(&hpdf, srec.pdf_ptr);
-
-
-    ray scattered = ray(rec.hit_point, mpdf.generate(srec, local_rand_state), r.time());
-    float pdf_val = mpdf.value(scattered.direction(), local_rand_state);
-    float scattering_pdf = rec.mat->scattering_pdf(r, rec, scattered);
-
-    color final_color(0,0,0);
-
-    //if (background_texture)
-    //{
-        // with background image
-        //bool double_sided = false;
-        //if (rec.mat->has_alpha_texture(double_sided))
-        //{
-        //    // render transparent object (having an alpha texture)
-        //    color background_behind = rec.mat->get_diffuse_pixel_color(rec);
-
-        //    ray ray_behind(rec.hit_point, r.direction(), r.x, r.y, r.time());
-        //    color background_infrontof = ray_color(ray_behind, depth - 1, _scene, local_rand_state);
-
-        //    hit_record rec_behind;
-        //    if (_scene.get_world().hit(ray_behind, interval(0.001f, INFINITY), rec_behind, depth, local_rand_state))
-        //    {
-        //        // another object is behind the alpha textured object, display it behind
-        //        scatter_record srec_behind;
-
-        //        if (double_sided)
-        //        {
-        //            if (rec_behind.mat->scatter(ray_behind, _scene.get_emissive_objects(), rec_behind, srec_behind, local_rand_state))
-        //            {
-        //                final_color = color::blend_colors(background_behind, background_infrontof, srec.alpha_value);
-        //            }
-        //        }
-        //        else
-        //        {
-        //            if (rec_behind.mat->scatter(ray_behind, _scene.get_emissive_objects(), rec_behind, srec_behind, local_rand_state) && rec.front_face)
-        //            {
-        //                final_color = color::blend_colors(background_behind, background_infrontof, srec.alpha_value);
-        //            }
-        //            else
-        //            {
-        //                final_color = background_infrontof;
-        //            }
-        //        }
-        //    }
-        //    else
-        //    {
-        //        // no other object behind the alpha textured object, just display background image
-        //        if (double_sided)
-        //        {
-        //            final_color = color::blend_colors(color_from_emission + background_behind, ray_color(ray(rec.hit_point, r.direction(), r.x, r.y, r.time()), depth - 1, _scene, local_rand_state), srec.alpha_value);
-        //        }
-        //        else
-        //        {
-        //            final_color = get_background_image_color(r.x, r.y, unit_dir, background_texture, background_iskybox);
-        //        }
-        //    }
-        //}
-        //else
-        //{
-        //    // render opaque object
-        //    color color_from_scatter = ray_color(scattered, depth - 1, _scene, local_rand_state) / pdf_val;
-        //    final_color = color_from_emission + srec.attenuation * scattering_pdf * color_from_scatter;
-        //}
-    //}
-    //else
-    //{
-        // with background color
-        color sample_color = ray_color(scattered, i, j, depth - 1, _world, _lights, local_rand_state);
-        color color_from_scatter = (srec.attenuation * scattering_pdf * sample_color) / pdf_val;
-
-        //bool double_sided = false;
-        //if (rec.mat->has_alpha_texture(double_sided))
-        //{
-        //    // render transparent object (having an alpha texture)
-        //    final_color = color::blend_colors(color_from_emission + color_from_scatter, ray_color(ray(rec.hit_point, r.direction(), r.x, r.y, r.time()), depth - 1, _world, _lights, local_rand_state), srec.alpha_value);
-        //}
-        //else
-        //{
-            // render opaque object
-            final_color = color_from_emission + color_from_scatter;
-        //}
-    //}
-
-    //delete hpdf;
-    //delete mpdf;
-     
-    return final_color;
-}
 
 #define RND (curand_uniform(&local_rand_state))
 
@@ -363,9 +199,10 @@ __global__ void create_cornell_box(hittable_list **elist, hittable_list **elight
         // box
         (*elist)->add(new rt::translate(new box(vector3(0, 0, 295), vector3(165, 330, 165), new lambertian(new solid_color_texture(color(0.73, 0.73, 0.73))), "MyBox"), vector3(120,0,320)));
         
+        uvmapping ppp(1.0f, 1.0f, 0.0f, 0.0f, 2.0f, 2.0f);
 
         // sphere
-        (*elist)->add(new sphere(vector3(350.0f, 50.0f, 295.0f), 100.0f, new lambertian(*texture), "MySphere"));
+        (*elist)->add(new sphere(vector3(350.0f, 50.0f, 295.0f), 100.0f, new lambertian(*texture), ppp, "MySphere"));
 
         // light
         (*elist)->add(new directional_light(point3(278, 554, 332), vector3(-305, 0, 0), vector3(0, 0, -305), 1.0f, color(10.0, 10.0, 10.0), "MyLight", false));
@@ -464,7 +301,7 @@ __global__ void render(color* fb, int width, int height, int spp, int sqrt_spp, 
             ray r = (*cam)->get_ray(u, v, s_i, s_j, nullptr, &local_rand_state);
 
             // pixel color is progressively being refined
-            pixel_color += ray_color_iterative(r, i, j, max_depth, **world, **lights, &local_rand_state);
+            pixel_color += (*cam)->ray_color(r, i, j, max_depth, **world, **lights, &local_rand_state);
         }
     }
 
@@ -583,7 +420,7 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
     int num_pixels = width * height;
 
     int tex_x, tex_y, tex_n;
-    unsigned char *tex_data_host = stbi_load("E:\\earth_diffuse.jpg", &tex_x, &tex_y, &tex_n, 0);
+    unsigned char *tex_data_host = stbi_load("E:\\uv_mapper_no_numbers.jpg", &tex_x, &tex_y, &tex_n, 0);
     if (!tex_data_host) {
         std::cerr << "Failed to load texture." << std::endl;
         return;
@@ -652,7 +489,7 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
-    printf("Render with %u/%u blocks of %u/%u threads", render_blocks.x, render_blocks.y, render_threads.x, render_threads.y);
+    printf("Render with %u/%u blocks of %u/%u threads\n", render_blocks.x, render_blocks.y, render_threads.x, render_threads.y);
 
 
     render<<<render_blocks, render_threads>>>(image, width, height, spp, sqrt_spp, max_depth, elist, elights, cam, d_rand_state);
