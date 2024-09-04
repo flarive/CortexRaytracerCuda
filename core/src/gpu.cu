@@ -222,7 +222,7 @@ __global__ void render(color* fb, int width, int height, int spp, int sqrt_spp, 
     );
 
     printf(
-        "%05d %05d %03d %03d %03d\n",
+        "p %05d %05d %03d %03d %03d\r\n",
         i,
         j,
         static_cast<int>(255.99f * intensity.clamp(fix.r())),
