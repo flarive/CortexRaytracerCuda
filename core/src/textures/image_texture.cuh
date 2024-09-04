@@ -7,7 +7,7 @@
 class image_texture : public texture
 {
 public:
-    __host__ __device__ image_texture() {}
+    //__host__ __device__ image_texture() {}
     __host__ __device__ image_texture(bitmap_image img) : m_image(img) {}
 
 
@@ -43,10 +43,6 @@ private:
     bitmap_image m_image;
 };
 
-
-
-
-
 __host__ __device__ inline color image_texture::value(float u, float v, const point3& p) const
 {
     // If we have no texture data, then return solid cyan as a debugging aid.
@@ -56,25 +52,12 @@ __host__ __device__ inline color image_texture::value(float u, float v, const po
     u = interval(0, 1).clamp(u);
     v = 1.0f - interval(0, 1).clamp(v);  // Flip V to image coordinates
 
-    auto i = static_cast<int>(u * m_image.width());
-    auto j = static_cast<int>(v * m_image.height());
+
+    int i = static_cast<int>(u * m_image.width());
+    int j = static_cast<int>(v * m_image.height());
 
     float color_scale = 1.0f / 255.0f;
     const unsigned char* pixel = m_image.pixel_data(i, j);
+
     return color(color_scale * pixel[0], color_scale * pixel[1], color_scale * pixel[2]);
 }
-
-
-//__device__ color image_texture::value(float u, float v, const point3& p) const
-//{
-//    int i = u * nx;
-//    int j = (1 - v) * ny - 0.001;
-//    if (i < 0) i = 0;
-//    if (j < 0) j = 0;
-//    if (i > nx - 1) i = nx - 1;
-//    if (j > ny - 1) j = ny - 1;
-//    float r = int(data[3 * i + 3 * nx * j]) / 255.0;
-//    float g = int(data[3 * i + 3 * nx * j + 1]) / 255.0;
-//    float b = int(data[3 * i + 3 * nx * j + 2]) / 255.0;
-//    return color(r, g, b);
-//}

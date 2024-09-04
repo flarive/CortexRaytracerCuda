@@ -56,18 +56,21 @@ public:
     /// <param name="out"></param>
     /// <param name="pixel_color"></param>
     /// <param name="samples_per_pixel"></param>
-    __host__ static color prepare_pixel_color(int x, int y, color pixel_color, int samples_per_pixel, bool gamma_correction);
+    //__host__ __device__ static color prepare_pixel_color(int x, int y, color pixel_color, int samples_per_pixel, bool gamma_correction);
 
     __host__ __device__ static color RGBtoHSV(color rgb);
     __host__ __device__ static color HSVtoRGB(color hsv);
 
-    __host__ __device__ static float linear_to_gamma(float linear_component);
+    //__host__ __device__ static float linear_to_gamma(float linear_component);
 
     __host__ __device__ static color blend_colors(const color& front, const color& back, float alpha);
 
     __host__ __device__ static color blend_with_background(const color& background, const color& object_color, float alpha);
 
     __host__ __device__ bool isValidColor();
+
+    //__host__ __device__ static bool custom_isnan(float x);
+        
 };
 
 
@@ -194,8 +197,8 @@ __host__ __device__ inline color color::undefined() {
     return color(-1, -1, -1);
 }
 
-__host__ __device__ inline float color::linear_to_gamma(float linear_component) {
-    return std::sqrt(linear_component);
+__host__ __device__ inline static float linear_to_gamma(float linear_component) {
+    return glm::sqrt(linear_component);
 }
 
 __host__ __device__ inline color color::blend_colors(const color& front, const color& back, float alpha) {
@@ -278,11 +281,16 @@ __host__ __device__ inline bool color::isValidColor()
     return c[0] >= 0 && c[1] >= 0 && c[2] >= 0 && c[3] >= 0;
 }
 
-__host__ inline color color::prepare_pixel_color(int x, int y, color pixel_color, int samples_per_pixel, bool gamma_correction)
+__host__ __device__ inline static bool custom_isnan(float x)
 {
-    float r = std::isnan(pixel_color.r()) ? 0.0f : pixel_color.r();
-    float g = std::isnan(pixel_color.g()) ? 0.0f : pixel_color.g();
-    float b = std::isnan(pixel_color.b()) ? 0.0f : pixel_color.b();
+    return x != x;
+}
+
+__host__ __device__ inline static color prepare_pixel_color(int x, int y, color pixel_color, int samples_per_pixel, bool gamma_correction)
+{
+    float r = custom_isnan(pixel_color.r()) ? 0.0f : pixel_color.r();
+    float g = custom_isnan(pixel_color.g()) ? 0.0f : pixel_color.g();
+    float b = custom_isnan(pixel_color.b()) ? 0.0f : pixel_color.b();
 
     if (samples_per_pixel > 0) {
         float scale = 1.0f / samples_per_pixel;
@@ -299,3 +307,4 @@ __host__ inline color color::prepare_pixel_color(int x, int y, color pixel_color
 
     return color(r, g, b);
 }
+
