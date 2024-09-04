@@ -1,0 +1,153 @@
+# Sci fi crate mesh demo
+
+image:
+{
+    height = 512;
+    width = 388;
+    maxDepth = 50;
+    samplesPerPixel = 50;
+    background = 
+    {
+        color = { r = 0.0; g = 0.0; b = 0.0; };
+    };
+    outputFilePath = "../../data/renders/angel_mesh.png";
+};
+
+# Configuration of the camera
+camera:
+{
+    aspectRatio = "9:16";
+    lookFrom = { x = 50.0; y = 4.0; z = 25.0; };
+    lookAt = { x = 0.0; y = 4.0; z = 0.0; };
+    upAxis = { x = 0.0; y = 1.0; z = 0.0; };
+    fov = 10.0;
+
+    #aspectRatio = "9:16";
+    #lookFrom = { x = 50.0; y = 4.0; z = 25.0; };
+    #lookAt = { x = 0.0; y = 4.0; z = 0.0; };
+    #upAxis = { x = 0.0; y = 1.0; z = 0.0; };
+    #fov = 6.0;
+
+    #aspectRatio = "9:16";
+    #lookFrom = { x = 80.0; y = 4.0; z = 25.0; };
+    #lookAt = { x = 0.0; y = 6.3; z = 0.0; };
+    #upAxis = { x = 0.0; y = 1.0; z = 0.0; };
+    #fov = 1.0;
+};
+
+
+# Lights in the scene
+lights:
+{
+    directionals: (
+        {
+            name = "QuadLight1";
+            position = { x = 3.0; y = 10.0; z = -4.0; };
+            u = { x = 2.0; y = 0.0; z = 0.0; };
+            v = { x = 0.0; y = 2.0; z = 0.0; };
+            intensity = 1.0;
+            color = { r = 8.0; g = 8.0; b = 8.0; };
+            invisible = true;
+            active = true;
+        }
+    ),
+    omnis: (
+        {
+            name = "MySphereLight";
+            position = { x = 25.0; y = 10.0; z = 10.0; };
+            radius = 3.0;
+            intensity = 3.4;
+            color = { r = 1.0; g = 1.0; b = 1.0; };
+            invisible = true;
+            active = false;
+        }
+    )
+}
+
+textures:
+{
+    image: (
+        {
+            name = "angel_diffuse_texture";
+            filepath = "../../data/models/angel_diffuse.jpg";
+        },
+        {
+            name = "angel_specular_texture";
+            filepath = "../../data/models/angel_specular.jpg";
+        }
+    ),
+    normal: (
+        {
+            name = "angel_normal_texture";
+            filepath = "../../data/models/angel_normal.jpg";
+            strength = 1.0;
+        }
+    ),
+    solidColor: (
+        {
+            name = "ground_texture";
+            color = { r = 0.7; g = 0.8; b = 1.0; };
+        },
+        {
+            name = "test_texture";
+            color = { r = 1.0; g = 0.1; b = 0.1; };
+        }
+    )
+}
+
+materials:
+{
+    lambertian: (
+        {
+            name = "ground_material";
+            texture = "ground_texture";
+        }
+    ),
+    phong: (
+        {
+            name = "angel_material";
+            diffuseTexture = "angel_diffuse_texture";
+            specularTexture = "angel_specular_texture";
+            normalTexture = "angel_normal_texture";
+            ambientColor = { r = 0.0; g = 0.0; b = 0.0; };
+            shininess = 0.0;
+        }
+    )
+}
+
+# Meshes in the scene
+meshes:
+{
+    obj: (
+        {
+            name = "MyAngel"
+            filepath = "../../data/models/angel2.obj";
+            position = { x = 0.0; y = 0.0; z = 0.0; };
+            material = "angel_material";
+            use_mtl = false;
+            use_smoothing = true;
+            transform =
+            {
+                translate = { x = -1.0; y = 0.5; z = 0.0; };
+                rotate = { x = 0.0; y = 0.0; z = 0.0; };
+                scale = { x = 1.0; y = 1.0; z = 1.0; };
+            };
+            active = true;
+        }
+    );
+};
+
+# Primitives in the scene
+primitives:
+{
+    # List of boxes
+    boxes: (
+        {
+            name = "MyGround";
+            position = { x = 0.0; y = 1.0; z = 0.0; };
+            size = { x = 1400.0; y = 0.15; z = 50.0; };
+            material = "ground_material";
+            uvmapping = { scale_u = 1.0; scale_v = 1.0; offset_u = 0.0; offset_v = 0.0; repeat_u = 2.0; repeat_v = 2.0; };
+        }
+    );
+};

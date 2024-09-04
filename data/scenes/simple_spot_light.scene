@@ -1,0 +1,118 @@
+# Simple spot light demo
+
+image:
+{
+    width = 512;
+    height = 512;
+    maxDepth = 100;
+    samplesPerPixel = 50;
+    background = 
+    {
+        color = { r = 0.0; g = 0.0; b = 0.0; };
+    };
+};
+
+# Configuration of the camera
+camera:
+{
+    aspectRatio = "1:1";
+    lookFrom = { x = 0.0; y = 4.0; z = 26.0; };
+    lookAt = { x = 0.0; y = 4.0; z = 10.0; };
+    upAxis = { x = 0.0; y = 1.0; z = 0.0; };
+    fov = 24.0;
+};
+
+
+# Lights in the scene
+lights:
+{
+    spots: (
+        {
+            name = "SpotLight1";
+            position = { x = 0.0; y = 5.0; z = 0.0; };
+            direction = { x = 0.0; y = 1.0; z = 0.0; };
+            cutoff = 40.0;
+            falloff = 5.0;
+            intensity = 8.0;
+            radius = 0.5;
+            color = { r = 5.0; g = 5.0; b = 5.0; };
+            invisible = false;
+        }
+    )
+}
+
+textures:
+{
+    solidColor: (
+        {
+            name = "groud_texture";
+            color = { r = 0.65; g = 0.45; b = 0.35; };
+        },
+        {
+            name = "sphere_texture";
+            color = { r = 0.65; g = 0.05; b = 0.05; };
+        }
+    )
+}
+
+materials:
+{
+    lambertian: (
+        {
+            name = "ground_material";
+            texture = "groud_texture";
+        },
+        {
+            name = "sphere_material";
+            texture = "groud_texture";
+        }
+    );
+}
+
+# Primitives in the scene
+primitives:
+{
+    # List of spheres
+    spheres: (
+        {
+            name = "Sphere1"
+            position = { x = 0.0; y = 1.2; z = 0.0; };
+            radius = 1.2;
+            material = "sphere_material";
+        },
+        {
+            name = "Sphere2"
+            position = { x = 0.0; y = 7.8; z = 0.0; };
+            radius = 1.2;
+            material = "sphere_material";
+        }
+    );
+
+    # List of boxes
+    boxes: (
+        {
+            name = "MyGround";
+            position = { x = 0.0; y = -0.2; z = 0.0; };
+            size = { x = 40.0; y = 0.5; z = 100.0; };
+            material = "ground_material";
+        },
+        {
+            name = "MyRoof";
+            position = { x = 0.0; y = 9.2; z = 0.0; };
+            size = { x = 40.0; y = 0.5; z = 100.0; };
+            material = "ground_material";
+        },
+        {
+            name = "MyLeftWall";
+            position = { x = -5.0; y = 0.0; z = 0.0; };
+            size = { x = 0.5; y = 40.0; z = 100.0; };
+            material = "ground_material";
+        },
+        {
+            name = "MyRightWall";
+            position = { x = 5.0; y = 0.0; z = 0.0; };
+            size = { x = 0.5; y = 40.0; z = 100.0; };
+            material = "ground_material";
+        }
+    );
+};

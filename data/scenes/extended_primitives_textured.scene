@@ -1,0 +1,170 @@
+# Extended primitives demo
+
+image:
+{
+    width = 512;
+    height = 388;
+    maxDepth = 100;
+    samplesPerPixel = 50;
+    background = 
+    {
+        color = { r = 0.0; g = 0.0; b = 0.0; };
+    };
+};
+
+# Configuration of the camera
+camera:
+{
+    aspectRatio = "16:9";
+    lookFrom = { x = 0.0; y = 4.0; z = 9.0; };
+    lookAt = { x = 0.0; y = 0.0; z = 0.0; };
+    upAxis = { x = 0.0; y = 1.0; z = 0.0; };
+    fov = 19.0;
+};
+
+
+# Lights in the scene
+lights:
+{
+    omnis: (
+        {
+            name = "MySphereLight";
+            position = { x = 1.0; y = 8.0; z = 5.0; };
+            radius = 3.0;
+            intensity = 3.0;
+            color = { r = 1.0; g = 1.0; b = 1.0; };
+            invisible = true;
+        }
+    )
+}
+
+textures:
+{
+    image: (
+        {
+            name = "uvmapper_texture";
+            filepath = "../../data/textures/uv_mapper_no_numbers.jpg";
+        },
+         {
+            name = "rusted_metal_diffuse_texture";
+            filepath = "../../data/models/stones_diffuse.jpg";
+        }
+    ),
+    solidColor: (
+        {
+            name = "ground_texture";
+            color = { r = 0.7; g = 0.8; b = 1.0; };
+        }
+    )
+}
+
+materials:
+{
+    lambertian: (
+        {
+            name = "ground_material";
+            texture = "ground_texture";
+        },
+        {
+            name = "uvmapper_material";
+            texture = "uvmapper_texture";
+        },
+        {
+            name = "rusted_metal_material";
+            texture = "rusted_metal_diffuse_texture";
+        }
+    ),
+    glass: (
+        {
+            name = "dielectric_material";
+            refraction = 1.5;
+        }
+    ),
+    metal: (
+        {
+            name = "metal_material1";
+            color = { r = 0.4; g = 0.2; b = 1.0; };
+            fuzz = 0.0;
+        },
+        {
+            name = "metal_material2";
+            color = { r = 0.1; g = 0.9; b = 0.9; };
+            fuzz = 1.0;
+        }
+    ),
+}
+
+# Primitives in the scene
+primitives:
+{
+    cylinders: (
+        {
+            name = "MyCylinder"
+            position = { x = -2.0; y = 0.0; z = 1.0; };
+            radius = 0.4;
+            height = 0.6;
+            material = "rusted_metal_material";
+            uvmapping = { scale_u = 1.0; scale_v = 1.0; offset_u = 0.0; offset_v = 0.0; repeat_u = 1.8; repeat_v = 0.2; };
+        }
+    );
+
+    disks: (
+        {
+            name = "MyCylinderCap"
+            position = { x = -2.0; y = 0.6; z = 1.0; };
+            radius = 0.4;
+            height = 0.2;
+            material = "rusted_metal_material";
+            uvmapping = { scale_u = 1.0; scale_v = 1.0; offset_u = 0.0; offset_v = 0.0; repeat_u = 0.6; repeat_v = 0.6; };
+        }
+    );
+
+    cones: (
+        {
+            name = "MyCone"
+            position = { x = -1.0; y = 0.0; z = 1.0; };
+            radius = 0.4;
+            height = 1.0;
+            material = "rusted_metal_material";
+            uvmapping = { scale_u = 1.0; scale_v = 1.0; offset_u = 0.0; offset_v = 0.0; repeat_u = 1.0; repeat_v = 1.0; };
+        }
+    );
+
+    boxes: (
+        {
+            name = "MyGround";
+            position = { x = 0.0; y = -0.28; z = 0.0; };
+            size = { x = 40.0; y = 0.5; z = 40.0; };
+            material = "ground_material";
+            uvmapping = { scale_u = 1.0; scale_v = 1.0; offset_u = 0.0; offset_v = 0.0; repeat_u = 2.0; repeat_v = 2.0; };
+        },
+        {
+            name = "MyBox"
+            position = { x = 0.0; y = 0.32; z = 1.0; };
+            size = { x = 0.65; y = 0.65; z = 0.65; };
+            material = "rusted_metal_material";
+            uvmapping = { scale_u = 0.5; scale_v = 0.5; offset_u = 0.0; offset_v = 0.0; repeat_u = 1.0; repeat_v = 1.0; };
+        }
+    );
+
+    toruses: (
+        {
+            name = "MyTorus"
+            position = { x = 1.0; y = 0.4; z = 1.25; };
+            major_radius = 0.3;
+            minor_radius = 0.15;
+            material = "rusted_metal_material";
+            uvmapping = { scale_u = 0.6; scale_v = 0.6; offset_u = 0.0; offset_v = 0.0; repeat_u = 7.0; repeat_v = 7.0; };
+        }
+    );
+
+    spheres: (
+        {
+            name = "MySphere"
+            position = { x = 2.0; y = 0.45; z = 1.2; };
+            radius = 0.42;
+            material = "rusted_metal_material";
+            uvmapping = { scale_u = 1.0; scale_v = 1.0; offset_u = 0.0; offset_v = 0.0; repeat_u = 2.0; repeat_v = 1.2; };
+        }
+    );
+};

@@ -1,0 +1,119 @@
+# Advanced lights demo
+
+image:
+{
+    width = 512;
+    height = 388;
+    maxDepth = 100;
+    samplesPerPixel = 50;
+    background = 
+    {
+        color = { r = 0.0; g = 0.0; b = 0.0; };
+    };
+};
+
+# Configuration of the camera
+camera:
+{
+    aspectRatio = "16:9";
+    lookFrom = { x = 26.0; y = 3.0; z = 6.0; };
+    lookAt = { x = 0.0; y = 2.0; z = 0.0; };
+    upAxis = { x = 0.0; y = 1.0; z = 0.0; };
+    fov = 26.0;
+};
+
+
+# Lights in the scene
+lights:
+{
+    directionals: (
+        {
+            name = "QuadLight1";
+            position = { x = 3.0; y = 1.0; z = -2.0; };
+            u = { x = 2.0; y = 0.0; z = 0.0; };
+            v = { x = 0.0; y = 2.0; z = 0.0; };
+            intensity = 1.0;
+            color = { r = 10.0; g = 10.0; b = 10.0; };
+            invisible = true;
+        }
+    ),
+    omnis: (
+        {
+            name = "SphereLight1";
+            position = { x = 0.0; y = 7.0; z = 0.0; };
+            radius = 1.0;
+            intensity = 3.0;
+            color = { r = 4.0; g = 4.0; b = 4.0; };
+            invisible = true;
+        }
+    )
+}
+
+textures:
+{
+    noise: (
+        {
+            name = "groud_texture";
+            scale = 4.0;
+        }
+    ),
+    solidColor: (
+        {
+            name = "box_color_red_texture";
+            color = { r = 0.65; g = 0.05; b = 0.05; };
+        }
+    )
+}
+
+materials:
+{
+    lambertian: (
+        {
+            name = "ground_material";
+            texture = "groud_texture";
+        },
+        {
+            name = "sphere_material";
+            texture = "groud_texture";
+        },
+        {
+            name = "box_material";
+            texture = "box_color_red_texture";
+        }
+    );
+}
+
+# Primitives in the scene
+primitives:
+{
+    # List of spheres
+    spheres: (
+        {
+            name = "Ground"
+            position = { x = 0.0; y = -1000.0; z = 0.0; };
+            radius = 1000.0;
+            material = "ground_material";
+        },
+        {
+            name = "Sphere"
+            position = { x = 0.0; y = 2.0; z = 0.0; };
+            radius = 2.0;
+            material = "sphere_material";
+        }
+    );
+
+    # List of boxes
+    boxes: (
+        {
+            name = "Box";
+            position = { x = 0.0; y = 0.0; z = 0.0; };
+            size = { x = 3.0; y = 3.0; z = 3.0; };
+            material = "box_material";
+            transform =
+            {
+                translate = { x = -10.0; y = 1.5; z = 5.0; };
+                rotate = { x = 0.0; y = 15.0; z = 0.0; };
+            };
+        }
+    );
+};

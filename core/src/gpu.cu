@@ -60,21 +60,12 @@ bool isGpuAvailable(cudaDeviceProp& prop)
         cudaGetDeviceProperties(&prop, deviceIndex);
         if (prop.major >= 2 && prop.minor >= 0)
         {
-            printf("Use GPU device %d %s\n", deviceIndex, prop.name);
-            printf("Number of multiprocessors on device: %d\n", prop.multiProcessorCount);
-            printf("Memory Clock Rate (MHz): %d\n", prop.memoryClockRate / 1024);
-            printf("Memory Bus Width (bits): %d\n", prop.memoryBusWidth);
-            printf("Peak Memory Bandwidth (GB/s): %.1f\n", 2.0 * prop.memoryClockRate * (prop.memoryBusWidth / 8) / 1.0e6);
-            printf("Total global memory (Gbytes) %.1f\n", (float)(prop.totalGlobalMem) / 1024.0 / 1024.0 / 1024.0);
-            printf("Shared memory per block (Kbytes) %.1f\n", (float)(prop.sharedMemPerBlock) / 1024.0);
-            printf("minor-major: %d-%d\n", prop.minor, prop.major);
-            printf("Warp-size: %d\n", prop.warpSize);
-            printf("Concurrent kernels: %s\n", prop.concurrentKernels ? "yes" : "no");
-            printf("Concurrent computation/communication: %s\n", prop.deviceOverlap ? "yes" : "no");
-
-            printf("Maximum size of each dimension of a grid: %i x %i x %i\n", prop.maxGridSize[0], prop.maxGridSize[1], prop.maxGridSize[2]);
-            printf("Maximum size of each dimension of a block: %i x %i x %i\n", prop.maxThreadsDim[0], prop.maxThreadsDim[1], prop.maxThreadsDim[2]);
-            printf("Maximum number of threads per block: %i\n", prop.maxThreadsPerBlock);
+            printf("[INFO] Use GPU device %d %s\n", deviceIndex, prop.name);
+            printf("[INFO] Number of multiprocessors on device: %d\n", prop.multiProcessorCount);
+            printf("[INFO] Total global memory (Gbytes) %.1f\n", (float)(prop.totalGlobalMem) / 1024.0 / 1024.0 / 1024.0);
+            printf("[INFO] Max grid size: %i x %i x %i\n", prop.maxGridSize[0], prop.maxGridSize[1], prop.maxGridSize[2]);
+            printf("[INFO] Max block size: %i x %i x %i\n", prop.maxThreadsDim[0], prop.maxThreadsDim[1], prop.maxThreadsDim[2]);
+            printf("[INFO] Max number of threads per block: %i\n", prop.maxThreadsPerBlock);
 
             cudaSetDevice(deviceIndex);
 
@@ -82,7 +73,7 @@ bool isGpuAvailable(cudaDeviceProp& prop)
         }
     }
 
-    std::cout << "Use Nvidia Cuda GPU device found" << std::endl;
+    std::cout << "[ERROR] No Nvidia Cuda GPU device found" << std::endl;
     return false;
 }
 
@@ -214,12 +205,30 @@ __global__ void render(color* fb, int width, int height, int spp, int sqrt_spp, 
         }
     }
 
+    const color& fix = prepare_pixel_color(i, j, pixel_color, spp, true);
+
+    const interval intensity(0.000f, 0.999f);
+
+
     randState[pixel_index] = local_rand_state;
     //pixel_color /= float(spp);
     //pixel_color[0] = sqrt(pixel_color[0]);
     //pixel_color[1] = sqrt(pixel_color[1]);
     //pixel_color[2] = sqrt(pixel_color[2]);
-    fb[pixel_index] = pixel_color;
+    fb[pixel_index] = color(
+        255.99f * intensity.clamp(fix.r()),
+        255.99f * intensity.clamp(fix.g()),
+        255.99f * intensity.clamp(fix.b())
+    );
+
+    printf(
+        "%05d %05d %03d %03d %03d\n",
+        i,
+        j,
+        static_cast<int>(255.99f * intensity.clamp(fix.r())),
+        static_cast<int>(255.99f * intensity.clamp(fix.g())),
+        static_cast<int>(255.99f * intensity.clamp(fix.b()))
+    );
 }
 
 void setupCuda(const cudaDeviceProp& prop)
@@ -233,22 +242,22 @@ void setupCuda(const cudaDeviceProp& prop)
     // Get the current stack size limit
     cudaError_t result1 = cudaDeviceGetLimit(&stackSize, cudaLimitStackSize);
     if (result1 != cudaSuccess) {
-        std::cerr << "Failed to get stack size: " << cudaGetErrorString(result1) << std::endl;
+        std::cerr << "[WARNING] Failed to get stack size: " << cudaGetErrorString(result1) << std::endl;
         return;
     }
 
-    std::cout << "Current stack size limit: " << stackSize << " bytes" << std::endl;
+    std::cout << "[INFO] Current stack size limit: " << stackSize << " bytes" << std::endl;
 
 
     const size_t newStackSize = 4096; // Set the stack size to 1MB per thread
 
     cudaError_t result2 = cudaDeviceSetLimit(cudaLimitStackSize, newStackSize);
     if (result2 != cudaSuccess) {
-        std::cerr << "Failed to set stack size: " << cudaGetErrorString(result2) << std::endl;
+        std::cerr << "[WARNING] Failed to set stack size: " << cudaGetErrorString(result2) << std::endl;
         return;
     }
 
-    std::cout << "New stack size limit: " << newStackSize << " bytes" << std::endl;
+    std::cout << "[INFO] New stack size limit: " << newStackSize << " bytes" << std::endl;
 
 
 
@@ -256,11 +265,11 @@ void setupCuda(const cudaDeviceProp& prop)
 
     cudaError_t result3 = cudaDeviceSetLimit(cudaLimitMallocHeapSize, newMallocHeapSize);
     if (result3 != cudaSuccess) {
-        std::cerr << "Failed to set malloc heap size: " << cudaGetErrorString(result3) << std::endl;
+        std::cerr << "[WARNING] Failed to set malloc heap size: " << cudaGetErrorString(result3) << std::endl;
         return;
     }
 
-    std::cout << "New malloc heap limit: " << newMallocHeapSize << " bytes" << std::endl;
+    std::cout << "[INFO] New malloc heap limit: " << newMallocHeapSize << " bytes" << std::endl;
 
 
     // cuda initialization via cudaMalloc
@@ -296,7 +305,7 @@ void setupCuda(const cudaDeviceProp& prop)
 
 void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int max_depth, int tx, int ty, const char* filepath)
 {
-    std::cout << "Rendering " << width << "x" << height << " " << spp << " samples > " << filepath << std::endl;
+    std::cout << "[INFO] Rendering " << width << "x" << height << " " << spp << " samples > " << filepath << std::endl;
 
     setupCuda(prop);
 
@@ -312,9 +321,9 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
 
     int bytes_per_pixel = 3;
     int tex_x, tex_y, tex_n;
-    unsigned char *tex_data_host = stbi_load("d:\\uv_mapper_no_numbers.jpg", &tex_x, &tex_y, &tex_n, bytes_per_pixel);
+    unsigned char *tex_data_host = stbi_load("e:\\uv_mapper_no_numbers.jpg", &tex_x, &tex_y, &tex_n, bytes_per_pixel);
     if (!tex_data_host) {
-        std::cerr << "Failed to load texture." << std::endl;
+        std::cerr << "[ERROR] Failed to load texture." << std::endl;
         return;
     }
 
@@ -377,7 +386,7 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
-    printf("Render with %u/%u blocks of %u/%u threads\n", render_blocks.x, render_blocks.y, render_threads.x, render_threads.y);
+    printf("[INFO] Render with %u/%u blocks of %u/%u threads\n", render_blocks.x, render_blocks.y, render_threads.x, render_threads.y);
 
 
     render<<<render_blocks, render_threads>>>(image, width, height, spp, sqrt_spp, max_depth, elist, elights, cam, d_rand_state);
@@ -391,15 +400,19 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
         for (int i = 0; i < width; i++) {
             size_t pixel_index = j * width + i;
 
-            color fix = prepare_pixel_color(i, j, image[pixel_index], spp, false);
+            //color fix = prepare_pixel_color(i, j, image[pixel_index], spp, false);
 
             //imageHost[j * width * 3 + i * 3] = (size_t)(256.0f * intensity.clamp(fix.r()));
             //imageHost[j * width * 3 + i * 3 + 1] = (size_t)(256.0f * intensity.clamp(fix.g()));
             //imageHost[j * width * 3 + i * 3 + 2] = (size_t)(256.0f * intensity.clamp(fix.b()));
 
-            imageHost[(height - j - 1) * width * 3 + i * 3] = (size_t)(255.99f * intensity.clamp(fix.r()));
+            /*imageHost[(height - j - 1) * width * 3 + i * 3] = (size_t)(255.99f * intensity.clamp(fix.r()));
             imageHost[(height - j - 1) * width * 3 + i * 3 + 1] = (size_t)(255.99f * intensity.clamp(fix.g()));
-            imageHost[(height - j - 1) * width * 3 + i * 3 + 2] = (size_t)(255.99f * intensity.clamp(fix.b()));
+            imageHost[(height - j - 1) * width * 3 + i * 3 + 2] = (size_t)(255.99f * intensity.clamp(fix.b()));*/
+
+            imageHost[(height - j - 1) * width * 3 + i * 3] = (size_t)image[pixel_index].r();
+            imageHost[(height - j - 1) * width * 3 + i * 3 + 1] = (size_t)image[pixel_index].g();
+            imageHost[(height - j - 1) * width * 3 + i * 3 + 2] = (size_t)image[pixel_index].b();
         }
     }
 

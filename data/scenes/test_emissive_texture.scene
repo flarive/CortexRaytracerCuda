@@ -1,0 +1,156 @@
+# Emissive map demo
+
+image:
+{
+    width = 512;
+    height = 388;
+    maxDepth = 50;
+    samplesPerPixel = 50;
+    background = 
+    {
+        #color = { r = 0.7; g = 0.8; b = 1.0; };
+        filepath = "../../data/backgrounds/dark.jpg";
+        is_skybox = false;
+    };
+};
+
+# Configuration of the camera
+camera:
+{
+    aspectRatio = "16:9";
+    lookFrom = { x = 0.0; y = 0.4; z = 9.0; };
+    lookAt = { x = 0.0; y = 0.2; z = 0.0; };
+    upAxis = { x = 0.0; y = 1.0; z = 0.0; };
+    fov = 18.0;
+};
+
+# Lights in the scene
+lights:
+{
+    omnis: (
+        {
+            name = "MySphereLight";
+            position = { x = 0.0; y = 8.0; z = 5.0; };
+            radius = 3.0;
+            intensity = 0.5;
+            color = { r = 1.0; g = 1.0; b = 1.0; };
+            invisible = true;
+        }
+    )
+}
+
+textures:
+{
+    solidColor: (
+        {
+            name = "ground_texture";
+            color = { r = 0.7; g = 0.8; b = 1.0; };
+        },
+        {
+            name = "test_diffuse_texture1";
+            color = { r = 0.0; g = 1.0; b = 0.0; };
+        },
+        {
+            name = "test_red_texture";
+            color = { r = 1.0; g = 0.2; b = 0.2; };
+        }
+    ),
+    image: (
+        {
+            name = "test_diffuse_texture2";
+            filepath = "../../data/models/gradient.jpg";
+        }
+    ),
+    emissive: (
+        {
+            name = "test_emissive_texture";
+            filepath = "../../data/models/emissive1.png";
+            strength = 10.0;
+        }
+    );
+}
+
+materials:
+{
+    lambertian: (
+        {
+            name = "ground_material";
+            texture = "ground_texture";
+        },
+        {
+            name = "test_red_material";
+            texture = "test_red_texture";
+        }
+    ),
+    phong: (
+        {
+            name = "test_material1";
+            diffuseTexture = "test_diffuse_texture1";
+            emissiveTexture = "test_emissive_texture";
+            ambientColor = { r = 0.0; g = 0.0; b = 0.0; };
+            shininess = 0.0;
+        },
+        {
+            name = "test_material2";
+            diffuseTexture = "test_diffuse_texture2";
+            emissiveTexture = "test_emissive_texture";
+            ambientColor = { r = 0.0; g = 0.0; b = 0.0; };
+            shininess = 0.0;
+        }
+    )
+}
+
+# Meshes in the scene
+meshes:
+{
+    obj: (
+        {
+            name = "MyMesh"
+            filepath = "../../data/models/smooth_sphere.obj";
+            position = { x = 0.0; y = 0.0; z = 0.0; };
+            material = "test_material1";
+            use_mtl = false;
+            use_smoothing = true;
+            transform =
+            {
+                translate = { x = -1.3; y = 0.0; z = 0.0; };
+                scale = { x = 1.0; y = 1.0; z = 1.0; };
+            };
+        }
+    );
+};
+
+# Primitives in the scene
+primitives:
+{
+    # List of boxes
+    boxes: (
+        {
+            name = "MyGround";
+            position = { x = 0.0; y = -1.0; z = 0.0; };
+            size = { x = 40.0; y = 0.5; z = 40.0; };
+            material = "ground_material";
+            uvmapping = { scale_u = 1.0; scale_v = 1.0; offset_u = 0.0; offset_v = 0.0; repeat_u = 2.0; repeat_v = 2.0; };
+        },
+        {
+            name = "MyCube";
+            position = { x = 0.0; y = 0.0; z = -3.0; };
+            size = { x = 2.0; y = 2.0; z = 2.0; };
+            material = "test_red_material";
+            transform =
+            {
+                rotate = { x = 0.0; y = 45.0; z = 0.0; };
+            };
+        }
+    );
+
+    # List of spheres
+    spheres: (
+        {
+            name = "MySphere"
+            position = { x = 1.3; y = 0.0; z = 0.0; };
+            radius = 1.0;
+            material = "test_material2";
+        }
+    );
+};

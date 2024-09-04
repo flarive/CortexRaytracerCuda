@@ -1,0 +1,143 @@
+# Cornell box demo
+
+image:
+{
+    width = 256;
+    height = 256;
+    maxDepth = 50;
+    samplesPerPixel = 50;
+    background = 
+    {
+        color = { r = 0.0; g = 0.0; b = 0.0; };
+    };
+};
+
+# Configuration of the camera
+camera:
+{
+    aspectRatio = "1:1";
+    lookFrom = { x = 278.0; y = 278.0; z = -800.0; };
+    lookAt = { x = 278.0; y = 278.0; z = 0.0; };
+    upAxis = { x = 0.0; y = 1.0; z = 0.0; };
+    fov = 40.0;
+};
+
+
+# Lights in the scene
+lights:
+{
+    directionals: (
+        {
+            name = "QuadLight1";
+            position = { x = 278.0; y = 554.0; z = 332.0; };
+            u = { x = -130.0; y = 0.0; z = 0.0; };
+            v = { x = 0.0; y = 0.0; z = -105.0; };
+            intensity = 1.5;
+            color = { r = 15.0; g = 15.0; b = 15.0; };
+            invisible = true;
+        }
+    )
+}
+
+textures:
+{
+    noise: (
+        {
+            name = "groud_texture";
+            scale = 4.0;
+        }
+    ),
+    solidColor: (
+        {
+            name = "white_texture";
+            color = { r = 0.73; g = 0.73; b = 0.73; };
+        }
+    )
+}
+
+materials:
+{
+    lambertian: (
+        {
+            name = "green_material";
+            color = { r = 0.12; g = 0.45; b = 0.15; };
+        },
+        {
+            name = "red_material";
+            color = { r = 0.65; g = 0.05; b = 0.05; };
+        },
+        {
+            name = "white_material";
+            texture = "white_texture";
+        }
+    )
+}
+
+# Primitives in the scene
+primitives:
+{
+    # List of quads
+    quads: (
+        {
+            name = "Quad1";
+            position = { x = 555.0; y = 0.0; z = 0.0; };
+            u = { x = 0.0; y = 555.0; z = 0.0; };
+            v = { x = 0.0; y = 0.0; z = 555.0; };
+            material = "green_material";
+        },
+        {
+            name = "Quad2";
+            position = { x = 0.0; y = 0.0; z = 0.0; };
+            u = { x = 0.0; y = 555.0; z = 0.0; };
+            v = { x = 0.0; y = 0.0; z = 555.0; };
+            material = "red_material";
+        },
+        {
+            name = "Quad3";
+            position = { x = 0.0; y = 0.0; z = 0.0; };
+            u = { x = 555.0; y = 0.0; z = 0.0; };
+            v = { x = 0.0; y = 0.0; z = 555.0; };
+            material = "white_material";
+        },
+        {
+            name = "Quad4";
+            position = { x = 555.0; y = 555.0; z = 555.0; };
+            u = { x = -555.0; y = 0.0; z = 0.0; };
+            v = { x = 0.0; y = 0.0; z = -555.0; };
+            material = "white_material";
+        },
+        {
+            name = "Quad5";
+            position = { x = 0.0; y = 0.0; z = 555.0; };
+            u = { x = 555.0; y = 0.0; z = 0.0; };
+            v = { x = 0.0; y = 555.0; z = 0.0; };
+            material = "white_material";
+        }
+    );
+
+    # List of boxes
+    boxes: (
+        {
+            name = "Box1";
+            position = { x = 0.0; y = 0.0; z = 0.0; };
+            size = { x = 165.0; y = 330.0; z = 165.0; };
+            material = "white_material";
+            transform =
+            {
+                #rotate = { x = 0.0; y = -15.0; z = 0.0; };
+                translate = { x = 347.5; y = 165.0; z = 377.5; };
+            };
+        },
+        {
+            name = "Box2";
+            position = { x = 0.0; y = 0.0; z = 0.0; };
+            size = { x = 165.0; y = 165.0; z = 165.0; };
+            material = "white_material";
+            transform =
+            {
+                #rotate = { x = 0.0; y = 18.0; z = 0.0; };
+                translate = { x = 212.5; y = 82.5; z = 147.5; };
+            };
+        }
+    );
+};

@@ -1,0 +1,278 @@
+# All materials spheres demo
+
+image:
+{
+    width = 648;
+    height = 388;
+    maxDepth = 100;
+    samplesPerPixel = 50;
+    background = 
+    {
+        color = { r = 0.0; g = 0.0; b = 0.0; };
+        #filepath = "../../data/backgrounds/hexagonal.png";
+        #is_skybox = false;
+    };
+};
+
+# Configuration of the camera
+camera:
+{
+    aspectRatio = "16:9";
+    lookFrom = { x = 0.0; y = 3.0; z = 9.0; };
+    lookAt = { x = 0.0; y = 0.7; z = 0.0; };
+    upAxis = { x = 0.0; y = 1.0; z = 0.0; };
+    fov = 18.0;
+};
+
+
+# Lights in the scene
+lights:
+{
+    omnis: (
+        {
+            name = "MySphereLight";
+            position = { x = -4.0; y = 5.0; z = 2.0; };
+            radius = 3.0;
+            intensity = 3.0;
+            color = { r = 1.0; g = 1.0; b = 1.0; };
+            invisible = true;
+        }
+    )
+}
+
+textures:
+{
+    image: (
+        {
+            name = "wood";
+            filepath = "../../data/models/rusted_metal1.jpg";
+        },
+        {
+            name = "image_texture";
+            filepath = "../../data/textures/uv_mapper.jpg";
+        },
+        {
+            name = "image_texture_1";
+            filepath = "../../data/textures/gold.jpg";
+        },
+        {
+            name = "image_texture_2";
+            filepath = "../../data/textures/ebene.jpg";
+        },
+        {
+            name = "image_texture_gradient";
+            filepath = "../../data/models/gradient.jpg";
+        },
+        {
+            name = "gore_diffuse_texture";
+            filepath = "../../data/models/gore_diffuse.jpg";
+        },
+        {
+            name = "gore_specular_texture";
+            filepath = "../../data/models/gore_specular.jpg";
+        },
+        {
+            name = "sand_diffuse_texture";
+            filepath = "../../data/models/sand_diffuse.jpg";
+        },
+        {
+            name = "sand_specular_texture";
+            filepath = "../../data/models/sand_specular.jpg";
+        }
+    ),
+    solidColor: (
+        {
+            name = "solid_color_texture";
+            color = { r = 0.1; g = 1.0; b = 0.1; };
+        },
+        {
+            name = "diffuse_texture";
+            color = { r = 0.6; g = 0.6; b = 0.6; };
+        },
+        {
+            name = "specular_texture";
+            color = { r = 0.2; g = 0.2; b = 0.2; };
+        }
+    ),
+    gradientColor: (
+        {
+            name = "gradient_color_texture";
+            color1 = { r = 1.0; g = 0.0; b = 0.0; };
+            color2 = { r = 0.0; g = 1.0; b = 1.0; };
+            vertical = true;
+            hsv = false;
+        }
+    ),
+    checker: (
+        {
+            name = "checker_image_texture";
+            oddTextureName = "image_texture_1";
+            evenTextureName = "image_texture_2";
+            scale = 0.3;
+        },
+        {
+            name = "checker_color_texture";
+            oddColor = { r = 1.0; g = 1.0; b = 1.0; };
+            evenColor = { r = 0.0; g = 0.0; b = 0.0; };
+            scale = 0.2;
+        }
+    ),
+    noise: (
+        {
+            name = "noise_texture";
+            scale = 2.0;
+        }
+    ),
+    bump: (
+        {
+            name = "sand_bump_texture";
+            filepath = "../../data/models/bump6.jpg";
+            strength = 0.4;
+        }
+    ),
+    normal: (
+        {
+            name = "gore_normal_texture";
+            filepath = "../../data/models/gore_normal.jpg";
+            strength = 1.0;
+        }
+    ),
+    alpha: (
+        {
+            name = "alpha_texture";
+            filepath = "../../data/models/alpha2.png";
+            double_sided = false;
+        }
+    );
+}
+
+materials:
+{
+    lambertian: (
+        {
+            name = "ground";
+            texture = "wood";
+        },
+        {
+            name = "image_material";
+            texture = "image_texture";
+        },
+        {
+            name = "solid_color_material";
+            texture = "solid_color_texture";
+        },
+        {
+            name = "gradient_color_material";
+            texture = "gradient_color_texture";
+        },
+        {
+            name = "checker_image_material";
+            texture = "checker_image_texture";
+        },
+        {
+            name = "checker_color_material";
+            texture = "checker_color_texture";
+        },
+        {
+            name = "noise_material";
+            texture = "noise_texture";
+        }
+    ),
+    phong: (
+        {
+            name = "bump_material";
+            diffuseTexture = "sand_diffuse_texture";
+            specularTexture = "sand_specular_texture";
+            bumpTexture = "sand_bump_texture";
+            ambientColor = { r = 0.0; g = 0.0; b = 0.0; };
+            shininess = 0.0;
+        },
+        {
+            name = "normal_material";
+            diffuseTexture = "gore_diffuse_texture";
+            specularTexture = "gore_specular_texture";
+            normalTexture = "gore_normal_texture";
+            ambientColor = { r = 0.0; g = 0.0; b = 0.0; };
+            shininess = 0.0;
+        },
+        {
+            name = "alpha_material";
+            diffuseTexture = "image_texture_gradient";
+            alphaTexture = "alpha_texture";
+            ambientColor = { r = 0.0; g = 0.0; b = 0.0; };
+            shininess = 0.0;
+        }
+    )
+}
+
+# Primitives in the scene
+primitives:
+{
+    # List of spheres
+    spheres: (
+        {
+            name = "MySphere1"
+            position = { x = -2.2; y = 0.0; z = -1.0; };
+            radius = 0.5;
+            material = "gradient_color_material";
+        },
+        {
+            name = "MySphere2"
+            position = { x = -1.1; y = 0.0; z = -1.0; };
+            radius = 0.5;
+            material = "image_material";
+        },
+        {
+            name = "MySphere3"
+            position = { x = 0.0; y = 0.0; z = -1.0; };
+            radius = 0.5;
+            material = "bump_material";
+        },
+        {
+            name = "MySphere4"
+            position = { x = 1.1; y = 0.0; z = -1.0; };
+            radius = 0.5;
+            material = "normal_material";
+        },
+        {
+            name = "MySphere5"
+            position = { x = 2.2; y = 0.0; z = -1.0; };
+            radius = 0.5;
+            material = "alpha_material";
+        },
+        {
+            name = "MySphere6"
+            position = { x = -2.3; y = 0.0; z = -5.0; };
+            radius = 0.5;
+            material = "solid_color_material";
+        },
+        {
+            name = "MySphere7"
+            position = { x = -0.8; y = 0.0; z = -5.0; };
+            radius = 0.5;
+            material = "checker_image_material";
+        },
+        {
+            name = "MySphere8"
+            position = { x = 0.8; y = 0.0; z = -5.0; };
+            radius = 0.5;
+            material = "checker_color_material";
+        },
+        {
+            name = "MySphere9"
+            position = { x = 2.3; y = 0.0; z = -5.0; };
+            radius = 0.5;
+            material = "noise_material";
+        }
+    );
+
+    # List of boxes
+    boxes: (
+        {
+            name = "MyGround";
+            position = { x = 0.0; y = -0.8; z = 0.0; };
+            size = { x = 10.0; y = 0.5; z = 40.0; };
+            material = "ground";
+        }
+    );
+};

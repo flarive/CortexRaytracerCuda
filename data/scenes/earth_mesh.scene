@@ -1,0 +1,102 @@
+# Earth planet mesh demo
+
+image:
+{
+    width = 512;
+    height = 388;
+    maxDepth = 100;
+    samplesPerPixel = 50;
+    background = 
+    {
+        color = { r = 0.0; g = 0.0; b = 0.0; };
+    };
+};
+
+# Configuration of the camera
+camera:
+{
+    aspectRatio = "16:9";
+    lookFrom = { x = 0.0; y = 4.0; z = 9.0; };
+    lookAt = { x = 0.0; y = 0.0; z = 0.0; };
+    upAxis = { x = 0.0; y = 1.0; z = 0.0; };
+    fov = 10.0;
+};
+
+
+# Lights in the scene
+lights:
+{
+    omnis: (
+        {
+            name = "MySphereLight";
+            position = { x = 1.0; y = 8.0; z = 2.0; };
+            radius = 3.0;
+            intensity = 2.0;
+            color = { r = 1.0; g = 1.0; b = 1.0; };
+            invisible = true;
+        }
+    )
+}
+
+textures:
+{
+    image: (
+        {
+            name = "earth_texture_diffuse";
+            filepath = "../../data/models/earth_diffuse.jpg";
+        },
+        {
+            name = "earth_texture_specular";
+            filepath = "../../data/models/earth_specular.jpg";
+        }
+    ),
+    bump: (
+        {
+            name = "earth_texture_bump";
+            sfilepath = "../../data/models/bump6.jpg";
+            strength = 0.4;
+        }
+    ),
+    solidColor: (
+        {
+            name = "earth_texture_color";
+            color = { r = 0.7; g = 0.7; b = 0.7; };
+        }
+    );
+}
+
+materials:
+{
+    phong: (
+        {
+            name = "earth_material";
+            diffuseTexture = "earth_texture_diffuse";
+            specularTexture = "earth_texture_specular";
+            bumpTexture = "earth_texture_bump";
+            ambientColor = { r = 0.0; g = 0.0; b = 0.0; };
+            shininess = 100.0;
+        }
+    )
+}
+
+
+# Meshes in the scene
+meshes:
+{
+    obj: (
+        {
+            name = "EarthPlanet"
+            filepath = "../../data/models/earth.obj";
+            material = "earth_material",
+            position = { x = 0.0; y = 0.0; z = 0.0; };
+            use_mtl = false;
+            use_smoothing = true;
+            transform =
+            {
+                translate = { x = 0.0; y = 15.0; z = 0.0; };
+                rotate = { x = 0.0; y = 0.0; z = 0.0; };
+                scale = { x = 0.01; y = 0.01; z = 0.01; };
+            };
+        }
+    );
+};

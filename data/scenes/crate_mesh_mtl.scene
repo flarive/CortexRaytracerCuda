@@ -1,0 +1,95 @@
+# Sci fi crate mesh demo
+
+image:
+{
+    width = 512;
+    height = 388;
+    maxDepth = 100;
+    samplesPerPixel = 50;
+    background = 
+    {
+        color = { r = 0.7; g = 0.8; b = 1.0; };
+    };
+};
+
+# Configuration of the camera
+camera:
+{
+    aspectRatio = "16:9";
+    lookFrom = { x = 50.0; y = 10.0; z = 25.0; };
+    lookAt = { x = 0.0; y = 1.5; z = 0.0; };
+    upAxis = { x = 0.0; y = 1.0; z = 0.0; };
+    fov = 9.0;
+};
+
+
+# Lights in the scene
+lights:
+{
+    directionals: (
+        {
+            name = "MyQuadLight";
+            position = { x = 15.0; y = 10.0; z = 40.0; };
+            u = { x = 330.0; y = 0.0; z = 0.0; };
+            v = { x = 0.0; y = 0.0; z = 305.0; };
+            intensity = 1.0;
+            color = { r = 1.0; g = 1.0; b = 1.0; };
+            invisible = true;
+        }
+    )
+}
+
+textures:
+{
+    image: (
+        {
+            name = "ground_texture";
+            filepath = "../../data/textures/scifi_floor2.png";
+        }
+    );
+}
+
+materials:
+{
+    lambertian: (
+        {
+            name = "ground_material";
+            texture = "ground_texture";
+        }
+    )
+}
+
+# Meshes in the scene
+meshes:
+{
+    obj: (
+        {
+            name = "MyCrate"
+            filepath = "../../data/models/crate.obj";
+            position = { x = 0.0; y = 0.0; z = 0.0; };
+            use_mtl = true;
+            use_smoothing = true;
+            transform =
+            {
+                translate = { x = 0.0; y = 0.0; z = 0.0; };
+                rotate = { x = 0.0; y = 0.0; z = 0.0; };
+                scale = { x = 0.025; y = 0.025; z = 0.025; };
+            };
+        }
+    );
+};
+
+# Primitives in the scene
+primitives:
+{
+    # List of boxes
+    boxes: (
+        {
+            name = "MyGround";
+            position = { x = 0.0; y = 0.0; z = 0.0; };
+            size = { x = 40.0; y = 0.5; z = 40.0; };
+            material = "ground_material";
+            uvmapping = { scale_u = 1.0; scale_v = 1.0; offset_u = 0.0; offset_v = 0.0; repeat_u = 2.0; repeat_v = 2.0; };
+        }
+    );
+};

@@ -1,0 +1,100 @@
+# Nautilus mesh demo
+
+image:
+{
+    width = 512;
+    height = 388;
+    maxDepth = 100;
+    samplesPerPixel = 50;
+    background = 
+    {
+        color = { r = 0.7; g = 0.8; b = 1.0; };
+    };
+};
+
+# Configuration of the camera
+camera:
+{
+    aspectRatio = "16:9";
+    lookFrom = { x = 50.0; y = 10.0; z = 25.0; };
+    lookAt = { x = 0.0; y = 0.0; z = 0.0; };
+    upAxis = { x = 0.0; y = 1.0; z = 0.0; };
+    fov = 10.0;
+};
+
+
+# Lights in the scene
+lights:
+{
+    directionals: (
+        {
+            name = "MyQuadLight";
+            position = { x = 0.0; y = 10.0; z = -100.0; };
+            u = { x = 330.0; y = 0.0; z = 0.0; };
+            v = { x = 0.0; y = 0.0; z = 305.0; };
+            intensity = 2.0;
+            color = { r = 1.0; g = 1.0; b = 1.0; };
+            invisible = true;
+        }
+    )
+}
+
+textures:
+{
+    image: (
+        {
+            name = "nautilus_diffuse_texture";
+            filepath = "../../data/models/nautilus_diffuse.jpg";
+        },
+        {
+            name = "nautilus_specular_texture";
+            filepath = "../../data/models/nautilus_specular.jpg";
+        }
+    ),
+    solidColor: (
+        {
+            name = "ground_texture";
+            color = { r = 0.48; g = 0.83; b = 0.53; };
+        }
+    )
+}
+
+materials:
+{
+    lambertian: (
+        {
+            name = "ground_material";
+            texture = "ground_texture";
+        }
+    ),
+    phong: (
+        {
+            name = "nautilus_material";
+            diffuseTexture = "nautilus_diffuse_texture";
+            specularTexture = "nautilus_specular_texture";
+            ambientColor = { r = 0.0; g = 0.0; b = 0.0; };
+            shininess = 0.0;
+        }
+    )
+}
+
+# Meshes in the scene
+meshes:
+{
+    obj: (
+        {
+            name = "MyObjFile"
+            filepath = "../../data/models/nautilus.obj";
+            position = { x = 0.0; y = 0.0; z = 0.0; };
+            material = "nautilus_material";
+            use_mtl = false;
+            use_smoothing = true;
+            transform =
+            {
+                translate = { x = 0.0; y = -50.0; z = 0.0; };
+                rotate = { x = 0.0; y = 0.0; z = 0.0; };
+                scale = { x = 0.05; y = 0.05; z = 0.05; };
+            };
+        }
+    );
+};

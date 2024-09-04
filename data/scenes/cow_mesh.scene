@@ -1,0 +1,120 @@
+# Cow mesh demo
+
+image:
+{
+    width = 512;
+    height = 388;
+    maxDepth = 50;
+    samplesPerPixel = 500;
+    background = 
+    {
+        color = { r = 0.7; g = 0.8; b = 1.0; };
+    };
+};
+
+# Configuration of the camera
+camera:
+{
+    aspectRatio = "16:9";
+    lookFrom = { x = 50.0; y = 5.0; z = 25.0; };
+    lookAt = { x = 0.0; y = 5.0; z = 0.0; };
+    upAxis = { x = 0.0; y = 1.0; z = 0.0; };
+    fov = 15.0;
+};
+
+
+# Lights in the scene
+lights:
+{
+    directionals: (
+        {
+            name = "MyQuadLight";
+            position = { x = 0.0; y = 10.0; z = -100.0; };
+            u = { x = 330.0; y = 0.0; z = 0.0; };
+            v = { x = 0.0; y = 0.0; z = 305.0; };
+            intensity = 1.6;
+            color = { r = 1.0; g = 1.0; b = 1.0; };
+            invisible = true;
+        }
+    )
+}
+
+textures:
+{
+    image: (
+        {
+            name = "cow_diffuse_texture";
+            filepath = "../../data/models/super_cow_color.jpg";
+        },
+        {
+            name = "cow_specular_texture";
+            filepath = "../../data/models/super_cow_specular.jpg";
+        },
+        {
+            name = "cow_normal_texture";
+            filepath = "../../data/models/super_cow_normal.jpg";
+        }
+    ),
+    solidColor: (
+        {
+            name = "ground_texture";
+            color = { r = 199; g = 195; b = 176; };
+        }
+    )
+}
+
+materials:
+{
+    lambertian: (
+        {
+            name = "ground_material";
+            texture = "ground_texture";
+        }
+    ),
+    phong: (
+        {
+            name = "cow_material";
+            diffuseTexture = "cow_diffuse_texture";
+            specularTexture = "cow_specular_texture";
+            normalTexture = "cow_normal_texture";
+            ambientColor = { r = 0.0; g = 0.0; b = 0.0; };
+            shininess = 0.0;
+        }
+    )
+}
+
+# Meshes in the scene
+meshes:
+{
+    obj: (
+        {
+            name = "MyCow"
+            filepath = "../../data/models/super_cow.obj";
+            position = { x = 0.0; y = 0.0; z = 0.0; };
+            material = "cow_material";
+            use_mtl = true;
+            use_smoothing = true;
+            transform =
+            {
+                translate = { x = 0.0; y = 0.0; z = 0.0; };
+                rotate = { x = 0.0; y = 0.0; z = 0.0; };
+                scale = { x = 2.0; y = 2.0; z = 2.0; };
+            };
+        }
+    );
+};
+
+# Primitives in the scene
+primitives:
+{
+    # List of boxes
+    boxes: (
+        {
+            name = "MyGround";
+            position = { x = 0.0; y = 0.0; z = 0.0; };
+            size = { x = 40.0; y = 0.5; z = 40.0; };
+            material = "ground_material";
+            uvmapping = { scale_u = 1.0; scale_v = 1.0; offset_u = 0.0; offset_v = 0.0; };
+        }
+    );
+};

@@ -1,0 +1,199 @@
+# Displacement map demo
+
+image:
+{
+    width = 512;
+    height = 388;
+    maxDepth = 100;
+    samplesPerPixel = 50;
+    background = 
+    {
+        color = { r = 0.0; g = 0.0; b = 0.0; };
+    };
+};
+
+# Configuration of the camera
+camera:
+{
+    aspectRatio = "16:9";
+    lookFrom = { x = 0.0; y = 4.0; z = 9.0; };
+    lookAt = { x = 0.0; y = 0.0; z = 0.0; };
+    upAxis = { x = 0.0; y = 1.0; z = 0.0; };
+    fov = 22.0;
+};
+
+# Lights in the scene
+lights:
+{
+    omnis: (
+        {
+            name = "MySphereLight";
+            position = { x = 0.0; y = 8.0; z = 5.0; };
+            radius = 3.0;
+            intensity = 2.0;
+            color = { r = 1.0; g = 1.0; b = 1.0; };
+            invisible = true;
+        }
+    )
+}
+
+textures:
+{
+    solidColor: (
+        {
+            name = "ground_texture";
+            color = { r = 0.7; g = 0.8; b = 1.0; };
+        },
+        {
+            name = "test_diffuse_texture";
+            color = { r = 0.9; g = 0.5; b = 0.5; };
+        },
+        {
+            name = "test_specular_texture";
+            color = { r = 0.2; g = 0.2; b = 0.2; };
+        }
+    ),
+    image: (
+        {
+            name = "sphere_diffuse_texture";
+            filepath = "../../data/models/rocky_diffuse.jpg";
+        },
+        {
+            name = "sphere_specular_texture";
+            filepath = "../../data/models/rocky_specular.jpg";
+        },
+        {
+            name = "teapot_diffuse_texture";
+            filepath = "../../data/models/teapot_diffuse.jpg";
+        },
+        {
+            name = "teapot_specular_texture";
+            filepath = "../../data/models/teapot_specular.jpg";
+        },
+        {
+            name = "cushion_diffuse_texture";
+            filepath = "../../data/models/gore_diffuse.jpg";
+        },
+        {
+            name = "cushion_specular_texture";
+            filepath = "../../data/models/teapot_specular.jpg";
+        }
+    ),
+    displacement: (
+        {
+            name = "sphere_displace_texture";
+            filepath = "../../data/models/rocky_displace.jpg";
+            strength = 1.0;
+        },
+        {
+            name = "teapot_displace_texture";
+            filepath = "../../data/models/teapot_displace.jpg";
+            strength = 5.0;
+        },
+        {
+            name = "cushion_displace_texture";
+            filepath = "../../data/models/cushion_specular.jpg";
+            strength = 10.0;
+        }
+    );
+}
+
+materials:
+{
+    lambertian: (
+        {
+            name = "ground_material";
+            texture = "ground_texture";
+        }
+    ),
+    phong: (
+        {
+            name = "sphere_material";
+            diffuseTexture = "sphere_diffuse_texture";
+            specularTexture = "sphere_specular_texture";
+            displacementTexture = "sphere_displace_texture";
+            ambientColor = { r = 0.0; g = 0.0; b = 0.0; };
+            shininess = 1.0;
+        },
+        {
+            name = "teapot_material";
+            diffuseTexture = "teapot_diffuse_texture";
+            specularTexture = "teapot_specular_texture";
+            displacementTexture = "teapot_displace_texture";
+            ambientColor = { r = 0.0; g = 0.0; b = 0.0; };
+            shininess = 0.0;
+        },
+        {
+            name = "cushion_material";
+            diffuseTexture = "cushion_diffuse_texture";
+            specularTexture = "cushion_specular_texture";
+            displacementTexture = "cushion_displace_texture";
+            ambientColor = { r = 0.0; g = 0.0; b = 0.0; };
+            shininess = 0.0;
+        }
+    )
+}
+
+# Meshes in the scene
+meshes:
+{
+    obj: (
+        {
+            name = "MySphere"
+            filepath = "../../data/models/smooth_sphere_128.obj";
+            position = { x = 0.0; y = 0.0; z = 0.0; };
+            #material = "sphere_material";
+            use_mtl = true;
+            use_smoothing = true;
+            transform =
+            {
+                translate = { x = -4.0; y = 0.0; z = 0.0; };
+                scale = { x = 1.0; y = 1.0; z = 1.0; };
+            };
+            active = true;
+        },
+        {
+            name = "MyTeapot"
+            filepath = "../../data/models/teapot_16.obj";
+            position = { x = 0.0; y = 0.0; z = 0.0; };
+            #material = "teapot_material";
+            use_mtl = true;
+            use_smoothing = true;
+            transform =
+            {
+                translate = { x = 0.0; y = 0.0; z = 0.0; };
+                scale = { x = 0.7; y = 0.7; z = 0.7; };
+            };
+            active = true;
+        },
+        {
+            name = "MyCushion"
+            filepath = "../../data/models/cushion_32.obj";
+            position = { x = 0.0; y = 0.0; z = 0.0; };
+            #material = "cushion_material";
+            use_mtl = true;
+            use_smoothing = true;
+            transform =
+            {
+                translate = { x = 4.0; y = 0.0; z = 0.0; };
+                scale = { x = 0.8; y = 0.8; z = 0.8; };
+            };
+            active = true;
+        }
+    );
+};
+
+# Primitives in the scene
+primitives:
+{
+    # List of boxes
+    boxes: (
+        {
+            name = "MyGround";
+            position = { x = 0.0; y = -1.0; z = 0.0; };
+            size = { x = 40.0; y = 0.5; z = 40.0; };
+            material = "ground_material";
+            uvmapping = { scale_u = 1.0; scale_v = 1.0; offset_u = 0.0; offset_v = 0.0; repeat_u = 2.0; repeat_v = 2.0; };
+        }
+    );
+}

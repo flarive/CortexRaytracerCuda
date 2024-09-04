@@ -1,0 +1,171 @@
+# Phong spheres demo
+
+image:
+{
+    width = 512;
+    height = 388;
+    maxDepth = 100;
+    samplesPerPixel = 50;
+    background = 
+    {
+        color = { r = 0.0; g = 0.0; b = 0.0; };
+    };
+
+# Configuration of the camera
+camera:
+{
+    aspectRatio = "16:9";
+    lookFrom = { x = 0.0; y = 2.0; z = 9.0; };
+    lookAt = { x = 0.0; y = 0.6; z = 0.0; };
+    upAxis = { x = 0.0; y = 1.0; z = 0.0; };
+    fov = 18.0;
+};
+
+
+# Lights in the scene
+lights:
+{
+    directionals: (
+        {
+            name = "MyQuadLight";
+            position = { x = 113.0; y = 554.0; z = 127.0; };
+            u = { x = 330.0; y = 0.0; z = 0.0; };
+            v = { x = 0.0; y = 0.0; z = 305.0; };
+            intensity = 5.0;
+            color = { r = 1.0; g = 1.0; b = 1.0; };
+            invisible = true;
+        }
+    )
+}
+
+textures:
+{
+    image: (
+        {
+            name = "wood_texture";
+            filepath = "../../data/textures/old-wood-cracked-knots.jpg";
+        },
+        {
+            name = "earth_diffuse_texture";
+            filepath = "../../data/models/earth_diffuse.jpg";
+        },
+        {
+            name = "earth_specular_texture";
+            filepath = "../../data/models/earth_specular.jpg";
+        }
+    ),
+    solidColor: (
+        {
+            name = "specular_texture";
+            color = { r = 1.0; g = 1.0; b = 1.0; };
+        },
+        {
+            name = "green_solid_color_texture";
+            color = { r = 0.1; g = 1.0; b = 0.1; };
+        },
+        {
+            name = "red_solid_color_texture";
+            color = { r = 1.0; g = 0.1; b = 0.1; };
+        },
+        {
+            name = "blue_solid_color_texture";
+            color = { r = 0.1; g = 0.1; b = 1.0; };
+        }
+    )
+}
+
+materials:
+{
+    lambertian: (
+        {
+            name = "ground";
+            texture = "wood_texture";
+        }
+    ),
+    phong: (
+        {
+            name = "phong_material1";
+            diffuseTexture = "red_solid_color_texture";
+            specularTexture = "specular_texture";
+            ambientColor = { r = 0.0; g = 0.0; b = 0.0; };
+            shininess = 1.0;
+        },
+        {
+            name = "phong_material2";
+            diffuseTexture = "green_solid_color_texture";
+            specularTexture = "specular_texture";
+            ambientColor = { r = 0.0; g = 0.0; b = 0.0; };
+            shininess = 10.0;
+
+        },
+        {
+            name = "phong_material3";
+            diffuseTexture = "blue_solid_color_texture";
+            specularTexture = "specular_texture";
+            ambientColor = { r = 0.0; g = 0.0; b = 0.0; };
+            shininess = 100.0;
+        },
+        {
+            name = "phong_material4";
+            diffuseTexture = "blue_solid_color_texture";
+            specularTexture = "specular_texture";
+            ambientColor = { r = 0.0; g = 0.0; b = 0.0; };
+            shininess = 10.0;
+        },
+        {
+            name = "phong_material5";
+            diffuseTexture = "earth_diffuse_texture";
+            specularTexture = "earth_specular_texture";
+            ambientColor = { r = 0.0; g = 0.0; b = 0.0; };
+            shininess = 100.0;
+        }
+    )
+}
+
+# Primitives in the scene
+primitives:
+{
+    # List of spheres
+    spheres: (
+        {
+            name = "MySphere1"
+            position = { x = -2.2; y = 0.0; z = -1.0; };
+            radius = 0.5;
+            material = "phong_material1";
+        },
+        {
+            name = "MySphere2"
+            position = { x = -1.1; y = 0.0; z = -1.0; };
+            radius = 0.5;
+            material = "phong_material2";
+        },
+        {
+            name = "MySphere3"
+            position = { x = 0.0; y = 0.0; z = -1.0; };
+            radius = 0.5;
+            material = "phong_material3";
+        },
+        {
+            name = "MySphere4"
+            position = { x = 1.1; y = 0.0; z = -1.0; };
+            radius = 0.5;
+            material = "phong_material4";
+        },
+        {
+            name = "MySphere5"
+            position = { x = 2.2; y = 0.0; z = -1.0; };
+            radius = 0.5;
+            material = "phong_material5";
+        }
+    );
+
+    # List of boxes
+    boxes: (
+        {
+            name = "MyGround";
+            position = { x = 0.0; y = -0.8; z = 0.0; };
+            size = { x = 10.0; y = 0.5; z = 40.0; };
+            material = "ground";
+        }
+    );
+};

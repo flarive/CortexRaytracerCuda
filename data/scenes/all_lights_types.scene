@@ -1,0 +1,144 @@
+# All lights types demo
+
+image:
+{
+    width = 512;
+    height = 388;
+    maxDepth = 100;
+    samplesPerPixel = 50;
+    background = 
+    {
+        color = { r = 0.0; g = 0.0; b = 0.0; };
+    };
+};
+
+# Configuration of the camera
+camera:
+{
+    aspectRatio = "16:9";
+    lookFrom = { x = 0.0; y = 4.0; z = 26.0; };
+    lookAt = { x = 0.0; y = 4.0; z = 10.0; };
+    upAxis = { x = 0.0; y = 1.0; z = 0.0; };
+    fov = 24.0;
+};
+
+
+# Lights in the scene
+lights:
+{
+    spots: (
+        {
+            name = "SpotLight1";
+            position = { x = 0.0; y = 5.0; z = 0.0; };
+            direction = { x = 0.0; y = 1.0; z = 0.0; };
+            cutoff = 50.0;
+            falloff = 0.0;
+            intensity = 8.0;
+            radius = 0.5;
+            color = { r = 4.0; g = 4.0; b = 4.0; };
+            invisible = false;
+            active = false;
+        }
+    )
+    directionals: (
+        {
+            name = "QuadLight1";
+            position = { x = 0.0; y = 5.0; z = 0.0; };
+            u = { x = 2.0; y = 0.0; z = 0.0; };
+            v = { x = 0.0; y = 0.0; z = 2.0; };
+            intensity = 8.0;
+            color = { r = 4.0; g = 4.0; b = 4.0; };
+            invisible = false;
+            active = true;
+        }
+    ),
+    omnis: (
+        {
+            name = "SphereLight1";
+            position = { x = 0.0; y = 4.6; z = 0.0; };
+            radius = 1.5;
+            intensity = 4.0;
+            color = { r = 4.0; g = 4.0; b = 4.0; };
+            invisible = false;
+            active = false;
+        }
+    )
+}
+
+textures:
+{
+    solidColor: (
+        {
+            name = "groud_texture";
+            color = { r = 0.65; g = 0.45; b = 0.35; };
+        },
+        {
+            name = "sphere_texture";
+            color = { r = 0.65; g = 0.05; b = 0.05; };
+        }
+    )
+}
+
+materials:
+{
+    lambertian: (
+        {
+            name = "ground_material";
+            texture = "groud_texture";
+        },
+        {
+            name = "sphere_material";
+            texture = "groud_texture";
+        }
+    );
+}
+
+# Primitives in the scene
+primitives:
+{
+    # List of spheres
+    spheres: (
+        {
+            name = "Ground"
+            position = { x = 0.0; y = -1000.0; z = 0.0; };
+            radius = 1000.0;
+            material = "ground_material";
+        },
+        {
+            name = "SphereLeft1"
+            position = { x = -5.0; y = 1.2; z = 0.0; };
+            radius = 1.2;
+            material = "sphere_material";
+        },
+        {
+            name = "SphereLeft2"
+            position = { x = -5.0; y = 8.0; z = 0.0; };
+            radius = 1.2;
+            material = "sphere_material";
+        },
+        {
+            name = "SphereMiddle1"
+            position = { x = 0.0; y = 1.2; z = 0.0; };
+            radius = 1.2;
+            material = "sphere_material";
+        },
+        {
+            name = "SphereMiddle2"
+            position = { x = 0.0; y = 8.0; z = 0.0; };
+            radius = 1.2;
+            material = "sphere_material";
+        },
+        {
+            name = "SphereRight1"
+            position = { x = 5.0; y = 1.2; z = 0.0; };
+            radius = 1.2;
+            material = "sphere_material";
+        },
+        {
+            name = "SphereRight2"
+            position = { x = 5.0; y = 8.0; z = 0.0; };
+            radius = 1.2;
+            material = "sphere_material";
+        }
+    );
+};

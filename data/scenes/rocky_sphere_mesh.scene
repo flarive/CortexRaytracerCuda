@@ -1,0 +1,135 @@
+# Rocky sphere mesh demo
+
+image:
+{
+    width = 512;
+    height = 388;
+    maxDepth = 100;
+    samplesPerPixel = 50;
+    background = 
+    {
+        color = { r = 0.0; g = 0.0; b = 0.0; };
+    };
+};
+
+# Configuration of the camera
+camera:
+{
+    aspectRatio = "16:9";
+    lookFrom = { x = 0.0; y = 4.0; z = 9.0; };
+    lookAt = { x = 0.0; y = 0.0; z = 0.0; };
+    upAxis = { x = 0.0; y = 1.0; z = 0.0; };
+    fov = 18.0;
+};
+
+
+# Lights in the scene
+lights:
+{
+    omnis: (
+        {
+            name = "MyQuadLight";
+            position = { x = 0.0; y = 8.0; z = 5.0; };
+            radius = 3.0;
+            intensity = 2.0;
+            color = { r = 1.0; g = 1.0; b = 1.0; };
+            invisible = true;
+        }
+    )
+}
+
+textures:
+{
+    solidColor: (
+        {
+            name = "ground_texture";
+            color = { r = 0.7; g = 0.8; b = 1.0; };
+        },
+        {
+            name = "rocky_color_texture";
+            color = { r = 0.4; g = 0.8; b = 0.6; };
+        }
+    ),
+    image: (
+        {
+            name = "rocky_diffuse_texture";
+            filepath = "../../data/models/rocky_diffuse.jpg";
+        },
+        {
+            name = "rocky_specular_texture";
+            filepath = "../../data/models/rocky_specular.jpg";
+        }
+    ),
+    normal: (
+        {
+            name = "rocky_normal_texture";
+            filepath = "../../data/models/rocky_normal.jpg";
+            strength = 1.0;
+        }
+    );
+}
+
+materials:
+{
+    lambertian: (
+        {
+            name = "ground_material";
+            texture = "ground_texture";
+        }
+    ),
+    phong: (
+        {
+            name = "rocky_material";
+            diffuseTexture = "rocky_diffuse_texture";
+            specularTexture = "rocky_specular_texture";
+            normalTexture = "rocky_normal_texture";
+            ambientColor = { r = 0.0; g = 0.0; b = 0.0; };
+            shininess = 0.0;
+        }
+    )
+}
+
+# Meshes in the scene
+meshes:
+{
+    obj: (
+        {
+            name = "MyRocky"
+            filepath = "../../data/models/smooth_sphere.obj";
+            position = { x = 0.0; y = 0.0; z = 0.0; };
+            material = "rocky_material";
+            use_mtl = false;
+            use_smoothing = true;
+            transform =
+            {
+                translate = { x = -1.3; y = 0.0; z = 0.0; };
+                scale = { x = 1.0; y = 1.0; z = 1.0; };
+            };
+        }
+    );
+};
+
+# Primitives in the scene
+primitives:
+{
+    # List of boxes
+    boxes: (
+        {
+            name = "MyGround";
+            position = { x = 0.0; y = -1.0; z = 0.0; };
+            size = { x = 40.0; y = 0.5; z = 40.0; };
+            material = "ground_material";
+            uvmapping = { scale_u = 1.0; scale_v = 1.0; offset_u = 0.0; offset_v = 0.0; repeat_u = 2.0; repeat_v = 2.0; };
+        }
+    );
+
+    # List of spheres
+    spheres: (
+        {
+            name = "MySphere1"
+            position = { x = 1.3; y = 0.0; z = 0.0; };
+            radius = 1.0;
+            material = "rocky_material";
+        }
+    );
+};

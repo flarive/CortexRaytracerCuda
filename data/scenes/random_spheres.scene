@@ -1,0 +1,4951 @@
+# Final scene demo
+
+image:
+{
+    width = 512;
+    height = 388;
+    maxDepth = 50;
+    samplesPerPixel = 500;
+    #backgroundColor = { r = 0.70; g = 0.80; b = 1.00; };
+    background = 
+    {
+        filepath = "../../data/backgrounds/hdr/christmas_photo_studio_02_2k.hdr";
+        is_skybox = true;
+    };
+};
+
+# Configuration of the camera
+camera:
+{
+    aspectRatio = "16:9";
+    lookFrom = { x = 13.0; y = 2.0; z = 3.0; };
+    lookAt = { x = 0.0; y = 0.0; z = 0.0; };
+    upAxis = { x = 0.0; y = 1.0; z = 0.0; };
+    fov = 20.0;
+    aperture = 0.6;
+    focus = 10.0;
+};
+
+
+# Lights in the scene
+lights:
+{
+    directionals: (
+        {
+            name = "QuadLight1";
+            position = { x = 0.0; y = 554.0; z = 147.0; };
+            u = { x = 300.0; y = 0.0; z = 0.0; };
+            v = { x = 0.0; y = 0.0; z = 265.0; };
+            intensity = 1.5;
+            color = { r = 7.0; g = 7.0; b = 7.0; };
+            invisible = true;
+        }
+    )
+}
+
+textures:
+{
+    solidColor: (
+        {
+            name = "ground_color_texture";
+            color = { r = 0.5; g = 0.5; b = 0.5; };
+        },
+        {
+            name = "material2_texture";
+            color = { r = 0.4; g = 0.2; b = 0.1; };
+        }
+    ),
+    checker: (
+        {
+            name = "checker_color_texture";
+            oddColor = { r = 0.2; g = 0.3; b = 0.1; };
+            evenColor = { r = 0.9; g = 0.9; b = 0.9; };
+            scale = 0.2;
+        }
+    )
+}
+
+materials:
+{
+    lambertian: (
+        {
+            name = "ground_material";
+            texture = "checker_color_texture";
+        },
+        {
+            name = "material_color1";
+            texture = "material2_texture";
+        },
+        {
+            name = "sphere_material_color";
+            texture = "material2_texture";
+        },
+        {
+            name = "sphere_material_color_-11_-11";
+            color = { r = 0.394835; g = 0.524114; b = 0.283278; };
+        },
+        {
+            name = "sphere_material_color_-11_-10";
+            color = { r = 0.110785; g = 0.0469357; b = 0.0106459; };
+        },
+        {
+            name = "sphere_material_color_-11_-9";
+            color = { r = 0.00248236; g = 0.0449964; b = 0.0039715; };
+        },
+        {
+            name = "sphere_material_color_-11_-8";
+            color = { r = 0.273921; g = 0.0378172; b = 0.0585313; };
+        },
+        {
+            name = "sphere_material_color_-11_-7";
+            color = { r = 0.391912; g = 0.810854; b = 0.288617; };
+        },
+        {
+            name = "sphere_material_color_-11_-6";
+            color = { r = 0.779371; g = 0.208917; b = 0.727387; };
+        },
+        {
+            name = "sphere_material_color_-11_-5";
+            color = { r = 0.0160782; g = 0.0778125; b = 0.111731; };
+        },
+        {
+            name = "sphere_material_color_-11_-4";
+            color = { r = 0.427085; g = 0.228567; b = 0.190677; };
+        },
+        {
+            name = "sphere_material_color_-11_-3";
+            color = { r = 0.568555; g = 0.0495848; b = 0.348717; };
+        },
+        {
+            name = "sphere_material_color_-11_-2";
+            color = { r = 0.121673; g = 0.153615; b = 0.128843; };
+        },
+        {
+            name = "sphere_material_color_-11_-1";
+            color = { r = 0.459929; g = 0.0107363; b = 0.16997; };
+        },
+        {
+            name = "sphere_material_color_-11_0";
+            color = { r = 0.0487598; g = 0.386061; b = 0.0429016; };
+        },
+        {
+            name = "sphere_material_color_-11_3";
+            color = { r = 0.410559; g = 0.211308; b = 0.276694; };
+        },
+        {
+            name = "sphere_material_color_-11_4";
+            color = { r = 0.0541169; g = 0.0149579; b = 0.553347; };
+        },
+        {
+            name = "sphere_material_color_-11_6";
+            color = { r = 0.562721; g = 0.0583621; b = 0.557584; };
+        },
+        {
+            name = "sphere_material_color_-11_8";
+            color = { r = 0.0810953; g = 0.527798; b = 0.166787; };
+        },
+        {
+            name = "sphere_material_color_-11_9";
+            color = { r = 0.280677; g = 0.209709; b = 0.131989; };
+        },
+        {
+            name = "sphere_material_color_-11_10";
+            color = { r = 0.00137902; g = 0.116474; b = 0.0154169; };
+        },
+        {
+            name = "sphere_material_color_-10_-11";
+            color = { r = 0.246986; g = 0.0780603; b = 0.0107201; };
+        },
+        {
+            name = "sphere_material_color_-10_-10";
+            color = { r = 0.232557; g = 0.167776; b = 0.161812; };
+        },
+        {
+            name = "sphere_material_color_-10_-9";
+            color = { r = 0.164929; g = 0.233725; b = 0.182916; };
+        },
+        {
+            name = "sphere_material_color_-10_-7";
+            color = { r = 0.0110082; g = 0.270139; b = 0.391575; };
+        },
+        {
+            name = "sphere_material_color_-10_-6";
+            color = { r = 0.286632; g = 0.361152; b = 0.292885; };
+        },
+        {
+            name = "sphere_material_color_-10_-4";
+            color = { r = 0.212426; g = 0.11045; b = 0.169634; };
+        },
+        {
+            name = "sphere_material_color_-10_-3";
+            color = { r = 0.398088; g = 0.0925014; b = 0.492381; };
+        },
+        {
+            name = "sphere_material_color_-10_-1";
+            color = { r = 0.134591; g = 0.0807938; b = 0.14804; };
+        },
+        {
+            name = "sphere_material_color_-10_0";
+            color = { r = 0.162834; g = 0.335343; b = 0.287306; };
+        },
+        {
+            name = "sphere_material_color_-10_1";
+            color = { r = 0.274112; g = 0.707753; b = 0.267035; };
+        },
+        {
+            name = "sphere_material_color_-10_2";
+            color = { r = 0.750472; g = 0.0400732; b = 0.0667395; };
+        },
+        {
+            name = "sphere_material_color_-10_3";
+            color = { r = 0.464609; g = 0.0304209; b = 0.0731458; };
+        },
+        {
+            name = "sphere_material_color_-10_4";
+            color = { r = 0.189952; g = 0.193066; b = 0.390736; };
+        },
+        {
+            name = "sphere_material_color_-10_5";
+            color = { r = 0.611035; g = 0.00366968; b = 0.0397608; };
+        },
+        {
+            name = "sphere_material_color_-10_6";
+            color = { r = 0.348719; g = 0.75054; b = 0.135727; };
+        },
+        {
+            name = "sphere_material_color_-10_7";
+            color = { r = 0.0342141; g = 0.3139; b = 0.0206863; };
+        },
+        {
+            name = "sphere_material_color_-10_8";
+            color = { r = 0.0912594; g = 0.00876132; b = 0.738053; };
+        },
+        {
+            name = "sphere_material_color_-10_9";
+            color = { r = 0.229385; g = 0.0539509; b = 0.0224866; };
+        },
+        {
+            name = "sphere_material_color_-10_10";
+            color = { r = 0.502964; g = 0.0884886; b = 0.47417; };
+        },
+        {
+            name = "sphere_material_color_-9_-11";
+            color = { r = 0.234447; g = 0.0199993; b = 0.490294; };
+        },
+        {
+            name = "sphere_material_color_-9_-10";
+            color = { r = 0.22444; g = 0.120588; b = 0.636784; };
+        },
+        {
+            name = "sphere_material_color_-9_-9";
+            color = { r = 0.468383; g = 0.0570167; b = 0.196537; };
+        },
+        {
+            name = "sphere_material_color_-9_-7";
+            color = { r = 0.216839; g = 0.11152; b = 0.0379243; };
+        },
+        {
+            name = "sphere_material_color_-9_-6";
+            color = { r = 0.333683; g = 0.865405; b = 0.145582; };
+        },
+        {
+            name = "sphere_material_color_-9_-5";
+            color = { r = 0.00172769; g = 0.247434; b = 0.209007; };
+        },
+        {
+            name = "sphere_material_color_-9_-4";
+            color = { r = 0.40977; g = 0.00677899; b = 0.608887; };
+        },
+        {
+            name = "sphere_material_color_-9_-3";
+            color = { r = 0.0314994; g = 0.0929095; b = 0.000608508; };
+        },
+        {
+            name = "sphere_material_color_-9_-2";
+            color = { r = 0.474075; g = 0.350966; b = 0.650996; };
+        },
+        {
+            name = "sphere_material_color_-9_-1";
+            color = { r = 0.0742257; g = 0.0219501; b = 0.501235; };
+        },
+        {
+            name = "sphere_material_color_-9_0";
+            color = { r = 0.90562; g = 0.0424246; b = 0.170468; };
+        },
+        {
+            name = "sphere_material_color_-9_1";
+            color = { r = 0.470646; g = 0.025597; b = 0.140674; };
+        },
+        {
+            name = "sphere_material_color_-9_2";
+            color = { r = 0.354255; g = 0.205233; b = 0.149514; };
+        },
+        {
+            name = "sphere_material_color_-9_3";
+            color = { r = 0.187866; g = 0.0784273; b = 0.0156107; };
+        },
+        {
+            name = "sphere_material_color_-9_4";
+            color = { r = 0.12849; g = 0.606197; b = 0.690244; };
+        },
+        {
+            name = "sphere_material_color_-9_6";
+            color = { r = 0.00934862; g = 0.187888; b = 0.229652; };
+        },
+        {
+            name = "sphere_material_color_-9_7";
+            color = { r = 0.0456968; g = 0.092085; b = 0.0769706; };
+        },
+        {
+            name = "sphere_material_color_-9_8";
+            color = { r = 0.0791384; g = 0.405326; b = 0.368778; };
+        },
+        {
+            name = "sphere_material_color_-9_10";
+            color = { r = 0.184782; g = 0.255654; b = 0.0202269; };
+        },
+        {
+            name = "sphere_material_color_-8_-11";
+            color = { r = 0.109102; g = 0.515691; b = 0.154228; };
+        },
+        {
+            name = "sphere_material_color_-8_-10";
+            color = { r = 0.182371; g = 0.0947912; b = 0.201551; };
+        },
+        {
+            name = "sphere_material_color_-8_-9";
+            color = { r = 0.35615; g = 0.089045; b = 0.594186; };
+        },
+        {
+            name = "sphere_material_color_-8_-8";
+            color = { r = 0.121302; g = 0.050658; b = 0.019385; };
+        },
+        {
+            name = "sphere_material_color_-8_-7";
+            color = { r = 0.0605208; g = 0.377519; b = 0.130124; };
+        },
+        {
+            name = "sphere_material_color_-8_-6";
+            color = { r = 0.504236; g = 0.659463; b = 0.246369; };
+        },
+        {
+            name = "sphere_material_color_-8_-5";
+            color = { r = 0.0129223; g = 0.133009; b = 0.251466; };
+        },
+        {
+            name = "sphere_material_color_-8_-4";
+            color = { r = 0.211949; g = 0.203677; b = 0.333632; };
+        },
+        {
+            name = "sphere_material_color_-8_-2";
+            color = { r = 0.178254; g = 0.0190113; b = 0.000497093; };
+        },
+        {
+            name = "sphere_material_color_-8_0";
+            color = { r = 0.481959; g = 0.26307; b = 0.467497; };
+        },
+        {
+            name = "sphere_material_color_-8_1";
+            color = { r = 0.201878; g = 0.126967; b = 0.20609; };
+        },
+        {
+            name = "sphere_material_color_-8_2";
+            color = { r = 0.516905; g = 0.142762; b = 0.806297; };
+        },
+        {
+            name = "sphere_material_color_-8_3";
+            color = { r = 0.54925; g = 0.157412; b = 0.599376; };
+        },
+        {
+            name = "sphere_material_color_-8_4";
+            color = { r = 0.575747; g = 0.0139276; b = 0.379011; };
+        },
+        {
+            name = "sphere_material_color_-8_6";
+            color = { r = 0.11782; g = 0.19017; b = 0.0467014; };
+        },
+        {
+            name = "sphere_material_color_-8_8";
+            color = { r = 0.0529219; g = 0.00711262; b = 0.00107498; };
+        },
+        {
+            name = "sphere_material_color_-8_9";
+            color = { r = 0.358447; g = 0.0306441; b = 0.29124; };
+        },
+        {
+            name = "sphere_material_color_-7_-7";
+            color = { r = 0.00265059; g = 0.0533329; b = 0.0391372; };
+        },
+        {
+            name = "sphere_material_color_-7_-4";
+            color = { r = 0.118213; g = 0.293916; b = 0.136138; };
+        },
+        {
+            name = "sphere_material_color_-7_-3";
+            color = { r = 0.0154664; g = 0.459527; b = 0.473096; };
+        },
+        {
+            name = "sphere_material_color_-7_-2";
+            color = { r = 0.180016; g = 0.441533; b = 0.733665; };
+        },
+        {
+            name = "sphere_material_color_-7_-1";
+            color = { r = 0.366154; g = 0.234607; b = 0.35091; };
+        },
+        {
+            name = "sphere_material_color_-7_0";
+            color = { r = 0.899684; g = 0.469268; b = 0.163438; };
+        },
+        {
+            name = "sphere_material_color_-7_1";
+            color = { r = 0.224065; g = 0.0822615; b = 0.460198; };
+        },
+        {
+            name = "sphere_material_color_-7_2";
+            color = { r = 0.349179; g = 0.0230052; b = 0.0215742; };
+        },
+        {
+            name = "sphere_material_color_-7_3";
+            color = { r = 0.0167391; g = 0.396719; b = 0.0220734; };
+        },
+        {
+            name = "sphere_material_color_-7_4";
+            color = { r = 0.344425; g = 0.110262; b = 0.0711527; };
+        },
+        {
+            name = "sphere_material_color_-7_6";
+            color = { r = 0.341888; g = 0.492375; b = 0.479572; };
+        },
+        {
+            name = "sphere_material_color_-7_7";
+            color = { r = 0.00425168; g = 0.346243; b = 0.713962; };
+        },
+        {
+            name = "sphere_material_color_-7_8";
+            color = { r = 0.072282; g = 0.0250036; b = 0.0974455; };
+        },
+        {
+            name = "sphere_material_color_-7_9";
+            color = { r = 0.297736; g = 0.253266; b = 0.740587; };
+        },
+        {
+            name = "sphere_material_color_-7_10";
+            color = { r = 0.110526; g = 0.173985; b = 0.0759475; };
+        },
+        {
+            name = "sphere_material_color_-6_-11";
+            color = { r = 0.00136495; g = 0.0407328; b = 0.150796; };
+        },
+        {
+            name = "sphere_material_color_-6_-10";
+            color = { r = 0.0694978; g = 0.276809; b = 0.110026; };
+        },
+        {
+            name = "sphere_material_color_-6_-8";
+            color = { r = 0.436923; g = 0.10423; b = 0.0405793; };
+        },
+        {
+            name = "sphere_material_color_-6_-7";
+            color = { r = 0.345767; g = 0.27921; b = 0.440963; };
+        },
+        {
+            name = "sphere_material_color_-6_-6";
+            color = { r = 0.0434988; g = 0.118937; b = 0.000187755; };
+        },
+        {
+            name = "sphere_material_color_-6_-5";
+            color = { r = 0.128819; g = 0.507232; b = 0.685068; };
+        },
+        {
+            name = "sphere_material_color_-6_-4";
+            color = { r = 0.0534568; g = 0.044214; b = 0.0926989; };
+        },
+        {
+            name = "sphere_material_color_-6_-2";
+            color = { r = 0.146585; g = 0.0362998; b = 0.532985; };
+        },
+        {
+            name = "sphere_material_color_-6_-1";
+            color = { r = 0.325578; g = 0.815417; b = 0.101102; };
+        },
+        {
+            name = "sphere_material_color_-6_0";
+            color = { r = 0.0250742; g = 0.238916; b = 0.324746; };
+        },
+        {
+            name = "sphere_material_color_-6_2";
+            color = { r = 0.0809884; g = 0.306855; b = 0.529019; };
+        },
+        {
+            name = "sphere_material_color_-6_4";
+            color = { r = 0.0242214; g = 0.0518432; b = 0.454769; };
+        },
+        {
+            name = "sphere_material_color_-6_5";
+            color = { r = 0.288271; g = 0.84497; b = 0.434559; };
+        },
+        {
+            name = "sphere_material_color_-6_6";
+            color = { r = 0.00418914; g = 0.145967; b = 0.208253; };
+        },
+        {
+            name = "sphere_material_color_-6_7";
+            color = { r = 0.188636; g = 0.0557218; b = 0.840424; };
+        },
+        {
+            name = "sphere_material_color_-6_8";
+            color = { r = 0.252286; g = 0.00440653; b = 0.0591484; };
+        },
+        {
+            name = "sphere_material_color_-6_9";
+            color = { r = 0.057391; g = 0.582833; b = 0.496915; };
+        },
+        {
+            name = "sphere_material_color_-6_10";
+            color = { r = 0.045562; g = 0.256367; b = 0.345897; };
+        },
+        {
+            name = "sphere_material_color_-5_-11";
+            color = { r = 0.456737; g = 0.411515; b = 0.257701; };
+        },
+        {
+            name = "sphere_material_color_-5_-10";
+            color = { r = 0.220261; g = 0.356512; b = 0.00666885; };
+        },
+        {
+            name = "sphere_material_color_-5_-9";
+            color = { r = 0.338484; g = 0.55596; b = 0.124816; };
+        },
+        {
+            name = "sphere_material_color_-5_-8";
+            color = { r = 0.348783; g = 0.263462; b = 0.288057; };
+        },
+        {
+            name = "sphere_material_color_-5_-7";
+            color = { r = 0.501907; g = 0.570634; b = 0.224662; };
+        },
+        {
+            name = "sphere_material_color_-5_-6";
+            color = { r = 0.816026; g = 0.0625567; b = 0.151694; };
+        },
+        {
+            name = "sphere_material_color_-5_-5";
+            color = { r = 0.216697; g = 0.635779; b = 0.16899; };
+        },
+        {
+            name = "sphere_material_color_-5_-4";
+            color = { r = 0.0178186; g = 0.0340191; b = 0.886054; };
+        },
+        {
+            name = "sphere_material_color_-5_-3";
+            color = { r = 0.324066; g = 0.039402; b = 0.0114085; };
+        },
+        {
+            name = "sphere_material_color_-5_-2";
+            color = { r = 0.241404; g = 0.439907; b = 0.12044; };
+        },
+        {
+            name = "sphere_material_color_-5_0";
+            color = { r = 0.675013; g = 0.30002; b = 0.2331; };
+        },
+        {
+            name = "sphere_material_color_-5_1";
+            color = { r = 0.00566565; g = 0.0229989; b = 0.0799961; };
+        },
+        {
+            name = "sphere_material_color_-5_2";
+            color = { r = 0.606773; g = 0.609207; b = 0.238147; };
+        },
+        {
+            name = "sphere_material_color_-5_4";
+            color = { r = 0.391508; g = 0.0106031; b = 0.0401393; };
+        },
+        {
+            name = "sphere_material_color_-5_5";
+            color = { r = 0.00728576; g = 0.107824; b = 0.163256; };
+        },
+        {
+            name = "sphere_material_color_-5_6";
+            color = { r = 0.142885; g = 0.0915954; b = 0.628485; };
+        },
+        {
+            name = "sphere_material_color_-5_7";
+            color = { r = 0.552592; g = 0.478681; b = 0.0281537; };
+        },
+        {
+            name = "sphere_material_color_-5_8";
+            color = { r = 0.11773; g = 0.096069; b = 0.267499; };
+        },
+        {
+            name = "sphere_material_color_-5_9";
+            color = { r = 0.679697; g = 0.321076; b = 0.217991; };
+        },
+        {
+            name = "sphere_material_color_-5_10";
+            color = { r = 0.109855; g = 0.276449; b = 0.482659; };
+        },
+        {
+            name = "sphere_material_color_-4_-11";
+            color = { r = 0.507903; g = 0.600202; b = 0.176945; };
+        },
+        {
+            name = "sphere_material_color_-4_-10";
+            color = { r = 0.00709831; g = 0.416019; b = 0.0320255; };
+        },
+        {
+            name = "sphere_material_color_-4_-8";
+            color = { r = 0.0331443; g = 0.18564; b = 0.00338466; };
+        },
+        {
+            name = "sphere_material_color_-4_-7";
+            color = { r = 0.186113; g = 0.0697379; b = 0.150703; };
+        },
+        {
+            name = "sphere_material_color_-4_-5";
+            color = { r = 0.0542198; g = 0.0518922; b = 0.218511; };
+        },
+        {
+            name = "sphere_material_color_-4_-4";
+            color = { r = 0.0601395; g = 0.137536; b = 0.024327; };
+        },
+        {
+            name = "sphere_material_color_-4_-3";
+            color = { r = 0.602956; g = 0.160338; b = 0.0501265; };
+        },
+        {
+            name = "sphere_material_color_-4_-2";
+            color = { r = 0.582179; g = 0.120205; b = 0.376612; };
+        },
+        {
+            name = "sphere_material_color_-4_-1";
+            color = { r = 0.301613; g = 0.366129; b = 0.0695121; };
+        },
+        {
+            name = "sphere_material_color_-4_0";
+            color = { r = 0.0807844; g = 0.345483; b = 0.403896; };
+        },
+        {
+            name = "sphere_material_color_-4_2";
+            color = { r = 0.58102; g = 0.0716992; b = 0.0840484; };
+        },
+        {
+            name = "sphere_material_color_-4_3";
+            color = { r = 0.552615; g = 0.253946; b = 0.698566; };
+        },
+        {
+            name = "sphere_material_color_-4_5";
+            color = { r = 0.157167; g = 0.00463674; b = 0.106553; };
+        },
+        {
+            name = "sphere_material_color_-4_6";
+            color = { r = 0.0317519; g = 0.0410692; b = 0.0457608; };
+        },
+        {
+            name = "sphere_material_color_-4_8";
+            color = { r = 0.582447; g = 0.00183421; b = 0.186431; };
+        },
+        {
+            name = "sphere_material_color_-4_9";
+            color = { r = 0.125162; g = 0.20567; b = 0.395501; };
+        },
+        {
+            name = "sphere_material_color_-3_-10";
+            color = { r = 0.17178; g = 0.834725; b = 0.228318; };
+        },
+        {
+            name = "sphere_material_color_-3_-9";
+            color = { r = 0.0980953; g = 0.0479648; b = 0.00730599; };
+        },
+        {
+            name = "sphere_material_color_-3_-8";
+            color = { r = 0.279124; g = 0.062707; b = 0.506934; };
+        },
+        {
+            name = "sphere_material_color_-3_-7";
+            color = { r = 0.558472; g = 0.000790733; b = 0.203875; };
+        },
+        {
+            name = "sphere_material_color_-3_-6";
+            color = { r = 0.365879; g = 0.125402; b = 0.0691588; };
+        },
+        {
+            name = "sphere_material_color_-3_-4";
+            color = { r = 0.0323864; g = 0.0894695; b = 0.149344; };
+        },
+        {
+            name = "sphere_material_color_-3_-2";
+            color = { r = 0.879781; g = 0.224066; b = 0.052948; };
+        },
+        {
+            name = "sphere_material_color_-3_-1";
+            color = { r = 0.770339; g = 0.074462; b = 0.193988; };
+        },
+        {
+            name = "sphere_material_color_-3_3";
+            color = { r = 0.0418712; g = 0.171658; b = 0.00391854; };
+        },
+        {
+            name = "sphere_material_color_-3_4";
+            color = { r = 0.0404476; g = 0.728681; b = 0.411667; };
+        },
+        {
+            name = "sphere_material_color_-3_6";
+            color = { r = 0.281643; g = 0.147402; b = 0.114482; };
+        },
+        {
+            name = "sphere_material_color_-3_7";
+            color = { r = 0.234045; g = 0.0522534; b = 0.0978895; };
+        },
+        {
+            name = "sphere_material_color_-3_8";
+            color = { r = 0.125984; g = 0.33864; b = 0.654875; };
+        },
+        {
+            name = "sphere_material_color_-3_9";
+            color = { r = 0.39032; g = 0.393925; b = 0.383405; };
+        },
+        {
+            name = "sphere_material_color_-2_-11";
+            color = { r = 0.127714; g = 0.0202471; b = 0.0807523; };
+        },
+        {
+            name = "sphere_material_color_-2_-9";
+            color = { r = 0.0335553; g = 0.831071; b = 0.0637388; };
+        },
+        {
+            name = "sphere_material_color_-2_-8";
+            color = { r = 0.0439101; g = 0.120965; b = 0.0439007; };
+        },
+        {
+            name = "sphere_material_color_-2_-7";
+            color = { r = 0.810701; g = 0.0676278; b = 0.0680198; };
+        },
+        {
+            name = "sphere_material_color_-2_-5";
+            color = { r = 0.524809; g = 0.422517; b = 0.00697707; };
+        },
+        {
+            name = "sphere_material_color_-2_-4";
+            color = { r = 0.0447552; g = 0.362061; b = 0.812578; };
+        },
+        {
+            name = "sphere_material_color_-2_-3";
+            color = { r = 0.171235; g = 0.588953; b = 0.468903; };
+        },
+        {
+            name = "sphere_material_color_-2_-2";
+            color = { r = 0.103544; g = 0.528772; b = 0.182909; };
+        },
+        {
+            name = "sphere_material_color_-2_-1";
+            color = { r = 0.0545903; g = 0.113314; b = 0.156921; };
+        },
+        {
+            name = "sphere_material_color_-2_0";
+            color = { r = 0.00322267; g = 0.560599; b = 0.0312592; };
+        },
+        {
+            name = "sphere_material_color_-2_2";
+            color = { r = 0.0107962; g = 0.139875; b = 0.317065; };
+        },
+        {
+            name = "sphere_material_color_-2_3";
+            color = { r = 0.316515; g = 0.131218; b = 0.0325494; };
+        },
+        {
+            name = "sphere_material_color_-2_4";
+            color = { r = 0.191227; g = 0.220063; b = 0.606195; };
+        },
+        {
+            name = "sphere_material_color_-2_5";
+            color = { r = 0.170561; g = 0.0151685; b = 0.0741625; };
+        },
+        {
+            name = "sphere_material_color_-2_8";
+            color = { r = 0.608931; g = 0.0150627; b = 0.308931; };
+        },
+        {
+            name = "sphere_material_color_-2_9";
+            color = { r = 0.12943; g = 0.0347142; b = 0.0722942; };
+        },
+        {
+            name = "sphere_material_color_-2_10";
+            color = { r = 0.0391313; g = 0.423311; b = 0.150846; };
+        },
+        {
+            name = "sphere_material_color_-1_-11";
+            color = { r = 0.0870491; g = 0.156623; b = 0.0850341; };
+        },
+        {
+            name = "sphere_material_color_-1_-10";
+            color = { r = 0.0153648; g = 0.193521; b = 0.196921; };
+        },
+        {
+            name = "sphere_material_color_-1_-9";
+            color = { r = 0.259421; g = 0.225456; b = 0.622025; };
+        },
+        {
+            name = "sphere_material_color_-1_-8";
+            color = { r = 0.417997; g = 0.000366943; b = 0.00791588; };
+        },
+        {
+            name = "sphere_material_color_-1_-7";
+            color = { r = 0.0301713; g = 0.293552; b = 0.449871; };
+        },
+        {
+            name = "sphere_material_color_-1_-6";
+            color = { r = 0.50746; g = 0.613683; b = 0.119514; };
+        },
+        {
+            name = "sphere_material_color_-1_-5";
+            color = { r = 0.783109; g = 0.157617; b = 0.130324; };
+        },
+        {
+            name = "sphere_material_color_-1_-4";
+            color = { r = 0.545729; g = 0.235497; b = 0.220275; };
+        },
+        {
+            name = "sphere_material_color_-1_-3";
+            color = { r = 0.426702; g = 0.00486331; b = 0.476827; };
+        },
+        {
+            name = "sphere_material_color_-1_-2";
+            color = { r = 0.776113; g = 0.672462; b = 0.54463; };
+        },
+        {
+            name = "sphere_material_color_-1_-1";
+            color = { r = 0.109501; g = 0.46466; b = 0.0614843; };
+        },
+        {
+            name = "sphere_material_color_-1_1";
+            color = { r = 0.747506; g = 0.0344619; b = 0.0474893; };
+        },
+        {
+            name = "sphere_material_color_-1_2";
+            color = { r = 0.0704823; g = 0.0976167; b = 0.187972; };
+        },
+        {
+            name = "sphere_material_color_-1_3";
+            color = { r = 0.0792947; g = 0.304377; b = 0.433309; };
+        },
+        {
+            name = "sphere_material_color_-1_4";
+            color = { r = 0.168587; g = 0.36283; b = 0.0972842; };
+        },
+        {
+            name = "sphere_material_color_-1_5";
+            color = { r = 0.0921165; g = 0.238647; b = 0.321987; };
+        },
+        {
+            name = "sphere_material_color_-1_6";
+            color = { r = 0.00476263; g = 0.285726; b = 0.0489809; };
+        },
+        {
+            name = "sphere_material_color_-1_7";
+            color = { r = 0.0935328; g = 0.460073; b = 0.479256; };
+        },
+        {
+            name = "sphere_material_color_-1_10";
+            color = { r = 0.566766; g = 0.658823; b = 0.374193; };
+        },
+        {
+            name = "sphere_material_color_0_-11";
+            color = { r = 0.171664; g = 0.114601; b = 0.23461; };
+        },
+        {
+            name = "sphere_material_color_0_-10";
+            color = { r = 0.804403; g = 0.0444172; b = 0.107614; };
+        },
+        {
+            name = "sphere_material_color_0_-9";
+            color = { r = 0.365785; g = 0.464215; b = 0.410785; };
+        },
+        {
+            name = "sphere_material_color_0_-8";
+            color = { r = 0.419279; g = 0.21076; b = 0.227941; };
+        },
+        {
+            name = "sphere_material_color_0_-7";
+            color = { r = 0.047966; g = 0.388921; b = 0.0903594; };
+        },
+        {
+            name = "sphere_material_color_0_-5";
+            color = { r = 0.0514715; g = 0.0895364; b = 0.218969; };
+        },
+        {
+            name = "sphere_material_color_0_-4";
+            color = { r = 0.0220971; g = 0.558771; b = 0.138224; };
+        },
+        {
+            name = "sphere_material_color_0_-3";
+            color = { r = 0.365943; g = 0.665871; b = 0.404434; };
+        },
+        {
+            name = "sphere_material_color_0_-2";
+            color = { r = 0.184406; g = 0.0135699; b = 0.275021; };
+        },
+        {
+            name = "sphere_material_color_0_-1";
+            color = { r = 0.143121; g = 0.245213; b = 0.372078; };
+        },
+        {
+            name = "sphere_material_color_0_0";
+            color = { r = 0.308745; g = 0.165404; b = 0.237929; };
+        },
+        {
+            name = "sphere_material_color_0_2";
+            color = { r = 0.706742; g = 0.235878; b = 0.163887; };
+        },
+        {
+            name = "sphere_material_color_0_3";
+            color = { r = 0.475144; g = 0.710833; b = 0.182592; };
+        },
+        {
+            name = "sphere_material_color_0_5";
+            color = { r = 0.23491; g = 0.235959; b = 0.278862; };
+        },
+        {
+            name = "sphere_material_color_0_6";
+            color = { r = 0.53889; g = 0.0253814; b = 0.786186; };
+        },
+        {
+            name = "sphere_material_color_0_7";
+            color = { r = 0.222423; g = 0.67433; b = 0.042635; };
+        },
+        {
+            name = "sphere_material_color_0_8";
+            color = { r = 0.238362; g = 0.0220499; b = 0.00298154; };
+        },
+        {
+            name = "sphere_material_color_0_9";
+            color = { r = 0.411337; g = 0.395255; b = 0.685764; };
+        },
+        {
+            name = "sphere_material_color_0_10";
+            color = { r = 0.473865; g = 0.23569; b = 0.00847151; };
+        },
+        {
+            name = "sphere_material_color_1_-11";
+            color = { r = 0.361552; g = 0.272825; b = 0.372221; };
+        },
+        {
+            name = "sphere_material_color_1_-10";
+            color = { r = 0.221988; g = 0.00753427; b = 0.364441; };
+        },
+        {
+            name = "sphere_material_color_1_-9";
+            color = { r = 0.719835; g = 0.611364; b = 0.223697; };
+        },
+        {
+            name = "sphere_material_color_1_-8";
+            color = { r = 0.193391; g = 0.0670311; b = 0.109606; };
+        },
+        {
+            name = "sphere_material_color_1_-7";
+            color = { r = 0.180799; g = 0.541378; b = 0.453484; };
+        },
+        {
+            name = "sphere_material_color_1_-6";
+            color = { r = 0.332251; g = 0.185576; b = 0.251064; };
+        },
+        {
+            name = "sphere_material_color_1_-5";
+            color = { r = 0.150476; g = 0.201001; b = 0.174193; };
+        },
+        {
+            name = "sphere_material_color_1_-4";
+            color = { r = 0.399155; g = 0.406651; b = 0.134255; };
+        },
+        {
+            name = "sphere_material_color_1_0";
+            color = { r = 0.034755; g = 0.195115; b = 0.695029; };
+        },
+        {
+            name = "sphere_material_color_1_1";
+            color = { r = 0.177106; g = 0.470413; b = 0.219531; };
+        },
+        {
+            name = "sphere_material_color_1_2";
+            color = { r = 0.166224; g = 0.395788; b = 0.597349; };
+        },
+        {
+            name = "sphere_material_color_1_4";
+            color = { r = 0.484987; g = 0.173844; b = 0.382738; };
+        },
+        {
+            name = "sphere_material_color_1_5";
+            color = { r = 0.689029; g = 0.449226; b = 0.0829718; };
+        },
+        {
+            name = "sphere_material_color_1_7";
+            color = { r = 0.210082; g = 0.514306; b = 0.00476721; };
+        },
+        {
+            name = "sphere_material_color_1_8";
+            color = { r = 0.00490026; g = 0.0123297; b = 0.124604; };
+        },
+        {
+            name = "sphere_material_color_1_9";
+            color = { r = 0.293304; g = 0.0856499; b = 0.252468; };
+        },
+        {
+            name = "sphere_material_color_1_10";
+            color = { r = 0.280649; g = 0.133409; b = 0.349175; };
+        },
+        {
+            name = "sphere_material_color_2_-11";
+            color = { r = 0.209764; g = 0.13348; b = 0.336451; };
+        },
+        {
+            name = "sphere_material_color_2_-10";
+            color = { r = 0.0863174; g = 0.0232398; b = 0.00862687; };
+        },
+        {
+            name = "sphere_material_color_2_-7";
+            color = { r = 0.731402; g = 0.0158561; b = 0.737395; };
+        },
+        {
+            name = "sphere_material_color_2_-6";
+            color = { r = 0.510281; g = 0.158674; b = 0.00714814; };
+        },
+        {
+            name = "sphere_material_color_2_-5";
+            color = { r = 0.869151; g = 0.538608; b = 0.785019; };
+        },
+        {
+            name = "sphere_material_color_2_-4";
+            color = { r = 0.438135; g = 0.155728; b = 0.208741; };
+        },
+        {
+            name = "sphere_material_color_2_-3";
+            color = { r = 0.133588; g = 0.00464557; b = 0.117862; };
+        },
+        {
+            name = "sphere_material_color_2_-2";
+            color = { r = 0.0419015; g = 0.218799; b = 9.24505e-05; };
+        },
+        {
+            name = "sphere_material_color_2_2";
+            color = { r = 0.0204749; g = 0.111291; b = 0.0806036; };
+        },
+        {
+            name = "sphere_material_color_2_4";
+            color = { r = 0.319658; g = 0.0700802; b = 0.0487646; };
+        },
+        {
+            name = "sphere_material_color_2_5";
+            color = { r = 0.116844; g = 0.141626; b = 0.0339939; };
+        },
+        {
+            name = "sphere_material_color_2_6";
+            color = { r = 0.560368; g = 0.0185858; b = 0.516331; };
+        },
+        {
+            name = "sphere_material_color_2_7";
+            color = { r = 0.130328; g = 0.0801815; b = 0.00799221; };
+        },
+        {
+            name = "sphere_material_color_2_9";
+            color = { r = 0.426296; g = 0.399983; b = 0.010812; };
+        },
+        {
+            name = "sphere_material_color_2_10";
+            color = { r = 0.168894; g = 0.0767849; b = 0.481031; };
+        },
+        {
+            name = "sphere_material_color_3_-11";
+            color = { r = 0.408215; g = 0.336963; b = 0.470412; };
+        },
+        {
+            name = "sphere_material_color_3_-10";
+            color = { r = 0.0498535; g = 0.556584; b = 0.0405779; };
+        },
+        {
+            name = "sphere_material_color_3_-8";
+            color = { r = 0.0135092; g = 0.694462; b = 0.0193517; };
+        },
+        {
+            name = "sphere_material_color_3_-7";
+            color = { r = 0.189926; g = 0.0572589; b = 0.0348273; };
+        },
+        {
+            name = "sphere_material_color_3_-6";
+            color = { r = 0.187384; g = 0.00817254; b = 0.455393; };
+        },
+        {
+            name = "sphere_material_color_3_-5";
+            color = { r = 0.134864; g = 0.0502575; b = 0.188087; };
+        },
+        {
+            name = "sphere_material_color_3_-4";
+            color = { r = 0.452115; g = 0.0761073; b = 0.0576231; };
+        },
+        {
+            name = "sphere_material_color_3_-3";
+            color = { r = 0.124096; g = 0.208386; b = 0.201819; };
+        },
+        {
+            name = "sphere_material_color_3_-2";
+            color = { r = 0.165634; g = 0.00855382; b = 0.0071407; };
+        },
+        {
+            name = "sphere_material_color_3_1";
+            color = { r = 0.0268724; g = 0.0325099; b = 0.0917116; };
+        },
+        {
+            name = "sphere_material_color_3_2";
+            color = { r = 0.144801; g = 0.0594755; b = 0.64449; };
+        },
+        {
+            name = "sphere_material_color_3_4";
+            color = { r = 0.116367; g = 0.387478; b = 0.518928; };
+        },
+        {
+            name = "sphere_material_color_3_5";
+            color = { r = 0.209321; g = 0.424129; b = 0.25978; };
+        },
+        {
+            name = "sphere_material_color_3_7";
+            color = { r = 0.475552; g = 0.164473; b = 0.00280486; };
+        },
+        {
+            name = "sphere_material_color_3_9";
+            color = { r = 0.395449; g = 0.0241541; b = 0.332205; };
+        },
+        {
+            name = "sphere_material_color_4_-11";
+            color = { r = 0.109651; g = 0.153085; b = 0.0137001; };
+        },
+        {
+            name = "sphere_material_color_4_-8";
+            color = { r = 0.23959; g = 0.543051; b = 0.567056; };
+        },
+        {
+            name = "sphere_material_color_4_-7";
+            color = { r = 0.00524367; g = 0.592084; b = 0.279358; };
+        },
+        {
+            name = "sphere_material_color_4_-6";
+            color = { r = 0.174583; g = 0.0592874; b = 0.512578; };
+        },
+        {
+            name = "sphere_material_color_4_-5";
+            color = { r = 0.000992987; g = 0.00542767; b = 0.799478; };
+        },
+        {
+            name = "sphere_material_color_4_-3";
+            color = { r = 0.481574; g = 0.132395; b = 0.615292; };
+        },
+        {
+            name = "sphere_material_color_4_-2";
+            color = { r = 0.140007; g = 0.654192; b = 0.304336; };
+        },
+        {
+            name = "sphere_material_color_4_0";
+            color = { r = 0.25279; g = 0.172144; b = 0.033286; };
+        },
+        {
+            name = "sphere_material_color_4_1";
+            color = { r = 0.289746; g = 0.0914214; b = 0.4672; };
+        },
+        {
+            name = "sphere_material_color_4_2";
+            color = { r = 0.160573; g = 0.0038442; b = 0.0291901; };
+        },
+        {
+            name = "sphere_material_color_4_4";
+            color = { r = 0.342928; g = 0.102475; b = 0.00751633; };
+        },
+        {
+            name = "sphere_material_color_4_5";
+            color = { r = 0.450955; g = 0.164452; b = 0.794713; };
+        },
+        {
+            name = "sphere_material_color_4_6";
+            color = { r = 0.0031095; g = 0.0358248; b = 0.262969; };
+        },
+        {
+            name = "sphere_material_color_4_7";
+            color = { r = 0.345752; g = 0.298989; b = 0.526715; };
+        },
+        {
+            name = "sphere_material_color_4_8";
+            color = { r = 0.075824; g = 0.758653; b = 0.0860453; };
+        },
+        {
+            name = "sphere_material_color_4_9";
+            color = { r = 0.805203; g = 0.0201999; b = 0.401898; };
+        },
+        {
+            name = "sphere_material_color_4_10";
+            color = { r = 0.0269291; g = 0.2181; b = 0.00134807; };
+        },
+        {
+            name = "sphere_material_color_5_-11";
+            color = { r = 0.269149; g = 0.398376; b = 0.249102; };
+        },
+        {
+            name = "sphere_material_color_5_-10";
+            color = { r = 0.103322; g = 0.452504; b = 0.210289; };
+        },
+        {
+            name = "sphere_material_color_5_-9";
+            color = { r = 0.415071; g = 0.0672279; b = 0.356541; };
+        },
+        {
+            name = "sphere_material_color_5_-8";
+            color = { r = 0.641561; g = 0.272481; b = 0.170074; };
+        },
+        {
+            name = "sphere_material_color_5_-7";
+            color = { r = 0.338998; g = 0.22311; b = 0.285732; };
+        },
+        {
+            name = "sphere_material_color_5_-6";
+            color = { r = 0.47183; g = 0.269868; b = 0.0520855; };
+        },
+        {
+            name = "sphere_material_color_5_-4";
+            color = { r = 0.304377; g = 0.208308; b = 0.30717; };
+        },
+        {
+            name = "sphere_material_color_5_-3";
+            color = { r = 0.30136; g = 0.0774054; b = 0.29835; };
+        },
+        {
+            name = "sphere_material_color_5_-2";
+            color = { r = 0.0734598; g = 0.0259542; b = 0.0874105; };
+        },
+        {
+            name = "sphere_material_color_5_-1";
+            color = { r = 0.476758; g = 0.0121556; b = 0.602319; };
+        },
+        {
+            name = "sphere_material_color_5_0";
+            color = { r = 0.844611; g = 0.219352; b = 0.101925; };
+        },
+        {
+            name = "sphere_material_color_5_1";
+            color = { r = 0.101558; g = 0.17466; b = 0.373541; };
+        },
+        {
+            name = "sphere_material_color_5_2";
+            color = { r = 0.350946; g = 0.325285; b = 0.180736; };
+        },
+        {
+            name = "sphere_material_color_5_4";
+            color = { r = 0.0329662; g = 0.0413016; b = 0.72529; };
+        },
+        {
+            name = "sphere_material_color_5_5";
+            color = { r = 0.0171279; g = 0.328618; b = 0.0667868; };
+        },
+        {
+            name = "sphere_material_color_5_6";
+            color = { r = 0.306827; g = 0.0441909; b = 0.504257; };
+        },
+        {
+            name = "sphere_material_color_5_9";
+            color = { r = 0.169796; g = 0.772448; b = 0.0114464; };
+        },
+        {
+            name = "sphere_material_color_5_10";
+            color = { r = 0.6734; g = 0.318295; b = 0.931797; };
+        },
+        {
+            name = "sphere_material_color_6_-11";
+            color = { r = 0.725635; g = 0.235766; b = 0.158648; };
+        },
+        {
+            name = "sphere_material_color_6_-10";
+            color = { r = 0.15133; g = 0.257061; b = 0.277096; };
+        },
+        {
+            name = "sphere_material_color_6_-9";
+            color = { r = 0.0013811; g = 0.0215674; b = 0.0931216; };
+        },
+        {
+            name = "sphere_material_color_6_-5";
+            color = { r = 0.454378; g = 0.08128; b = 0.619254; };
+        },
+        {
+            name = "sphere_material_color_6_-4";
+            color = { r = 0.952158; g = 0.556016; b = 0.258403; };
+        },
+        {
+            name = "sphere_material_color_6_-3";
+            color = { r = 0.00777646; g = 0.141832; b = 0.4167; };
+        },
+        {
+            name = "sphere_material_color_6_-2";
+            color = { r = 0.0889633; g = 0.124602; b = 0.665783; };
+        },
+        {
+            name = "sphere_material_color_6_-1";
+            color = { r = 0.265373; g = 0.0310412; b = 0.18766; };
+        },
+        {
+            name = "sphere_material_color_6_0";
+            color = { r = 0.191391; g = 0.0153184; b = 0.180461; };
+        },
+        {
+            name = "sphere_material_color_6_1";
+            color = { r = 0.440106; g = 0.146132; b = 0.0340364; };
+        },
+        {
+            name = "sphere_material_color_6_3";
+            color = { r = 0.353026; g = 0.555156; b = 0.213216; };
+        },
+        {
+            name = "sphere_material_color_6_4";
+            color = { r = 0.136457; g = 0.0353845; b = 0.191727; };
+        },
+        {
+            name = "sphere_material_color_6_5";
+            color = { r = 0.593455; g = 0.848796; b = 0.703162; };
+        },
+        {
+            name = "sphere_material_color_6_6";
+            color = { r = 0.191191; g = 0.382263; b = 0.481699; };
+        },
+        {
+            name = "sphere_material_color_6_7";
+            color = { r = 0.316937; g = 0.688572; b = 0.410024; };
+        },
+        {
+            name = "sphere_material_color_6_10";
+            color = { r = 0.398029; g = 0.228465; b = 0.392813; };
+        },
+        {
+            name = "sphere_material_color_7_-11";
+            color = { r = 0.292752; g = 0.0783242; b = 0.20748; };
+        },
+        {
+            name = "sphere_material_color_7_-10";
+            color = { r = 0.480612; g = 0.199023; b = 0.155458; };
+        },
+        {
+            name = "sphere_material_color_7_-9";
+            color = { r = 0.0637768; g = 0.269515; b = 0.539778; };
+        },
+        {
+            name = "sphere_material_color_7_-8";
+            color = { r = 0.00925896; g = 0.484138; b = 0.694054; };
+        },
+        {
+            name = "sphere_material_color_7_-7";
+            color = { r = 0.179184; g = 0.552272; b = 0.0867143; };
+        },
+        {
+            name = "sphere_material_color_7_-6";
+            color = { r = 0.0169688; g = 0.289186; b = 0.481203; };
+        },
+        {
+            name = "sphere_material_color_7_-5";
+            color = { r = 0.694479; g = 0.100558; b = 0.031653; };
+        },
+        {
+            name = "sphere_material_color_7_-4";
+            color = { r = 0.292819; g = 0.322417; b = 0.265978; };
+        },
+        {
+            name = "sphere_material_color_7_-3";
+            color = { r = 0.0554733; g = 0.174047; b = 0.222558; };
+        },
+        {
+            name = "sphere_material_color_7_-2";
+            color = { r = 0.189186; g = 0.0304415; b = 0.00665764; };
+        },
+        {
+            name = "sphere_material_color_7_-1";
+            color = { r = 0.0405342; g = 0.666185; b = 0.774167; };
+        },
+        {
+            name = "sphere_material_color_7_0";
+            color = { r = 0.82442; g = 0.767335; b = 0.193641; };
+        },
+        {
+            name = "sphere_material_color_7_1";
+            color = { r = 0.00354396; g = 0.0120853; b = 0.204519; };
+        },
+        {
+            name = "sphere_material_color_7_3";
+            color = { r = 0.414647; g = 0.377329; b = 0.504728; };
+        },
+        {
+            name = "sphere_material_color_7_4";
+            color = { r = 0.686356; g = 0.145941; b = 0.0742175; };
+        },
+        {
+            name = "sphere_material_color_7_5";
+            color = { r = 0.0706086; g = 0.0707948; b = 0.0576893; };
+        },
+        {
+            name = "sphere_material_color_7_6";
+            color = { r = 0.0719288; g = 0.117202; b = 0.52865; };
+        },
+        {
+            name = "sphere_material_color_7_7";
+            color = { r = 0.182922; g = 0.25461; b = 0.0497143; };
+        },
+        {
+            name = "sphere_material_color_7_8";
+            color = { r = 0.332822; g = 0.22731; b = 0.0356792; };
+        },
+        {
+            name = "sphere_material_color_7_9";
+            color = { r = 0.225016; g = 0.0146568; b = 0.0997719; };
+        },
+        {
+            name = "sphere_material_color_7_10";
+            color = { r = 0.357953; g = 0.268998; b = 0.0899621; };
+        },
+        {
+            name = "sphere_material_color_8_-10";
+            color = { r = 0.425004; g = 0.0469843; b = 0.181622; };
+        },
+        {
+            name = "sphere_material_color_8_-9";
+            color = { r = 0.104411; g = 0.00725823; b = 0.407084; };
+        },
+        {
+            name = "sphere_material_color_8_-8";
+            color = { r = 0.226229; g = 0.026845; b = 0.127273; };
+        },
+        {
+            name = "sphere_material_color_8_-7";
+            color = { r = 0.288784; g = 0.265628; b = 0.333366; };
+        },
+        {
+            name = "sphere_material_color_8_-5";
+            color = { r = 0.474987; g = 0.111488; b = 0.0279137; };
+        },
+        {
+            name = "sphere_material_color_8_-4";
+            color = { r = 0.206877; g = 0.32462; b = 0.334433; };
+        },
+        {
+            name = "sphere_material_color_8_-3";
+            color = { r = 0.0965276; g = 0.365328; b = 0.610957; };
+        },
+        {
+            name = "sphere_material_color_8_-2";
+            color = { r = 0.0067969; g = 0.581113; b = 0.370969; };
+        },
+        {
+            name = "sphere_material_color_8_1";
+            color = { r = 0.289168; g = 0.236215; b = 0.00353874; };
+        },
+        {
+            name = "sphere_material_color_8_3";
+            color = { r = 0.266131; g = 0.183309; b = 0.11101; };
+        },
+        {
+            name = "sphere_material_color_8_4";
+            color = { r = 0.378771; g = 0.839366; b = 0.0287382; };
+        },
+        {
+            name = "sphere_material_color_8_6";
+            color = { r = 0.244416; g = 0.0274237; b = 0.0289267; };
+        },
+        {
+            name = "sphere_material_color_8_8";
+            color = { r = 0.114562; g = 0.104957; b = 0.822027; };
+        },
+        {
+            name = "sphere_material_color_8_9";
+            color = { r = 0.479209; g = 0.342656; b = 0.436447; };
+        },
+        {
+            name = "sphere_material_color_8_10";
+            color = { r = 0.16904; g = 0.214106; b = 0.134262; };
+        },
+        {
+            name = "sphere_material_color_9_-10";
+            color = { r = 0.403611; g = 0.496514; b = 0.42561; };
+        },
+        {
+            name = "sphere_material_color_9_-9";
+            color = { r = 0.446471; g = 0.369645; b = 0.0329157; };
+        },
+        {
+            name = "sphere_material_color_9_-5";
+            color = { r = 0.0400004; g = 0.179664; b = 0.00677919; };
+        },
+        {
+            name = "sphere_material_color_9_-2";
+            color = { r = 0.400252; g = 0.576856; b = 0.0191693; };
+        },
+        {
+            name = "sphere_material_color_9_-1";
+            color = { r = 0.350799; g = 0.0151174; b = 0.00613835; };
+        },
+        {
+            name = "sphere_material_color_9_0";
+            color = { r = 0.0699623; g = 0.245659; b = 0.23489; };
+        },
+        {
+            name = "sphere_material_color_9_1";
+            color = { r = 0.723958; g = 0.393271; b = 0.106114; };
+        },
+        {
+            name = "sphere_material_color_9_2";
+            color = { r = 0.148784; g = 0.0182219; b = 0.104356; };
+        },
+        {
+            name = "sphere_material_color_9_3";
+            color = { r = 0.171346; g = 0.0408754; b = 0.132001; };
+        },
+        {
+            name = "sphere_material_color_9_4";
+            color = { r = 0.0177922; g = 0.172171; b = 0.10834; };
+        },
+        {
+            name = "sphere_material_color_9_5";
+            color = { r = 0.0755415; g = 0.306135; b = 0.573604; };
+        },
+        {
+            name = "sphere_material_color_9_6";
+            color = { r = 0.676941; g = 0.0218887; b = 0.348132; };
+        },
+        {
+            name = "sphere_material_color_9_7";
+            color = { r = 0.0789004; g = 0.284693; b = 0.496501; };
+        },
+        {
+            name = "sphere_material_color_9_9";
+            color = { r = 0.613355; g = 0.0896055; b = 0.127213; };
+        },
+        {
+            name = "sphere_material_color_9_10";
+            color = { r = 0.0256956; g = 0.0232912; b = 0.105176; };
+        },
+        {
+            name = "sphere_material_color_10_-10";
+            color = { r = 0.395928; g = 0.165692; b = 0.108533; };
+        },
+        {
+            name = "sphere_material_color_10_-9";
+            color = { r = 0.110726; g = 0.582264; b = 0.0283901; };
+        },
+        {
+            name = "sphere_material_color_10_-7";
+            color = { r = 0.531604; g = 0.170902; b = 0.00193491; };
+        },
+        {
+            name = "sphere_material_color_10_-6";
+            color = { r = 0.229984; g = 0.784867; b = 0.119916; };
+        },
+        {
+            name = "sphere_material_color_10_-4";
+            color = { r = 0.0244367; g = 0.32306; b = 0.122921; };
+        },
+        {
+            name = "sphere_material_color_10_-3";
+            color = { r = 0.356587; g = 0.116015; b = 0.425664; };
+        },
+        {
+            name = "sphere_material_color_10_-2";
+            color = { r = 0.0784895; g = 0.662175; b = 0.0647042; };
+        },
+        {
+            name = "sphere_material_color_10_-1";
+            color = { r = 0.500633; g = 0.0157579; b = 0.0570102; };
+        },
+        {
+            name = "sphere_material_color_10_0";
+            color = { r = 0.074056; g = 0.166542; b = 0.0352232; };
+        },
+        {
+            name = "sphere_material_color_10_2";
+            color = { r = 0.00457733; g = 0.325054; b = 0.280731; };
+        },
+        {
+            name = "sphere_material_color_10_3";
+            color = { r = 0.0434979; g = 0.0842661; b = 0.477717; };
+        },
+        {
+            name = "sphere_material_color_10_4";
+            color = { r = 0.093318; g = 0.0291172; b = 0.474428; };
+        },
+        {
+            name = "sphere_material_color_10_5";
+            color = { r = 0.0389763; g = 0.168883; b = 0.669109; };
+        },
+        {
+            name = "sphere_material_color_10_7";
+            color = { r = 0.316437; g = 0.375072; b = 0.0222134; };
+        },
+        {
+            name = "sphere_material_color_10_8";
+            color = { r = 0.230928; g = 0.484803; b = 0.0999347; };
+        },
+        {
+            name = "sphere_material_color_10_9";
+            color = { r = 0.3836; g = 0.137418; b = 0.126935; };
+        },
+        {
+            name = "sphere_material_color_10_10";
+            color = { r = 0.393145; g = 0.0156516; b = 0.535729; };
+        }
+    ),
+    glass: (
+        {
+            name = "sphere_material_glass";
+            refraction = 1.5;
+        }
+    ),
+    metal: (
+    {
+        name = "sphere_material_metal";
+        color = { r = 0.7; g = 0.6; b = 0.5; };
+        fuzz = 0.0;
+    },
+    {
+        name = "sphere_material_metal_-11_2";
+        color = { r = 0.908585; g = 0.588943; b = 0.595673; };
+        fuzz = 0.237625;
+    },
+    {
+        name = "sphere_material_metal_-11_5";
+        color = { r = 0.687485; g = 0.735855; b = 0.672989; };
+        fuzz = 0.423477;
+    },
+    {
+        name = "sphere_material_metal_-11_7";
+        color = { r = 0.997299; g = 0.513733; b = 0.945068; };
+        fuzz = 0.286285;
+    },
+    {
+        name = "sphere_material_metal_-10_-5";
+        color = { r = 0.687561; g = 0.782867; b = 0.860443; };
+        fuzz = 0.0921326;
+    },
+    {
+        name = "sphere_material_metal_-10_-2";
+        color = { r = 0.833878; g = 0.521606; b = 0.863831; };
+        fuzz = 0.488251;
+    },
+    {
+        name = "sphere_material_metal_-9_5";
+        color = { r = 0.818161; g = 0.575378; b = 0.832077; };
+        fuzz = 0.28476;
+    },
+    {
+        name = "sphere_material_metal_-9_9";
+        color = { r = 0.947845; g = 0.592651; b = 0.993713; };
+        fuzz = 0.287216;
+    },
+    {
+        name = "sphere_material_metal_-8_-3";
+        color = { r = 0.781418; g = 0.526733; b = 0.998627; };
+        fuzz = 0.431763;
+    },
+    {
+        name = "sphere_material_metal_-8_-1";
+        color = { r = 0.904175; g = 0.805786; b = 0.863632; };
+        fuzz = 0.437698;
+    },
+    {
+        name = "sphere_material_metal_-8_5";
+        color = { r = 0.881012; g = 0.736481; b = 0.786652; };
+        fuzz = 0.095932;
+    },
+    {
+        name = "sphere_material_metal_-8_7";
+        color = { r = 0.819107; g = 0.616257; b = 0.88974; };
+        fuzz = 0.115829;
+    },
+    {
+        name = "sphere_material_metal_-8_10";
+        color = { r = 0.62999; g = 0.73288; b = 0.526993; };
+        fuzz = 0.213394;
+    },
+    {
+        name = "sphere_material_metal_-7_-11";
+        color = { r = 0.889221; g = 0.854691; b = 0.782898; };
+        fuzz = 0.432098;
+    },
+    {
+        name = "sphere_material_metal_-7_-10";
+        color = { r = 0.914307; g = 0.873413; b = 0.822449; };
+        fuzz = 0.382797;
+    },
+    {
+        name = "sphere_material_metal_-7_-9";
+        color = { r = 0.553818; g = 0.720078; b = 0.760971; };
+        fuzz = 0.177002;
+    },
+    {
+        name = "sphere_material_metal_-7_-8";
+        color = { r = 0.886765; g = 0.82872; b = 0.500427; };
+        fuzz = 0.0318604;
+    },
+    {
+        name = "sphere_material_metal_-7_-5";
+        color = { r = 0.695969; g = 0.621292; b = 0.510529; };
+        fuzz = 0.326996;
+    },
+    {
+        name = "sphere_material_metal_-7_5";
+        color = { r = 0.564285; g = 0.687943; b = 0.669739; };
+        fuzz = 0.413651;
+    },
+    {
+        name = "sphere_material_metal_-6_-9";
+        color = { r = 0.81601; g = 0.745438; b = 0.529816; };
+        fuzz = 0.373596;
+    },
+    {
+        name = "sphere_material_metal_-6_-3";
+        color = { r = 0.62825; g = 0.948929; b = 0.619995; };
+        fuzz = 0.134674;
+    },
+    {
+        name = "sphere_material_metal_-6_3";
+        color = { r = 0.503784; g = 0.724426; b = 0.886734; };
+        fuzz = 0.114304;
+    },
+    {
+        name = "sphere_material_metal_-5_3";
+        color = { r = 0.515442; g = 0.537857; b = 0.511505; };
+        fuzz = 0.178101;
+    },
+    {
+        name = "sphere_material_metal_-4_-9";
+        color = { r = 0.888672; g = 0.784332; b = 0.802017; };
+        fuzz = 0.320007;
+    },
+    {
+        name = "sphere_material_metal_-4_1";
+        color = { r = 0.641174; g = 0.60083; b = 0.83255; };
+        fuzz = 0.177719;
+    },
+    {
+        name = "sphere_material_metal_-4_4";
+        color = { r = 0.771301; g = 0.575058; b = 0.892105; };
+        fuzz = 0.344513;
+    },
+    {
+        name = "sphere_material_metal_-4_10";
+        color = { r = 0.658386; g = 0.638428; b = 0.697205; };
+        fuzz = 0.412109;
+    },
+    {
+        name = "sphere_material_metal_-3_-11";
+        color = { r = 0.997543; g = 0.734528; b = 0.782333; };
+        fuzz = 0.216614;
+    },
+    {
+        name = "sphere_material_metal_-3_-5";
+        color = { r = 0.5457; g = 0.867447; b = 0.862076; };
+        fuzz = 0.040863;
+    },
+    {
+        name = "sphere_material_metal_-3_-3";
+        color = { r = 0.591141; g = 0.670761; b = 0.577133; };
+        fuzz = 0.136139;
+    },
+    {
+        name = "sphere_material_metal_-3_0";
+        color = { r = 0.64476; g = 0.630478; b = 0.503601; };
+        fuzz = 0.476471;
+    },
+    {
+        name = "sphere_material_metal_-3_1";
+        color = { r = 0.745621; g = 0.96051; b = 0.628082; };
+        fuzz = 0.0467682;
+    },
+    {
+        name = "sphere_material_metal_-3_2";
+        color = { r = 0.757538; g = 0.821625; b = 0.691925; };
+        fuzz = 0.215759;
+    },
+    {
+        name = "sphere_material_metal_-3_10";
+        color = { r = 0.955612; g = 0.527069; b = 0.673584; };
+        fuzz = 0.381439;
+    },
+    {
+        name = "sphere_material_metal_-2_-10";
+        color = { r = 0.880875; g = 0.725845; b = 0.598419; };
+        fuzz = 0.21666;
+    },
+    {
+        name = "sphere_material_metal_-2_-6";
+        color = { r = 0.647369; g = 0.735458; b = 0.85347; };
+        fuzz = 0.172318;
+    },
+    {
+        name = "sphere_material_metal_-2_6";
+        color = { r = 0.819946; g = 0.709244; b = 0.826706; };
+        fuzz = 0.0496063;
+    },
+    {
+        name = "sphere_material_metal_-2_7";
+        color = { r = 0.697342; g = 0.981125; b = 0.76001; };
+        fuzz = 0.362839;
+    },
+    {
+        name = "sphere_material_metal_-1_0";
+        color = { r = 0.744034; g = 0.801804; b = 0.697372; };
+        fuzz = 0.225677;
+    },
+    {
+        name = "sphere_material_metal_-1_9";
+        color = { r = 0.949295; g = 0.576096; b = 0.787567; };
+        fuzz = 0.286942;
+    },
+    {
+        name = "sphere_material_metal_0_-6";
+        color = { r = 0.748566; g = 0.62709; b = 0.551132; };
+        fuzz = 0.350555;
+    },
+    {
+        name = "sphere_material_metal_0_1";
+        color = { r = 0.816193; g = 0.540634; b = 0.7117; };
+        fuzz = 0.491257;
+    },
+    {
+        name = "sphere_material_metal_1_-3";
+        color = { r = 0.52536; g = 0.543991; b = 0.757217; };
+        fuzz = 0.288422;
+    },
+    {
+        name = "sphere_material_metal_1_-2";
+        color = { r = 0.894302; g = 0.641495; b = 0.790253; };
+        fuzz = 0.193573;
+    },
+    {
+        name = "sphere_material_metal_1_-1";
+        color = { r = 0.671921; g = 0.709015; b = 0.52887; };
+        fuzz = 0.179276;
+    },
+    {
+        name = "sphere_material_metal_1_3";
+        color = { r = 0.939178; g = 0.698257; b = 0.809357; };
+        fuzz = 0.491379;
+    },
+    {
+        name = "sphere_material_metal_2_-9";
+        color = { r = 0.760971; g = 0.959854; b = 0.697342; };
+        fuzz = 0.0563049;
+    },
+    {
+        name = "sphere_material_metal_2_-8";
+        color = { r = 0.515091; g = 0.61441; b = 0.997849; };
+        fuzz = 0.232666;
+    },
+    {
+        name = "sphere_material_metal_2_-1";
+        color = { r = 0.887497; g = 0.723938; b = 0.691803; };
+        fuzz = 0.437027;
+    },
+    {
+        name = "sphere_material_metal_2_0";
+        color = { r = 0.821732; g = 0.806442; b = 0.624924; };
+        fuzz = 0.356903;
+    },
+    {
+        name = "sphere_material_metal_2_3";
+        color = { r = 0.666061; g = 0.598846; b = 0.818741; };
+        fuzz = 0.380325;
+    },
+    {
+        name = "sphere_material_metal_2_8";
+        color = { r = 0.512802; g = 0.867966; b = 0.961288; };
+        fuzz = 0.394562;
+    },
+    {
+        name = "sphere_material_metal_3_-9";
+        color = { r = 0.866455; g = 0.510437; b = 0.882919; };
+        fuzz = 0.230972;
+    },
+    {
+        name = "sphere_material_metal_3_-1";
+        color = { r = 0.988556; g = 0.837006; b = 0.774628; };
+        fuzz = 0.238358;
+    },
+    {
+        name = "sphere_material_metal_3_0";
+        color = { r = 0.776306; g = 0.952713; b = 0.870087; };
+        fuzz = 0.19725;
+    },
+    {
+        name = "sphere_material_metal_3_3";
+        color = { r = 0.613541; g = 0.530334; b = 0.538971; };
+        fuzz = 0.256317;
+    },
+    {
+        name = "sphere_material_metal_3_8";
+        color = { r = 0.898621; g = 0.70401; b = 0.785919; };
+        fuzz = 0.0840302;
+    },
+    {
+        name = "sphere_material_metal_3_10";
+        color = { r = 0.887604; g = 0.629272; b = 0.608231; };
+        fuzz = 0.498596;
+    },
+    {
+        name = "sphere_material_metal_4_-9";
+        color = { r = 0.706284; g = 0.844391; b = 0.933228; };
+        fuzz = 0.297119;
+    },
+    {
+        name = "sphere_material_metal_4_-4";
+        color = { r = 0.548126; g = 0.888367; b = 0.704285; };
+        fuzz = 0.464874;
+    },
+    {
+        name = "sphere_material_metal_4_-1";
+        color = { r = 0.851608; g = 0.785599; b = 0.936859; };
+        fuzz = 0.47876;
+    },
+    {
+        name = "sphere_material_metal_4_3";
+        color = { r = 0.809875; g = 0.864502; b = 0.69754; };
+        fuzz = 0.185501;
+    },
+    {
+        name = "sphere_material_metal_5_3";
+        color = { r = 0.843491; g = 0.90625; b = 0.832153; };
+        fuzz = 0.121368;
+    },
+    {
+        name = "sphere_material_metal_5_7";
+        color = { r = 0.904785; g = 0.817154; b = 0.825333; };
+        fuzz = 0.159348;
+    },
+    {
+        name = "sphere_material_metal_5_8";
+        color = { r = 0.643051; g = 0.613708; b = 0.641449; };
+        fuzz = 0.223251;
+    },
+    {
+        name = "sphere_material_metal_6_-8";
+        color = { r = 0.617172; g = 0.510162; b = 0.78334; };
+        fuzz = 0.420792;
+    },
+    {
+        name = "sphere_material_metal_6_-7";
+        color = { r = 0.543823; g = 0.526291; b = 0.855408; };
+        fuzz = 0.449341;
+    },
+    {
+        name = "sphere_material_metal_6_-6";
+        color = { r = 0.568787; g = 0.884476; b = 0.872238; };
+        fuzz = 0.349548;
+    },
+    {
+        name = "sphere_material_metal_6_2";
+        color = { r = 0.92868; g = 0.701782; b = 0.964401; };
+        fuzz = 0.054657;
+    },
+    {
+        name = "sphere_material_metal_6_8";
+        color = { r = 0.552078; g = 0.566025; b = 0.559097; };
+        fuzz = 0.0527039;
+    },
+    {
+        name = "sphere_material_metal_7_2";
+        color = { r = 0.629593; g = 0.727203; b = 0.672409; };
+        fuzz = 0.443634;
+    },
+    {
+        name = "sphere_material_metal_8_-11";
+        color = { r = 0.852661; g = 0.682343; b = 0.916504; };
+        fuzz = 0.307037;
+    },
+    {
+        name = "sphere_material_metal_8_-6";
+        color = { r = 0.714569; g = 0.883423; b = 0.702103; };
+        fuzz = 0.159088;
+    },
+    {
+        name = "sphere_material_metal_8_5";
+        color = { r = 0.684433; g = 0.616577; b = 0.800476; };
+        fuzz = 0.229065;
+    },
+    {
+        name = "sphere_material_metal_8_7";
+        color = { r = 0.541718; g = 0.890991; b = 0.534882; };
+        fuzz = 0.275803;
+    },
+    {
+        name = "sphere_material_metal_9_-11";
+        color = { r = 0.509033; g = 0.516541; b = 0.827255; };
+        fuzz = 0.285721;
+    },
+    {
+        name = "sphere_material_metal_9_-8";
+        color = { r = 0.751755; g = 0.736389; b = 0.8694; };
+        fuzz = 0.277328;
+    },
+    {
+        name = "sphere_material_metal_9_-7";
+        color = { r = 0.907822; g = 0.881668; b = 0.738312; };
+        fuzz = 0.239746;
+    },
+    {
+        name = "sphere_material_metal_9_-6";
+        color = { r = 0.637848; g = 0.638702; b = 0.807159; };
+        fuzz = 0.120773;
+    },
+    {
+        name = "sphere_material_metal_9_-4";
+        color = { r = 0.722626; g = 0.89978; b = 0.794266; };
+        fuzz = 0.156937;
+    },
+    {
+        name = "sphere_material_metal_9_-3";
+        color = { r = 0.866333; g = 0.648453; b = 0.652679; };
+        fuzz = 0.221878;
+    },
+    {
+        name = "sphere_material_metal_10_-8";
+        color = { r = 0.811523; g = 0.874466; b = 0.935211; };
+        fuzz = 0.234634;
+    },
+    {
+        name = "sphere_material_metal_10_6";
+        color = { r = 0.699905; g = 0.643814; b = 0.597473; };
+        fuzz = 0.0856018;
+    }
+    );
+}
+
+# Primitives in the scene
+primitives:
+{
+    # List of spheres
+    spheres: (
+        {
+            name = "Ground"
+            position = { x = 0.0; y = -1000.0; z = 0.0; };
+            radius = 1000.0;
+            material = "ground_material";
+        },
+        {
+            name = "BigSphereBlur"
+            position = { x = 0.0; y = 1.0; z = 0.0; };
+            radius = 1.0;
+            material = "sphere_material_glass";
+        },
+        {
+            name = "BigSphereGlass"
+            position = { x = -4.0; y = 1.0; z = 0.0; };
+            radius = 1.0;
+            material = "material_color1";
+        },
+        {
+            name = "BigSphereMetal"
+            position = { x = 4.0; y = 1.0; z = 0.0; };
+            radius = 1.0;
+            material = "sphere_material_metal";
+        },
+        {
+            name = "Sphere--11--11";
+            position = { x = -10.826; y = 0.2; z = -10.4928; };
+            radius = 0.2;
+            material = "sphere_material_color_-11_-11";
+        },
+        {
+            name = "Sphere--11--10";
+            position = { x = -10.227; y = 0.2; z = -9.84331; };
+            radius = 0.2;
+            material = "sphere_material_color_-11_-10";
+        },
+        {
+            name = "Sphere--11--9";
+            position = { x = -10.1104; y = 0.2; z = -8.8507; };
+            radius = 0.2;
+            material = "sphere_material_color_-11_-9";
+        },
+        {
+            name = "Sphere--11--8";
+            position = { x = -10.4536; y = 0.2; z = -7.45843; };
+            radius = 0.2;
+            material = "sphere_material_color_-11_-8";
+        },
+        {
+            name = "Sphere--11--7";
+            position = { x = -10.5321; y = 0.2; z = -6.27768; };
+            radius = 0.2;
+            material = "sphere_material_color_-11_-7";
+        },
+        {
+            name = "Sphere--11--6";
+            position = { x = -10.7882; y = 0.2; z = -5.58414; };
+            radius = 0.2;
+            material = "sphere_material_color_-11_-6";
+        },
+        {
+            name = "Sphere--11--5";
+            position = { x = -10.7604; y = 0.2; z = -4.64682; };
+            radius = 0.2;
+            material = "sphere_material_color_-11_-5";
+        },
+        {
+            name = "Sphere--11--4";
+            position = { x = -10.1731; y = 0.2; z = -3.99209; };
+            radius = 0.2;
+            material = "sphere_material_color_-11_-4";
+        },
+        {
+            name = "Sphere--11--3";
+            position = { x = -10.3307; y = 0.2; z = -2.81518; };
+            radius = 0.2;
+            material = "sphere_material_color_-11_-3";
+        },
+        {
+            name = "Sphere--11--2";
+            position = { x = -10.4519; y = 0.2; z = -1.33851; };
+            radius = 0.2;
+            material = "sphere_material_color_-11_-2";
+        },
+        {
+            name = "Sphere--11--1";
+            position = { x = -10.3236; y = 0.2; z = -0.109036; };
+            radius = 0.2;
+            material = "sphere_material_color_-11_-1";
+        },
+        {
+            name = "Sphere--11-0";
+            position = { x = -10.1454; y = 0.2; z = 0.132742; };
+            radius = 0.2;
+            material = "sphere_material_color_-11_0";
+        },
+        {
+            name = "Sphere--11-1";
+            position = { x = -10.8621; y = 0.2; z = 1.61485; };
+            radius = 0.2;
+            material = "sphere_material_glass";
+        },
+        {
+            name = "Sphere--11-2";
+            position = { x = -10.4762; y = 0.2; z = 2.73949; };
+            radius = 0.2;
+            material = "sphere_material_metal_-11_2";
+        },
+        {
+            name = "Sphere--11-3";
+            position = { x = -10.3412; y = 0.2; z = 3.45352; };
+            radius = 0.2;
+            material = "sphere_material_color_-11_3";
+        },
+        {
+            name = "Sphere--11-4";
+            position = { x = -10.669; y = 0.2; z = 4.11071; };
+            radius = 0.2;
+            material = "sphere_material_color_-11_4";
+        },
+        {
+            name = "Sphere--11-5";
+            position = { x = -10.5054; y = 0.2; z = 5.82922; };
+            radius = 0.2;
+            material = "sphere_material_metal_-11_5";
+        },
+        {
+            name = "Sphere--11-6";
+            position = { x = -10.7553; y = 0.2; z = 6.41048; };
+            radius = 0.2;
+            material = "sphere_material_color_-11_6";
+        },
+        {
+            name = "Sphere--11-7";
+            position = { x = -10.5492; y = 0.2; z = 7.35788; };
+            radius = 0.2;
+            material = "sphere_material_metal_-11_7";
+        },
+        {
+            name = "Sphere--11-8";
+            position = { x = -10.8253; y = 0.2; z = 8.47818; };
+            radius = 0.2;
+            material = "sphere_material_color_-11_8";
+        },
+        {
+            name = "Sphere--11-9";
+            position = { x = -10.7173; y = 0.2; z = 9.66879; };
+            radius = 0.2;
+            material = "sphere_material_color_-11_9";
+        },
+        {
+            name = "Sphere--11-10";
+            position = { x = -10.3275; y = 0.2; z = 10.5402; };
+            radius = 0.2;
+            material = "sphere_material_color_-11_10";
+        },
+        {
+            name = "Sphere--10--11";
+            position = { x = -9.50213; y = 0.2; z = -10.896; };
+            radius = 0.2;
+            material = "sphere_material_color_-10_-11";
+        },
+        {
+            name = "Sphere--10--10";
+            position = { x = -9.81826; y = 0.2; z = -9.60696; };
+            radius = 0.2;
+            material = "sphere_material_color_-10_-10";
+        },
+        {
+            name = "Sphere--10--9";
+            position = { x = -9.54629; y = 0.2; z = -8.85583; };
+            radius = 0.2;
+            material = "sphere_material_color_-10_-9";
+        },
+        {
+            name = "Sphere--10--8";
+            position = { x = -9.10181; y = 0.2; z = -7.58831; };
+            radius = 0.2;
+            material = "sphere_material_glass";
+        },
+        {
+            name = "Sphere--10--7";
+            position = { x = -9.91505; y = 0.2; z = -6.43736; };
+            radius = 0.2;
+            material = "sphere_material_color_-10_-7";
+        },
+        {
+            name = "Sphere--10--6";
+            position = { x = -9.81823; y = 0.2; z = -5.63036; };
+            radius = 0.2;
+            material = "sphere_material_color_-10_-6";
+        },
+        {
+            name = "Sphere--10--5";
+            position = { x = -9.43772; y = 0.2; z = -4.25411; };
+            radius = 0.2;
+            material = "sphere_material_metal_-10_-5";
+        },
+        {
+            name = "Sphere--10--4";
+            position = { x = -9.18545; y = 0.2; z = -3.5004; };
+            radius = 0.2;
+            material = "sphere_material_color_-10_-4";
+        },
+        {
+            name = "Sphere--10--3";
+            position = { x = -9.33335; y = 0.2; z = -2.92766; };
+            radius = 0.2;
+            material = "sphere_material_color_-10_-3";
+        },
+        {
+            name = "Sphere--10--2";
+            position = { x = -9.44678; y = 0.2; z = -1.17962; };
+            radius = 0.2;
+            material = "sphere_material_metal_-10_-2";
+        },
+        {
+            name = "Sphere--10--1";
+            position = { x = -9.72477; y = 0.2; z = -0.487735; };
+            radius = 0.2;
+            material = "sphere_material_color_-10_-1";
+        },
+        {
+            name = "Sphere--10-0";
+            position = { x = -9.93106; y = 0.2; z = 0.0714111; };
+            radius = 0.2;
+            material = "sphere_material_color_-10_0";
+        },
+        {
+            name = "Sphere--10-1";
+            position = { x = -9.86262; y = 0.2; z = 1.45107; };
+            radius = 0.2;
+            material = "sphere_material_color_-10_1";
+        },
+        {
+            name = "Sphere--10-2";
+            position = { x = -9.15043; y = 0.2; z = 2.27004; };
+            radius = 0.2;
+            material = "sphere_material_color_-10_2";
+        },
+        {
+            name = "Sphere--10-3";
+            position = { x = -9.41154; y = 0.2; z = 3.78805; };
+            radius = 0.2;
+            material = "sphere_material_color_-10_3";
+        },
+        {
+            name = "Sphere--10-4";
+            position = { x = -9.89692; y = 0.2; z = 4.5965; };
+            radius = 0.2;
+            material = "sphere_material_color_-10_4";
+        },
+        {
+            name = "Sphere--10-5";
+            position = { x = -9.45436; y = 0.2; z = 5.47892; };
+            radius = 0.2;
+            material = "sphere_material_color_-10_5";
+        },
+        {
+            name = "Sphere--10-6";
+            position = { x = -9.5528; y = 0.2; z = 6.67258; };
+            radius = 0.2;
+            material = "sphere_material_color_-10_6";
+        },
+        {
+            name = "Sphere--10-7";
+            position = { x = -9.88154; y = 0.2; z = 7.33681; };
+            radius = 0.2;
+            material = "sphere_material_color_-10_7";
+        },
+        {
+            name = "Sphere--10-8";
+            position = { x = -9.23766; y = 0.2; z = 8.11846; };
+            radius = 0.2;
+            material = "sphere_material_color_-10_8";
+        },
+        {
+            name = "Sphere--10-9";
+            position = { x = -9.8042; y = 0.2; z = 9.55541; };
+            radius = 0.2;
+            material = "sphere_material_color_-10_9";
+        },
+        {
+            name = "Sphere--10-10";
+            position = { x = -9.27383; y = 0.2; z = 10.7221; };
+            radius = 0.2;
+            material = "sphere_material_color_-10_10";
+        },
+        {
+            name = "Sphere--9--11";
+            position = { x = -8.87712; y = 0.2; z = -10.7717; };
+            radius = 0.2;
+            material = "sphere_material_color_-9_-11";
+        },
+        {
+            name = "Sphere--9--10";
+            position = { x = -8.90044; y = 0.2; z = -9.71979; };
+            radius = 0.2;
+            material = "sphere_material_color_-9_-10";
+        },
+        {
+            name = "Sphere--9--9";
+            position = { x = -8.675; y = 0.2; z = -8.44632; };
+            radius = 0.2;
+            material = "sphere_material_color_-9_-9";
+        },
+        {
+            name = "Sphere--9--8";
+            position = { x = -8.92672; y = 0.2; z = -7.95158; };
+            radius = 0.2;
+            material = "sphere_material_glass";
+        },
+        {
+            name = "Sphere--9--7";
+            position = { x = -8.9148; y = 0.2; z = -6.61589; };
+            radius = 0.2;
+            material = "sphere_material_color_-9_-7";
+        },
+        {
+            name = "Sphere--9--6";
+            position = { x = -8.94716; y = 0.2; z = -5.95762; };
+            radius = 0.2;
+            material = "sphere_material_color_-9_-6";
+        },
+        {
+            name = "Sphere--9--5";
+            position = { x = -8.37584; y = 0.2; z = -4.24214; };
+            radius = 0.2;
+            material = "sphere_material_color_-9_-5";
+        },
+        {
+            name = "Sphere--9--4";
+            position = { x = -8.77039; y = 0.2; z = -3.47301; };
+            radius = 0.2;
+            material = "sphere_material_color_-9_-4";
+        },
+        {
+            name = "Sphere--9--3";
+            position = { x = -8.48101; y = 0.2; z = -2.29248; };
+            radius = 0.2;
+            material = "sphere_material_color_-9_-3";
+        },
+        {
+            name = "Sphere--9--2";
+            position = { x = -8.94164; y = 0.2; z = -1.23044; };
+            radius = 0.2;
+            material = "sphere_material_color_-9_-2";
+        },
+        {
+            name = "Sphere--9--1";
+            position = { x = -8.34491; y = 0.2; z = -0.379465; };
+            radius = 0.2;
+            material = "sphere_material_color_-9_-1";
+        },
+        {
+            name = "Sphere--9-0";
+            position = { x = -8.9471; y = 0.2; z = 0.853088; };
+            radius = 0.2;
+            material = "sphere_material_color_-9_0";
+        },
+        {
+            name = "Sphere--9-1";
+            position = { x = -8.80323; y = 0.2; z = 1.62507; };
+            radius = 0.2;
+            material = "sphere_material_color_-9_1";
+        },
+        {
+            name = "Sphere--9-2";
+            position = { x = -8.29613; y = 0.2; z = 2.0721; };
+            radius = 0.2;
+            material = "sphere_material_color_-9_2";
+        },
+        {
+            name = "Sphere--9-3";
+            position = { x = -8.89736; y = 0.2; z = 3.67555; };
+            radius = 0.2;
+            material = "sphere_material_color_-9_3";
+        },
+        {
+            name = "Sphere--9-4";
+            position = { x = -8.44173; y = 0.2; z = 4.13815; };
+            radius = 0.2;
+            material = "sphere_material_color_-9_4";
+        },
+        {
+            name = "Sphere--9-5";
+            position = { x = -8.17086; y = 0.2; z = 5.4099; };
+            radius = 0.2;
+            material = "sphere_material_metal_-9_5";
+        },
+        {
+            name = "Sphere--9-6";
+            position = { x = -8.5135; y = 0.2; z = 6.84869; };
+            radius = 0.2;
+            material = "sphere_material_color_-9_6";
+        },
+        {
+            name = "Sphere--9-7";
+            position = { x = -8.93675; y = 0.2; z = 7.17685; };
+            radius = 0.2;
+            material = "sphere_material_color_-9_7";
+        },
+        {
+            name = "Sphere--9-8";
+            position = { x = -8.37241; y = 0.2; z = 8.54385; };
+            radius = 0.2;
+            material = "sphere_material_color_-9_8";
+        },
+        {
+            name = "Sphere--9-9";
+            position = { x = -8.64748; y = 0.2; z = 9.78838; };
+            radius = 0.2;
+            material = "sphere_material_metal_-9_9";
+        },
+        {
+            name = "Sphere--9-10";
+            position = { x = -8.36235; y = 0.2; z = 10.5646; };
+            radius = 0.2;
+            material = "sphere_material_color_-9_10";
+        },
+        {
+            name = "Sphere--8--11";
+            position = { x = -7.6458; y = 0.2; z = -10.1936; };
+            radius = 0.2;
+            material = "sphere_material_color_-8_-11";
+        },
+        {
+            name = "Sphere--8--10";
+            position = { x = -7.33728; y = 0.2; z = -9.3292; };
+            radius = 0.2;
+            material = "sphere_material_color_-8_-10";
+        },
+        {
+            name = "Sphere--8--9";
+            position = { x = -7.90156; y = 0.2; z = -8.53412; };
+            radius = 0.2;
+            material = "sphere_material_color_-8_-9";
+        },
+        {
+            name = "Sphere--8--8";
+            position = { x = -7.9318; y = 0.2; z = -7.9284; };
+            radius = 0.2;
+            material = "sphere_material_color_-8_-8";
+        },
+        {
+            name = "Sphere--8--7";
+            position = { x = -7.34758; y = 0.2; z = -6.39185; };
+            radius = 0.2;
+            material = "sphere_material_color_-8_-7";
+        },
+        {
+            name = "Sphere--8--6";
+            position = { x = -7.12291; y = 0.2; z = -5.95534; };
+            radius = 0.2;
+            material = "sphere_material_color_-8_-6";
+        },
+        {
+            name = "Sphere--8--5";
+            position = { x = -7.95504; y = 0.2; z = -4.65025; };
+            radius = 0.2;
+            material = "sphere_material_color_-8_-5";
+        },
+        {
+            name = "Sphere--8--4";
+            position = { x = -7.99176; y = 0.2; z = -3.56382; };
+            radius = 0.2;
+            material = "sphere_material_color_-8_-4";
+        },
+        {
+            name = "Sphere--8--3";
+            position = { x = -7.43904; y = 0.2; z = -2.15194; };
+            radius = 0.2;
+            material = "sphere_material_metal_-8_-3";
+        },
+        {
+            name = "Sphere--8--2";
+            position = { x = -7.74421; y = 0.2; z = -1.72424; };
+            radius = 0.2;
+            material = "sphere_material_color_-8_-2";
+        },
+        {
+            name = "Sphere--8--1";
+            position = { x = -7.6383; y = 0.2; z = -0.156937; };
+            radius = 0.2;
+            material = "sphere_material_metal_-8_-1";
+        },
+        {
+            name = "Sphere--8-0";
+            position = { x = -7.92889; y = 0.2; z = 0.535501; };
+            radius = 0.2;
+            material = "sphere_material_color_-8_0";
+        },
+        {
+            name = "Sphere--8-1";
+            position = { x = -7.9908; y = 0.2; z = 1.30921; };
+            radius = 0.2;
+            material = "sphere_material_color_-8_1";
+        },
+        {
+            name = "Sphere--8-2";
+            position = { x = -7.43398; y = 0.2; z = 2.653; };
+            radius = 0.2;
+            material = "sphere_material_color_-8_2";
+        },
+        {
+            name = "Sphere--8-3";
+            position = { x = -7.28235; y = 0.2; z = 3.81137; };
+            radius = 0.2;
+            material = "sphere_material_color_-8_3";
+        },
+        {
+            name = "Sphere--8-4";
+            position = { x = -7.34104; y = 0.2; z = 4.22558; };
+            radius = 0.2;
+            material = "sphere_material_color_-8_4";
+        },
+        {
+            name = "Sphere--8-5";
+            position = { x = -7.72328; y = 0.2; z = 5.11217; };
+            radius = 0.2;
+            material = "sphere_material_metal_-8_5";
+        },
+        {
+            name = "Sphere--8-6";
+            position = { x = -7.98618; y = 0.2; z = 6.8955; };
+            radius = 0.2;
+            material = "sphere_material_color_-8_6";
+        },
+        {
+            name = "Sphere--8-7";
+            position = { x = -7.66591; y = 0.2; z = 7.50098; };
+            radius = 0.2;
+            material = "sphere_material_metal_-8_7";
+        },
+        {
+            name = "Sphere--8-8";
+            position = { x = -7.74644; y = 0.2; z = 8.87391; };
+            radius = 0.2;
+            material = "sphere_material_color_-8_8";
+        },
+        {
+            name = "Sphere--8-9";
+            position = { x = -7.6269; y = 0.2; z = 9.30891; };
+            radius = 0.2;
+            material = "sphere_material_color_-8_9";
+        },
+        {
+            name = "Sphere--8-10";
+            position = { x = -7.48699; y = 0.2; z = 10.4819; };
+            radius = 0.2;
+            material = "sphere_material_metal_-8_10";
+        },
+        {
+            name = "Sphere--7--11";
+            position = { x = -6.92131; y = 0.2; z = -10.5621; };
+            radius = 0.2;
+            material = "sphere_material_metal_-7_-11";
+        },
+        {
+            name = "Sphere--7--10";
+            position = { x = -6.22209; y = 0.2; z = -9.7363; };
+            radius = 0.2;
+            material = "sphere_material_metal_-7_-10";
+        },
+        {
+            name = "Sphere--7--9";
+            position = { x = -6.17874; y = 0.2; z = -8.18253; };
+            radius = 0.2;
+            material = "sphere_material_metal_-7_-9";
+        },
+        {
+            name = "Sphere--7--8";
+            position = { x = -6.84715; y = 0.2; z = -7.61507; };
+            radius = 0.2;
+            material = "sphere_material_metal_-7_-8";
+        },
+        {
+            name = "Sphere--7--7";
+            position = { x = -6.38452; y = 0.2; z = -6.65291; };
+            radius = 0.2;
+            material = "sphere_material_color_-7_-7";
+        },
+        {
+            name = "Sphere--7--6";
+            position = { x = -6.95172; y = 0.2; z = -5.41715; };
+            radius = 0.2;
+            material = "sphere_material_glass";
+        },
+        {
+            name = "Sphere--7--5";
+            position = { x = -6.61147; y = 0.2; z = -4.42629; };
+            radius = 0.2;
+            material = "sphere_material_metal_-7_-5";
+        },
+        {
+            name = "Sphere--7--4";
+            position = { x = -6.25658; y = 0.2; z = -3.97946; };
+            radius = 0.2;
+            material = "sphere_material_color_-7_-4";
+        },
+        {
+            name = "Sphere--7--3";
+            position = { x = -6.69172; y = 0.2; z = -2.29608; };
+            radius = 0.2;
+            material = "sphere_material_color_-7_-3";
+        },
+        {
+            name = "Sphere--7--2";
+            position = { x = -6.10115; y = 0.2; z = -1.35955; };
+            radius = 0.2;
+            material = "sphere_material_color_-7_-2";
+        },
+        {
+            name = "Sphere--7--1";
+            position = { x = -6.5066; y = 0.2; z = -0.738663; };
+            radius = 0.2;
+            material = "sphere_material_color_-7_-1";
+        },
+        {
+            name = "Sphere--7-0";
+            position = { x = -6.59883; y = 0.2; z = 0.561017; };
+            radius = 0.2;
+            material = "sphere_material_color_-7_0";
+        },
+        {
+            name = "Sphere--7-1";
+            position = { x = -6.54503; y = 0.2; z = 1.82653; };
+            radius = 0.2;
+            material = "sphere_material_color_-7_1";
+        },
+        {
+            name = "Sphere--7-2";
+            position = { x = -6.15301; y = 0.2; z = 2.65742; };
+            radius = 0.2;
+            material = "sphere_material_color_-7_2";
+        },
+        {
+            name = "Sphere--7-3";
+            position = { x = -6.1036; y = 0.2; z = 3.05523; };
+            radius = 0.2;
+            material = "sphere_material_color_-7_3";
+        },
+        {
+            name = "Sphere--7-4";
+            position = { x = -6.63053; y = 0.2; z = 4.58821; };
+            radius = 0.2;
+            material = "sphere_material_color_-7_4";
+        },
+        {
+            name = "Sphere--7-5";
+            position = { x = -6.99594; y = 0.2; z = 5.39155; };
+            radius = 0.2;
+            material = "sphere_material_metal_-7_5";
+        },
+        {
+            name = "Sphere--7-6";
+            position = { x = -6.42102; y = 0.2; z = 6.802; };
+            radius = 0.2;
+            material = "sphere_material_color_-7_6";
+        },
+        {
+            name = "Sphere--7-7";
+            position = { x = -6.18583; y = 0.2; z = 7.10096; };
+            radius = 0.2;
+            material = "sphere_material_color_-7_7";
+        },
+        {
+            name = "Sphere--7-8";
+            position = { x = -6.93903; y = 0.2; z = 8.84249; };
+            radius = 0.2;
+            material = "sphere_material_color_-7_8";
+        },
+        {
+            name = "Sphere--7-9";
+            position = { x = -6.34162; y = 0.2; z = 9.62125; };
+            radius = 0.2;
+            material = "sphere_material_color_-7_9";
+        },
+        {
+            name = "Sphere--7-10";
+            position = { x = -6.84649; y = 0.2; z = 10.184; };
+            radius = 0.2;
+            material = "sphere_material_color_-7_10";
+        },
+        {
+            name = "Sphere--6--11";
+            position = { x = -5.89126; y = 0.2; z = -10.7264; };
+            radius = 0.2;
+            material = "sphere_material_color_-6_-11";
+        },
+        {
+            name = "Sphere--6--10";
+            position = { x = -5.27864; y = 0.2; z = -9.61628; };
+            radius = 0.2;
+            material = "sphere_material_color_-6_-10";
+        },
+        {
+            name = "Sphere--6--9";
+            position = { x = -5.2287; y = 0.2; z = -8.19558; };
+            radius = 0.2;
+            material = "sphere_material_metal_-6_-9";
+        },
+        {
+            name = "Sphere--6--8";
+            position = { x = -5.18111; y = 0.2; z = -7.76984; };
+            radius = 0.2;
+            material = "sphere_material_color_-6_-8";
+        },
+        {
+            name = "Sphere--6--7";
+            position = { x = -5.34145; y = 0.2; z = -6.97836; };
+            radius = 0.2;
+            material = "sphere_material_color_-6_-7";
+        },
+        {
+            name = "Sphere--6--6";
+            position = { x = -5.41325; y = 0.2; z = -5.95268; };
+            radius = 0.2;
+            material = "sphere_material_color_-6_-6";
+        },
+        {
+            name = "Sphere--6--5";
+            position = { x = -5.68873; y = 0.2; z = -4.97058; };
+            radius = 0.2;
+            material = "sphere_material_color_-6_-5";
+        },
+        {
+            name = "Sphere--6--4";
+            position = { x = -5.92864; y = 0.2; z = -3.2131; };
+            radius = 0.2;
+            material = "sphere_material_color_-6_-4";
+        },
+        {
+            name = "Sphere--6--3";
+            position = { x = -5.26724; y = 0.2; z = -2.95803; };
+            radius = 0.2;
+            material = "sphere_material_metal_-6_-3";
+        },
+        {
+            name = "Sphere--6--2";
+            position = { x = -5.23848; y = 0.2; z = -1.79357; };
+            radius = 0.2;
+            material = "sphere_material_color_-6_-2";
+        },
+        {
+            name = "Sphere--6--1";
+            position = { x = -5.59568; y = 0.2; z = -0.679694; };
+            radius = 0.2;
+            material = "sphere_material_color_-6_-1";
+        },
+        {
+            name = "Sphere--6-0";
+            position = { x = -5.12763; y = 0.2; z = 0.899368; };
+            radius = 0.2;
+            material = "sphere_material_color_-6_0";
+        },
+        {
+            name = "Sphere--6-1";
+            position = { x = -5.35508; y = 0.2; z = 1.66761; };
+            radius = 0.2;
+            material = "sphere_material_glass";
+        },
+        {
+            name = "Sphere--6-2";
+            position = { x = -5.26859; y = 0.2; z = 2.58052; };
+            radius = 0.2;
+            material = "sphere_material_color_-6_2";
+        },
+        {
+            name = "Sphere--6-3";
+            position = { x = -5.97105; y = 0.2; z = 3.80068; };
+            radius = 0.2;
+            material = "sphere_material_metal_-6_3";
+        },
+        {
+            name = "Sphere--6-4";
+            position = { x = -5.17289; y = 0.2; z = 4.14093; };
+            radius = 0.2;
+            material = "sphere_material_color_-6_4";
+        },
+        {
+            name = "Sphere--6-5";
+            position = { x = -5.49908; y = 0.2; z = 5.20542; };
+            radius = 0.2;
+            material = "sphere_material_color_-6_5";
+        },
+        {
+            name = "Sphere--6-6";
+            position = { x = -5.2685; y = 0.2; z = 6.20495; };
+            radius = 0.2;
+            material = "sphere_material_color_-6_6";
+        },
+        {
+            name = "Sphere--6-7";
+            position = { x = -5.81867; y = 0.2; z = 7.80909; };
+            radius = 0.2;
+            material = "sphere_material_color_-6_7";
+        },
+        {
+            name = "Sphere--6-8";
+            position = { x = -5.43838; y = 0.2; z = 8.50405; };
+            radius = 0.2;
+            material = "sphere_material_color_-6_8";
+        },
+        {
+            name = "Sphere--6-9";
+            position = { x = -5.13708; y = 0.2; z = 9.50529; };
+            radius = 0.2;
+            material = "sphere_material_color_-6_9";
+        },
+        {
+            name = "Sphere--6-10";
+            position = { x = -5.99371; y = 0.2; z = 10.0181; };
+            radius = 0.2;
+            material = "sphere_material_color_-6_10";
+        },
+        {
+            name = "Sphere--5--11";
+            position = { x = -4.38584; y = 0.2; z = -10.9782; };
+            radius = 0.2;
+            material = "sphere_material_color_-5_-11";
+        },
+        {
+            name = "Sphere--5--10";
+            position = { x = -4.24021; y = 0.2; z = -9.76275; };
+            radius = 0.2;
+            material = "sphere_material_color_-5_-10";
+        },
+        {
+            name = "Sphere--5--9";
+            position = { x = -4.97514; y = 0.2; z = -8.65475; };
+            radius = 0.2;
+            material = "sphere_material_color_-5_-9";
+        },
+        {
+            name = "Sphere--5--8";
+            position = { x = -4.12321; y = 0.2; z = -7.99094; };
+            radius = 0.2;
+            material = "sphere_material_color_-5_-8";
+        },
+        {
+            name = "Sphere--5--7";
+            position = { x = -4.65962; y = 0.2; z = -6.9649; };
+            radius = 0.2;
+            material = "sphere_material_color_-5_-7";
+        },
+        {
+            name = "Sphere--5--6";
+            position = { x = -4.72523; y = 0.2; z = -5.63369; };
+            radius = 0.2;
+            material = "sphere_material_color_-5_-6";
+        },
+        {
+            name = "Sphere--5--5";
+            position = { x = -4.74863; y = 0.2; z = -4.8054; };
+            radius = 0.2;
+            material = "sphere_material_color_-5_-5";
+        },
+        {
+            name = "Sphere--5--4";
+            position = { x = -4.5979; y = 0.2; z = -3.82837; };
+            radius = 0.2;
+            material = "sphere_material_color_-5_-4";
+        },
+        {
+            name = "Sphere--5--3";
+            position = { x = -4.89549; y = 0.2; z = -2.84715; };
+            radius = 0.2;
+            material = "sphere_material_color_-5_-3";
+        },
+        {
+            name = "Sphere--5--2";
+            position = { x = -4.55851; y = 0.2; z = -1.53602; };
+            radius = 0.2;
+            material = "sphere_material_color_-5_-2";
+        },
+        {
+            name = "Sphere--5--1";
+            position = { x = -4.24859; y = 0.2; z = -0.506494; };
+            radius = 0.2;
+            material = "sphere_material_glass";
+        },
+        {
+            name = "Sphere--5-0";
+            position = { x = -4.46645; y = 0.2; z = 0.721472; };
+            radius = 0.2;
+            material = "sphere_material_color_-5_0";
+        },
+        {
+            name = "Sphere--5-1";
+            position = { x = -4.57442; y = 0.2; z = 1.69738; };
+            radius = 0.2;
+            material = "sphere_material_color_-5_1";
+        },
+        {
+            name = "Sphere--5-2";
+            position = { x = -4.26334; y = 0.2; z = 2.19149; };
+            radius = 0.2;
+            material = "sphere_material_color_-5_2";
+        },
+        {
+            name = "Sphere--5-3";
+            position = { x = -4.55113; y = 0.2; z = 3.21835; };
+            radius = 0.2;
+            material = "sphere_material_metal_-5_3";
+        },
+        {
+            name = "Sphere--5-4";
+            position = { x = -4.83762; y = 0.2; z = 4.36881; };
+            radius = 0.2;
+            material = "sphere_material_color_-5_4";
+        },
+        {
+            name = "Sphere--5-5";
+            position = { x = -4.85707; y = 0.2; z = 5.72603; };
+            radius = 0.2;
+            material = "sphere_material_color_-5_5";
+        },
+        {
+            name = "Sphere--5-6";
+            position = { x = -4.51407; y = 0.2; z = 6.3122; };
+            radius = 0.2;
+            material = "sphere_material_color_-5_6";
+        },
+        {
+            name = "Sphere--5-7";
+            position = { x = -4.1944; y = 0.2; z = 7.72021; };
+            radius = 0.2;
+            material = "sphere_material_color_-5_7";
+        },
+        {
+            name = "Sphere--5-8";
+            position = { x = -4.14551; y = 0.2; z = 8.25323; };
+            radius = 0.2;
+            material = "sphere_material_color_-5_8";
+        },
+        {
+            name = "Sphere--5-9";
+            position = { x = -4.68022; y = 0.2; z = 9.4386; };
+            radius = 0.2;
+            material = "sphere_material_color_-5_9";
+        },
+        {
+            name = "Sphere--5-10";
+            position = { x = -4.78777; y = 0.2; z = 10.4622; };
+            radius = 0.2;
+            material = "sphere_material_color_-5_10";
+        },
+        {
+            name = "Sphere--4--11";
+            position = { x = -3.73885; y = 0.2; z = -10.8477; };
+            radius = 0.2;
+            material = "sphere_material_color_-4_-11";
+        },
+        {
+            name = "Sphere--4--10";
+            position = { x = -3.94202; y = 0.2; z = -9.30984; };
+            radius = 0.2;
+            material = "sphere_material_color_-4_-10";
+        },
+        {
+            name = "Sphere--4--9";
+            position = { x = -3.5135; y = 0.2; z = -8.44335; };
+            radius = 0.2;
+            material = "sphere_material_metal_-4_-9";
+        },
+        {
+            name = "Sphere--4--8";
+            position = { x = -3.21882; y = 0.2; z = -7.31607; };
+            radius = 0.2;
+            material = "sphere_material_color_-4_-8";
+        },
+        {
+            name = "Sphere--4--7";
+            position = { x = -3.93856; y = 0.2; z = -6.75767; };
+            radius = 0.2;
+            material = "sphere_material_color_-4_-7";
+        },
+        {
+            name = "Sphere--4--6";
+            position = { x = -3.69628; y = 0.2; z = -5.22596; };
+            radius = 0.2;
+            material = "sphere_material_glass";
+        },
+        {
+            name = "Sphere--4--5";
+            position = { x = -3.95413; y = 0.2; z = -4.73943; };
+            radius = 0.2;
+            material = "sphere_material_color_-4_-5";
+        },
+        {
+            name = "Sphere--4--4";
+            position = { x = -3.76352; y = 0.2; z = -3.92469; };
+            radius = 0.2;
+            material = "sphere_material_color_-4_-4";
+        },
+        {
+            name = "Sphere--4--3";
+            position = { x = -3.69958; y = 0.2; z = -2.31706; };
+            radius = 0.2;
+            material = "sphere_material_color_-4_-3";
+        },
+        {
+            name = "Sphere--4--2";
+            position = { x = -3.10033; y = 0.2; z = -1.28416; };
+            radius = 0.2;
+            material = "sphere_material_color_-4_-2";
+        },
+        {
+            name = "Sphere--4--1";
+            position = { x = -3.78486; y = 0.2; z = -0.961932; };
+            radius = 0.2;
+            material = "sphere_material_color_-4_-1";
+        },
+        {
+            name = "Sphere--4-0";
+            position = { x = -3.95235; y = 0.2; z = 0.185834; };
+            radius = 0.2;
+            material = "sphere_material_color_-4_0";
+        },
+        {
+            name = "Sphere--4-1";
+            position = { x = -3.14186; y = 0.2; z = 1.31226; };
+            radius = 0.2;
+            material = "sphere_material_metal_-4_1";
+        },
+        {
+            name = "Sphere--4-2";
+            position = { x = -3.80203; y = 0.2; z = 2.26189; };
+            radius = 0.2;
+            material = "sphere_material_color_-4_2";
+        },
+        {
+            name = "Sphere--4-3";
+            position = { x = -3.45585; y = 0.2; z = 3.4422; };
+            radius = 0.2;
+            material = "sphere_material_color_-4_3";
+        },
+        {
+            name = "Sphere--4-4";
+            position = { x = -3.72562; y = 0.2; z = 4.54531; };
+            radius = 0.2;
+            material = "sphere_material_metal_-4_4";
+        },
+        {
+            name = "Sphere--4-5";
+            position = { x = -3.90826; y = 0.2; z = 5.89385; };
+            radius = 0.2;
+            material = "sphere_material_color_-4_5";
+        },
+        {
+            name = "Sphere--4-6";
+            position = { x = -3.31305; y = 0.2; z = 6.77596; };
+            radius = 0.2;
+            material = "sphere_material_color_-4_6";
+        },
+        {
+            name = "Sphere--4-7";
+            position = { x = -3.20923; y = 0.2; z = 7.51649; };
+            radius = 0.2;
+            material = "sphere_material_glass";
+        },
+        {
+            name = "Sphere--4-8";
+            position = { x = -3.62787; y = 0.2; z = 8.36282; };
+            radius = 0.2;
+            material = "sphere_material_color_-4_8";
+        },
+        {
+            name = "Sphere--4-9";
+            position = { x = -3.62026; y = 0.2; z = 9.59043; };
+            radius = 0.2;
+            material = "sphere_material_color_-4_9";
+        },
+        {
+            name = "Sphere--4-10";
+            position = { x = -3.90527; y = 0.2; z = 10.0044; };
+            radius = 0.2;
+            material = "sphere_material_metal_-4_10";
+        },
+        {
+            name = "Sphere--3--11";
+            position = { x = -2.8221; y = 0.2; z = -10.7196; };
+            radius = 0.2;
+            material = "sphere_material_metal_-3_-11";
+        },
+        {
+            name = "Sphere--3--10";
+            position = { x = -2.65363; y = 0.2; z = -9.62311; };
+            radius = 0.2;
+            material = "sphere_material_color_-3_-10";
+        },
+        {
+            name = "Sphere--3--9";
+            position = { x = -2.30094; y = 0.2; z = -8.45255; };
+            radius = 0.2;
+            material = "sphere_material_color_-3_-9";
+        },
+        {
+            name = "Sphere--3--8";
+            position = { x = -2.92862; y = 0.2; z = -7.70051; };
+            radius = 0.2;
+            material = "sphere_material_color_-3_-8";
+        },
+        {
+            name = "Sphere--3--7";
+            position = { x = -2.53292; y = 0.2; z = -6.9034; };
+            radius = 0.2;
+            material = "sphere_material_color_-3_-7";
+        },
+        {
+            name = "Sphere--3--6";
+            position = { x = -2.53047; y = 0.2; z = -5.18643; };
+            radius = 0.2;
+            material = "sphere_material_color_-3_-6";
+        },
+        {
+            name = "Sphere--3--5";
+            position = { x = -2.61529; y = 0.2; z = -4.64981; };
+            radius = 0.2;
+            material = "sphere_material_metal_-3_-5";
+        },
+        {
+            name = "Sphere--3--4";
+            position = { x = -2.42599; y = 0.2; z = -3.23774; };
+            radius = 0.2;
+            material = "sphere_material_color_-3_-4";
+        },
+        {
+            name = "Sphere--3--3";
+            position = { x = -2.72073; y = 0.2; z = -2.79362; };
+            radius = 0.2;
+            material = "sphere_material_metal_-3_-3";
+        },
+        {
+            name = "Sphere--3--2";
+            position = { x = -2.69826; y = 0.2; z = -1.84479; };
+            radius = 0.2;
+            material = "sphere_material_color_-3_-2";
+        },
+        {
+            name = "Sphere--3--1";
+            position = { x = -2.57513; y = 0.2; z = -0.566287; };
+            radius = 0.2;
+            material = "sphere_material_color_-3_-1";
+        },
+        {
+            name = "Sphere--3-0";
+            position = { x = -2.28446; y = 0.2; z = 0.566895; };
+            radius = 0.2;
+            material = "sphere_material_metal_-3_0";
+        },
+        {
+            name = "Sphere--3-1";
+            position = { x = -2.36326; y = 0.2; z = 1.46568; };
+            radius = 0.2;
+            material = "sphere_material_metal_-3_1";
+        },
+        {
+            name = "Sphere--3-2";
+            position = { x = -2.74564; y = 0.2; z = 2.06902; };
+            radius = 0.2;
+            material = "sphere_material_metal_-3_2";
+        },
+        {
+            name = "Sphere--3-3";
+            position = { x = -2.93285; y = 0.2; z = 3.87745; };
+            radius = 0.2;
+            material = "sphere_material_color_-3_3";
+        },
+        {
+            name = "Sphere--3-4";
+            position = { x = -2.52534; y = 0.2; z = 4.61013; };
+            radius = 0.2;
+            material = "sphere_material_color_-3_4";
+        },
+        {
+            name = "Sphere--3-5";
+            position = { x = -2.80139; y = 0.2; z = 5.48452; };
+            radius = 0.2;
+            material = "sphere_material_glass";
+        },
+        {
+            name = "Sphere--3-6";
+            position = { x = -2.82205; y = 0.2; z = 6.18416; };
+            radius = 0.2;
+            material = "sphere_material_color_-3_6";
+        },
+        {
+            name = "Sphere--3-7";
+            position = { x = -2.17083; y = 0.2; z = 7.70749; };
+            radius = 0.2;
+            material = "sphere_material_color_-3_7";
+        },
+        {
+            name = "Sphere--3-8";
+            position = { x = -2.67654; y = 0.2; z = 8.80346; };
+            radius = 0.2;
+            material = "sphere_material_color_-3_8";
+        },
+        {
+            name = "Sphere--3-9";
+            position = { x = -2.75962; y = 0.2; z = 9.60716; };
+            radius = 0.2;
+            material = "sphere_material_color_-3_9";
+        },
+        {
+            name = "Sphere--3-10";
+            position = { x = -2.7491; y = 0.2; z = 10.5031; };
+            radius = 0.2;
+            material = "sphere_material_metal_-3_10";
+        },
+        {
+            name = "Sphere--2--11";
+            position = { x = -1.80988; y = 0.2; z = -10.7459; };
+            radius = 0.2;
+            material = "sphere_material_color_-2_-11";
+        },
+        {
+            name = "Sphere--2--10";
+            position = { x = -1.29473; y = 0.2; z = -9.45272; };
+            radius = 0.2;
+            material = "sphere_material_metal_-2_-10";
+        },
+        {
+            name = "Sphere--2--9";
+            position = { x = -1.84301; y = 0.2; z = -8.27592; };
+            radius = 0.2;
+            material = "sphere_material_color_-2_-9";
+        },
+        {
+            name = "Sphere--2--8";
+            position = { x = -1.88225; y = 0.2; z = -7.96756; };
+            radius = 0.2;
+            material = "sphere_material_color_-2_-8";
+        },
+        {
+            name = "Sphere--2--7";
+            position = { x = -1.62987; y = 0.2; z = -6.94199; };
+            radius = 0.2;
+            material = "sphere_material_color_-2_-7";
+        },
+        {
+            name = "Sphere--2--6";
+            position = { x = -1.74402; y = 0.2; z = -5.89044; };
+            radius = 0.2;
+            material = "sphere_material_metal_-2_-6";
+        },
+        {
+            name = "Sphere--2--5";
+            position = { x = -1.53451; y = 0.2; z = -4.27001; };
+            radius = 0.2;
+            material = "sphere_material_color_-2_-5";
+        },
+        {
+            name = "Sphere--2--4";
+            position = { x = -1.59384; y = 0.2; z = -3.57348; };
+            radius = 0.2;
+            material = "sphere_material_color_-2_-4";
+        },
+        {
+            name = "Sphere--2--3";
+            position = { x = -1.74819; y = 0.2; z = -2.89882; };
+            radius = 0.2;
+            material = "sphere_material_color_-2_-3";
+        },
+        {
+            name = "Sphere--2--2";
+            position = { x = -1.47268; y = 0.2; z = -1.60213; };
+            radius = 0.2;
+            material = "sphere_material_color_-2_-2";
+        },
+        {
+            name = "Sphere--2--1";
+            position = { x = -1.96344; y = 0.2; z = -0.901672; };
+            radius = 0.2;
+            material = "sphere_material_color_-2_-1";
+        },
+        {
+            name = "Sphere--2-0";
+            position = { x = -1.27405; y = 0.2; z = 0.771075; };
+            radius = 0.2;
+            material = "sphere_material_color_-2_0";
+        },
+        {
+            name = "Sphere--2-1";
+            position = { x = -1.65182; y = 0.2; z = 1.48351; };
+            radius = 0.2;
+            material = "sphere_material_glass";
+        },
+        {
+            name = "Sphere--2-2";
+            position = { x = -1.20289; y = 0.2; z = 2.21335; };
+            radius = 0.2;
+            material = "sphere_material_color_-2_2";
+        },
+        {
+            name = "Sphere--2-3";
+            position = { x = -1.13079; y = 0.2; z = 3.36499; };
+            radius = 0.2;
+            material = "sphere_material_color_-2_3";
+        },
+        {
+            name = "Sphere--2-4";
+            position = { x = -1.51984; y = 0.2; z = 4.26095; };
+            radius = 0.2;
+            material = "sphere_material_color_-2_4";
+        },
+        {
+            name = "Sphere--2-5";
+            position = { x = -1.89113; y = 0.2; z = 5.83004; };
+            radius = 0.2;
+            material = "sphere_material_color_-2_5";
+        },
+        {
+            name = "Sphere--2-6";
+            position = { x = -1.59164; y = 0.2; z = 6.44165; };
+            radius = 0.2;
+            material = "sphere_material_metal_-2_6";
+        },
+        {
+            name = "Sphere--2-7";
+            position = { x = -1.20986; y = 0.2; z = 7.33176; };
+            radius = 0.2;
+            material = "sphere_material_metal_-2_7";
+        },
+        {
+            name = "Sphere--2-8";
+            position = { x = -1.26795; y = 0.2; z = 8.3367; };
+            radius = 0.2;
+            material = "sphere_material_color_-2_8";
+        },
+        {
+            name = "Sphere--2-9";
+            position = { x = -1.49312; y = 0.2; z = 9.24653; };
+            radius = 0.2;
+            material = "sphere_material_color_-2_9";
+        },
+        {
+            name = "Sphere--2-10";
+            position = { x = -1.71326; y = 0.2; z = 10.2171; };
+            radius = 0.2;
+            material = "sphere_material_color_-2_10";
+        },
+        {
+            name = "Sphere--1--11";
+            position = { x = -0.711389; y = 0.2; z = -10.143; };
+            radius = 0.2;
+            material = "sphere_material_color_-1_-11";
+        },
+        {
+            name = "Sphere--1--10";
+            position = { x = -0.319589; y = 0.2; z = -9.43766; };
+            radius = 0.2;
+            material = "sphere_material_color_-1_-10";
+        },
+        {
+            name = "Sphere--1--9";
+            position = { x = -0.886264; y = 0.2; z = -8.43239; };
+            radius = 0.2;
+            material = "sphere_material_color_-1_-9";
+        },
+        {
+            name = "Sphere--1--8";
+            position = { x = -0.50188; y = 0.2; z = -7.39542; };
+            radius = 0.2;
+            material = "sphere_material_color_-1_-8";
+        },
+        {
+            name = "Sphere--1--7";
+            position = { x = -0.285394; y = 0.2; z = -6.746; };
+            radius = 0.2;
+            material = "sphere_material_color_-1_-7";
+        },
+        {
+            name = "Sphere--1--6";
+            position = { x = -0.398636; y = 0.2; z = -5.91296; };
+            radius = 0.2;
+            material = "sphere_material_color_-1_-6";
+        },
+        {
+            name = "Sphere--1--5";
+            position = { x = -0.899695; y = 0.2; z = -4.76157; };
+            radius = 0.2;
+            material = "sphere_material_color_-1_-5";
+        },
+        {
+            name = "Sphere--1--4";
+            position = { x = -0.565656; y = 0.2; z = -3.68634; };
+            radius = 0.2;
+            material = "sphere_material_color_-1_-4";
+        },
+        {
+            name = "Sphere--1--3";
+            position = { x = -0.587875; y = 0.2; z = -2.16312; };
+            radius = 0.2;
+            material = "sphere_material_color_-1_-3";
+        },
+        {
+            name = "Sphere--1--2";
+            position = { x = -0.341095; y = 0.2; z = -1.78909; };
+            radius = 0.2;
+            material = "sphere_material_color_-1_-2";
+        },
+        {
+            name = "Sphere--1--1";
+            position = { x = -0.342056; y = 0.2; z = -0.352109; };
+            radius = 0.2;
+            material = "sphere_material_color_-1_-1";
+        },
+        {
+            name = "Sphere--1-0";
+            position = { x = -0.942651; y = 0.2; z = 0.797415; };
+            radius = 0.2;
+            material = "sphere_material_metal_-1_0";
+        },
+        {
+            name = "Sphere--1-1";
+            position = { x = -0.697849; y = 0.2; z = 1.52089; };
+            radius = 0.2;
+            material = "sphere_material_color_-1_1";
+        },
+        {
+            name = "Sphere--1-2";
+            position = { x = -0.902634; y = 0.2; z = 2.357; };
+            radius = 0.2;
+            material = "sphere_material_color_-1_2";
+        },
+        {
+            name = "Sphere--1-3";
+            position = { x = -0.208957; y = 0.2; z = 3.80376; };
+            radius = 0.2;
+            material = "sphere_material_color_-1_3";
+        },
+        {
+            name = "Sphere--1-4";
+            position = { x = -0.440714; y = 0.2; z = 4.54303; };
+            radius = 0.2;
+            material = "sphere_material_color_-1_4";
+        },
+        {
+            name = "Sphere--1-5";
+            position = { x = -0.540195; y = 0.2; z = 5.0136; };
+            radius = 0.2;
+            material = "sphere_material_color_-1_5";
+        },
+        {
+            name = "Sphere--1-6";
+            position = { x = -0.453925; y = 0.2; z = 6.41965; };
+            radius = 0.2;
+            material = "sphere_material_color_-1_6";
+        },
+        {
+            name = "Sphere--1-7";
+            position = { x = -0.139249; y = 0.2; z = 7.61221; };
+            radius = 0.2;
+            material = "sphere_material_color_-1_7";
+        },
+        {
+            name = "Sphere--1-8";
+            position = { x = -0.183359; y = 0.2; z = 8.064; };
+            radius = 0.2;
+            material = "sphere_material_glass";
+        },
+        {
+            name = "Sphere--1-9";
+            position = { x = -0.199921; y = 0.2; z = 9.56563; };
+            radius = 0.2;
+            material = "sphere_material_metal_-1_9";
+        },
+        {
+            name = "Sphere--1-10";
+            position = { x = -0.437253; y = 0.2; z = 10.1579; };
+            radius = 0.2;
+            material = "sphere_material_color_-1_10";
+        },
+        {
+            name = "Sphere-0--11";
+            position = { x = 0.734354; y = 0.2; z = -10.9476; };
+            radius = 0.2;
+            material = "sphere_material_color_0_-11";
+        },
+        {
+            name = "Sphere-0--10";
+            position = { x = 0.758221; y = 0.2; z = -9.14702; };
+            radius = 0.2;
+            material = "sphere_material_color_0_-10";
+        },
+        {
+            name = "Sphere-0--9";
+            position = { x = 0.337253; y = 0.2; z = -8.64901; };
+            radius = 0.2;
+            material = "sphere_material_color_0_-9";
+        },
+        {
+            name = "Sphere-0--8";
+            position = { x = 0.565164; y = 0.2; z = -7.11783; };
+            radius = 0.2;
+            material = "sphere_material_color_0_-8";
+        },
+        {
+            name = "Sphere-0--7";
+            position = { x = 0.058667; y = 0.2; z = -6.90574; };
+            radius = 0.2;
+            material = "sphere_material_color_0_-7";
+        },
+        {
+            name = "Sphere-0--6";
+            position = { x = 0.825101; y = 0.2; z = -5.43761; };
+            radius = 0.2;
+            material = "sphere_material_metal_0_-6";
+        },
+        {
+            name = "Sphere-0--5";
+            position = { x = 0.334781; y = 0.2; z = -4.90137; };
+            radius = 0.2;
+            material = "sphere_material_color_0_-5";
+        },
+        {
+            name = "Sphere-0--4";
+            position = { x = 0.741714; y = 0.2; z = -3.28855; };
+            radius = 0.2;
+            material = "sphere_material_color_0_-4";
+        },
+        {
+            name = "Sphere-0--3";
+            position = { x = 0.810654; y = 0.2; z = -2.35074; };
+            radius = 0.2;
+            material = "sphere_material_color_0_-3";
+        },
+        {
+            name = "Sphere-0--2";
+            position = { x = 0.246588; y = 0.2; z = -1.32986; };
+            radius = 0.2;
+            material = "sphere_material_color_0_-2";
+        },
+        {
+            name = "Sphere-0--1";
+            position = { x = 0.563104; y = 0.2; z = -0.760855; };
+            radius = 0.2;
+            material = "sphere_material_color_0_-1";
+        },
+        {
+            name = "Sphere-0-0";
+            position = { x = 0.870392; y = 0.2; z = 0.62666; };
+            radius = 0.2;
+            material = "sphere_material_color_0_0";
+        },
+        {
+            name = "Sphere-0-1";
+            position = { x = 0.733475; y = 0.2; z = 1.74677; };
+            radius = 0.2;
+            material = "sphere_material_metal_0_1";
+        },
+        {
+            name = "Sphere-0-2";
+            position = { x = 0.165839; y = 0.2; z = 2.44934; };
+            radius = 0.2;
+            material = "sphere_material_color_0_2";
+        },
+        {
+            name = "Sphere-0-3";
+            position = { x = 0.358786; y = 0.2; z = 3.28954; };
+            radius = 0.2;
+            material = "sphere_material_color_0_3";
+        },
+        {
+            name = "Sphere-0-4";
+            position = { x = 0.578183; y = 0.2; z = 4.82529; };
+            radius = 0.2;
+            material = "sphere_material_glass";
+        },
+        {
+            name = "Sphere-0-5";
+            position = { x = 0.259772; y = 0.2; z = 5.23719; };
+            radius = 0.2;
+            material = "sphere_material_color_0_5";
+        },
+        {
+            name = "Sphere-0-6";
+            position = { x = 0.206845; y = 0.2; z = 6.28993; };
+            radius = 0.2;
+            material = "sphere_material_color_0_6";
+        },
+        {
+            name = "Sphere-0-7";
+            position = { x = 0.172266; y = 0.2; z = 7.33835; };
+            radius = 0.2;
+            material = "sphere_material_color_0_7";
+        },
+        {
+            name = "Sphere-0-8";
+            position = { x = 0.331732; y = 0.2; z = 8.49312; };
+            radius = 0.2;
+            material = "sphere_material_color_0_8";
+        },
+        {
+            name = "Sphere-0-9";
+            position = { x = 0.294489; y = 0.2; z = 9.47332; };
+            radius = 0.2;
+            material = "sphere_material_color_0_9";
+        },
+        {
+            name = "Sphere-0-10";
+            position = { x = 0.265265; y = 0.2; z = 10.0646; };
+            radius = 0.2;
+            material = "sphere_material_color_0_10";
+        },
+        {
+            name = "Sphere-1--11";
+            position = { x = 1.1685; y = 0.2; z = -10.536; };
+            radius = 0.2;
+            material = "sphere_material_color_1_-11";
+        },
+        {
+            name = "Sphere-1--10";
+            position = { x = 1.86125; y = 0.2; z = -9.88898; };
+            radius = 0.2;
+            material = "sphere_material_color_1_-10";
+        },
+        {
+            name = "Sphere-1--9";
+            position = { x = 1.55099; y = 0.2; z = -8.29385; };
+            radius = 0.2;
+            material = "sphere_material_color_1_-9";
+        },
+        {
+            name = "Sphere-1--8";
+            position = { x = 1.09693; y = 0.2; z = -7.85844; };
+            radius = 0.2;
+            material = "sphere_material_color_1_-8";
+        },
+        {
+            name = "Sphere-1--7";
+            position = { x = 1.66096; y = 0.2; z = -6.61224; };
+            radius = 0.2;
+            material = "sphere_material_color_1_-7";
+        },
+        {
+            name = "Sphere-1--6";
+            position = { x = 1.39545; y = 0.2; z = -5.8388; };
+            radius = 0.2;
+            material = "sphere_material_color_1_-6";
+        },
+        {
+            name = "Sphere-1--5";
+            position = { x = 1.04293; y = 0.2; z = -4.14614; };
+            radius = 0.2;
+            material = "sphere_material_color_1_-5";
+        },
+        {
+            name = "Sphere-1--4";
+            position = { x = 1.42509; y = 0.2; z = -3.21503; };
+            radius = 0.2;
+            material = "sphere_material_color_1_-4";
+        },
+        {
+            name = "Sphere-1--3";
+            position = { x = 1.86888; y = 0.2; z = -2.11618; };
+            radius = 0.2;
+            material = "sphere_material_metal_1_-3";
+        },
+        {
+            name = "Sphere-1--2";
+            position = { x = 1.543; y = 0.2; z = -1.46661; };
+            radius = 0.2;
+            material = "sphere_material_metal_1_-2";
+        },
+        {
+            name = "Sphere-1--1";
+            position = { x = 1.87113; y = 0.2; z = -0.892416; };
+            radius = 0.2;
+            material = "sphere_material_metal_1_-1";
+        },
+        {
+            name = "Sphere-1-0";
+            position = { x = 1.19039; y = 0.2; z = 0.285342; };
+            radius = 0.2;
+            material = "sphere_material_color_1_0";
+        },
+        {
+            name = "Sphere-1-1";
+            position = { x = 1.51169; y = 0.2; z = 1.63589; };
+            radius = 0.2;
+            material = "sphere_material_color_1_1";
+        },
+        {
+            name = "Sphere-1-2";
+            position = { x = 1.71897; y = 0.2; z = 2.73087; };
+            radius = 0.2;
+            material = "sphere_material_color_1_2";
+        },
+        {
+            name = "Sphere-1-3";
+            position = { x = 1.62155; y = 0.2; z = 3.65624; };
+            radius = 0.2;
+            material = "sphere_material_metal_1_3";
+        },
+        {
+            name = "Sphere-1-4";
+            position = { x = 1.54003; y = 0.2; z = 4.22769; };
+            radius = 0.2;
+            material = "sphere_material_color_1_4";
+        },
+        {
+            name = "Sphere-1-5";
+            position = { x = 1.15287; y = 0.2; z = 5.78835; };
+            radius = 0.2;
+            material = "sphere_material_color_1_5";
+        },
+        {
+            name = "Sphere-1-6";
+            position = { x = 1.46252; y = 0.2; z = 6.53836; };
+            radius = 0.2;
+            material = "sphere_material_glass";
+        },
+        {
+            name = "Sphere-1-7";
+            position = { x = 1.74935; y = 0.2; z = 7.04112; };
+            radius = 0.2;
+            material = "sphere_material_color_1_7";
+        },
+        {
+            name = "Sphere-1-8";
+            position = { x = 1.76902; y = 0.2; z = 8.11775; };
+            radius = 0.2;
+            material = "sphere_material_color_1_8";
+        },
+        {
+            name = "Sphere-1-9";
+            position = { x = 1.20709; y = 0.2; z = 9.00563; };
+            radius = 0.2;
+            material = "sphere_material_color_1_9";
+        },
+        {
+            name = "Sphere-1-10";
+            position = { x = 1.84084; y = 0.2; z = 10.2879; };
+            radius = 0.2;
+            material = "sphere_material_color_1_10";
+        },
+        {
+            name = "Sphere-2--11";
+            position = { x = 2.58986; y = 0.2; z = -10.4359; };
+            radius = 0.2;
+            material = "sphere_material_color_2_-11";
+        },
+        {
+            name = "Sphere-2--10";
+            position = { x = 2.79829; y = 0.2; z = -9.11409; };
+            radius = 0.2;
+            material = "sphere_material_color_2_-10";
+        },
+        {
+            name = "Sphere-2--9";
+            position = { x = 2.44475; y = 0.2; z = -8.48386; };
+            radius = 0.2;
+            material = "sphere_material_metal_2_-9";
+        },
+        {
+            name = "Sphere-2--8";
+            position = { x = 2.67753; y = 0.2; z = -7.62388; };
+            radius = 0.2;
+            material = "sphere_material_metal_2_-8";
+        },
+        {
+            name = "Sphere-2--7";
+            position = { x = 2.30622; y = 0.2; z = -6.68011; };
+            radius = 0.2;
+            material = "sphere_material_color_2_-7";
+        },
+        {
+            name = "Sphere-2--6";
+            position = { x = 2.03963; y = 0.2; z = -5.44731; };
+            radius = 0.2;
+            material = "sphere_material_color_2_-6";
+        },
+        {
+            name = "Sphere-2--5";
+            position = { x = 2.45879; y = 0.2; z = -4.68708; };
+            radius = 0.2;
+            material = "sphere_material_color_2_-5";
+        },
+        {
+            name = "Sphere-2--4";
+            position = { x = 2.89179; y = 0.2; z = -3.72402; };
+            radius = 0.2;
+            material = "sphere_material_color_2_-4";
+        },
+        {
+            name = "Sphere-2--3";
+            position = { x = 2.45247; y = 0.2; z = -2.70889; };
+            radius = 0.2;
+            material = "sphere_material_color_2_-3";
+        },
+        {
+            name = "Sphere-2--2";
+            position = { x = 2.0011; y = 0.2; z = -1.6856; };
+            radius = 0.2;
+            material = "sphere_material_color_2_-2";
+        },
+        {
+            name = "Sphere-2--1";
+            position = { x = 2.18787; y = 0.2; z = -0.274573; };
+            radius = 0.2;
+            material = "sphere_material_metal_2_-1";
+        },
+        {
+            name = "Sphere-2-0";
+            position = { x = 2.57978; y = 0.2; z = 0.484799; };
+            radius = 0.2;
+            material = "sphere_material_metal_2_0";
+        },
+        {
+            name = "Sphere-2-1";
+            position = { x = 2.1306; y = 0.2; z = 1.51323; };
+            radius = 0.2;
+            material = "sphere_material_glass";
+        },
+        {
+            name = "Sphere-2-2";
+            position = { x = 2.70043; y = 0.2; z = 2.77256; };
+            radius = 0.2;
+            material = "sphere_material_color_2_2";
+        },
+        {
+            name = "Sphere-2-3";
+            position = { x = 2.18254; y = 0.2; z = 3.39628; };
+            radius = 0.2;
+            material = "sphere_material_metal_2_3";
+        },
+        {
+            name = "Sphere-2-4";
+            position = { x = 2.13857; y = 0.2; z = 4.85858; };
+            radius = 0.2;
+            material = "sphere_material_color_2_4";
+        },
+        {
+            name = "Sphere-2-5";
+            position = { x = 2.62279; y = 0.2; z = 5.74847; };
+            radius = 0.2;
+            material = "sphere_material_color_2_5";
+        },
+        {
+            name = "Sphere-2-6";
+            position = { x = 2.02942; y = 0.2; z = 6.55909; };
+            radius = 0.2;
+            material = "sphere_material_color_2_6";
+        },
+        {
+            name = "Sphere-2-7";
+            position = { x = 2.35807; y = 0.2; z = 7.12942; };
+            radius = 0.2;
+            material = "sphere_material_color_2_7";
+        },
+        {
+            name = "Sphere-2-8";
+            position = { x = 2.52468; y = 0.2; z = 8.30064; };
+            radius = 0.2;
+            material = "sphere_material_metal_2_8";
+        },
+        {
+            name = "Sphere-2-9";
+            position = { x = 2.09322; y = 0.2; z = 9.07265; };
+            radius = 0.2;
+            material = "sphere_material_color_2_9";
+        },
+        {
+            name = "Sphere-2-10";
+            position = { x = 2.30866; y = 0.2; z = 10.0681; };
+            radius = 0.2;
+            material = "sphere_material_color_2_10";
+        },
+        {
+            name = "Sphere-3--11";
+            position = { x = 3.24933; y = 0.2; z = -10.9615; };
+            radius = 0.2;
+            material = "sphere_material_color_3_-11";
+        },
+        {
+            name = "Sphere-3--10";
+            position = { x = 3.29287; y = 0.2; z = -9.13686; };
+            radius = 0.2;
+            material = "sphere_material_color_3_-10";
+        },
+        {
+            name = "Sphere-3--9";
+            position = { x = 3.50669; y = 0.2; z = -8.56049; };
+            radius = 0.2;
+            material = "sphere_material_metal_3_-9";
+        },
+        {
+            name = "Sphere-3--8";
+            position = { x = 3.58458; y = 0.2; z = -7.61567; };
+            radius = 0.2;
+            material = "sphere_material_color_3_-8";
+        },
+        {
+            name = "Sphere-3--7";
+            position = { x = 3.82005; y = 0.2; z = -6.99673; };
+            radius = 0.2;
+            material = "sphere_material_color_3_-7";
+        },
+        {
+            name = "Sphere-3--6";
+            position = { x = 3.1295; y = 0.2; z = -5.9769; };
+            radius = 0.2;
+            material = "sphere_material_color_3_-6";
+        },
+        {
+            name = "Sphere-3--5";
+            position = { x = 3.32489; y = 0.2; z = -4.3342; };
+            radius = 0.2;
+            material = "sphere_material_color_3_-5";
+        },
+        {
+            name = "Sphere-3--4";
+            position = { x = 3.41303; y = 0.2; z = -3.37144; };
+            radius = 0.2;
+            material = "sphere_material_color_3_-4";
+        },
+        {
+            name = "Sphere-3--3";
+            position = { x = 3.8075; y = 0.2; z = -2.25609; };
+            radius = 0.2;
+            material = "sphere_material_color_3_-3";
+        },
+        {
+            name = "Sphere-3--2";
+            position = { x = 3.37859; y = 0.2; z = -1.70675; };
+            radius = 0.2;
+            material = "sphere_material_color_3_-2";
+        },
+        {
+            name = "Sphere-3--1";
+            position = { x = 3.5642; y = 0.2; z = -0.308136; };
+            radius = 0.2;
+            material = "sphere_material_metal_3_-1";
+        },
+        {
+            name = "Sphere-3-0";
+            position = { x = 3.58711; y = 0.2; z = 0.620645; };
+            radius = 0.2;
+            material = "sphere_material_metal_3_0";
+        },
+        {
+            name = "Sphere-3-1";
+            position = { x = 3.17485; y = 0.2; z = 1.71598; };
+            radius = 0.2;
+            material = "sphere_material_color_3_1";
+        },
+        {
+            name = "Sphere-3-2";
+            position = { x = 3.0702; y = 0.2; z = 2.44876; };
+            radius = 0.2;
+            material = "sphere_material_color_3_2";
+        },
+        {
+            name = "Sphere-3-3";
+            position = { x = 3.29737; y = 0.2; z = 3.68719; };
+            radius = 0.2;
+            material = "sphere_material_metal_3_3";
+        },
+        {
+            name = "Sphere-3-4";
+            position = { x = 3.44827; y = 0.2; z = 4.52191; };
+            radius = 0.2;
+            material = "sphere_material_color_3_4";
+        },
+        {
+            name = "Sphere-3-5";
+            position = { x = 3.56816; y = 0.2; z = 5.17943; };
+            radius = 0.2;
+            material = "sphere_material_color_3_5";
+        },
+        {
+            name = "Sphere-3-6";
+            position = { x = 3.26307; y = 0.2; z = 6.11928; };
+            radius = 0.2;
+            material = "sphere_material_glass";
+        },
+        {
+            name = "Sphere-3-7";
+            position = { x = 3.35879; y = 0.2; z = 7.0031; };
+            radius = 0.2;
+            material = "sphere_material_color_3_7";
+        },
+        {
+            name = "Sphere-3-8";
+            position = { x = 3.44635; y = 0.2; z = 8.32846; };
+            radius = 0.2;
+            material = "sphere_material_metal_3_8";
+        },
+        {
+            name = "Sphere-3-9";
+            position = { x = 3.30078; y = 0.2; z = 9.48296; };
+            radius = 0.2;
+            material = "sphere_material_color_3_9";
+        },
+        {
+            name = "Sphere-3-10";
+            position = { x = 3.57843; y = 0.2; z = 10.408; };
+            radius = 0.2;
+            material = "sphere_material_metal_3_10";
+        },
+        {
+            name = "Sphere-4--11";
+            position = { x = 4.1721; y = 0.2; z = -10.7975; };
+            radius = 0.2;
+            material = "sphere_material_color_4_-11";
+        },
+        {
+            name = "Sphere-4--10";
+            position = { x = 4.46986; y = 0.2; z = -9.10107; };
+            radius = 0.2;
+            material = "sphere_material_glass";
+        },
+        {
+            name = "Sphere-4--9";
+            position = { x = 4.49309; y = 0.2; z = -8.93268; };
+            radius = 0.2;
+            material = "sphere_material_metal_4_-9";
+        },
+        {
+            name = "Sphere-4--8";
+            position = { x = 4.26106; y = 0.2; z = -7.38218; };
+            radius = 0.2;
+            material = "sphere_material_color_4_-8";
+        },
+        {
+            name = "Sphere-4--7";
+            position = { x = 4.30682; y = 0.2; z = -6.84973; };
+            radius = 0.2;
+            material = "sphere_material_color_4_-7";
+        },
+        {
+            name = "Sphere-4--6";
+            position = { x = 4.81727; y = 0.2; z = -5.50872; };
+            radius = 0.2;
+            material = "sphere_material_color_4_-6";
+        },
+        {
+            name = "Sphere-4--5";
+            position = { x = 4.67854; y = 0.2; z = -4.51789; };
+            radius = 0.2;
+            material = "sphere_material_color_4_-5";
+        },
+        {
+            name = "Sphere-4--4";
+            position = { x = 4.33937; y = 0.2; z = -3.39452; };
+            radius = 0.2;
+            material = "sphere_material_metal_4_-4";
+        },
+        {
+            name = "Sphere-4--3";
+            position = { x = 4.73935; y = 0.2; z = -2.23755; };
+            radius = 0.2;
+            material = "sphere_material_color_4_-3";
+        },
+        {
+            name = "Sphere-4--2";
+            position = { x = 4.65937; y = 0.2; z = -1.64149; };
+            radius = 0.2;
+            material = "sphere_material_color_4_-2";
+        },
+        {
+            name = "Sphere-4--1";
+            position = { x = 4.37884; y = 0.2; z = -0.150015; };
+            radius = 0.2;
+            material = "sphere_material_metal_4_-1";
+        },
+        {
+            name = "Sphere-4-0";
+            position = { x = 4.47013; y = 0.2; z = 0.456647; };
+            radius = 0.2;
+            material = "sphere_material_color_4_0";
+        },
+        {
+            name = "Sphere-4-1";
+            position = { x = 4.84221; y = 0.2; z = 1.40356; };
+            radius = 0.2;
+            material = "sphere_material_color_4_1";
+        },
+        {
+            name = "Sphere-4-2";
+            position = { x = 4.49101; y = 0.2; z = 2.30056; };
+            radius = 0.2;
+            material = "sphere_material_color_4_2";
+        },
+        {
+            name = "Sphere-4-3";
+            position = { x = 4.39836; y = 0.2; z = 3.70211; };
+            radius = 0.2;
+            material = "sphere_material_metal_4_3";
+        },
+        {
+            name = "Sphere-4-4";
+            position = { x = 4.17754; y = 0.2; z = 4.14071; };
+            radius = 0.2;
+            material = "sphere_material_color_4_4";
+        },
+        {
+            name = "Sphere-4-5";
+            position = { x = 4.10525; y = 0.2; z = 5.48315; };
+            radius = 0.2;
+            material = "sphere_material_color_4_5";
+        },
+        {
+            name = "Sphere-4-6";
+            position = { x = 4.23071; y = 0.2; z = 6.47491; };
+            radius = 0.2;
+            material = "sphere_material_color_4_6";
+        },
+        {
+            name = "Sphere-4-7";
+            position = { x = 4.19303; y = 0.2; z = 7.6006; };
+            radius = 0.2;
+            material = "sphere_material_color_4_7";
+        },
+        {
+            name = "Sphere-4-8";
+            position = { x = 4.69673; y = 0.2; z = 8.05172; };
+            radius = 0.2;
+            material = "sphere_material_color_4_8";
+        },
+        {
+            name = "Sphere-4-9";
+            position = { x = 4.10127; y = 0.2; z = 9.05125; };
+            radius = 0.2;
+            material = "sphere_material_color_4_9";
+        },
+        {
+            name = "Sphere-4-10";
+            position = { x = 4.12612; y = 0.2; z = 10.7173; };
+            radius = 0.2;
+            material = "sphere_material_color_4_10";
+        },
+        {
+            name = "Sphere-5--11";
+            position = { x = 5.3756; y = 0.2; z = -10.3812; };
+            radius = 0.2;
+            material = "sphere_material_color_5_-11";
+        },
+        {
+            name = "Sphere-5--10";
+            position = { x = 5.81694; y = 0.2; z = -9.46082; };
+            radius = 0.2;
+            material = "sphere_material_color_5_-10";
+        },
+        {
+            name = "Sphere-5--9";
+            position = { x = 5.58994; y = 0.2; z = -8.22769; };
+            radius = 0.2;
+            material = "sphere_material_color_5_-9";
+        },
+        {
+            name = "Sphere-5--8";
+            position = { x = 5.81983; y = 0.2; z = -7.15389; };
+            radius = 0.2;
+            material = "sphere_material_color_5_-8";
+        },
+        {
+            name = "Sphere-5--7";
+            position = { x = 5.28759; y = 0.2; z = -6.88385; };
+            radius = 0.2;
+            material = "sphere_material_color_5_-7";
+        },
+        {
+            name = "Sphere-5--6";
+            position = { x = 5.06235; y = 0.2; z = -5.26707; };
+            radius = 0.2;
+            material = "sphere_material_color_5_-6";
+        },
+        {
+            name = "Sphere-5--5";
+            position = { x = 5.32901; y = 0.2; z = -4.81109; };
+            radius = 0.2;
+            material = "sphere_material_glass";
+        },
+        {
+            name = "Sphere-5--4";
+            position = { x = 5.17957; y = 0.2; z = -3.78338; };
+            radius = 0.2;
+            material = "sphere_material_color_5_-4";
+        },
+        {
+            name = "Sphere-5--3";
+            position = { x = 5.06364; y = 0.2; z = -2.32552; };
+            radius = 0.2;
+            material = "sphere_material_color_5_-3";
+        },
+        {
+            name = "Sphere-5--2";
+            position = { x = 5.63037; y = 0.2; z = -1.54775; };
+            radius = 0.2;
+            material = "sphere_material_color_5_-2";
+        },
+        {
+            name = "Sphere-5--1";
+            position = { x = 5.59922; y = 0.2; z = -0.92598; };
+            radius = 0.2;
+            material = "sphere_material_color_5_-1";
+        },
+        {
+            name = "Sphere-5-0";
+            position = { x = 5.15458; y = 0.2; z = 0.88959; };
+            radius = 0.2;
+            material = "sphere_material_color_5_0";
+        },
+        {
+            name = "Sphere-5-1";
+            position = { x = 5.17281; y = 0.2; z = 1.75237; };
+            radius = 0.2;
+            material = "sphere_material_color_5_1";
+        },
+        {
+            name = "Sphere-5-2";
+            position = { x = 5.51946; y = 0.2; z = 2.19256; };
+            radius = 0.2;
+            material = "sphere_material_color_5_2";
+        },
+        {
+            name = "Sphere-5-3";
+            position = { x = 5.02878; y = 0.2; z = 3.82148; };
+            radius = 0.2;
+            material = "sphere_material_metal_5_3";
+        },
+        {
+            name = "Sphere-5-4";
+            position = { x = 5.40191; y = 0.2; z = 4.03095; };
+            radius = 0.2;
+            material = "sphere_material_color_5_4";
+        },
+        {
+            name = "Sphere-5-5";
+            position = { x = 5.78003; y = 0.2; z = 5.41473; };
+            radius = 0.2;
+            material = "sphere_material_color_5_5";
+        },
+        {
+            name = "Sphere-5-6";
+            position = { x = 5.4291; y = 0.2; z = 6.09715; };
+            radius = 0.2;
+            material = "sphere_material_color_5_6";
+        },
+        {
+            name = "Sphere-5-7";
+            position = { x = 5.09044; y = 0.2; z = 7.33654; };
+            radius = 0.2;
+            material = "sphere_material_metal_5_7";
+        },
+        {
+            name = "Sphere-5-8";
+            position = { x = 5.67761; y = 0.2; z = 8.2899; };
+            radius = 0.2;
+            material = "sphere_material_metal_5_8";
+        },
+        {
+            name = "Sphere-5-9";
+            position = { x = 5.49548; y = 0.2; z = 9.24538; };
+            radius = 0.2;
+            material = "sphere_material_color_5_9";
+        },
+        {
+            name = "Sphere-5-10";
+            position = { x = 5.68807; y = 0.2; z = 10.1995; };
+            radius = 0.2;
+            material = "sphere_material_color_5_10";
+        },
+        {
+            name = "Sphere-6--11";
+            position = { x = 6.74658; y = 0.2; z = -10.8503; };
+            radius = 0.2;
+            material = "sphere_material_color_6_-11";
+        },
+        {
+            name = "Sphere-6--10";
+            position = { x = 6.52322; y = 0.2; z = -9.14845; };
+            radius = 0.2;
+            material = "sphere_material_color_6_-10";
+        },
+        {
+            name = "Sphere-6--9";
+            position = { x = 6.54094; y = 0.2; z = -8.90717; };
+            radius = 0.2;
+            material = "sphere_material_color_6_-9";
+        },
+        {
+            name = "Sphere-6--8";
+            position = { x = 6.68607; y = 0.2; z = -7.76344; };
+            radius = 0.2;
+            material = "sphere_material_metal_6_-8";
+        },
+        {
+            name = "Sphere-6--7";
+            position = { x = 6.63487; y = 0.2; z = -6.90656; };
+            radius = 0.2;
+            material = "sphere_material_metal_6_-7";
+        },
+        {
+            name = "Sphere-6--6";
+            position = { x = 6.43802; y = 0.2; z = -5.69367; };
+            radius = 0.2;
+            material = "sphere_material_metal_6_-6";
+        },
+        {
+            name = "Sphere-6--5";
+            position = { x = 6.21053; y = 0.2; z = -4.61567; };
+            radius = 0.2;
+            material = "sphere_material_color_6_-5";
+        },
+        {
+            name = "Sphere-6--4";
+            position = { x = 6.57044; y = 0.2; z = -3.50498; };
+            radius = 0.2;
+            material = "sphere_material_color_6_-4";
+        },
+        {
+            name = "Sphere-6--3";
+            position = { x = 6.52968; y = 0.2; z = -2.97712; };
+            radius = 0.2;
+            material = "sphere_material_color_6_-3";
+        },
+        {
+            name = "Sphere-6--2";
+            position = { x = 6.44648; y = 0.2; z = -1.50474; };
+            radius = 0.2;
+            material = "sphere_material_color_6_-2";
+        },
+        {
+            name = "Sphere-6--1";
+            position = { x = 6.81098; y = 0.2; z = -0.108157; };
+            radius = 0.2;
+            material = "sphere_material_color_6_-1";
+        },
+        {
+            name = "Sphere-6-0";
+            position = { x = 6.49469; y = 0.2; z = 0.794916; };
+            radius = 0.2;
+            material = "sphere_material_color_6_0";
+        },
+        {
+            name = "Sphere-6-1";
+            position = { x = 6.60222; y = 0.2; z = 1.28174; };
+            radius = 0.2;
+            material = "sphere_material_color_6_1";
+        },
+        {
+            name = "Sphere-6-2";
+            position = { x = 6.5244; y = 0.2; z = 2.14348; };
+            radius = 0.2;
+            material = "sphere_material_metal_6_2";
+        },
+        {
+            name = "Sphere-6-3";
+            position = { x = 6.60439; y = 0.2; z = 3.23695; };
+            radius = 0.2;
+            material = "sphere_material_color_6_3";
+        },
+        {
+            name = "Sphere-6-4";
+            position = { x = 6.7953; y = 0.2; z = 4.26307; };
+            radius = 0.2;
+            material = "sphere_material_color_6_4";
+        },
+        {
+            name = "Sphere-6-5";
+            position = { x = 6.57722; y = 0.2; z = 5.59312; };
+            radius = 0.2;
+            material = "sphere_material_color_6_5";
+        },
+        {
+            name = "Sphere-6-6";
+            position = { x = 6.77764; y = 0.2; z = 6.03639; };
+            radius = 0.2;
+            material = "sphere_material_color_6_6";
+        },
+        {
+            name = "Sphere-6-7";
+            position = { x = 6.2155; y = 0.2; z = 7.88149; };
+            radius = 0.2;
+            material = "sphere_material_color_6_7";
+        },
+        {
+            name = "Sphere-6-8";
+            position = { x = 6.02719; y = 0.2; z = 8.79294; };
+            radius = 0.2;
+            material = "sphere_material_metal_6_8";
+        },
+        {
+            name = "Sphere-6-9";
+            position = { x = 6.67154; y = 0.2; z = 9.34255; };
+            radius = 0.2;
+            material = "sphere_material_glass";
+        },
+        {
+            name = "Sphere-6-10";
+            position = { x = 6.15507; y = 0.2; z = 10.1275; };
+            radius = 0.2;
+            material = "sphere_material_color_6_10";
+        },
+        {
+            name = "Sphere-7--11";
+            position = { x = 7.71595; y = 0.2; z = -10.7805; };
+            radius = 0.2;
+            material = "sphere_material_color_7_-11";
+        },
+        {
+            name = "Sphere-7--10";
+            position = { x = 7.13477; y = 0.2; z = -9.36829; };
+            radius = 0.2;
+            material = "sphere_material_color_7_-10";
+        },
+        {
+            name = "Sphere-7--9";
+            position = { x = 7.29221; y = 0.2; z = -8.50855; };
+            radius = 0.2;
+            material = "sphere_material_color_7_-9";
+        },
+        {
+            name = "Sphere-7--8";
+            position = { x = 7.29262; y = 0.2; z = -7.27369; };
+            radius = 0.2;
+            material = "sphere_material_color_7_-8";
+        },
+        {
+            name = "Sphere-7--7";
+            position = { x = 7.2812; y = 0.2; z = -6.89277; };
+            radius = 0.2;
+            material = "sphere_material_color_7_-7";
+        },
+        {
+            name = "Sphere-7--6";
+            position = { x = 7.05545; y = 0.2; z = -5.89698; };
+            radius = 0.2;
+            material = "sphere_material_color_7_-6";
+        },
+        {
+            name = "Sphere-7--5";
+            position = { x = 7.18861; y = 0.2; z = -4.3707; };
+            radius = 0.2;
+            material = "sphere_material_color_7_-5";
+        },
+        {
+            name = "Sphere-7--4";
+            position = { x = 7.8176; y = 0.2; z = -3.95144; };
+            radius = 0.2;
+            material = "sphere_material_color_7_-4";
+        },
+        {
+            name = "Sphere-7--3";
+            position = { x = 7.48296; y = 0.2; z = -2.4172; };
+            radius = 0.2;
+            material = "sphere_material_color_7_-3";
+        },
+        {
+            name = "Sphere-7--2";
+            position = { x = 7.38043; y = 0.2; z = -1.86179; };
+            radius = 0.2;
+            material = "sphere_material_color_7_-2";
+        },
+        {
+            name = "Sphere-7--1";
+            position = { x = 7.87665; y = 0.2; z = -0.404459; };
+            radius = 0.2;
+            material = "sphere_material_color_7_-1";
+        },
+        {
+            name = "Sphere-7-0";
+            position = { x = 7.63633; y = 0.2; z = 0.0116455; };
+            radius = 0.2;
+            material = "sphere_material_color_7_0";
+        },
+        {
+            name = "Sphere-7-1";
+            position = { x = 7.02785; y = 0.2; z = 1.5734; };
+            radius = 0.2;
+            material = "sphere_material_color_7_1";
+        },
+        {
+            name = "Sphere-7-2";
+            position = { x = 7.05466; y = 0.2; z = 2.18671; };
+            radius = 0.2;
+            material = "sphere_material_metal_7_2";
+        },
+        {
+            name = "Sphere-7-3";
+            position = { x = 7.25582; y = 0.2; z = 3.37831; };
+            radius = 0.2;
+            material = "sphere_material_color_7_3";
+        },
+        {
+            name = "Sphere-7-4";
+            position = { x = 7.17751; y = 0.2; z = 4.36398; };
+            radius = 0.2;
+            material = "sphere_material_color_7_4";
+        },
+        {
+            name = "Sphere-7-5";
+            position = { x = 7.3397; y = 0.2; z = 5.52929; };
+            radius = 0.2;
+            material = "sphere_material_color_7_5";
+        },
+        {
+            name = "Sphere-7-6";
+            position = { x = 7.02488; y = 0.2; z = 6.48678; };
+            radius = 0.2;
+            material = "sphere_material_color_7_6";
+        },
+        {
+            name = "Sphere-7-7";
+            position = { x = 7.0576; y = 0.2; z = 7.86655; };
+            radius = 0.2;
+            material = "sphere_material_color_7_7";
+        },
+        {
+            name = "Sphere-7-8";
+            position = { x = 7.67959; y = 0.2; z = 8.76476; };
+            radius = 0.2;
+            material = "sphere_material_color_7_8";
+        },
+        {
+            name = "Sphere-7-9";
+            position = { x = 7.23687; y = 0.2; z = 9.25343; };
+            radius = 0.2;
+            material = "sphere_material_color_7_9";
+        },
+        {
+            name = "Sphere-7-10";
+            position = { x = 7.3213; y = 0.2; z = 10.5347; };
+            radius = 0.2;
+            material = "sphere_material_color_7_10";
+        },
+        {
+            name = "Sphere-8--11";
+            position = { x = 8.74402; y = 0.2; z = -10.5295; };
+            radius = 0.2;
+            material = "sphere_material_metal_8_-11";
+        },
+        {
+            name = "Sphere-8--10";
+            position = { x = 8.70961; y = 0.2; z = -9.78928; };
+            radius = 0.2;
+            material = "sphere_material_color_8_-10";
+        },
+        {
+            name = "Sphere-8--9";
+            position = { x = 8.54248; y = 0.2; z = -8.16512; };
+            radius = 0.2;
+            material = "sphere_material_color_8_-9";
+        },
+        {
+            name = "Sphere-8--8";
+            position = { x = 8.88234; y = 0.2; z = -7.9585; };
+            radius = 0.2;
+            material = "sphere_material_color_8_-8";
+        },
+        {
+            name = "Sphere-8--7";
+            position = { x = 8.67533; y = 0.2; z = -6.26507; };
+            radius = 0.2;
+            material = "sphere_material_color_8_-7";
+        },
+        {
+            name = "Sphere-8--6";
+            position = { x = 8.03516; y = 0.2; z = -5.65533; };
+            radius = 0.2;
+            material = "sphere_material_metal_8_-6";
+        },
+        {
+            name = "Sphere-8--5";
+            position = { x = 8.79901; y = 0.2; z = -4.70675; };
+            radius = 0.2;
+            material = "sphere_material_color_8_-5";
+        },
+        {
+            name = "Sphere-8--4";
+            position = { x = 8.76783; y = 0.2; z = -3.59601; };
+            radius = 0.2;
+            material = "sphere_material_color_8_-4";
+        },
+        {
+            name = "Sphere-8--3";
+            position = { x = 8.15592; y = 0.2; z = -2.85745; };
+            radius = 0.2;
+            material = "sphere_material_color_8_-3";
+        },
+        {
+            name = "Sphere-8--2";
+            position = { x = 8.78242; y = 0.2; z = -1.72177; };
+            radius = 0.2;
+            material = "sphere_material_color_8_-2";
+        },
+        {
+            name = "Sphere-8--1";
+            position = { x = 8.32981; y = 0.2; z = -0.307449; };
+            radius = 0.2;
+            material = "sphere_material_glass";
+        },
+        {
+            name = "Sphere-8-0";
+            position = { x = 8.76352; y = 0.2; z = 0.0258179; };
+            radius = 0.2;
+            material = "sphere_material_glass";
+        },
+        {
+            name = "Sphere-8-1";
+            position = { x = 8.2322; y = 0.2; z = 1.26661; };
+            radius = 0.2;
+            material = "sphere_material_color_8_1";
+        },
+        {
+            name = "Sphere-8-2";
+            position = { x = 8.35659; y = 0.2; z = 2.51312; };
+            radius = 0.2;
+            material = "sphere_material_glass";
+        },
+        {
+            name = "Sphere-8-3";
+            position = { x = 8.47068; y = 0.2; z = 3.443; };
+            radius = 0.2;
+            material = "sphere_material_color_8_3";
+        },
+        {
+            name = "Sphere-8-4";
+            position = { x = 8.87089; y = 0.2; z = 4.60337; };
+            radius = 0.2;
+            material = "sphere_material_color_8_4";
+        },
+        {
+            name = "Sphere-8-5";
+            position = { x = 8.80354; y = 0.2; z = 5.78506; };
+            radius = 0.2;
+            material = "sphere_material_metal_8_5";
+        },
+        {
+            name = "Sphere-8-6";
+            position = { x = 8.40746; y = 0.2; z = 6.15985; };
+            radius = 0.2;
+            material = "sphere_material_color_8_6";
+        },
+        {
+            name = "Sphere-8-7";
+            position = { x = 8.79316; y = 0.2; z = 7.53649; };
+            radius = 0.2;
+            material = "sphere_material_metal_8_7";
+        },
+        {
+            name = "Sphere-8-8";
+            position = { x = 8.74114; y = 0.2; z = 8.84353; };
+            radius = 0.2;
+            material = "sphere_material_color_8_8";
+        },
+        {
+            name = "Sphere-8-9";
+            position = { x = 8.55162; y = 0.2; z = 9.67217; };
+            radius = 0.2;
+            material = "sphere_material_color_8_9";
+        },
+        {
+            name = "Sphere-8-10";
+            position = { x = 8.11003; y = 0.2; z = 10.3822; };
+            radius = 0.2;
+            material = "sphere_material_color_8_10";
+        },
+        {
+            name = "Sphere-9--11";
+            position = { x = 9.02705; y = 0.2; z = -10.9479; };
+            radius = 0.2;
+            material = "sphere_material_metal_9_-11";
+        },
+        {
+            name = "Sphere-9--10";
+            position = { x = 9.68192; y = 0.2; z = -9.18001; };
+            radius = 0.2;
+            material = "sphere_material_color_9_-10";
+        },
+        {
+            name = "Sphere-9--9";
+            position = { x = 9.13878; y = 0.2; z = -8.81414; };
+            radius = 0.2;
+            material = "sphere_material_color_9_-9";
+        },
+        {
+            name = "Sphere-9--8";
+            position = { x = 9.71977; y = 0.2; z = -7.66385; };
+            radius = 0.2;
+            material = "sphere_material_metal_9_-8";
+        },
+        {
+            name = "Sphere-9--7";
+            position = { x = 9.37483; y = 0.2; z = -6.36661; };
+            radius = 0.2;
+            material = "sphere_material_metal_9_-7";
+        },
+        {
+            name = "Sphere-9--6";
+            position = { x = 9.76468; y = 0.2; z = -5.39825; };
+            radius = 0.2;
+            material = "sphere_material_metal_9_-6";
+        },
+        {
+            name = "Sphere-9--5";
+            position = { x = 9.56761; y = 0.2; z = -4.90324; };
+            radius = 0.2;
+            material = "sphere_material_color_9_-5";
+        },
+        {
+            name = "Sphere-9--4";
+            position = { x = 9.62559; y = 0.2; z = -3.70216; };
+            radius = 0.2;
+            material = "sphere_material_metal_9_-4";
+        },
+        {
+            name = "Sphere-9--3";
+            position = { x = 9.70499; y = 0.2; z = -2.52984; };
+            radius = 0.2;
+            material = "sphere_material_metal_9_-3";
+        },
+        {
+            name = "Sphere-9--2";
+            position = { x = 9.32904; y = 0.2; z = -1.57329; };
+            radius = 0.2;
+            material = "sphere_material_color_9_-2";
+        },
+        {
+            name = "Sphere-9--1";
+            position = { x = 9.20663; y = 0.2; z = -0.706116; };
+            radius = 0.2;
+            material = "sphere_material_color_9_-1";
+        },
+        {
+            name = "Sphere-9-0";
+            position = { x = 9.07333; y = 0.2; z = 0.443326; };
+            radius = 0.2;
+            material = "sphere_material_color_9_0";
+        },
+        {
+            name = "Sphere-9-1";
+            position = { x = 9.38999; y = 0.2; z = 1.62287; };
+            radius = 0.2;
+            material = "sphere_material_color_9_1";
+        },
+        {
+            name = "Sphere-9-2";
+            position = { x = 9.77701; y = 0.2; z = 2.24491; };
+            radius = 0.2;
+            material = "sphere_material_color_9_2";
+        },
+        {
+            name = "Sphere-9-3";
+            position = { x = 9.52446; y = 0.2; z = 3.0941; };
+            radius = 0.2;
+            material = "sphere_material_color_9_3";
+        },
+        {
+            name = "Sphere-9-4";
+            position = { x = 9.88717; y = 0.2; z = 4.18894; };
+            radius = 0.2;
+            material = "sphere_material_color_9_4";
+        },
+        {
+            name = "Sphere-9-5";
+            position = { x = 9.45486; y = 0.2; z = 5.27861; };
+            radius = 0.2;
+            material = "sphere_material_color_9_5";
+        },
+        {
+            name = "Sphere-9-6";
+            position = { x = 9.25516; y = 0.2; z = 6.54404; };
+            radius = 0.2;
+            material = "sphere_material_color_9_6";
+        },
+        {
+            name = "Sphere-9-7";
+            position = { x = 9.43053; y = 0.2; z = 7.82334; };
+            radius = 0.2;
+            material = "sphere_material_color_9_7";
+        },
+        {
+            name = "Sphere-9-8";
+            position = { x = 9.71505; y = 0.2; z = 8.59054; };
+            radius = 0.2;
+            material = "sphere_material_glass";
+        },
+        {
+            name = "Sphere-9-9";
+            position = { x = 9.03944; y = 0.2; z = 9.58661; };
+            radius = 0.2;
+            material = "sphere_material_color_9_9";
+        },
+        {
+            name = "Sphere-9-10";
+            position = { x = 9.5511; y = 0.2; z = 10.4129; };
+            radius = 0.2;
+            material = "sphere_material_color_9_10";
+        },
+        {
+            name = "Sphere-10--11";
+            position = { x = 10.1686; y = 0.2; z = -10.7148; };
+            radius = 0.2;
+            material = "sphere_material_glass";
+        },
+        {
+            name = "Sphere-10--10";
+            position = { x = 10.4207; y = 0.2; z = -9.21755; };
+            radius = 0.2;
+            material = "sphere_material_color_10_-10";
+        },
+        {
+            name = "Sphere-10--9";
+            position = { x = 10.0827; y = 0.2; z = -8.25738; };
+            radius = 0.2;
+            material = "sphere_material_color_10_-9";
+        },
+        {
+            name = "Sphere-10--8";
+            position = { x = 10.1811; y = 0.2; z = -7.2406; };
+            radius = 0.2;
+            material = "sphere_material_metal_10_-8";
+        },
+        {
+            name = "Sphere-10--7";
+            position = { x = 10.5463; y = 0.2; z = -6.98448; };
+            radius = 0.2;
+            material = "sphere_material_color_10_-7";
+        },
+        {
+            name = "Sphere-10--6";
+            position = { x = 10.7537; y = 0.2; z = -5.54849; };
+            radius = 0.2;
+            material = "sphere_material_color_10_-6";
+        },
+        {
+            name = "Sphere-10--5";
+            position = { x = 10.5267; y = 0.2; z = -4.4514; };
+            radius = 0.2;
+            material = "sphere_material_glass";
+        },
+        {
+            name = "Sphere-10--4";
+            position = { x = 10.089; y = 0.2; z = -3.4333; };
+            radius = 0.2;
+            material = "sphere_material_color_10_-4";
+        },
+        {
+            name = "Sphere-10--3";
+            position = { x = 10.1913; y = 0.2; z = -2.29896; };
+            radius = 0.2;
+            material = "sphere_material_color_10_-3";
+        },
+        {
+            name = "Sphere-10--2";
+            position = { x = 10.0554; y = 0.2; z = -1.9669; };
+            radius = 0.2;
+            material = "sphere_material_color_10_-2";
+        },
+        {
+            name = "Sphere-10--1";
+            position = { x = 10.0554; y = 0.2; z = -0.444724; };
+            radius = 0.2;
+            material = "sphere_material_color_10_-1";
+        },
+        {
+            name = "Sphere-10-0";
+            position = { x = 10.8802; y = 0.2; z = 0.254745; };
+            radius = 0.2;
+            material = "sphere_material_color_10_0";
+        },
+        {
+            name = "Sphere-10-1";
+            position = { x = 10.8007; y = 0.2; z = 1.22868; };
+            radius = 0.2;
+            material = "sphere_material_glass";
+        },
+        {
+            name = "Sphere-10-2";
+            position = { x = 10.8336; y = 0.2; z = 2.53968; };
+            radius = 0.2;
+            material = "sphere_material_color_10_2";
+        },
+        {
+            name = "Sphere-10-3";
+            position = { x = 10.1519; y = 0.2; z = 3.311; };
+            radius = 0.2;
+            material = "sphere_material_color_10_3";
+        },
+        {
+            name = "Sphere-10-4";
+            position = { x = 10.3805; y = 0.2; z = 4.37889; };
+            radius = 0.2;
+            material = "sphere_material_color_10_4";
+        },
+        {
+            name = "Sphere-10-5";
+            position = { x = 10.1662; y = 0.2; z = 5.0696; };
+            radius = 0.2;
+            material = "sphere_material_color_10_5";
+        },
+        {
+            name = "Sphere-10-6";
+            position = { x = 10.6349; y = 0.2; z = 6.52366; };
+            radius = 0.2;
+            material = "sphere_material_metal_10_6";
+        },
+        {
+            name = "Sphere-10-7";
+            position = { x = 10.7861; y = 0.2; z = 7.54882; };
+            radius = 0.2;
+            material = "sphere_material_color_10_7";
+        },
+        {
+            name = "Sphere-10-8";
+            position = { x = 10.4785; y = 0.2; z = 8.69123; };
+            radius = 0.2;
+            material = "sphere_material_color_10_8";
+        },
+        {
+            name = "Sphere-10-9";
+            position = { x = 10.49; y = 0.2; z = 9.55451; };
+            radius = 0.2;
+            material = "sphere_material_color_10_9";
+        },
+        {
+            name = "Sphere-10-10";
+            position = { x = 10.416; y = 0.2; z = 10.2266; };
+            radius = 0.2;
+            material = "sphere_material_color_10_10";
+        }
+    );
+};

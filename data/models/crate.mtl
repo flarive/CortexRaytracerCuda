@@ -1,0 +1,19 @@
+# 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
+# File Created: 06.05.2024 22:32:26
+
+newmtl Scifi_Crate_Material
+	Ns 46.4386
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.0000 0.0000 0.0000
+	Kd 0.8000 0.8000 0.8000
+	Ks 0.2000 0.2000 0.2000
+	Ke 0.0000 0.0000 0.0000
+	#map_Ka ..\..\data\models\crate_diffuse.jpg
+	map_Kd ..\..\data\models\crate_diffuse.jpg
+	map_Ks ..\..\data\models\crate_specular.jpg
+	map_bump -bm 0.3000 ..\..\data\models\crate_bump.jpg
+	#norm -bm 0.005 ..\..\data\models\crate_normal.jpg
