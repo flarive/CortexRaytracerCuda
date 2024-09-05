@@ -3,6 +3,7 @@
 #include "material.cuh"
 #include "../misc/ray.cuh"
 #include "../primitives/hittable_list.cuh"
+#include "../lights/light.cuh"
 #include "../misc/gpu_randomizer.cuh"
 
 /// <summary>
@@ -18,6 +19,7 @@ public:
     __host__ __device__ phong(texture* diffuseTexture, texture* specularTexture, texture* bumpTexture, texture* normalTexture, texture* displaceTexture, texture* alphaTexture, texture* emissiveTexture, const color& ambientColor, float shininess);
 
     __device__ bool scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, curandState* local_rand_state) const override;
+
     __host__ __device__ float scattering_pdf(const ray& r_in, const hit_record& rec, const ray& scattered) const override;
 
 private:
@@ -38,6 +40,8 @@ __host__ __device__ phong::phong(texture* diffuseTexture, texture* specularTextu
     m_ambientColor = ambientColor;
     m_shininess = shininess;
 }
+
+
 __device__ bool phong::scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, curandState* local_rand_state) const
 {
     vector3 normalv = rec.normal;
@@ -66,12 +70,24 @@ __device__ bool phong::scatter(const ray& r_in, const hittable_list& lights, con
         return false;
     }
 
-    light* mylight = std::dynamic_pointer_cast<light>(lights.objects[0]);
-    if (mylight == nullptr)
+    light* mylight;
+
+    if (lights.objects[0]->getTypeID() == HittableTypeID::lightOmniType)
+    {
+        mylight = static_cast<light*>(lights.objects[0]);
+    }
+    else
     {
         // no light
         return false;
     }
+
+    //light* mylight = std::dynamic_pointer_cast<light>(lights.objects[0]);
+    //if (mylight == nullptr)
+    //{
+    //    // no light
+    //    return false;
+    //}
 
     // Find the direction to the light source
     vector3 dirToLight = glm::normalize(mylight->getPosition() - hit_point);

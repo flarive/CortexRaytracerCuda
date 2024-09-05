@@ -157,8 +157,10 @@
     <ClInclude Include="src\scenes\scene_loader.h" />
     <ClInclude Include="src\scenes\scene_manager.h" />
     <ClInclude Include="src\srenderer.h" />
+    <ClInclude Include="src\textures\bump_texture.cuh" />
     <ClInclude Include="src\textures\checker_texture.cuh" />
     <ClInclude Include="src\textures\image_texture.cuh" />
+    <ClInclude Include="src\textures\normal_texture.cuh" />
     <ClInclude Include="src\textures\perlin.cuh" />
     <ClInclude Include="src\misc\ray.cuh" />
     <ClInclude Include="src\primitives\aarect.cuh" />

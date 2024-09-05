@@ -9,12 +9,6 @@
 class solid_color_texture : public texture
 {
 public:
-    //__host__ __device__ solid_color_texture() {}
-    //__host__ __device__ solid_color_texture(color c) : m_color(c) {}
-    //__device__ virtual color value(float u, float v, const point3& p) const {
-    //    return m_color;
-    //}
-
     __host__ __device__ solid_color_texture(color c);
     __host__ __device__ solid_color_texture(float red, float green, float blue);
 

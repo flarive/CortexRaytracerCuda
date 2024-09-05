@@ -212,6 +212,12 @@
     <ClInclude Include="src\materials\phong.cuh">
       <Filter>Headers\materials</Filter>
     </ClInclude>
+    <ClInclude Include="src\textures\bump_texture.cuh">
+      <Filter>Headers\textures</Filter>
+    </ClInclude>
+    <ClInclude Include="src\textures\normal_texture.cuh">
+      <Filter>Headers\textures</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
