@@ -107,6 +107,7 @@
     <ClInclude Include="src\lights\light.cuh" />
     <ClInclude Include="src\lights\omni_light.cuh" />
     <ClInclude Include="src\materials\diffuse_spot_light.cuh" />
+    <ClInclude Include="src\materials\phong.cuh" />
     <ClInclude Include="src\outputs\namedpipes_output.cuh" />
     <ClInclude Include="src\outputs\no_output.cuh" />
     <ClInclude Include="src\outputs\output.cuh" />

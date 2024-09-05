@@ -209,6 +209,9 @@
     <ClInclude Include="src\outputs\no_output.cuh">
       <Filter>Headers\outputs</Filter>
     </ClInclude>
+    <ClInclude Include="src\materials\phong.cuh">
+      <Filter>Headers\materials</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
