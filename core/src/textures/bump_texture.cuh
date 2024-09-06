@@ -53,9 +53,9 @@ __host__ __device__ vector3 bump_texture::perturb_normal(const vector3& normal, 
     //    m_bump_height = imageTex->getHeight();
     //}
 
-    if (m_bump->getTypeID() == HittableTypeID::lightOmniType)
+    if (m_bump->getTypeID() == TextureTypeID::textureBumpType)
     {
-        //mylight = static_cast<light*>(lights.objects[0]);
+        image_texture* imageTex = static_cast<image_texture*>(m_bump);
     }
 
 

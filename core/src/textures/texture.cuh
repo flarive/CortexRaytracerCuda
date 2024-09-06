@@ -12,7 +12,9 @@ __host__ __device__ enum class TextureTypeID {
     textureBumpType = 5,
     textureNormalType = 6,
     textureDisplacementType = 7,
-	textureEmissiveType = 8
+	textureEmissiveType = 8,
+    textureAlphaType = 9,
+    textureGradientType = 10
 };
 
 

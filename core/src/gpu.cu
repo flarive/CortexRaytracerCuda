@@ -10,34 +10,47 @@
 
 #include "misc/vector3.cuh"
 #include "misc/bvh_node.cuh"
-#include "cameras/camera.cuh"
-#include "cameras/perspective_camera.cuh"
+
 #include "primitives/hittable_list.cuh"
-#include "primitives/sphere.cuh"
-#include "primitives/quad.cuh"
-#include "primitives/aarect.cuh"
-#include "materials/diffuse_light.cuh"
-#include "primitives/moving_sphere.cuh"
-#include "materials/lambertian.cuh"
-#include "materials/metal.cuh"
-#include "materials/dielectric.cuh"
+
 #include "textures/texture.cuh"
 #include "textures/solid_color_texture.cuh"
 #include "textures/checker_texture.cuh"
 #include "textures/image_texture.cuh"
-#include "primitives/box.cuh"
+#include "textures/bump_texture.cuh"
+#include "textures/normal_texture.cuh"
+#include "textures/alpha_texture.cuh"
+#include "textures/emissive_texture.cuh"
 
+
+
+
+#include "materials/diffuse_light.cuh"
+#include "materials/lambertian.cuh"
+#include "materials/metal.cuh"
+#include "materials/dielectric.cuh"
 #include "materials/isotropic.cuh"
-#include "primitives/volume.cuh"
 
+
+
+#include "primitives/aarect.cuh"
+#include "primitives/box.cuh"
+#include "primitives/sphere.cuh"
+#include "primitives/moving_sphere.cuh"
+#include "primitives/quad.cuh"
+#include "primitives/volume.cuh"
 #include "primitives/translate.cuh"
 #include "primitives/rotate.cuh"
 #include "primitives/scale.cuh"
 #include "primitives/flip_normals.cuh"
 
+
 #include "lights/light.cuh"
 #include "lights/omni_light.cuh"
 #include "lights/directional_light.cuh"
+
+#include "cameras/camera.cuh"
+#include "cameras/perspective_camera.cuh"
 
 #include "utilities/bitmap_image.cuh"
 

@@ -22,7 +22,7 @@ public:
 
     __host__ __device__ float scattering_pdf(const ray& r_in, const hit_record& rec, const ray& scattered) const override;
 
-    __host__ __device__ virtual MaterialTypeID getTypeID() const { return MaterialTypeID::materialPhongType; }
+    __host__ __device__ MaterialTypeID getTypeID() const override { return MaterialTypeID::materialPhongType; }
 
 private:
     color m_ambientColor{};
@@ -74,8 +74,12 @@ __device__ bool phong::scatter(const ray& r_in, const hittable_list& lights, con
 
     light* mylight;
 
-    if (lights.objects[0]->getTypeID() == HittableTypeID::lightOmniType)
+    if (lights.objects[0]->getTypeID() == HittableTypeID::lightType 
+        || lights.objects[0]->getTypeID() == HittableTypeID::lightDirectionalType
+        || lights.objects[0]->getTypeID() == HittableTypeID::lightOmniType 
+        || lights.objects[0]->getTypeID() == HittableTypeID::lightSpotType)
     {
+        printf("YESSSSSSSSSSS !!!!\n");
         mylight = static_cast<light*>(lights.objects[0]);
     }
     else
@@ -104,45 +108,91 @@ __device__ bool phong::scatter(const ray& r_in, const hittable_list& lights, con
     if (m_bump_texture)
     {
         // Check if a bump map texture is available
-        std::shared_ptr<bump_texture> bumpTex = std::dynamic_pointer_cast<bump_texture>(m_bump_texture);
-        if (bumpTex)
+        //bump_texture* bumpTex = std::dynamic_pointer_cast<bump_texture>(m_bump_texture);
+        //if (bumpTex)
+        //{
+        //    normalv = bumpTex->perturb_normal(normalv, rec.u, rec.v, hit_point);
+        //}
+
+        if (m_bump_texture->getTypeID() == TextureTypeID::textureBumpType)
         {
-            normalv = bumpTex->perturb_normal(normalv, rec.u, rec.v, hit_point);
+            printf("YESSSSSSSSSSS BUMP !!!!\n");
+            bump_texture* bumpTex = static_cast<bump_texture*>(m_bump_texture);
+            if (bumpTex)
+            {
+                normalv = bumpTex->perturb_normal(normalv, rec.u, rec.v, hit_point);
+            }
         }
     }
     else if (m_normal_texture)
     {
         // Check if a normal map texture is available
-        std::shared_ptr<normal_texture> normalTex = std::dynamic_pointer_cast<normal_texture>(m_normal_texture);
-        if (normalTex)
-        {
-            // Sample the normal map texture to get the perturbed normal
-            color normal_map = m_normal_texture->value(rec.u, rec.v, hit_point);
+        //std::shared_ptr<normal_texture> normalTex = std::dynamic_pointer_cast<normal_texture>(m_normal_texture);
+        //if (normalTex)
+        //{
+        //    // Sample the normal map texture to get the perturbed normal
+        //    color normal_map = m_normal_texture->value(rec.u, rec.v, hit_point);
 
-            // Transform the perturbed normal from texture space to world space
-            // Apply the normal strength factor to the perturbed normal
-            normalv = getTransformedNormal(rec.tangent, rec.bitangent, normalv, normal_map, normalTex->getStrenth(), false);
+        //    // Transform the perturbed normal from texture space to world space
+        //    // Apply the normal strength factor to the perturbed normal
+        //    normalv = getTransformedNormal(rec.tangent, rec.bitangent, normalv, normal_map, normalTex->getStrenth(), false);
+        //}
+
+        if (m_normal_texture->getTypeID() == TextureTypeID::textureNormalType)
+        {
+            printf("YESSSSSSSSSSS NORMAL !!!!\n");
+            normal_texture* normalTex = static_cast<normal_texture*>(m_normal_texture);
+            if (normalTex)
+            {
+                // Sample the normal map texture to get the perturbed normal
+                color normal_map = m_normal_texture->value(rec.u, rec.v, hit_point);
+
+                // Transform the perturbed normal from texture space to world space
+                // Apply the normal strength factor to the perturbed normal
+                normalv = getTransformedNormal(rec.tangent, rec.bitangent, normalv, normal_map, normalTex->getStrenth(), false);
+            }
         }
     }
 
     if (m_alpha_texture)
     {
         // Check if a alpha map texture is available
-        std::shared_ptr<alpha_texture> alphaTex = std::dynamic_pointer_cast<alpha_texture>(m_alpha_texture);
-        if (alphaTex)
+        //std::shared_ptr<alpha_texture> alphaTex = std::dynamic_pointer_cast<alpha_texture>(m_alpha_texture);
+        //if (alphaTex)
+        //{
+        //    // good idea ?
+        //    srec.alpha_value = alphaTex->value(rec.u, rec.v, hit_point).r();
+        //}
+
+        if (m_alpha_texture->getTypeID() == TextureTypeID::textureAlphaType)
         {
-            // good idea ?
-            srec.alpha_value = alphaTex->value(rec.u, rec.v, hit_point).r();
+            printf("YESSSSSSSSSSS ALPHA !!!!\n");
+            alpha_texture* alphaTex = static_cast<alpha_texture*>(m_alpha_texture);
+            if (alphaTex)
+            {
+                // good idea ?
+                srec.alpha_value = alphaTex->value(rec.u, rec.v, hit_point).r();
+            }
         }
     }
 
     if (m_emissive_texture)
     {
         // Check if a emissive map texture is available
-        std::shared_ptr<emissive_texture> emissiveTex = std::dynamic_pointer_cast<emissive_texture>(m_emissive_texture);
-        if (emissiveTex)
+        //std::shared_ptr<emissive_texture> emissiveTex = std::dynamic_pointer_cast<emissive_texture>(m_emissive_texture);
+        //if (emissiveTex)
+        //{
+        //    emissive_color = emissiveTex->value(rec.u, rec.v, hit_point);
+        //}
+
+        if (m_emissive_texture->getTypeID() == TextureTypeID::textureEmissiveType)
         {
-            emissive_color = emissiveTex->value(rec.u, rec.v, hit_point);
+            printf("YESSSSSSSSSSS EMISSIVE !!!!\n");
+            emissive_texture* emissiveTex = static_cast<emissive_texture*>(m_emissive_texture);
+            if (emissiveTex)
+            {
+                emissive_color = emissiveTex->value(rec.u, rec.v, hit_point);
+            }
         }
     }
 

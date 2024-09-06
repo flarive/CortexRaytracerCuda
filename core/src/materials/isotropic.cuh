@@ -30,7 +30,7 @@ public:
     __device__ bool scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, curandState* local_rand_state) const override;
     __host__ __device__ float scattering_pdf(const ray& r_in, const hit_record& rec, const ray& scattered) const override;
 
-    __host__ __device__ virtual MaterialTypeID getTypeID() const { return MaterialTypeID::materialIsotropicType; }
+    __host__ __device__ MaterialTypeID getTypeID() const override { return MaterialTypeID::materialIsotropicType; }
 };
 
 __host__ __device__ isotropic::isotropic(color _color) : material(new solid_color_texture(_color))

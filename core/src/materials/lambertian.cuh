@@ -43,7 +43,7 @@ public:
 
     __host__ __device__ ~lambertian() = default;
 
-    __host__ __device__ virtual MaterialTypeID getTypeID() const { return MaterialTypeID::materialLambertianType; }
+    __host__ __device__ MaterialTypeID getTypeID() const override { return MaterialTypeID::materialLambertianType; }
 
 
     /// <summary>
