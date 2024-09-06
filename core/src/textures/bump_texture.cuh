@@ -19,6 +19,8 @@ public:
 	__host__ __device__ vector3 convert_to_world_space(const vector3& tangentSpaceNormal, const vector3& originalNormal) const;
 	__host__ __device__ void compute_tangent_space(const vector3& normal, vector3& tangent, vector3& bitangent) const;
 
+    __host__ __device__ virtual TextureTypeID getTypeID() const { return TextureTypeID::textureBaseType; }
+
 private:
 	texture* m_bump;
 	float m_strength = 0.5f; // normalized and can be between 0.0 and 1.0 (0.5 is usually good)

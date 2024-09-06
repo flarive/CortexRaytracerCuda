@@ -11,6 +11,8 @@ public:
 
     __host__ __device__ color value(float u, float v, const point3& p) const override;
 
+    __host__ __device__ virtual TextureTypeID getTypeID() const { return TextureTypeID::textureCheckerType; }
+
 private:
     float m_scale = 0.0f;
     float m_inv_scale = 0.0f;

@@ -22,6 +22,8 @@ public:
 
     __host__ __device__ float scattering_pdf(const ray& r_in, const hit_record& rec, const ray& scattered) const override;
 
+    __host__ __device__ virtual MaterialTypeID getTypeID() const { return MaterialTypeID::materialPhongType; }
+
 private:
     color m_ambientColor{};
     float m_shininess = 0.0f;

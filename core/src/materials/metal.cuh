@@ -41,6 +41,8 @@ public:
     /// <returns></returns>
     __device__ bool scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, curandState* local_rand_state) const override;
 
+    __host__ __device__ virtual MaterialTypeID getTypeID() const { return MaterialTypeID::materialMetalType; }
+
 
 private:
     float m_fuzz = 0.0f; // kind of blur amount (0 = none)

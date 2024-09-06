@@ -10,6 +10,7 @@ public:
     //__host__ __device__ image_texture() {}
     __host__ __device__ image_texture(bitmap_image img) : m_image(img) {}
 
+    __host__ __device__ virtual TextureTypeID getTypeID() const { return TextureTypeID::textureImageType; }
 
     __host__ __device__ color value(float u, float v, const point3& p) const override;
 

@@ -43,6 +43,8 @@ public:
 
     __host__ __device__ ~lambertian() = default;
 
+    __host__ __device__ virtual MaterialTypeID getTypeID() const { return MaterialTypeID::materialLambertianType; }
+
 
     /// <summary>
     /// Tells how ray should be reflected when hitting a lambertian diffuse object

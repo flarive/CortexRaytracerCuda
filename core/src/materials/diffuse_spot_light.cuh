@@ -10,6 +10,8 @@ public:
 
     __host__ __device__ color emitted(const ray& r_in, const hit_record& rec, float u, float v, const point3& p, curandState* local_rand_state) const override;
 
+    __host__ __device__ virtual MaterialTypeID getTypeID() const { return MaterialTypeID::materialDiffuseSpotLightType; }
+
 private:
     texture* m_emit = nullptr;
     point3 m_position{};

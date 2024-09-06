@@ -14,6 +14,8 @@ public:
     __host__ __device__ perlin_noise_texture();
     __host__ __device__ perlin_noise_texture(double sc);
 
+    __host__ __device__ virtual TextureTypeID getTypeID() const { return TextureTypeID::texturePerlinNoiseType; }
+
     __host__ __device__ color value(float u, float v, const point3& p) const override;
 
 private:

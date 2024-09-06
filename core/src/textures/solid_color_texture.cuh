@@ -12,6 +12,8 @@ public:
     __host__ __device__ solid_color_texture(color c);
     __host__ __device__ solid_color_texture(float red, float green, float blue);
 
+    __host__ __device__ virtual TextureTypeID getTypeID() const { return TextureTypeID::textureSolidColorType; }
+
     __host__ __device__ color value(float u, float v, const point3& p) const override;
 
     __host__ __device__ color get_color() const;

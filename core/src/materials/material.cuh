@@ -2,6 +2,19 @@
 
 #include "../misc/scatter_record.cuh"
 
+
+__host__ __device__ enum class MaterialTypeID {
+    materialBaseType = 0,
+    materialLambertianType = 1,
+    materialMetalType = 2,
+    materialDielectricType = 3,
+    materialIsotropicType = 4,
+    materialPhongType = 5,
+    materialDiffuseLightType = 6,
+    materialDiffuseSpotLightType = 7
+};
+
+
 class material
 {
 public:
@@ -56,6 +69,8 @@ public:
     }
 
     __host__ __device__ virtual ~material();
+
+    __host__ __device__ virtual MaterialTypeID getTypeID() const { return MaterialTypeID::materialBaseType; }
 
     __device__ virtual bool scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, curandState* local_rand_state) const;
     __host__ __device__ virtual float scattering_pdf(const ray& r_in, const hit_record& rec, const ray& scattered) const;

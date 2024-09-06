@@ -18,6 +18,8 @@ public:
 
     __device__ bool scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, curandState* local_rand_state) const override;
 
+    __host__ __device__ virtual MaterialTypeID getTypeID() const { return MaterialTypeID::materialDielectricType; }
+
 
 private:
     float ir = 0.0f; // Index of Refraction (typically air = 1.0, glass = 1.3–1.7, diamond = 2.4)
