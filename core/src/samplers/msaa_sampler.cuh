@@ -10,7 +10,7 @@ class msaa_sampler : public sampler
 public:
     __host__ __device__ msaa_sampler(const vector3& pixel_delta_u, const vector3& pixel_delta_v, int samples = 50, int spp = 8);
 
-    __host__ __device__ virtual vector3 generate_samples(int s_i, int s_j, curandState* local_rand_state) const override;
+    __device__ virtual vector3 generate_samples(int s_i, int s_j, curandState* local_rand_state) const override;
 
 private:
     __host__ __device__ vector3 pixel_sample_msaa(int s_i, int s_j, int num_samples, const double sample_offsets[][2]) const;
@@ -29,7 +29,7 @@ __host__ __device__ inline msaa_sampler::msaa_sampler(const vector3& pixel_delta
 /// <param name="s_i"></param>
 /// <param name="s_j"></param>
 /// <returns></returns>
-__host__ __device__ inline vector3 msaa_sampler::generate_samples(int s_i, int s_j, curandState* local_rand_state) const
+__device__ inline vector3 msaa_sampler::generate_samples(int s_i, int s_j, curandState* local_rand_state) const
 {
     // Typically, MSAA would require edge detection. Here, we perform a basic multisampling.
     // Instead of random jitter, we use a predefined pattern.

@@ -355,7 +355,7 @@ __device__ inline color camera::ray_color(const ray& r, int i, int j, int depth,
 __device__ inline point3 camera::defocus_disk_sample(curandState* local_rand_state) const
 {
     // Returns a random point in the camera defocus disk.
-    auto p = random_in_unit_disk(local_rand_state);
+    vector3 p = random_in_unit_disk(local_rand_state);
     return center + (p.x * defocus_disk_u) + (p.y * defocus_disk_v);
 }
 

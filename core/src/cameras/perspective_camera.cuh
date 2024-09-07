@@ -5,6 +5,8 @@
 #include "../misc/constants.cuh"
 #include "../misc/render_parameters.h"
 
+#include "../samplers/random_sampler.cuh"
+
 
 class perspective_camera : public camera
 {
@@ -145,10 +147,12 @@ __device__ inline const ray perspective_camera::get_ray(float s, float t, int s_
 
     return ray(origin + offset, lower_left_corner + s * horizontal + t * vertical - origin - offset, time);
 }
-
+//
 //__device__ inline const ray perspective_camera::get_ray(float s, float t, int s_i, int s_j, sampler* aa_sampler, curandState* local_rand_state) const
 //{
-//    vector3 pixel_center = pixel00_loc + (vector3(i) * pixel_delta_u) + (vector3(j) * pixel_delta_v);
+//    vector3 pixel_center = pixel00_loc + (vector3(s) * pixel_delta_u) + (vector3(t) * pixel_delta_v);
+//
+//    
 //
 //    // Apply antialiasing
 //    vector3 pixel_sample{};
@@ -169,5 +173,5 @@ __device__ inline const ray perspective_camera::get_ray(float s, float t, int s_
 //    auto ray_direction = pixel_sample - ray_origin;
 //    auto ray_time = get_real(local_rand_state); // for motion blur
 //
-//    return ray(ray_origin, ray_direction, i, j, ray_time);
+//    return ray(ray_origin, ray_direction, static_cast<int>(s), static_cast<int>(t), ray_time);
 //}

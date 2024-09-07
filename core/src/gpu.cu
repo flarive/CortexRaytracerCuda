@@ -52,6 +52,9 @@
 #include "cameras/camera.cuh"
 #include "cameras/perspective_camera.cuh"
 
+#include "samplers/sampler.cuh"
+#include "samplers/random_sampler.cuh"
+
 #include "utilities/bitmap_image.cuh"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -105,7 +108,7 @@ void check_cuda(cudaError_t result, char const* const func, const char* const fi
 
 #define RND (curand_uniform(&local_rand_state))
 
-__global__ void load_scene(hittable_list **elist, hittable_list **elights,  camera **cam, int width, int height, float ratio, int spp, int sqrt_spp, image_texture** texture, curandState *rand_state)
+__global__ void load_scene(hittable_list **elist, hittable_list **elights,  camera **cam, sampler **aa_sampler, int width, int height, float ratio, int spp, int sqrt_spp, image_texture** texture, curandState *rand_state)
 {
     if (threadIdx.x == 0 && blockIdx.x == 0)
     {
@@ -116,6 +119,8 @@ __global__ void load_scene(hittable_list **elist, hittable_list **elights,  came
         *elights = new hittable_list();
 
         *elist = new hittable_list();
+
+        
 
         (*elist)->add(new rt::flip_normals(new yz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(color(0.12, 0.45, 0.15))), "MyLeft")));
         (*elist)->add(new yz_rect(0, 555, 0, 555, 0, new lambertian(new solid_color_texture(color(0.65, 0.05, 0.05))), "MyRight"));
@@ -134,7 +139,7 @@ __global__ void load_scene(hittable_list **elist, hittable_list **elights,  came
         (*elist)->add(new sphere(vector3(350.0f, 50.0f, 295.0f), 100.0f, new lambertian(*texture), "MySphere"));
 
         // light
-        (*elist)->add(new directional_light(point3(278, 554, 332), vector3(-305, 0, 0), vector3(0, 0, -305), 1.0f, color(10.0, 10.0, 10.0), "MyLight", false));
+        (*elist)->add(new directional_light(point3(278, 554, 332), vector3(-305, 0, 0), vector3(0, 0, -305), 1.0f, color(10.0, 10.0, 10.0), "MyLight", true));
 
 
 
@@ -166,6 +171,10 @@ __global__ void load_scene(hittable_list **elist, hittable_list **elights,  came
             1.0f,
             sqrt_spp);
 
+
+        //*aa_sampler = new random_sampler((*cam)->get_pixel_delta_u(), (*cam)->get_pixel_delta_v(), 50);
+
+
         // calculate bounding boxes to speed up ray computing
         *elist = new hittable_list(new bvh_node((*elist)->objects, 0, (*elist)->object_count, &local_rand_state));
     }
@@ -194,66 +203,111 @@ __global__ void texture_init(unsigned char* tex_data, int width, int height, int
     }
 }
 
-__global__ void render(color* fb, int width, int height, int spp, int sqrt_spp, int max_depth, hittable_list **world, hittable_list **lights, camera** cam, curandState *randState)
+//__global__ void render(color* fb, int width, int height, int spp, int sqrt_spp, int max_depth, hittable_list **world, hittable_list **lights, camera** cam, sampler** aa_sampler, curandState *randState)
+//{
+//    int i = threadIdx.x + blockIdx.x * blockDim.x;
+//    int j = threadIdx.y + blockIdx.y * blockDim.y;
+//    if ((i >= width) || (j >= height))
+//        return;
+//    
+//        
+//
+//    int pixel_index = j * width + i;
+//    curandState local_rand_state = randState[pixel_index];
+//    color pixel_color(0, 0, 0);
+//
+//    for (int s_j = 0; s_j < sqrt_spp; ++s_j)
+//    {
+//        for (int s_i = 0; s_i < sqrt_spp; ++s_i)
+//        {
+//            float uniform_random = curand_uniform(&local_rand_state);
+//            float gaussian_random = curand_normal(&local_rand_state);
+//
+//
+//            // Subpixel Sampling for Anti-Aliasing
+//            // Normalized Device Coordinates (NDC)
+//            // By using u and v, you introduce small random perturbations within each pixel. These perturbations generate different rays that pass through slightly different positions in the scene. This increases the accuracy of the final color calculation for each pixel when averaged over multiple samples (spp or samples per pixel), producing smoother gradients and less noise.
+//            float u = float(i + gaussian_random) / float(width);
+//            float v = float(j + gaussian_random) / float(height);
+//
+//            // Stratified sampling with jittered randomness
+//            //float u = (i + (s_i + curand_uniform(&local_rand_state)) / sqrt_spp) / float(width);
+//            //float v = (j + (s_j + curand_uniform(&local_rand_state)) / sqrt_spp) / float(height);
+//
+//            
+//
+//
+//            ray r = (*cam)->get_ray(u, v, s_i, s_j, nullptr, &local_rand_state);
+//
+//            // pixel color is progressively being refined
+//            pixel_color += (*cam)->ray_color(r, i, j, max_depth, **world, **lights, &local_rand_state);
+//        }
+//    }
+//
+//    const color& fix = prepare_pixel_color(i, j, pixel_color, spp, true);
+//
+//    const interval intensity(0.000f, 0.999f);
+//
+//
+//    randState[pixel_index] = local_rand_state;
+//
+//    int color_r = static_cast<int>(255.99f * intensity.clamp(fix.r()));
+//    int color_g = static_cast<int>(255.99f * intensity.clamp(fix.g()));
+//    int color_b = static_cast<int>(255.99f * intensity.clamp(fix.b()));
+//
+//
+//    fb[pixel_index] = color(
+//        color_r,
+//        color_g,
+//        color_b
+//    );
+//
+//    printf(
+//        "p %u %u %u %u %u\n",
+//        i,
+//        height - j - 1,
+//        color_r,
+//        color_g,
+//        color_b
+//    );
+//}
+
+
+__global__ void render(color* fb, int width, int height, int spp, int sqrt_spp, int max_depth, hittable_list** world, hittable_list** lights, camera** cam, sampler** aa_sampler, curandState* randState)
 {
     int i = threadIdx.x + blockIdx.x * blockDim.x;
     int j = threadIdx.y + blockIdx.y * blockDim.y;
-    if ((i >= width) || (j >= height))
-        return;
-    
-        
+    if ((i >= width) || (j >= height)) return;
 
     int pixel_index = j * width + i;
     curandState local_rand_state = randState[pixel_index];
     color pixel_color(0, 0, 0);
 
-    for (int s_j = 0; s_j < sqrt_spp; ++s_j)
-    {
-        for (int s_i = 0; s_i < sqrt_spp; ++s_i)
-        {
-            float u = float(i + curand_uniform(&local_rand_state)) / float(width);
-            float v = float(j + curand_uniform(&local_rand_state)) / float(height);
+    for (int s_j = 0; s_j < sqrt_spp; ++s_j) {
+        for (int s_i = 0; s_i < sqrt_spp; ++s_i) {
+            // Stratified sampling within the pixel, with Sobol randomness
+            float u = (i + (s_i + curand_normal(&local_rand_state)) / sqrt_spp) / float(width);
+            float v = (j + (s_j + curand_normal(&local_rand_state)) / sqrt_spp) / float(height);
 
             ray r = (*cam)->get_ray(u, v, s_i, s_j, nullptr, &local_rand_state);
-
-            // pixel color is progressively being refined
             pixel_color += (*cam)->ray_color(r, i, j, max_depth, **world, **lights, &local_rand_state);
         }
     }
 
     const color& fix = prepare_pixel_color(i, j, pixel_color, spp, true);
-
     const interval intensity(0.000f, 0.999f);
 
-
     randState[pixel_index] = local_rand_state;
-
-    //pixel_color /= float(spp);
-    //pixel_color[0] = sqrt(pixel_color[0]);
-    //pixel_color[1] = sqrt(pixel_color[1]);
-    //pixel_color[2] = sqrt(pixel_color[2]);
-
 
     int color_r = static_cast<int>(255.99f * intensity.clamp(fix.r()));
     int color_g = static_cast<int>(255.99f * intensity.clamp(fix.g()));
     int color_b = static_cast<int>(255.99f * intensity.clamp(fix.b()));
 
+    fb[pixel_index] = color(color_r, color_g, color_b);
 
-    fb[pixel_index] = color(
-        color_r,
-        color_g,
-        color_b
-    );
-
-    printf(
-        "p %u %u %u %u %u\n",
-        i,
-        height - j - 1,
-        color_r,
-        color_g,
-        color_b
-    );
+    printf("p %u %u %u %u %u\n", i, height - j - 1, color_r, color_g, color_b);
 }
+
 
 void setupCuda(const cudaDeviceProp& prop)
 {
@@ -295,35 +349,16 @@ void setupCuda(const cudaDeviceProp& prop)
     std::cout << "[INFO] New malloc heap limit: " << newMallocHeapSize << " bytes" << std::endl;
 
 
-    // cuda initialization via cudaMalloc
-    size_t limit = 0;
 
-    //cudaDeviceGetLimit(&limit, cudaLimitStackSize);
-    //printf("cudaLimitStackSize: %u\n", (unsigned)limit);
-    cudaDeviceGetLimit(&limit, cudaLimitPrintfFifoSize);
-    printf("cudaLimitPrintfFifoSize: %u\n", (unsigned)limit);
-    //cudaDeviceGetLimit(&limit, cudaLimitMallocHeapSize);
-    //printf("cudaLimitMallocHeapSize: %u\n", (unsigned)limit);
+    const size_t newPrintfFifoSize = 10000000;
 
-    //std::cout << "default settings of cuda context" << std::endl;
-    //
-    limit = 10000000;
+    cudaError_t result4 = cudaDeviceSetLimit(cudaLimitPrintfFifoSize, newPrintfFifoSize);
+    if (result4 != cudaSuccess) {
+        std::cerr << "[WARNING] Failed to set printf fifo size: " << cudaGetErrorString(result4) << std::endl;
+        return;
+    }
 
-    //cudaDeviceSetLimit(cudaLimitStackSize, limit);
-    cudaDeviceSetLimit(cudaLimitPrintfFifoSize, limit);
-    //cudaDeviceSetLimit(cudaLimitMallocHeapSize, limit);
-
-    //std::cout << "set limit to 10 for all settings" << std::endl;
-    //
-
-    limit = 0;
-
-    //cudaDeviceGetLimit(&limit, cudaLimitStackSize);
-    //printf("New cudaLimitStackSize: %u\n", (unsigned)limit);
-    cudaDeviceGetLimit(&limit, cudaLimitPrintfFifoSize);
-    printf("New cudaLimitPrintfFifoSize: %u\n", (unsigned)limit);
-    //cudaDeviceGetLimit(&limit, cudaLimitMallocHeapSize);
-    //printf("New cudaLimitMallocHeapSize: %u\n", (unsigned)limit);
+    std::cout << "[INFO] New printf fifo size: " << newPrintfFifoSize << " bytes" << std::endl;
 }
 
 void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int max_depth, int tx, int ty, const char* filepath)
@@ -394,11 +429,15 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
     camera** cam;
     checkCudaErrors(cudaMalloc((void**)&cam, sizeof(camera*)));
 
+    sampler** aa_sampler;
+    checkCudaErrors(cudaMalloc((void**)&aa_sampler, sizeof(sampler*)));
+
+
     //scene** myscene;
     //checkCudaErrors(cudaMalloc((void**)&myscene, sizeof(scene*)));
 
 
-    load_scene<<<single_block, single_thread>>>(elist, elights, cam, width, height, ratio, spp, sqrt_spp, texture, d_rand_state2);
+    load_scene<<<single_block, single_thread>>>(elist, elights, cam, aa_sampler, width, height, ratio, spp, sqrt_spp, texture, d_rand_state2);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
@@ -412,9 +451,27 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
     printf("[INFO] Render with %u/%u blocks of %u/%u threads\n", render_blocks.x, render_blocks.y, render_threads.x, render_threads.y);
 
 
-    render<<<render_blocks, render_threads>>>(image, width, height, spp, sqrt_spp, max_depth, elist, elights, cam, d_rand_state);
+    render<<<render_blocks, render_threads>>>(image, width, height, spp, sqrt_spp, max_depth, elist, elights, cam, aa_sampler, d_rand_state);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
+
+
+    // little padding to avoid remaining black zone at the end of the render preview
+    for (int jj = 0; jj < 4; jj++)
+    {
+        for (int ii = 0; ii < width; ii++)
+        {
+            printf(
+                "p %u %u %u %u %u\n",
+                ii,
+                height - jj - 1,
+                0,
+                0,
+                0
+            );
+        }
+    }
+    
 
 
     uint8_t* imageHost = new uint8_t[width * height * 3 * sizeof(uint8_t)];
@@ -433,10 +490,12 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
     // Clean up
     checkCudaErrors(cudaDeviceSynchronize());
     checkCudaErrors(cudaGetLastError());
+    
     checkCudaErrors(cudaFree(cam));
     checkCudaErrors(cudaFree(elights));
     checkCudaErrors(cudaFree(elist));
     //checkCudaErrors(cudaFree(myscene));
+    checkCudaErrors(cudaFree(aa_sampler));
     checkCudaErrors(cudaFree(d_rand_state));
     checkCudaErrors(cudaFree(image));
 }
