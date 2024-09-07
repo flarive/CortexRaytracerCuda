@@ -240,7 +240,10 @@ DWORD __stdcall readDataFromExtProgram(void* argh)
         {
             if (data.starts_with("p "))
             {
-                plotPixel* plotPixel = renderer.parsePixelEntry(data.erase(0, 2));
+                //_textBuffer.appendf(data.c_str());
+                //_scrollToBottom = true;
+
+                plotPixel* plotPixel = renderer.parsePixelEntry(data.erase(0, 2).erase(data.size() - 2, data.size()));
                 if (plotPixel)
                 {
                     renderer.addPixel(indexPixel, plotPixel);

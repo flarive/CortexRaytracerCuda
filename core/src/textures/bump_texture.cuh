@@ -56,19 +56,24 @@ __host__ __device__ vector3 bump_texture::perturb_normal(const vector3& normal, 
     if (m_bump->getTypeID() == TextureTypeID::textureBumpType)
     {
         image_texture* imageTex = static_cast<image_texture*>(m_bump);
+        if (imageTex)
+        {
+            m_bump_width = imageTex->getWidth();
+            m_bump_height = imageTex->getHeight();
+        }
     }
 
 
-    double heightL = m_bump->value(u - 1.0 / m_bump_width, v, p).r();
-    double heightR = m_bump->value(u + 1.0 / m_bump_width, v, p).r();
-    double heightD = m_bump->value(u, v - 1.0 / m_bump_height, p).r();
-    double heightU = m_bump->value(u, v + 1.0 / m_bump_height, p).r();
+    float heightL = m_bump->value(u - 1.0f / m_bump_width, v, p).r();
+    float heightR = m_bump->value(u + 1.0f / m_bump_width, v, p).r();
+    float heightD = m_bump->value(u, v - 1.0f / m_bump_height, p).r();
+    float heightU = m_bump->value(u, v + 1.0f / m_bump_height, p).r();
 
     // Scale the height differences using m_scale
-    double scaledHeightL = m_strength * heightL;
-    double scaledHeightR = m_strength * heightR;
-    double scaledHeightD = m_strength * heightD;
-    double scaledHeightU = m_strength * heightU;
+    float scaledHeightL = m_strength * heightL;
+    float scaledHeightR = m_strength * heightR;
+    float scaledHeightD = m_strength * heightD;
+    float scaledHeightU = m_strength * heightU;
 
     vector3 tangentSpaceNormal = glm::normalize(vector3(
         scaledHeightR - scaledHeightL,

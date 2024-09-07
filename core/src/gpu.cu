@@ -198,9 +198,12 @@ __global__ void render(color* fb, int width, int height, int spp, int sqrt_spp, 
 {
     int i = threadIdx.x + blockIdx.x * blockDim.x;
     int j = threadIdx.y + blockIdx.y * blockDim.y;
-    if ((i >= width) || (j >= height)) return;
+    if ((i >= width) || (j >= height))
+        return;
+    
+        
 
-    int pixel_index = j* width + i;
+    int pixel_index = j * width + i;
     curandState local_rand_state = randState[pixel_index];
     color pixel_color(0, 0, 0);
 
@@ -224,29 +227,36 @@ __global__ void render(color* fb, int width, int height, int spp, int sqrt_spp, 
 
 
     randState[pixel_index] = local_rand_state;
+
     //pixel_color /= float(spp);
     //pixel_color[0] = sqrt(pixel_color[0]);
     //pixel_color[1] = sqrt(pixel_color[1]);
     //pixel_color[2] = sqrt(pixel_color[2]);
+
+
+    int color_r = static_cast<int>(255.99f * intensity.clamp(fix.r()));
+    int color_g = static_cast<int>(255.99f * intensity.clamp(fix.g()));
+    int color_b = static_cast<int>(255.99f * intensity.clamp(fix.b()));
+
+
     fb[pixel_index] = color(
-        255.99f * intensity.clamp(fix.r()),
-        255.99f * intensity.clamp(fix.g()),
-        255.99f * intensity.clamp(fix.b())
+        color_r,
+        color_g,
+        color_b
     );
 
     printf(
-        "p %05d %05d %03d %03d %03d\r\n",
+        "p %u %u %u %u %u\n",
         i,
-        j,
-        static_cast<int>(255.99f * intensity.clamp(fix.r())),
-        static_cast<int>(255.99f * intensity.clamp(fix.g())),
-        static_cast<int>(255.99f * intensity.clamp(fix.b()))
+        height - j - 1,
+        color_r,
+        color_g,
+        color_b
     );
 }
 
 void setupCuda(const cudaDeviceProp& prop)
 {
-    
     // If you get a null pointer (either from device malloc or device new) you have run out of heap space.
     // https://forums.developer.nvidia.com/t/allocating-memory-from-device-and-cudalimitmallocheapsize/70441
     
@@ -286,32 +296,32 @@ void setupCuda(const cudaDeviceProp& prop)
 
 
     // cuda initialization via cudaMalloc
-    //size_t limit = 0;
+    size_t limit = 0;
 
     //cudaDeviceGetLimit(&limit, cudaLimitStackSize);
     //printf("cudaLimitStackSize: %u\n", (unsigned)limit);
-    //cudaDeviceGetLimit(&limit, cudaLimitPrintfFifoSize);
-    //printf("cudaLimitPrintfFifoSize: %u\n", (unsigned)limit);
+    cudaDeviceGetLimit(&limit, cudaLimitPrintfFifoSize);
+    printf("cudaLimitPrintfFifoSize: %u\n", (unsigned)limit);
     //cudaDeviceGetLimit(&limit, cudaLimitMallocHeapSize);
     //printf("cudaLimitMallocHeapSize: %u\n", (unsigned)limit);
 
     //std::cout << "default settings of cuda context" << std::endl;
     //
-    //limit = 10;
+    limit = 10000000;
 
     //cudaDeviceSetLimit(cudaLimitStackSize, limit);
-    //cudaDeviceSetLimit(cudaLimitPrintfFifoSize, limit);
+    cudaDeviceSetLimit(cudaLimitPrintfFifoSize, limit);
     //cudaDeviceSetLimit(cudaLimitMallocHeapSize, limit);
 
     //std::cout << "set limit to 10 for all settings" << std::endl;
     //
 
-    //limit = 0;
+    limit = 0;
 
     //cudaDeviceGetLimit(&limit, cudaLimitStackSize);
     //printf("New cudaLimitStackSize: %u\n", (unsigned)limit);
-    //cudaDeviceGetLimit(&limit, cudaLimitPrintfFifoSize);
-    //printf("New cudaLimitPrintfFifoSize: %u\n", (unsigned)limit);
+    cudaDeviceGetLimit(&limit, cudaLimitPrintfFifoSize);
+    printf("New cudaLimitPrintfFifoSize: %u\n", (unsigned)limit);
     //cudaDeviceGetLimit(&limit, cudaLimitMallocHeapSize);
     //printf("New cudaLimitMallocHeapSize: %u\n", (unsigned)limit);
 }
@@ -346,14 +356,14 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
 
 
 
-    //dim3 init_blocks(1, 1);
-    //dim3 init_threads(1, 1);
+    dim3 single_block(1, 1);
+    dim3 single_thread(1, 1);
 
 
 
     image_texture**texture;
     checkCudaErrors(cudaMalloc((void **)&texture, sizeof(image_texture*)));
-    texture_init<<<1, 1 >>>(tex_data, tex_x, tex_y, tex_n, texture);
+    texture_init<<<single_block, single_thread>>>(tex_data, tex_x, tex_y, tex_n, texture);
 
 
 
@@ -370,7 +380,7 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
     checkCudaErrors(cudaMalloc((void **)&d_rand_state2, 1 * sizeof(curandState)));
 
     // Allocate 2nd random state to be initialized for the world creation
-    rand_init<<<1,1>>>(d_rand_state2);
+    rand_init<<<single_block, single_thread>>>(d_rand_state2);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
@@ -388,7 +398,7 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
     //checkCudaErrors(cudaMalloc((void**)&myscene, sizeof(scene*)));
 
 
-    load_scene<<<1, 1>>>(elist, elights, cam, width, height, ratio, spp, sqrt_spp, texture, d_rand_state2);
+    load_scene<<<single_block, single_thread>>>(elist, elights, cam, width, height, ratio, spp, sqrt_spp, texture, d_rand_state2);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
@@ -406,22 +416,11 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
-    static const interval intensity(0.000f, 0.999f);
 
     uint8_t* imageHost = new uint8_t[width * height * 3 * sizeof(uint8_t)];
     for (int j = height - 1; j >= 0; j--) {
         for (int i = 0; i < width; i++) {
             size_t pixel_index = j * width + i;
-
-            //color fix = prepare_pixel_color(i, j, image[pixel_index], spp, false);
-
-            //imageHost[j * width * 3 + i * 3] = (size_t)(256.0f * intensity.clamp(fix.r()));
-            //imageHost[j * width * 3 + i * 3 + 1] = (size_t)(256.0f * intensity.clamp(fix.g()));
-            //imageHost[j * width * 3 + i * 3 + 2] = (size_t)(256.0f * intensity.clamp(fix.b()));
-
-            /*imageHost[(height - j - 1) * width * 3 + i * 3] = (size_t)(255.99f * intensity.clamp(fix.r()));
-            imageHost[(height - j - 1) * width * 3 + i * 3 + 1] = (size_t)(255.99f * intensity.clamp(fix.g()));
-            imageHost[(height - j - 1) * width * 3 + i * 3 + 2] = (size_t)(255.99f * intensity.clamp(fix.b()));*/
 
             imageHost[(height - j - 1) * width * 3 + i * 3] = (size_t)image[pixel_index].r();
             imageHost[(height - j - 1) * width * 3 + i * 3 + 1] = (size_t)image[pixel_index].g();
