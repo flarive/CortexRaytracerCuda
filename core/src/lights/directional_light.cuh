@@ -100,16 +100,6 @@ __device__ bool directional_light::hit(const ray& r, interval ray_t, hit_record&
     }
 
 
-    //Singleton* singleton = Singleton::getInstance();
-    //if (singleton)
-    //{
-    //    auto renderParams = singleton->value();
-    //    if (m_invisible && depth == renderParams.recursionMaxDepth)
-    //    {
-    //        return false;
-    //    }
-    //}
-
     // Hide light source
     if (m_invisible && depth == max_depth)
     {

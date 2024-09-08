@@ -79,7 +79,7 @@ public:
         return pixel_delta_v;
     }
 
-    __device__ virtual void initialize(vector3 lookfrom, vector3 lookat, vector3 vup, int width, float ratio, float vfov, float aperture, float focus_dist, float t0, float t1, int sqrt_spp) = 0;
+    __device__ virtual void initialize(vector3 lookfrom, vector3 lookat, vector3 vup, int width, float ratio, float vfov, float aperture, float focus_dist, float ortho_height, float t0, float t1, int sqrt_spp) = 0;
 
     /// <summary>
     /// Fire a given ray and get the hit record (recursive)

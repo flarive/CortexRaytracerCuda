@@ -230,6 +230,12 @@
     <ClInclude Include="src\textures\displacement_texture.cuh">
       <Filter>Headers\textures</Filter>
     </ClInclude>
+    <ClInclude Include="src\cameras\orthographic_camera.cuh">
+      <Filter>Headers\cameras</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lights\spot_light.cuh">
+      <Filter>Headers\lights</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">

@@ -7,12 +7,12 @@
 
 #include "../samplers/random_sampler.cuh"
 
-
+/// <summary>
+/// Perpspective camera with target
+/// </summary>
 class perspective_camera : public camera
 {
 public:
-    
-    
     __device__ perspective_camera()
     {
     }
@@ -21,7 +21,7 @@ public:
     /// Initialize camera with settings
     /// </summary>
     /// <param name="params"></param>
-    __device__ void initialize(vector3 lookfrom, vector3 lookat, vector3 vup, int width, float ratio, float vfov, float focus_dist, float aperture, float t0, float t1, int sqrt_spp) override;
+    __device__ void initialize(vector3 lookfrom, vector3 lookat, vector3 vup, int width, float ratio, float vfov, float aperture, float focus_dist, float ortho_height, float t0, float t1, int sqrt_spp) override;
 
     /// <summary>
     /// Get a randomly-sampled camera ray for the pixel at location i,j, originating from the camera defocus disk,
@@ -31,42 +31,12 @@ public:
     /// <param name="j"></param>
     /// <returns></returns>
     __device__ const ray get_ray(float i, float j, int s_i, int s_j, sampler* aa_sampler, curandState* local_rand_state) const override;
-
-    /*__device__ void initialize(vector3 lookfrom, vector3 lookat, vector3 vup, float vfov, float aspect, float aperture, float focus_dist, float t0, float t1) override
-    {
-        time0 = t0;
-        time1 = t1;
-        lens_radius = aperture / 2;
-        float theta = vfov * get_pi() / 180.0f;
-        float half_height = tan(theta / 2);
-        float half_width = aspect * half_height;
-        origin = lookfrom;
-        w = unitv(lookfrom - lookat);
-        u = unitv(cross(vup, w));
-        v = cross(w, u);
-        lower_left_corner = origin
-            - half_width * focus_dist * u
-            - half_height * focus_dist * v
-            - focus_dist * w;
-        horizontal = 2 * half_width * focus_dist * u;
-        vertical = 2 * half_height * focus_dist * v;
-    }
-
-    __device__ const ray get_ray(float s, float t, curandState *local_rand_state) const override
-    {
-        vector3 rd = lens_radius * random_in_unit_disk(local_rand_state);
-        vector3 offset = u * rd.x + v * rd.y;
-        float time = time0 + curand_uniform(local_rand_state) * (time1 - time0);
-        return ray(origin + offset,
-                    lower_left_corner + s*horizontal + t*vertical
-                        - origin - offset, time);
-    }*/
 };
 
 
 
 
-__device__ inline void perspective_camera::initialize(vector3 lookfrom, vector3 lookat, vector3 vup, int width, float ratio, float vfov, float aperture, float focus_dist, float t0, float t1, int sqrt_spp)
+__device__ inline void perspective_camera::initialize(vector3 lookfrom, vector3 lookat, vector3 vup, int width, float ratio, float vfov, float aperture, float focus_dist, float ortho_height, float t0, float t1, int sqrt_spp)
 {
     image_width = width;
     aspect_ratio = ratio;
@@ -101,9 +71,6 @@ __device__ inline void perspective_camera::initialize(vector3 lookfrom, vector3 
     u = unit_vector(glm::cross(vup, w));
     v = glm::cross(w, u);
 
-    // ?????????
-
-    //float theta = vfov * M_PI / 180;
     float half_height = tan(theta / 2);
     float half_width = ratio * half_height;
 
@@ -147,7 +114,7 @@ __device__ inline const ray perspective_camera::get_ray(float s, float t, int s_
 
     return ray(origin + offset, lower_left_corner + s * horizontal + t * vertical - origin - offset, time);
 }
-//
+
 //__device__ inline const ray perspective_camera::get_ray(float s, float t, int s_i, int s_j, sampler* aa_sampler, curandState* local_rand_state) const
 //{
 //    vector3 pixel_center = pixel00_loc + (vector3(s) * pixel_delta_u) + (vector3(t) * pixel_delta_v);

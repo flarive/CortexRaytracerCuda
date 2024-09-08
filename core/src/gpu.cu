@@ -26,6 +26,7 @@
 
 
 #include "materials/diffuse_light.cuh"
+#include "materials/diffuse_spot_light.cuh"
 #include "materials/lambertian.cuh"
 #include "materials/metal.cuh"
 #include "materials/dielectric.cuh"
@@ -48,9 +49,11 @@
 #include "lights/light.cuh"
 #include "lights/omni_light.cuh"
 #include "lights/directional_light.cuh"
+#include "lights/spot_light.cuh"
 
 #include "cameras/camera.cuh"
 #include "cameras/perspective_camera.cuh"
+#include "cameras/orthographic_camera.cuh"
 
 #include "samplers/sampler.cuh"
 #include "samplers/random_sampler.cuh"
@@ -167,6 +170,7 @@ __global__ void load_scene(hittable_list **elist, hittable_list **elights,  came
             40.0f,
             0.0f,
             10.0f,
+            0.0f,
             0.0f,
             1.0f,
             sqrt_spp);
