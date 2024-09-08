@@ -1,6 +1,6 @@
 //#include "scene_loader.h"
 //
-//#include "../utilities/uvmapping.h"
+//#include "../utilities/uvmapping.cuh"
 //#include "../misc/transform.h"
 //
 //#include "iostream"

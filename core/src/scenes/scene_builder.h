@@ -1,13 +1,13 @@
 //#pragma once
 //
-//#include "../primitives/hittable_list.h"
-//#include "../materials/material.h"
-//#include "../primitives/hittable.h"
-//#include "../utilities/types.h"
-//#include "../utilities/uvmapping.h"
-//#include "../misc/color.h"
-//#include "../textures/texture.h"
-//#include "../cameras/perspective_camera.h"
+////#include "../primitives/hittable_list.h"
+////#include "../materials/material.h"
+////#include "../primitives/hittable.h"
+////#include "../utilities/types.h"
+////#include "../utilities/uvmapping.h"
+////#include "../misc/color.h"
+////#include "../textures/texture.h"
+////#include "../cameras/perspective_camera.h"
 //#include <string>
 //#include <map>
 //

@@ -1,8 +1,7 @@
 //#pragma once
 //
 //#include "scene_builder.h"
-//#include "../utilities/types.h"
-//#include "../misc/transform.h"
+//#include "../misc/transform.cuh"
 //
 //#pragma comment(lib, "Shlwapi.lib")
 //#define LIBCONFIGXX_STATIC

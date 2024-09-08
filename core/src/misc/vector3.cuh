@@ -1,7 +1,7 @@
 #pragma once
 
-
-#define CUDA_VERSION 12000
+#include <cuda.h>
+//#define CUDA_VERSION 12000
 
 // Ensure GLM configuration is compatible with CUDA
 
@@ -16,9 +16,11 @@
 #include <device_launch_parameters.h>
 #include <curand_kernel.h>
 
-//#include <Eigen/Eigen/Core>
-//#include <Eigen/Eigen/StdVector>
-//#include <Eigen/Eigen/Geometry>
+#include <Eigen/Eigen/Core>
+#include <Eigen/Eigen/StdVector>
+#include <Eigen/Eigen/Geometry>
+#include <eigen/unsupported/eigen/polynomials>
+
 
 
 

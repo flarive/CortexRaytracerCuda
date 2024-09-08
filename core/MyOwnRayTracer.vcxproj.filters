@@ -34,9 +34,6 @@
     <ClInclude Include="src\primitives\sphere.cuh">
       <Filter>Headers\primitives</Filter>
     </ClInclude>
-    <ClInclude Include="src\primitives\moving_sphere.cuh">
-      <Filter>Headers\primitives</Filter>
-    </ClInclude>
     <ClInclude Include="src\primitives\volume.cuh">
       <Filter>Headers\primitives</Filter>
     </ClInclude>
@@ -99,9 +96,6 @@
       <Filter>Headers\misc</Filter>
     </ClInclude>
     <ClInclude Include="src\misc\timer.h">
-      <Filter>Headers\misc</Filter>
-    </ClInclude>
-    <ClInclude Include="src\misc\singleton.h">
       <Filter>Headers\misc</Filter>
     </ClInclude>
     <ClInclude Include="src\misc\onb.cuh">
@@ -235,6 +229,12 @@
     </ClInclude>
     <ClInclude Include="src\lights\spot_light.cuh">
       <Filter>Headers\lights</Filter>
+    </ClInclude>
+    <ClInclude Include="src\misc\transform.cuh">
+      <Filter>Headers\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\primitives\torus.cuh">
+      <Filter>Headers\primitives</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

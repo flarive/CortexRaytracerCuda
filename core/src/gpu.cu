@@ -37,9 +37,10 @@
 #include "primitives/aarect.cuh"
 #include "primitives/box.cuh"
 #include "primitives/sphere.cuh"
-#include "primitives/moving_sphere.cuh"
 #include "primitives/quad.cuh"
 #include "primitives/volume.cuh"
+#include "primitives/torus.cuh"
+
 #include "primitives/translate.cuh"
 #include "primitives/rotate.cuh"
 #include "primitives/scale.cuh"
@@ -59,6 +60,10 @@
 #include "samplers/random_sampler.cuh"
 
 #include "utilities/bitmap_image.cuh"
+
+
+#include "scenes/scene_loader.h"
+#include "scenes/scene_builder.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
