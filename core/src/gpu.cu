@@ -283,14 +283,20 @@ __global__ void render(color* fb, int width, int height, int spp, int sqrt_spp, 
     curandState local_rand_state = randState[pixel_index];
     color pixel_color(0, 0, 0);
 
-    for (int s_j = 0; s_j < sqrt_spp; ++s_j) {
-        for (int s_i = 0; s_i < sqrt_spp; ++s_i) {
+    float uniform_random = curand_uniform(&local_rand_state);
+    //float normal_random = curand_normal(&local_rand_state);
+    //int poisson_random = curand_poisson(&local_rand_state, 100.0f);
+
+    for (int s_j = 0; s_j < sqrt_spp; ++s_j)
+    {
+        for (int s_i = 0; s_i < sqrt_spp; ++s_i)
+        {
             // Stratified sampling within the pixel, with Sobol randomness
-            float u = (i + (s_i + curand_normal(&local_rand_state)) / sqrt_spp) / float(width);
-            float v = (j + (s_j + curand_normal(&local_rand_state)) / sqrt_spp) / float(height);
+            float u = (i + (s_i + uniform_random) / sqrt_spp) / float(width);
+            float v = (j + (s_j + uniform_random) / sqrt_spp) / float(height);
 
             ray r = (*cam)->get_ray(u, v, s_i, s_j, nullptr, &local_rand_state);
-            pixel_color += (*cam)->ray_color(r, i, j, max_depth, **world, **lights, &local_rand_state);
+            pixel_color += (*cam)->ray_color(r, i, j, max_depth, max_depth, **world, **lights, &local_rand_state);
         }
     }
 

@@ -9,7 +9,7 @@ public:
     __host__ __device__ directional_light(const point3& _position, const vector3& _u, const vector3& _v, float _intensity, color _color, const char* _name = "QuadLight", bool _invisible = true);
 
 
-    __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, curandState* local_rand_state) const override;
+    __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const override;
     __device__ float pdf_value(const point3& origin, const vector3& v, curandState* local_rand_state) const override;
 
     /// <summary>
@@ -71,7 +71,7 @@ __host__ __device__ aabb directional_light::bounding_box() const
     return m_bbox;
 }
 
-__device__ bool directional_light::hit(const ray& r, interval ray_t, hit_record& rec, int depth, curandState* local_rand_state) const
+__device__ bool directional_light::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const
 {
     float denom = glm::dot(m_normal, r.direction());
 
@@ -109,6 +109,13 @@ __device__ bool directional_light::hit(const ray& r, interval ray_t, hit_record&
     //        return false;
     //    }
     //}
+
+    // Hide light source
+    if (m_invisible && depth == max_depth)
+    {
+        return false;
+    }
+
 
     // Ray hits the 2D shape; set the rest of the hit record and return true.
     rec.t = t;
@@ -149,7 +156,7 @@ __device__ float directional_light::pdf_value(const point3& origin, const vector
 {
     hit_record rec;
 
-    if (!this->hit(ray(origin, v), interval(SHADOW_ACNE_FIX, INFINITY), rec, 0, local_rand_state))
+    if (!this->hit(ray(origin, v), interval(SHADOW_ACNE_FIX, INFINITY), rec, 0, 8888, local_rand_state))
         return 0;
 
     auto distance_squared = rec.t * rec.t * vector_length_squared(v);

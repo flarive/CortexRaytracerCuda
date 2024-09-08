@@ -42,7 +42,7 @@ public:
 	// pure virtual function 
 	// virtual hit method that needs to be implemented for all primitives
 	// because each primitive has it own intersection calculation logic
-	__device__ virtual bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, curandState* local_rand_state) const = 0;
+	__device__ virtual bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const = 0;
 	__device__ virtual float pdf_value(const point3& o, const vector3& v, curandState* local_rand_state) const = 0;
 	__device__ virtual vector3 random(const vector3& o, curandState* local_rand_state) const = 0;
 	__host__ __device__ virtual aabb bounding_box() const = 0;
@@ -56,15 +56,11 @@ public:
 	__host__ __device__ void setName(char* _name)
 	{
 		m_name = _name;
-
-		//printf("setName1 %s\n", m_name);
 	}
 
 	__host__ __device__ void setName(const char* _name)
 	{
 		m_name = const_cast<char*>(_name);
-
-		//printf("setName2 %s\n", m_name);
 	}
 
 	__host__ __device__ char* getName() const

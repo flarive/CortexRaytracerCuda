@@ -11,7 +11,7 @@ namespace rt
     {
     public:
 		__host__ __device__ scale(hittable* p, const vector3& _scale);
-		__device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, curandState* local_rand_state) const override;
+		__device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const override;
 		__device__ float pdf_value(const point3& o, const vector3& v, curandState* local_rand_state) const override;
 		__device__ vector3 random(const vector3& o, curandState* local_rand_state) const override;
 		__host__ __device__ aabb bounding_box() const override;
@@ -46,14 +46,14 @@ __host__ __device__ rt::scale::scale(hittable* p, const vector3& _scale)
 	m_bbox.z.max *= m_scale.z;
 }
 
-__device__ bool rt::scale::hit(const ray& r, interval ray_t, hit_record& rec, int depth, curandState* local_rand_state) const
+__device__ bool rt::scale::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const
 {
 	// Apply scaling to ray's origin and direction
 	vector3 origin = r.origin() / m_scale;
 	vector3 direction = r.direction() / m_scale;
 
 	ray scaled_r = ray(origin, direction, r.time());
-	if (m_object->hit(scaled_r, ray_t, rec, depth, local_rand_state))
+	if (m_object->hit(scaled_r, ray_t, rec, depth, max_depth, local_rand_state))
 	{
 		// Scale hit point and normal back to the original scale
 		rec.hit_point *= m_scale;

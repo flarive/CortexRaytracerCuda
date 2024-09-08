@@ -41,7 +41,7 @@ public:
     //__device__ bvh_node(hittable **e, int n, float time0, float time1, curandState& local_rand_state, const char* name = nullptr);
     __device__ bvh_node(hittable** src_objects, int start, int end, curandState* local_rand_state, const char* name = nullptr);
 
-    __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, curandState* local_rand_state) const override;
+    __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const override;
     __host__ __device__ aabb bounding_box() const override;
 
     __device__ float pdf_value(const point3& o, const vector3& v, curandState* local_rand_state) const override;
@@ -188,13 +188,13 @@ __device__ inline bvh_node::bvh_node(hittable** src_objects, int start, int end,
     m_bbox = aabb(m_left->bounding_box(), m_right->bounding_box());
 }
 
-__device__ bool inline bvh_node::hit(const ray& r, interval ray_t, hit_record& rec, int depth, curandState* local_rand_state) const
+__device__ bool inline bvh_node::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const
 {
     if (!m_bbox.hit(r, ray_t))
         return false;
 
-    bool hit_left = m_left->hit(r, ray_t, rec, depth, local_rand_state);
-    bool hit_right = m_right->hit(r, interval(ray_t.min, hit_left ? rec.t : ray_t.max), rec, depth, local_rand_state);
+    bool hit_left = m_left->hit(r, ray_t, rec, depth, max_depth, local_rand_state);
+    bool hit_right = m_right->hit(r, interval(ray_t.min, hit_left ? rec.t : ray_t.max), rec, depth, max_depth, local_rand_state);
 
     return hit_left || hit_right;
 }

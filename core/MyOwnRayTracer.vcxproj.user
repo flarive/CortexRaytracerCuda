@@ -4,11 +4,11 @@
     <ShowAllFiles>false</ShowAllFiles>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-width 256 -height 256 -ratio 1:1 -spp 50 -maxdepth 50 -scene ..\..\data\scenes\crate_mesh_mtl.scene -mode 2 -save d:\\save.png</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-width 512 -height 512 -ratio 1:1 -spp 100 -maxdepth 50 -scene ..\..\data\scenes\crate_mesh_mtl.scene -mode 2 -save d:\\save.png</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>-width 256 -height 256 -ratio 1:1 -spp 100 -maxdepth 100 -scene ..\..\data\scenes\crate_mesh_mtl.scene -mode 2 -save e:\\save.png</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-width 512 -height 512 -ratio 1:1 -spp 100 -maxdepth 100 -scene ..\..\data\scenes\crate_mesh_mtl.scene -mode 2 -save e:\\save.png</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

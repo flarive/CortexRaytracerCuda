@@ -57,7 +57,7 @@ public:
 
 
 
-    __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, curandState* local_rand_state) const override;
+    __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const override;
     __device__ float pdf_value(const point3& o, const vector3& v, curandState* local_rand_state) const override;
 
 
@@ -140,7 +140,7 @@ __host__ __device__ inline bool hittable_list::remove(hittable* object)
     return found;
 }
 
-__device__ inline bool hittable_list::hit(const ray& r, interval ray_t, hit_record& rec, int depth, curandState* local_rand_state) const
+__device__ inline bool hittable_list::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const
 {
     hit_record temp_rec;
     bool hit_anything = false;
@@ -148,7 +148,7 @@ __device__ inline bool hittable_list::hit(const ray& r, interval ray_t, hit_reco
 
     for (unsigned int i = 0; i < object_count; i++)
     {
-        if (objects[i]->hit(r, interval(ray_t.min, closest_so_far), temp_rec, depth, local_rand_state))
+        if (objects[i]->hit(r, interval(ray_t.min, closest_so_far), temp_rec, depth, max_depth, local_rand_state))
         {
             hit_anything = true;
             closest_so_far = temp_rec.t;

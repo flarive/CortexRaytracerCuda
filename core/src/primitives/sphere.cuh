@@ -73,7 +73,7 @@ public:
     /// <param name="ray_t"></param>
     /// <param name="rec"></param>
     /// <returns></returns>
-    __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, curandState* local_rand_state) const override;
+    __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const override;
 
 
 
@@ -116,7 +116,7 @@ __host__ __device__ aabb sphere::bounding_box() const
 /// <param name="ray_t"></param>
 /// <param name="rec"></param>
 /// <returns></returns>
-__device__ bool sphere::hit(const ray& r, interval ray_t, hit_record& rec, int depth, curandState* local_rand_state) const
+__device__ bool sphere::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const
 {
     point3 center = is_moving ? sphere_center(r.time()) : center1;
     point3 oc = r.origin() - center;
@@ -178,7 +178,7 @@ __device__ float sphere::pdf_value(const point3& o, const vector3& v, curandStat
     // This method only works for stationary spheres.
 
     hit_record rec;
-    if (!this->hit(ray(o, v), interval(SHADOW_ACNE_FIX, INFINITY), rec, 0, local_rand_state))
+    if (!this->hit(ray(o, v), interval(SHADOW_ACNE_FIX, INFINITY), rec, 0, 8888, local_rand_state))
         return 0;
 
     auto cos_theta_max = sqrt(1 - radius * radius / vector_length_squared(center1 - o));
