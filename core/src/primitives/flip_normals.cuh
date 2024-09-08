@@ -10,7 +10,7 @@ namespace rt
         __host__ __device__ flip_normals(hittable* e);
 
         __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const override;
-        __device__ float pdf_value(const point3& o, const vector3& v, curandState* local_rand_state) const override;
+        __device__ float pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const override;
         __device__ vector3 random(const vector3& o, curandState* local_rand_state) const override;
         __host__ __device__ aabb bounding_box() const override;
 
@@ -41,7 +41,7 @@ __device__ bool rt::flip_normals::hit(const ray& r, interval ray_t, hit_record& 
         return false;
 }
 
-__device__ float rt::flip_normals::pdf_value(const point3& o, const vector3& v, curandState* local_rand_state) const
+__device__ float rt::flip_normals::pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const
 {
     return 0.0f;
 }

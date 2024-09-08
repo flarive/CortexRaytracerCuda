@@ -58,7 +58,7 @@ public:
 
 
     __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const override;
-    __device__ float pdf_value(const point3& o, const vector3& v, curandState* local_rand_state) const override;
+    __device__ float pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const override;
 
 
     /// <summary>
@@ -164,14 +164,14 @@ __host__ __device__ inline aabb hittable_list::bounding_box() const
     return m_bbox;
 }
 
-__device__ inline float hittable_list::pdf_value(const point3& o, const vector3& v, curandState* local_rand_state) const
+__device__ inline float hittable_list::pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const
 {
     float weight = 1.0f / object_count;
     float sum = 0.0f;
 
     for (unsigned int i = 0; i < object_count; i++)
     {
-        sum += weight * objects[i]->pdf_value(o, v, local_rand_state);
+        sum += weight * objects[i]->pdf_value(o, v, max_depth, local_rand_state);
     }
 
     return sum;

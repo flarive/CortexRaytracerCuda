@@ -7,7 +7,7 @@ public:
     __host__ __device__ xy_rect(float _x0, float _x1, float _y0, float _y1, float _k, material* mat, const char* _name = nullptr);
     __host__ __device__ xy_rect(float _x0, float _x1, float _y0, float _y1, float _k, material* mat, const uvmapping& _mapping, const char* _name = nullptr);
 
-    __device__ float pdf_value(const point3& o, const vector3& v, curandState* local_rand_state) const override;
+    __device__ float pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const override;
 
     __device__ vector3 random(const vector3& o, curandState* local_rand_state) const override;
 
@@ -70,7 +70,7 @@ __device__ bool xy_rect::hit(const ray& r, interval ray_t, hit_record& rec, int 
     return true;
 }
 
-__device__ float xy_rect::pdf_value(const point3& o, const vector3& v, curandState* local_rand_state) const
+__device__ float xy_rect::pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const
 {
     return 0.0f;
 }
@@ -127,7 +127,7 @@ public:
 
     __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const override;
 
-    __device__ float pdf_value(const point3& o, const vector3& v, curandState* local_rand_state) const override;
+    __device__ float pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const override;
 
     __device__ vector3 random(const vector3& o, curandState* local_rand_state) const override;
 
@@ -195,7 +195,7 @@ __host__ __device__ aabb xz_rect::bounding_box() const
     return m_bbox;
 }
 
-__device__ float xz_rect::pdf_value(const point3& o, const vector3& v, curandState* local_rand_state) const
+__device__ float xz_rect::pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const
 {
     return 0.0f;
 }
@@ -250,7 +250,7 @@ public:
 
     __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const override;
 
-    __device__ float pdf_value(const point3& o, const vector3& v, curandState* local_rand_state) const override;
+    __device__ float pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const override;
 
     __device__ vector3 random(const vector3& o, curandState* local_rand_state) const override;
 
@@ -313,7 +313,7 @@ __device__ bool yz_rect::hit(const ray& r, interval ray_t, hit_record& rec, int 
     return true;
 }
 
-__device__ float yz_rect::pdf_value(const point3& o, const vector3& v, curandState* local_rand_state) const
+__device__ float yz_rect::pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const
 {
     return 0.0;
 }

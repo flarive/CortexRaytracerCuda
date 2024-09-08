@@ -12,7 +12,7 @@ public:
     __host__ __device__ box(const vector3& _center, const vector3& _size, material* _mat, const uvmapping& _mapping, const char* _name = "Box");
 
     __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const override;
-    __device__ float pdf_value(const point3& o, const vector3& v, curandState* local_rand_state) const override;
+    __device__ float pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const override;
     __device__ vector3 random(const vector3& o, curandState* local_rand_state) const override;
 
     __host__ __device__ HittableTypeID getTypeID() const override { return HittableTypeID::hittableBoxType; }
@@ -71,7 +71,7 @@ __device__ bool box::hit(const ray& r, interval ray_t, hit_record& rec, int dept
     return list_ptr->hit(r, ray_t, rec, depth, max_depth, local_rand_state);
 }
 
-__device__ float box::pdf_value(const point3& o, const vector3& v, curandState* local_rand_state) const
+__device__ float box::pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const
 {
     return 0.0f;
 }

@@ -31,7 +31,7 @@ public:
     __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const override;
 
 
-    __device__ float pdf_value(const point3& o, const vector3& v, curandState* local_rand_state) const override;
+    __device__ float pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const override;
 
 
     /// <summary>
@@ -103,11 +103,11 @@ __device__ bool omni_light::hit(const ray& r, interval ray_t, hit_record& rec, i
     return true;
 }
 
-__device__ float omni_light::pdf_value(const point3& o, const vector3& v, curandState* local_rand_state) const
+__device__ float omni_light::pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const
 {
     // This method only works for stationary spheres.
     hit_record rec;
-    if (!this->hit(ray(o, v), interval(SHADOW_ACNE_FIX, INFINITY), rec, 0, 8888, local_rand_state))
+    if (!this->hit(ray(o, v), interval(SHADOW_ACNE_FIX, INFINITY), rec, 0, max_depth, local_rand_state))
         return 0;
 
     auto cos_theta_max = sqrt(1 - radius * radius / vector_length_squared(m_position - o));

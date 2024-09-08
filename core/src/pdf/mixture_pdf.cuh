@@ -14,7 +14,7 @@ public:
 
 	__device__ ~mixture_pdf() = default;
 
-	__device__ float value(const vector3& direction, curandState* local_rand_state) const override;
+	__device__ float value(const vector3& direction, int max_depth, curandState* local_rand_state) const override;
 	__device__ vector3 generate(scatter_record& rec, curandState* local_rand_state) override;
 
 	__host__ __device__ virtual pdfTypeID getTypeID() const { return pdfTypeID::pdfMixture; }
@@ -25,9 +25,9 @@ private:
 	pdf* p1 = nullptr;
 };
 
-__device__ inline float mixture_pdf::value(const vector3& direction, curandState* local_rand_state) const
+__device__ inline float mixture_pdf::value(const vector3& direction, int max_depth, curandState* local_rand_state) const
 {
-	return proportion*(p0->value(direction, local_rand_state)) + (1.0f - proportion) * (p1->value(direction, local_rand_state));
+	return proportion*(p0->value(direction, max_depth, local_rand_state)) + (1.0f - proportion) * (p1->value(direction, max_depth, local_rand_state));
 }
 
 __device__ inline vector3 mixture_pdf::generate(scatter_record& rec, curandState* local_rand_state)

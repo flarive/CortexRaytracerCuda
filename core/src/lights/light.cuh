@@ -43,7 +43,7 @@ public:
 protected:
     point3 m_position{};
     material* m_mat;
-    float m_intensity = 0.0;
+    float m_intensity = 0.0f;
     bool m_invisible = true;
     color m_color{};
 };

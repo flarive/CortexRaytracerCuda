@@ -29,6 +29,6 @@ class pdf
 public:
 	__device__ virtual ~pdf() {}
 
-	__device__ virtual float value(const vector3& direction, curandState* local_rand_state) const = 0;
+	__device__ virtual float value(const vector3& direction, int max_depth, curandState* local_rand_state) const = 0;
 	__device__ virtual vector3 generate(scatter_record& rec, curandState* local_rand_state) = 0;
 };

@@ -17,7 +17,7 @@ public:
     
 
 
-    __device__ float pdf_value(const point3& origin, const vector3& v, curandState* local_rand_state) const override;
+    __device__ float pdf_value(const point3& origin, const vector3& v, int max_depth, curandState* local_rand_state) const override;
 
 
     /// <summary>
@@ -132,11 +132,11 @@ __device__ bool quad::hit(const ray& r, interval ray_t, hit_record& rec, int dep
     return true;
 }
 
-__device__ float quad::pdf_value(const point3& origin, const vector3& v, curandState* local_rand_state) const
+__device__ float quad::pdf_value(const point3& origin, const vector3& v, int max_depth, curandState* local_rand_state) const
 {
     hit_record rec;
 
-    if (!this->hit(ray(origin, v), interval(SHADOW_ACNE_FIX, INFINITY), rec, 0, 8888, local_rand_state))
+    if (!this->hit(ray(origin, v), interval(SHADOW_ACNE_FIX, INFINITY), rec, 0, max_depth, local_rand_state))
         return 0;
 
     auto distance_squared = rec.t * rec.t * vector_length_squared(v);

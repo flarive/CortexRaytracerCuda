@@ -204,7 +204,7 @@ __device__ inline color camera::ray_color(const ray& r, int i, int j, int depth,
 
         // Sample the new ray direction using mixture PDF
         ray scattered = ray(rec.hit_point, mpdf.generate(srec, local_rand_state), current_ray.time());
-        float pdf_val = mpdf.value(scattered.direction(), local_rand_state);
+        float pdf_val = mpdf.value(scattered.direction(), max_depth, local_rand_state);
         float scattering_pdf = rec.mat->scattering_pdf(current_ray, rec, scattered);
 
         // Update attenuation (how much light is lost at each bounce)

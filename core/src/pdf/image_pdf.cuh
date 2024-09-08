@@ -13,7 +13,7 @@ public:
 
 	__device__ ~image_pdf();
 
-	__device__ float value(const vector3& direction, curandState* local_rand_state) const override;
+	__device__ float value(const vector3& direction, int max_depth, curandState* local_rand_state) const override;
 	__device__ vector3 generate(scatter_record& rec, curandState* local_rand_state) override;
 
 	__host__ __device__ virtual pdfTypeID getTypeID() const { return pdfTypeID::pdfImage; }
@@ -76,7 +76,7 @@ __device__ image_pdf::image_pdf(image_texture* img)
 	}
 }
 
-__device__ inline float image_pdf::value(const vector3& direction, curandState* local_rand_state) const
+__device__ inline float image_pdf::value(const vector3& direction, int max_depth, curandState* local_rand_state) const
 {
 	float _u, _v;
 	get_spherical_uv(unit_vector(direction), _u, _v);

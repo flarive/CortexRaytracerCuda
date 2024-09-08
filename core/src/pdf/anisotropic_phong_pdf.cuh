@@ -19,7 +19,7 @@ public:
 
 	__device__ ~anisotropic_phong_pdf() = default;
 
-	__device__ float value(const vector3& direction, curandState* local_rand_state) const override;
+	__device__ float value(const vector3& direction, int max_depth, curandState* local_rand_state) const override;
 	__device__ vector3 generate(scatter_record& rec, curandState* local_rand_state) override;
 
 	__host__ __device__ virtual pdfTypeID getTypeID() const { return pdfTypeID::pdfAnisotropicPhong; }
@@ -62,7 +62,7 @@ private:
 
 
 
-__device__ inline float anisotropic_phong_pdf::value(const vector3& direction, curandState* local_rand_state) const
+__device__ inline float anisotropic_phong_pdf::value(const vector3& direction, int max_depth, curandState* local_rand_state) const
 {
 	const float cosine = vector_multiply_to_double(direction, m_onb.Normal());
 	if (cosine < 0) return 0;
