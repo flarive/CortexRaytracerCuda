@@ -236,6 +236,18 @@
     <ClInclude Include="src\primitives\torus.cuh">
       <Filter>Headers\primitives</Filter>
     </ClInclude>
+    <ClInclude Include="src\primitives\cylinder.cuh">
+      <Filter>Headers\primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="src\primitives\cone.cuh">
+      <Filter>Headers\primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="src\primitives\disk.cuh">
+      <Filter>Headers\primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="src\primitives\triangle.cuh">
+      <Filter>Headers\primitives</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">

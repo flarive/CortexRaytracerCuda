@@ -136,11 +136,15 @@
     <ClInclude Include="src\misc\bvh_node.cuh" />
     <ClInclude Include="src\cameras\perspective_camera.cuh" />
     <ClInclude Include="src\misc\constants.cuh" />
+    <ClInclude Include="src\primitives\cone.cuh" />
+    <ClInclude Include="src\primitives\cylinder.cuh" />
+    <ClInclude Include="src\primitives\disk.cuh" />
     <ClInclude Include="src\primitives\flip_normals.cuh" />
     <ClInclude Include="src\primitives\quad.cuh" />
     <ClInclude Include="src\primitives\scale.cuh" />
     <ClInclude Include="src\primitives\torus.cuh" />
     <ClInclude Include="src\primitives\translate.cuh" />
+    <ClInclude Include="src\primitives\triangle.cuh" />
     <ClInclude Include="src\primitives\volume.cuh" />
     <ClInclude Include="src\materials\diffuse_light.cuh" />
     <ClInclude Include="src\primitives\hittable.cuh" />

@@ -43,8 +43,8 @@ __host__ __device__ color bump_texture::value(float u, float v, const point3& p)
 
 __host__ __device__ vector3 bump_texture::perturb_normal(const vector3& normal, float u, float v, const vector3& p) const
 {
-    double m_bump_width = 0.0; // doesn't change anything ?
-    double m_bump_height = 0.0; // doesn't change anything ?
+    float m_bump_width = 0.0f; // doesn't change anything ?
+    float m_bump_height = 0.0f; // doesn't change anything ?
 
     //std::shared_ptr<image_texture> imageTex = std::dynamic_pointer_cast<image_texture>(m_bump);
     //if (imageTex)

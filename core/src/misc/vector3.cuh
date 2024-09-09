@@ -16,10 +16,10 @@
 #include <device_launch_parameters.h>
 #include <curand_kernel.h>
 
-#include <Eigen/Eigen/Core>
-#include <Eigen/Eigen/StdVector>
-#include <Eigen/Eigen/Geometry>
-#include <eigen/unsupported/eigen/polynomials>
+//#include <Eigen/Eigen/Core>
+//#include <Eigen/Eigen/StdVector>
+//#include <Eigen/Eigen/Geometry>
+//#include <eigen/unsupported/eigen/polynomials>
 
 
 

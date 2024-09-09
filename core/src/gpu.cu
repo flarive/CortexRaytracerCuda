@@ -40,6 +40,8 @@
 #include "primitives/quad.cuh"
 #include "primitives/volume.cuh"
 #include "primitives/torus.cuh"
+#include "primitives/cylinder.cuh"
+#include "primitives/cone.cuh"
 
 #include "primitives/translate.cuh"
 #include "primitives/rotate.cuh"
@@ -394,7 +396,7 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
 
     int bytes_per_pixel = 3;
     int tex_x, tex_y, tex_n;
-    unsigned char *tex_data_host = stbi_load("e:\\uv_mapper_no_numbers.jpg", &tex_x, &tex_y, &tex_n, bytes_per_pixel);
+    unsigned char *tex_data_host = stbi_load("d:\\uv_mapper_no_numbers.jpg", &tex_x, &tex_y, &tex_n, bytes_per_pixel);
     if (!tex_data_host) {
         std::cerr << "[ERROR] Failed to load texture." << std::endl;
         return;
