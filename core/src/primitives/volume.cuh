@@ -1,3 +1,7 @@
+#pragma once
+
+#include "hittable.cuh"
+#include "../materials/material.cuh"
 
 /// <summary>
 /// Constant Density Medium primitive (volume)
@@ -36,7 +40,7 @@ __device__ bool volume::hit(const ray& r, interval ray_t, hit_record& rec, int d
 {
     // Print occasional samples when debugging. To enable, set enableDebug true.
     //const bool enableDebug = false;
-    const bool debugging = false;// enableDebug&& randomizer::random_double() < 0.00001;
+    const bool debugging = false;// enableDebug&& randomizer::random_double() < 0.00001f;
 
     hit_record rec1, rec2;
 
