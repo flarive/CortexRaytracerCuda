@@ -18,6 +18,8 @@ public:
 
     __host__ __device__ aabb bounding_box() const override;
 
+    __host__ __device__ HittableTypeID getTypeID() const override { return HittableTypeID::hittableCylinderType; }
+
 
 private:
     point3 center{};

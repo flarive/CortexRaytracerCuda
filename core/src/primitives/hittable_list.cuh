@@ -186,7 +186,7 @@ __device__ inline vector3 hittable_list::random(const vector3& o, curandState* l
 {
     if (object_count > 0)
     {
-        int r = 0;
+        unsigned int r = 0;
         
         if (object_count > 1)
             r = get_int(local_rand_state, 0, object_count - 1);

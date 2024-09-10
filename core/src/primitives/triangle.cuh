@@ -27,11 +27,13 @@ public:
 
 
 
-    __device__ virtual bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const override;
-
-    __host__ __device__ virtual aabb bounding_box() const override;
+    __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const override;
 
     __device__ float pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const override;
+
+    __host__ __device__ HittableTypeID getTypeID() const override { return HittableTypeID::hittableTriangleType; }
+
+    __host__ __device__ virtual aabb bounding_box() const override;
 
 
     /// <summary>
@@ -39,7 +41,7 @@ public:
     /// </summary>
     /// <param name="origin"></param>
     /// <returns></returns>
-    __host__ __device__ vector3 random(const point3& o, curandState* local_rand_state) const override;
+    __device__ vector3 random(const point3& o, curandState* local_rand_state) const override;
 
 public:
     vector3 verts[3]{};
@@ -110,17 +112,17 @@ __host__ __device__ triangle::triangle(const vector3 v0, const vector3 v1, const
     v0_v1 = verts[1] - verts[0];
     v0_v2 = verts[2] - verts[0];
 
-    double a = (v0 - v1).length();
-    double b = (v1 - v2).length();
-    double c = (v2 - v0).length();
-    double s = (a + b + c) / 2.0;
-    area = sqrt(fabs(s * (s - a) * (s - b) * (s - c)));
+    auto a = (v0 - v1).length();
+    auto b = (v1 - v2).length();
+    auto c = (v2 - v0).length();
+    float s = (a + b + c) / 2.0f;
+    area = glm::sqrt(fabsf(s * (s - a) * (s - b) * (s - c)));
     middle_normal = unit_vector(glm::cross(v0 - v1, v0 - v2));
 
     // bounding box
     vector3 max_extent = max(max(verts[0], verts[1]), verts[2]);
     vector3 min_extent = min(min(verts[0], verts[1]), verts[2]);
-    double eps = 0.001;
+    float eps = 0.001f;
     auto epsv = vector3(eps, eps, eps);
     m_bbox = aabb(min_extent - epsv, max_extent + epsv);
 }
@@ -137,7 +139,7 @@ __device__ bool triangle::hit(const ray& r, interval ray_t, hit_record& rec, int
     // If det < 0, this is a back-facing intersection, change hit_record front_face
     // ray and triangle are parallel if det is close to 0
     if (fabs(det) < EPS) return false;
-    auto inv_det = 1.0 / det;
+    float inv_det = 1.0f / det;
 
 
 
@@ -166,7 +168,7 @@ __device__ bool triangle::hit(const ray& r, interval ray_t, hit_record& rec, int
 
     if (smooth_normals)
     {
-        double a = u, b = v, c = 1 - u - v;
+        float a = u, b = v, c = 1 - u - v;
         // What does u and v map to?
         normal = a * vert_normals[1] + b * vert_normals[2] + c * vert_normals[0];
     }
@@ -190,18 +192,18 @@ __host__ __device__ aabb triangle::bounding_box() const
 __device__ float triangle::pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const
 {
     hit_record rec;
-    if (!this->hit(ray(o, v), interval(EPS, infinity), rec, 0))
+    if (!this->hit(ray(o, v), interval(EPS, INFINITY), rec, 0, max_depth, local_rand_state))
         return 0;
 
     // from https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=4121581
     vector3 R1 = verts[0] - o, R2 = verts[1] - o, R3 = verts[2] - o;
-    constexpr float r1 = R1.length();
-    constexpr float r2 = R2.length();
-    constexpr float r3 = R3.length();
+    float r1 = R1.length();
+    float r2 = R2.length();
+    float r3 = R3.length();
     float N = glm::dot(R1, cross(R2, R3));
     float D = r1 * r2 * r3 + glm::dot(R1, R2) * r3 + glm::dot(R1, R3) * r2 + glm::dot(R2, R3) * r3;
 
-    float omega = util::atan2(N, D);
+    float omega = atan2(N, D);
 
     return 1.0f / omega;
 }
@@ -209,7 +211,7 @@ __device__ float triangle::pdf_value(const point3& o, const vector3& v, int max_
 __device__ vector3 triangle::random(const point3& o, curandState* local_rand_state) const
 {
     // From https://math.stackexchange.com/questions/18686/uniform-random-point-in-triangle-in-3d
-    float r1 = get_real(local_rand_state0);
+    float r1 = get_real(local_rand_state);
     float r2 = get_real(local_rand_state);
     float ca = (1.0f - glm::sqrt(r1)), cb = glm::sqrt(r1) * (1. - r2), cc = r2 * glm::sqrt(r1);
     vector3 random_in_triangle = verts[0] * ca + verts[1] * cb + verts[2] * cc;

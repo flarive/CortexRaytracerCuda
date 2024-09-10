@@ -18,6 +18,8 @@ public:
     __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const;
     __host__ __device__ aabb bounding_box() const override;
 
+    __host__ __device__ HittableTypeID getTypeID() const override { return HittableTypeID::hittableConeType; }
+
 private:
     vector3 center{};
     float radius = 0.0f;

@@ -42,6 +42,8 @@
 #include "primitives/torus.cuh"
 #include "primitives/cylinder.cuh"
 #include "primitives/cone.cuh"
+#include "primitives/disk.cuh"
+#include "primitives/triangle.cuh"
 
 #include "primitives/translate.cuh"
 #include "primitives/rotate.cuh"
@@ -143,10 +145,13 @@ __global__ void load_scene(hittable_list **elist, hittable_list **elights,  came
 
 
         // box
-        (*elist)->add(new rt::translate(new box(vector3(0, 0, 295), vector3(165, 330, 165), new lambertian(*texture), "MyBox"), vector3(120,0,320)));
+        (*elist)->add(new rt::translate(new box(point3(0.0f, 0.0f, 200.0f), vector3(165, 330, 165), new lambertian(*texture), "MyBox"), vector3(120,0,320)));
         
         // sphere
-        (*elist)->add(new sphere(vector3(350.0f, 50.0f, 295.0f), 100.0f, new lambertian(*texture), "MySphere"));
+        (*elist)->add(new sphere(point3(350.0f, 50.0f, 295.0f), 100.0f, new lambertian(*texture), "MySphere"));
+
+        // torus
+        //(*elist)->add(new torus(point3(200.0f, 50.0f, 295.0f), 3.0f, 1.0f, new lambertian(*texture), "MyTorus"));
 
         // light
         (*elist)->add(new directional_light(point3(278, 554, 332), vector3(-305, 0, 0), vector3(0, 0, -305), 1.0f, color(10.0, 10.0, 10.0), "MyLight", true));
@@ -396,7 +401,7 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
 
     int bytes_per_pixel = 3;
     int tex_x, tex_y, tex_n;
-    unsigned char *tex_data_host = stbi_load("d:\\uv_mapper_no_numbers.jpg", &tex_x, &tex_y, &tex_n, bytes_per_pixel);
+    unsigned char *tex_data_host = stbi_load("e:\\uv_mapper_no_numbers.jpg", &tex_x, &tex_y, &tex_n, bytes_per_pixel);
     if (!tex_data_host) {
         std::cerr << "[ERROR] Failed to load texture." << std::endl;
         return;

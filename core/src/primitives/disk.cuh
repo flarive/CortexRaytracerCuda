@@ -14,6 +14,8 @@ public:
     __device__ virtual bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const override;
     __host__ __device__ virtual aabb bounding_box() const override;
 
+    __host__ __device__ HittableTypeID getTypeID() const override { return HittableTypeID::hittableDiskType; }
+
 public:
     point3 center{};
     float radius = 0.0f;

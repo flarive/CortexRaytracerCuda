@@ -58,8 +58,8 @@ __host__ __device__ vector3 bump_texture::perturb_normal(const vector3& normal, 
         image_texture* imageTex = static_cast<image_texture*>(m_bump);
         if (imageTex)
         {
-            m_bump_width = imageTex->getWidth();
-            m_bump_height = imageTex->getHeight();
+            m_bump_width = (float)imageTex->getWidth();
+            m_bump_height = (float)imageTex->getHeight();
         }
     }
 
