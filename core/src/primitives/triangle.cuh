@@ -3,6 +3,8 @@
 #include "hittable.cuh"
 #include "../materials/material.cuh"
 
+#include <cmath>
+
 /// <summary>
 /// Triangle primitive
 /// https://github.com/Drummersbrother/raytracing-in-one-weekend/blob/90b1d3d7ce7f6f9244bcb925c77baed4e9d51705/triangle.h
@@ -11,7 +13,7 @@ class triangle : public hittable
 {
 public:
     __host__ __device__ triangle(const char* _name = "Triangle");
-    __host__ __device__ triangle(const vector3 v0, const vector3 v1, const vector3 v2, std::shared_ptr<material> m, const char* _name = "Triangle");
+    __host__ __device__ triangle(const vector3 v0, const vector3 v1, const vector3 v2, material* m, const char* _name = "Triangle");
     __host__ __device__ triangle(const vector3 v0, const vector3 v1, const vector3 v2, const vector3 vn0, const vector3 vn1, const vector3 vn2, bool smooth_shading, material* m, const char* _name = "Triangle");
 
     __host__ __device__ triangle(const vector3 v0, const vector3 v1, const vector3 v2, const vector3 vn0, const vector3 vn1, const vector3 vn2, const vector2& vuv0, const vector2& vuv1, const vector2& vuv2, bool smooth_shading, material* m, const char* _name = "Triangle");
@@ -141,14 +143,14 @@ __device__ bool triangle::hit(const ray& r, interval ray_t, hit_record& rec, int
 
 
     auto tvec = r.origin() - verts[0];
-    auto u = dot(tvec, parallel_vec) * inv_det;
+    auto u = glm::dot(tvec, parallel_vec) * inv_det;
     if (u < 0 || u > 1) return false;
 
-    auto qvec = cross(tvec, v0_v1);
+    auto qvec = glm::cross(tvec, v0_v1);
     auto v = dot(dir, qvec) * inv_det;
     if (v < 0 || u + v > 1) return false;
 
-    float t = dot(v0_v2, qvec) * inv_det;
+    float t = glm::dot(v0_v2, qvec) * inv_det;
 
     if (t < ray_t.min || t > ray_t.max) return false;
 
