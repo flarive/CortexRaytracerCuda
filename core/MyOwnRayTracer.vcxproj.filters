@@ -248,6 +248,12 @@
     <ClInclude Include="src\primitives\triangle.cuh">
       <Filter>Headers\primitives</Filter>
     </ClInclude>
+    <ClInclude Include="src\utilities\mesh_loader.cuh">
+      <Filter>Headers\utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\misc\randomizer.cuh">
+      <Filter>Headers\misc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">

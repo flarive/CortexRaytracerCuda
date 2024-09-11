@@ -1,21 +1,21 @@
 //#include "scene_factory.h"
 //
 //
-//#include "../utilities/mesh_loader.h"
+//#include "../utilities/mesh_loader.cuh"
 //
-//#include "../primitives/box.h"
-//#include "../primitives/cone.h"
-//#include "../primitives/sphere.h"
-//#include "../primitives/cylinder.h"
-//#include "../primitives/disk.h"
-//#include "../primitives/torus.h"
-//#include "../primitives/aarect.h"
-//#include "../primitives/quad.h"
-//#include "../primitives/volume.h"
+//#include "../primitives/box.cuh"
+//#include "../primitives/cone.cuh"
+//#include "../primitives/sphere.cuh"
+//#include "../primitives/cylinder.cuh"
+//#include "../primitives/disk.cuh"
+//#include "../primitives/torus.cuh"
+//#include "../primitives/aarect.cuh"
+//#include "../primitives/quad.cuh"
+//#include "../primitives/volume.cuh"
 //
-//#include "../lights/directional_light.h"
-//#include "../lights/omni_light.h"
-//#include "../lights/spot_light.h"
+//#include "../lights/directional_light.cuh"
+//#include "../lights/omni_light.cuh"
+//#include "../lights/spot_light.cuh"
 //
 //
 //

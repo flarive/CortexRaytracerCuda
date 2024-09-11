@@ -113,9 +113,6 @@ __host__ __device__ inline void scene::extract_emissive_objects()
 		hittable* nnnnnnn = m_world.objects[i];
 		if (nnnnnnn)
 		{
-			//auto lllllllllll = nnnnnnn->getTypeID();
-			//printf("getTypeID %i\n", lllllllllll);
-
 			if (m_world.objects[i]->getTypeID() == HittableTypeID::lightOmniType)
 			{
 				light* derived = static_cast<light*>(m_world.objects[i]);

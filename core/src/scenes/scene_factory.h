@@ -1,8 +1,8 @@
 //#pragma once
 //
-//#include "../primitives/hittable.h"
-//#include "../materials/material.h"
-//#include "../utilities/types.h"
+//#include "../primitives/hittable.cuh"
+//#include "../materials/material.cuh"
+//#include "../misc/vector3.cuh"
 //
 //
 //class scene_factory

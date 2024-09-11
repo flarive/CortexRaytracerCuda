@@ -110,6 +110,7 @@
     <ClInclude Include="src\lights\spot_light.cuh" />
     <ClInclude Include="src\materials\diffuse_spot_light.cuh" />
     <ClInclude Include="src\materials\phong.cuh" />
+    <ClInclude Include="src\misc\randomizer.cuh" />
     <ClInclude Include="src\misc\transform.cuh" />
     <ClInclude Include="src\outputs\namedpipes_output.cuh" />
     <ClInclude Include="src\outputs\no_output.cuh" />
@@ -185,6 +186,7 @@
     <ClInclude Include="src\utilities\cuda_utils.cuh" />
     <ClInclude Include="src\utilities\interval.cuh" />
     <ClInclude Include="src\utilities\math_utils.cuh" />
+    <ClInclude Include="src\utilities\mesh_loader.cuh" />
     <ClInclude Include="src\utilities\uvmapping.cuh" />
   </ItemGroup>
   <ItemGroup>

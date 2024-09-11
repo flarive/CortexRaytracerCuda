@@ -1,15 +1,17 @@
 #include <iostream>
-//#include <string>
 
+// cuda
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
-
-//#include <stdio.h>
-
 #include <curand_kernel.h>
+
+
+#include "misc/randomizer.cuh"
+
 
 #include "misc/vector3.cuh"
 #include "misc/bvh_node.cuh"
+
 
 #include "primitives/hittable_list.cuh"
 
@@ -198,6 +200,8 @@ __global__ void load_scene(hittable_list **elist, hittable_list **elights,  came
 
 __global__ void rand_init(curandState *rand_state)
 {
+    // https://forums.developer.nvidia.com/t/differences-between-host-api-and-device-api-for-curand/20624/4
+    
     if (threadIdx.x == 0 && blockIdx.x == 0) {
         curand_init(1984, 0, 0, rand_state);
     }
@@ -218,76 +222,6 @@ __global__ void texture_init(unsigned char* tex_data, int width, int height, int
         *tex = new image_texture(bitmap_image(tex_data, width, height, channels));
     }
 }
-
-//__global__ void render(color* fb, int width, int height, int spp, int sqrt_spp, int max_depth, hittable_list **world, hittable_list **lights, camera** cam, sampler** aa_sampler, curandState *randState)
-//{
-//    int i = threadIdx.x + blockIdx.x * blockDim.x;
-//    int j = threadIdx.y + blockIdx.y * blockDim.y;
-//    if ((i >= width) || (j >= height))
-//        return;
-//    
-//        
-//
-//    int pixel_index = j * width + i;
-//    curandState local_rand_state = randState[pixel_index];
-//    color pixel_color(0, 0, 0);
-//
-//    for (int s_j = 0; s_j < sqrt_spp; ++s_j)
-//    {
-//        for (int s_i = 0; s_i < sqrt_spp; ++s_i)
-//        {
-//            float uniform_random = curand_uniform(&local_rand_state);
-//            float gaussian_random = curand_normal(&local_rand_state);
-//
-//
-//            // Subpixel Sampling for Anti-Aliasing
-//            // Normalized Device Coordinates (NDC)
-//            // By using u and v, you introduce small random perturbations within each pixel. These perturbations generate different rays that pass through slightly different positions in the scene. This increases the accuracy of the final color calculation for each pixel when averaged over multiple samples (spp or samples per pixel), producing smoother gradients and less noise.
-//            float u = float(i + gaussian_random) / float(width);
-//            float v = float(j + gaussian_random) / float(height);
-//
-//            // Stratified sampling with jittered randomness
-//            //float u = (i + (s_i + curand_uniform(&local_rand_state)) / sqrt_spp) / float(width);
-//            //float v = (j + (s_j + curand_uniform(&local_rand_state)) / sqrt_spp) / float(height);
-//
-//            
-//
-//
-//            ray r = (*cam)->get_ray(u, v, s_i, s_j, nullptr, &local_rand_state);
-//
-//            // pixel color is progressively being refined
-//            pixel_color += (*cam)->ray_color(r, i, j, max_depth, **world, **lights, &local_rand_state);
-//        }
-//    }
-//
-//    const color& fix = prepare_pixel_color(i, j, pixel_color, spp, true);
-//
-//    const interval intensity(0.000f, 0.999f);
-//
-//
-//    randState[pixel_index] = local_rand_state;
-//
-//    int color_r = static_cast<int>(255.99f * intensity.clamp(fix.r()));
-//    int color_g = static_cast<int>(255.99f * intensity.clamp(fix.g()));
-//    int color_b = static_cast<int>(255.99f * intensity.clamp(fix.b()));
-//
-//
-//    fb[pixel_index] = color(
-//        color_r,
-//        color_g,
-//        color_b
-//    );
-//
-//    printf(
-//        "p %u %u %u %u %u\n",
-//        i,
-//        height - j - 1,
-//        color_r,
-//        color_g,
-//        color_b
-//    );
-//}
-
 
 __global__ void render(color* fb, int width, int height, int spp, int sqrt_spp, int max_depth, hittable_list** world, hittable_list** lights, camera** cam, sampler** aa_sampler, curandState* randState)
 {
@@ -390,10 +324,16 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
     setupCuda(prop);
 
 
+    bool use_gpu = true;
+
+    RNG rng;
+    rng.init(use_gpu);
+
+
+
+
 
     float ratio = (float)height / (float)width;
-
-
     int sqrt_spp = static_cast<int>(sqrt(spp));
     
     // Values
@@ -430,14 +370,28 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
     color* image;
     checkCudaErrors(cudaMallocManaged((void**)&image, width * height * sizeof(color)));
 
-    // Allocate random state
-    curandState *d_rand_state;
-    checkCudaErrors(cudaMalloc((void **)&d_rand_state, num_pixels * sizeof(curandState)));
-    curandState *d_rand_state2;
-    checkCudaErrors(cudaMalloc((void **)&d_rand_state2, 1 * sizeof(curandState)));
+    // Allocate first random state (image)
+    curandState *d_rand_state_image;
+    checkCudaErrors(cudaMalloc((void **)&d_rand_state_image, num_pixels * sizeof(curandState)));
 
+
+    
+	// new !!!!!!!    
+    // Allocate memory based on the target (GPU or CPU)
+    if (use_gpu) {
+        // GPU allocation
+        cudaMalloc(&data, n * sizeof(float));
+    }
+    else {
+        // CPU allocation
+        data = (float*)malloc(n * sizeof(float));
+    }
+    
+    
     // Allocate 2nd random state to be initialized for the world creation
-    rand_init<<<single_block, single_thread>>>(d_rand_state2);
+    curandState* d_rand_state_world;
+    checkCudaErrors(cudaMalloc((void**)&d_rand_state_world, 1 * sizeof(curandState)));
+    rand_init<<<single_block, single_thread>>>(d_rand_state_world);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
@@ -459,21 +413,21 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
     //checkCudaErrors(cudaMalloc((void**)&myscene, sizeof(scene*)));
 
 
-    load_scene<<<single_block, single_thread>>>(elist, elights, cam, aa_sampler, width, height, ratio, spp, sqrt_spp, texture, d_rand_state2);
+    load_scene<<<single_block, single_thread>>>(elist, elights, cam, aa_sampler, width, height, ratio, spp, sqrt_spp, texture, d_rand_state_world);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
     dim3 render_blocks(width / tx+1, height / ty+1);
     dim3 render_threads(tx, ty);
 
-    render_init<<<render_blocks, render_threads>>>(width, height, d_rand_state);
+    render_init<<<render_blocks, render_threads>>>(width, height, d_rand_state_image);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
     printf("[INFO] Render with %u/%u blocks of %u/%u threads\n", render_blocks.x, render_blocks.y, render_threads.x, render_threads.y);
 
 
-    render<<<render_blocks, render_threads>>>(image, width, height, spp, sqrt_spp, max_depth, elist, elights, cam, aa_sampler, d_rand_state);
+    render<<<render_blocks, render_threads>>>(image, width, height, spp, sqrt_spp, max_depth, elist, elights, cam, aa_sampler, d_rand_state_image);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
@@ -518,8 +472,11 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
     checkCudaErrors(cudaFree(elist));
     //checkCudaErrors(cudaFree(myscene));
     checkCudaErrors(cudaFree(aa_sampler));
-    checkCudaErrors(cudaFree(d_rand_state));
+    checkCudaErrors(cudaFree(d_rand_state_world));
     checkCudaErrors(cudaFree(image));
+    checkCudaErrors(cudaFree(d_rand_state_image));
+
+    rng.cleanup();
 }
 
 

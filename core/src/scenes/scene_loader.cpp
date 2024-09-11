@@ -1,7 +1,7 @@
 //#include "scene_loader.h"
 //
 //#include "../utilities/uvmapping.cuh"
-//#include "../misc/transform.h"
+//#include "../misc/transform.cuh"
 //
 //#include "iostream"
 //#include <filesystem>
@@ -231,8 +231,8 @@
 //		for (int i = 0; i < setting["obj"].getLength(); i++)
 //		{
 //			const libconfig::Setting& mesh = setting["obj"][i];
-//			string name;
-//			string filePath;
+//			std::string name;
+//			std::string filePath;
 //			point3 position{};
 //			std::string materialName;
 //			bool use_mtl = true;
@@ -272,7 +272,7 @@
 //	for (int i = 0; i < setting.getLength(); i++)
 //	{
 //		const libconfig::Setting& group = setting[i];
-//		string name;
+//		std::string name;
 //
 //		if (group.exists("name"))
 //			group.lookupValue("name", name);
@@ -985,7 +985,7 @@
 //		for (int i = 0; i < primitives["spheres"].getLength(); i++)
 //		{
 //			const libconfig::Setting& primitive = primitives["spheres"][i];
-//			string name;
+//			std::string name;
 //			point3 position{};
 //			double radius = 0.0;
 //			std::string materialName;
@@ -1028,7 +1028,7 @@
 //		for (int i = 0; i < primitives["planes"].getLength(); i++)
 //		{
 //			const libconfig::Setting& primitive = primitives["planes"][i];
-//			string name;
+//			std::string name;
 //			point3 point1{};
 //			point3 point2{};
 //			std::string materialName;
@@ -1071,7 +1071,7 @@
 //		for (int i = 0; i < primitives["quads"].getLength(); i++)
 //		{
 //			const libconfig::Setting& primitive = primitives["quads"][i];
-//			string name;
+//			std::string name;
 //			point3 position{};
 //			vector3 u{};
 //			vector3 v{};
@@ -1117,7 +1117,7 @@
 //		for (int i = 0; i < primitives["boxes"].getLength(); i++)
 //		{
 //			const libconfig::Setting& primitive = primitives["boxes"][i];
-//			string name;
+//			std::string name;
 //			point3 position{};
 //			point3 size{};
 //			std::string materialName;
@@ -1160,7 +1160,7 @@
 //		for (int i = 0; i < primitives["cones"].getLength(); i++)
 //		{
 //			const libconfig::Setting& primitive = primitives["cones"][i];
-//			string name;
+//			std::string name;
 //			point3 position{};
 //			double radius = 0.0;
 //			double height = 0.0;
@@ -1206,7 +1206,7 @@
 //		for (int i = 0; i < primitives["cylinders"].getLength(); i++)
 //		{
 //			const libconfig::Setting& primitive = primitives["cylinders"][i];
-//			string name;
+//			std::string name;
 //			point3 position{};
 //			double radius = 0.0;
 //			double height = 0.0;
@@ -1252,7 +1252,7 @@
 //		for (int i = 0; i < primitives["disks"].getLength(); i++)
 //		{
 //			const libconfig::Setting& primitive = primitives["disks"][i];
-//			string name;
+//			std::string name;
 //			point3 position{};
 //			double radius = 0.0;
 //			double height = 0.0;
@@ -1298,7 +1298,7 @@
 //		for (int i = 0; i < primitives["toruses"].getLength(); i++)
 //		{
 //			const libconfig::Setting& primitive = primitives["toruses"][i];
-//			string name;
+//			std::string name;
 //			point3 position{};
 //			double major_radius = 0.0;
 //			double minor_radius = 0.0;
@@ -1344,7 +1344,7 @@
 //		for (int i = 0; i < primitives["volumes"].getLength(); i++)
 //		{
 //			const libconfig::Setting& primitive = primitives["volumes"][i];
-//			string name;
+//			std::string name;
 //			std::string boundary;
 //			double density = 0.0;
 //			color rgb{};

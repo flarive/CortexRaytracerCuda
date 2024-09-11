@@ -35,10 +35,6 @@ __device__ void bubble_sort(hittable** e, int n) {
 class bvh_node: public hittable
 {
 public:
-    //__device__ bvh_node() {}
-
-
-    //__device__ bvh_node(hittable **e, int n, float time0, float time1, curandState& local_rand_state, const char* name = nullptr);
     __device__ bvh_node(hittable** src_objects, int start, int end, curandState* local_rand_state, const char* name = nullptr);
 
     __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const override;
@@ -47,6 +43,9 @@ public:
     __device__ float pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const override;
 
     __device__ vector3 random(const vector3& o, curandState* local_rand_state) const override;
+
+
+    //__host__ __device__ vector3 Test(const vector3& o, curandState* local_rand_state);
 
     
 
@@ -242,3 +241,10 @@ __host__ __device__ inline void bvh_node::swap(hittable** a, hittable** b)
     *a = *b;
     *b = temp;
 }
+
+
+
+//__host__ __device__ inline vector3 bvh_node::Test(const vector3& o, curandState* local_rand_state)
+//{
+//    return vector3();
+//}
