@@ -334,6 +334,12 @@
     <Filter Include="Headers\outputs\base">
       <UniqueIdentifier>{97918348-2ac6-417a-b361-bc412d44f511}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Headers\random">
+      <UniqueIdentifier>{b4ff6808-2f4b-447e-96ee-38bb3ab14313}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\random\base">
+      <UniqueIdentifier>{35c98cf8-1d20-4cb2-aa62-0695d9f8067f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="src\gpu.cu">

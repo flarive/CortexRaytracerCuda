@@ -71,6 +71,8 @@
 #include "scenes/scene_loader.h"
 #include "scenes/scene_builder.h"
 
+
+
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb/stb_image.h>
@@ -120,7 +122,7 @@ void check_cuda(cudaError_t result, char const* const func, const char* const fi
     }
 }
 
-#define RND (curand_uniform(&local_rand_state))
+//#define RND (curand_uniform(&local_rand_state))
 
 __global__ void load_scene(hittable_list **elist, hittable_list **elights,  camera **cam, sampler **aa_sampler, int width, int height, float ratio, int spp, int sqrt_spp, image_texture** texture, curandState *rand_state)
 {
@@ -231,11 +233,17 @@ __global__ void render(color* fb, int width, int height, int spp, int sqrt_spp, 
 
     int pixel_index = j * width + i;
     curandState local_rand_state = randState[pixel_index];
+
+
+
+
     color pixel_color(0, 0, 0);
 
     float uniform_random = curand_uniform(&local_rand_state);
     //float normal_random = curand_normal(&local_rand_state);
     //int poisson_random = curand_poisson(&local_rand_state, 100.0f);
+
+    
 
     for (int s_j = 0; s_j < sqrt_spp; ++s_j)
     {
@@ -324,6 +332,13 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
     setupCuda(prop);
 
 
+
+    float ratio = (float)height / (float)width;
+    int sqrt_spp = static_cast<int>(sqrt(spp));
+    
+    // Values
+    int num_pixels = width * height;
+
     bool use_gpu = true;
 
     RNG rng;
@@ -331,13 +346,6 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
 
 
 
-
-
-    float ratio = (float)height / (float)width;
-    int sqrt_spp = static_cast<int>(sqrt(spp));
-    
-    // Values
-    int num_pixels = width * height;
 
     int bytes_per_pixel = 3;
     int tex_x, tex_y, tex_n;
@@ -376,18 +384,7 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
 
 
     
-	// new !!!!!!!    
-    // Allocate memory based on the target (GPU or CPU)
-    if (use_gpu) {
-        // GPU allocation
-        cudaMalloc(&data, n * sizeof(float));
-    }
-    else {
-        // CPU allocation
-        data = (float*)malloc(n * sizeof(float));
-    }
-    
-    
+   
     // Allocate 2nd random state to be initialized for the world creation
     curandState* d_rand_state_world;
     checkCudaErrors(cudaMalloc((void**)&d_rand_state_world, 1 * sizeof(curandState)));
@@ -475,8 +472,6 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
     checkCudaErrors(cudaFree(d_rand_state_world));
     checkCudaErrors(cudaFree(image));
     checkCudaErrors(cudaFree(d_rand_state_image));
-
-    rng.cleanup();
 }
 
 

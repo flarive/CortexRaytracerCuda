@@ -1,3 +1,9 @@
+#pragma once
+
+//#include "cuda_runtime.h"
+//#include "device_launch_parameters.h"
+//#include <curand_kernel.h>
+
 #include <curand.h>
 #include <iostream>
 
@@ -28,17 +34,33 @@ struct RNG
     }
 
     // Generate random numbers on either the GPU or CPU
-    void generate(float* data, size_t n)
+    void generate_random_float(float* result)
     {
         if (use_gpu) {
             // GPU-based random number generation (on device memory)
-            curandGenerateUniform(generator, data, n);
+            curandGenerateUniform(generator, result, 1);
         }
         else {
             // CPU-based random number generation (on host memory)
-            curandGenerateUniform(generator, data, n);
+            curandGenerateUniform(generator, result, 1);
         }
     }
+
+
+    // Generate random numbers on either the GPU or CPU
+    void generate_random_int(unsigned int* result)
+    {
+        if (use_gpu) {
+            // GPU-based random number generation (on device memory)
+            curandGenerate(generator, result, 1);
+        }
+        else {
+            // CPU-based random number generation (on host memory)
+            curandGenerate(generator, result, 1);
+        }
+    }
+
+
 
     // Clean up
     void cleanup()
