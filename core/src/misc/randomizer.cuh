@@ -1,11 +1,6 @@
 #pragma once
 
-//#include "cuda_runtime.h"
-//#include "device_launch_parameters.h"
-//#include <curand_kernel.h>
-
 #include <curand.h>
-#include <iostream>
 
 // Structure to manage both CPU and GPU generators
 struct RNG
@@ -22,14 +17,14 @@ struct RNG
             // Create GPU-based generator
             curandCreateGenerator(&generator, CURAND_RNG_PSEUDO_DEFAULT);
             curandSetPseudoRandomGeneratorSeed(generator, 1234ULL);
-            std::cout << "Initialized GPU-based random number generator." << std::endl;
+            printf("Initialized GPU-based random number generator.\n");
         }
         else
         {
             // Create CPU-based generator
             curandCreateGeneratorHost(&generator, CURAND_RNG_PSEUDO_DEFAULT);
             curandSetPseudoRandomGeneratorSeed(generator, 1234ULL);
-            std::cout << "Initialized CPU-based random number generator." << std::endl;
+            printf("Initialized CPU-based random number generator.\n");
         }
     }
 
@@ -38,11 +33,11 @@ struct RNG
     {
         if (use_gpu) {
             // GPU-based random number generation (on device memory)
-            curandGenerateUniform(generator, result, 1);
+            curandGenerateUniform(generator, result, 10);
         }
         else {
             // CPU-based random number generation (on host memory)
-            curandGenerateUniform(generator, result, 1);
+            curandGenerateUniform(generator, result, 10);
         }
     }
 
@@ -66,7 +61,7 @@ struct RNG
     void cleanup()
     {
         curandDestroyGenerator(generator);
-        std::cout << "Cleaned up the random number generator." << std::endl;
+        printf("Cleaned up the random number generator.\n");
     }
 };
 

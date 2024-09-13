@@ -344,12 +344,62 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
     RNG rng;
     rng.init(use_gpu);
 
+    size_t n = 10;  // Number of random numbers to generate
+    float* data;
+ 
+    // Allocate memory based on the target (GPU or CPU)
+    if (use_gpu) {
+        // GPU allocation
+        cudaMalloc(&data, n * sizeof(float));
+    }
+    else {
+        // CPU allocation
+        data = (float*)malloc(n * sizeof(float));
+    }
 
+    // Generate random numbers
+    rng.generate_random_float(data);
+
+    // Copy data from GPU if needed
+    if (use_gpu) {
+        float* host_data = (float*)malloc(n * sizeof(float));
+        cudaMemcpy(host_data, data, n * sizeof(float), cudaMemcpyDeviceToHost);
+
+        std::cout << "Random numbers generated on GPU:" << std::endl;
+        for (size_t i = 0; i < n; ++i) {
+            std::cout << host_data[i] << " ";
+        }
+        std::cout << std::endl;
+
+        free(host_data);
+    }
+    else {
+        std::cout << "Random numbers generated on CPU:" << std::endl;
+        for (size_t i = 0; i < n; ++i) {
+            std::cout << data[i] << " ";
+        }
+        std::cout << std::endl;
+    }
+
+    // Cleanup
+    rng.cleanup();
+
+    // Free allocated memory
+    if (use_gpu) {
+        cudaFree(data);
+    }
+    else {
+        free(data);
+    }
+    
+
+    // -------------
+    
 
 
     int bytes_per_pixel = 3;
     int tex_x, tex_y, tex_n;
-    unsigned char *tex_data_host = stbi_load("e:\\uv_mapper_no_numbers.jpg", &tex_x, &tex_y, &tex_n, bytes_per_pixel);
+    unsigned char *tex_data_host = stbi_load("d:\\uv_mapper_no_numbers.jpg", &tex_x, &tex_y, &tex_n, bytes_per_pixel);
     if (!tex_data_host) {
         std::cerr << "[ERROR] Failed to load texture." << std::endl;
         return;
@@ -478,7 +528,7 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
 void launchGPU(int width, int height, int spp, int max_depth, int tx, int ty, const char* filepath, bool quietMode)
 {
     cudaDeviceProp prop;
-    
+
     if (!isGpuAvailable(prop))
     {
         return;
