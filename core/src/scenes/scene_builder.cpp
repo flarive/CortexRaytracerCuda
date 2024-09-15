@@ -1,55 +1,54 @@
 //#include "scene_builder.h"
 //
-//#include "../primitives/box.h"
-//#include "../primitives/cone.h"
-//#include "../primitives/cylinder.h"
-//#include "../primitives/sphere.h"
-//#include "../primitives/aarect.h"
+//#include "../primitives/box.cuh"
+//#include "../primitives/cone.cuh"
+//#include "../primitives/cylinder.cuh"
+//#include "../primitives/sphere.cuh"
+//#include "../primitives/aarect.cuh"
 //
-//#include "../materials/dielectric.h"
-//#include "../materials/lambertian.h"
-//#include "../materials/phong.h"
-//#include "../materials/oren_nayar.h"
-//#include "../materials/diffuse_light.h"
-//#include "../materials/metal.h"
-//#include "../materials/isotropic.h"
-//#include "../materials/anisotropic.h"
+//#include "../materials/dielectric.cuh"
+//#include "../materials/lambertian.cuh"
+//#include "../materials/phong.cuh"
+//#include "../materials/oren_nayar.cuh"
+//#include "../materials/diffuse_light.cuh"
+//#include "../materials/metal.cuh"
+//#include "../materials/isotropic.cuh"
+//#include "../materials/anisotropic.cuh"
 //
-//#include "../textures/checker_texture.h"
-//#include "../textures/perlin_noise_texture.h"
-//#include "../textures/solid_color_texture.h"
-//#include "../textures/image_texture.h"
-//#include "../textures/normal_texture.h"
-//#include "../textures/gradient_texture.h"
-//#include "../textures/marble_texture.h"
-//#include "../textures/bump_texture.h"
-//#include "../textures/alpha_texture.h"
-//#include "../textures/displacement_texture.h"
-//#include "../textures/emissive_texture.h"
+//#include "../textures/checker_texture.cuh"
+//#include "../textures/perlin_noise_texture.cuh"
+//#include "../textures/solid_color_texture.cuh"
+//#include "../textures/image_texture.cuh"
+//#include "../textures/normal_texture.cuh"
+//#include "../textures/gradient_texture.cuh"
+//#include "../textures/bump_texture.cuh"
+//#include "../textures/alpha_texture.cuh"
+//#include "../textures/displacement_texture.cuh"
+//#include "../textures/emissive_texture.cuh"
 //
-//#include "../lights/directional_light.h"
-//#include "../lights/omni_light.h"
+//#include "../lights/directional_light.cuh"
+//#include "../lights/omni_light.cuh"
 //
-//#include "../misc/bvh_node.h"
+//#include "../misc/bvh_node.cuh"
 //
-//#include "../primitives/rotate.h"
-//#include "../primitives/translate.h"
-//#include "../primitives/scale.h"
+//#include "../primitives/rotate.cuh"
+//#include "../primitives/translate.cuh"
+//#include "../primitives/scale.cuh"
 //
 //
 //
 //#include <utility>
 //
-//#include "../utilities/helpers.h"
+//#include "../utilities/math_utils.cuh"
 //#include "scene_factory.h"
 //
 //scene_builder::scene_builder()
 //{
 //  // Default image config
-//  this->m_imageConfig = { 225, 400, 100, 50, color(0.0, 0.0, 0.0) };
+//  this->m_imageConfig = { 225, 400, 100, 50, color(0.0f, 0.0f, 0.0f) };
 //
 //  // Default camera config
-//  this->m_cameraConfig = { 16.0 / 9.0, 0.0, {0.0, 0.0, 10.0}, {0.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, 0.0, 100.0, false, 70.0, 0.0 };
+//  this->m_cameraConfig = { 16.0f / 9.0f, 0.0f, {0.0f, 0.0f, 10.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, 0.0f, 100.0f, false, 70.0f, 0.0f };
 //}
 //
 //perspective_camera scene_builder::getCamera() const
@@ -118,15 +117,15 @@
 //  return *this;
 //}
 //
-//scene_builder& scene_builder::imageWidthWithAspectRatio(double aspectRatio)
+//scene_builder& scene_builder::imageWidthWithAspectRatio(float aspectRatio)
 //{
-//  this->m_imageConfig.width = int(double(this->m_imageConfig.height) * aspectRatio);
+//  this->m_imageConfig.width = int(float(this->m_imageConfig.height) * aspectRatio);
 //  return *this;
 //}
 //
-//scene_builder& scene_builder::imageHeightWithAspectRatio(double aspectRatio)
+//scene_builder& scene_builder::imageHeightWithAspectRatio(float aspectRatio)
 //{
-//  this->m_imageConfig.height = int(double(this->m_imageConfig.width) / aspectRatio);
+//  this->m_imageConfig.height = int(float(this->m_imageConfig.width) / aspectRatio);
 //  return *this;
 //}
 //
@@ -161,12 +160,12 @@
 //
 //scene_builder& scene_builder::cameraAspectRatio(std::string aspectRatio)
 //{
-//    double ratio = helpers::getRatio(aspectRatio.c_str());
+//    float ratio = getRatio(aspectRatio.c_str());
 //    this->m_cameraConfig.aspectRatio = ratio;
 //  return *this;
 //}
 //
-//scene_builder& scene_builder::cameraOpeningTime(double time)
+//scene_builder& scene_builder::cameraOpeningTime(float time)
 //{
 //  this->m_cameraConfig.openingTime = time;
 //  return *this;
@@ -190,19 +189,19 @@
 //  return *this;
 //}
 //
-//scene_builder& scene_builder::cameraAperture(double aperture)
+//scene_builder& scene_builder::cameraAperture(float aperture)
 //{
 //  this->m_cameraConfig.aperture = aperture;
 //  return *this;
 //}
 //
-//scene_builder& scene_builder::cameraFocus(double focus)
+//scene_builder& scene_builder::cameraFocus(float focus)
 //{
 //  this->m_cameraConfig.focus = focus;
 //  return *this;
 //}
 //
-//scene_builder& scene_builder::cameraFOV(double fov)
+//scene_builder& scene_builder::cameraFOV(float fov)
 //{
 //  this->m_cameraConfig.fov = fov;
 //  return *this;
@@ -214,110 +213,104 @@
 //    return *this;
 //}
 //
-//scene_builder& scene_builder::cameraOrthoHeight(double height)
+//scene_builder& scene_builder::cameraOrthoHeight(float height)
 //{
 //    this->m_cameraConfig.orthoHeight = height;
 //    return *this;
 //}
 //
-//scene_builder& scene_builder::addSolidColorTexture(const std::string& textureName, color rgb)
+//scene_builder& scene_builder::addSolidColorTexture(const char* textureName, color rgb)
 //{
-//  this->m_textures[textureName] = std::make_shared<solid_color_texture>(rgb);
+//  this->m_textures[textureName] = new solid_color_texture(rgb);
 //  return *this;
 //}
 //
-//scene_builder& scene_builder::addGradientColorTexture(const std::string& textureName, color color1, color color2, bool aligned_v, bool hsv)
+//scene_builder& scene_builder::addGradientColorTexture(const char* textureName, color color1, color color2, bool aligned_v, bool hsv)
 //{
-//	this->m_textures[textureName] = std::make_shared<gradient_texture>(color1, color2, aligned_v, hsv);
+//	this->m_textures[textureName] = new gradient_texture(color1, color2, aligned_v, hsv);
 //	return *this;
 //}
 //
-//scene_builder& scene_builder::addCheckerTexture(const std::string& textureName, double scale, color oddColor, color evenColor)
+//scene_builder& scene_builder::addCheckerTexture(const char* textureName, float scale, color oddColor, color evenColor)
 //{
-//	this->m_textures[textureName] = std::make_shared<checker_texture>(scale, oddColor, evenColor);
+//	this->m_textures[textureName] = new checker_texture(scale, oddColor, evenColor);
 //	return *this;
 //}
 //
-//scene_builder& scene_builder::addCheckerTexture(const std::string& textureName, double scale, const std::string &oddTextureName, const std::string &evenTextureName)
+//scene_builder& scene_builder::addCheckerTexture(const char* textureName, float scale, const char* oddTextureName, const char* evenTextureName)
 //{
-//  this->m_textures[textureName] = std::make_shared<checker_texture>(scale, fetchTexture(oddTextureName), this->fetchTexture(evenTextureName));
+//  this->m_textures[textureName] = new checker_texture(scale, fetchTexture(oddTextureName), this->fetchTexture(evenTextureName));
 //  return *this;
 //}
 //
-//scene_builder& scene_builder::addImageTexture(const std::string& textureName, const std::string &filepath)
+//scene_builder& scene_builder::addImageTexture(const char* textureName, const bitmap_image& img)
 //{
-//  this->m_textures[textureName] = std::make_shared<image_texture>(filepath);
+//  this->m_textures[textureName] = new image_texture(img);
 //  return *this;
 //}
 //
-//scene_builder& scene_builder::addNormalTexture(const std::string& textureName, const std::string& filepath, double strength)
+//scene_builder& scene_builder::addNormalTexture(const char* textureName, const bitmap_image& img, float strength)
 //{
-//    auto normal_tex = std::make_shared<image_texture>(filepath);
-//    this->m_textures[textureName] = std::make_shared<normal_texture>(normal_tex, strength);
+//    auto normal_tex = new image_texture(img);
+//    this->m_textures[textureName] = new normal_texture(normal_tex, strength);
 //    return *this;
 //}
 //
-//scene_builder& scene_builder::addDisplacementTexture(const std::string& textureName, const std::string& filepath, double strength)
+//scene_builder& scene_builder::addDisplacementTexture(const char* textureName, const bitmap_image& img, float strength)
 //{
-//    auto displace_tex = std::make_shared<image_texture>(filepath);
-//    this->m_textures[textureName] = std::make_shared<displacement_texture>(displace_tex, strength);
+//    auto displace_tex = new image_texture(img);
+//    this->m_textures[textureName] = new displacement_texture(displace_tex, strength);
 //    return *this;
 //}
 //
-//scene_builder& scene_builder::addNoiseTexture(const std::string& textureName, double scale)
+//scene_builder& scene_builder::addNoiseTexture(const char* textureName, float scale)
 //{
-//  this->m_textures[textureName] = std::make_shared<perlin_noise_texture>(scale);
+//  this->m_textures[textureName] = new perlin_noise_texture(scale);
 //  return *this;
 //}
 //
-//scene_builder& scene_builder::addMarbleTexture(const std::string& textureName, double scale)
+//scene_builder& scene_builder::addBumpTexture(const char* textureName, const bitmap_image& img, float strength)
 //{
-//	this->m_textures[textureName] = std::make_shared<marble_texture>(scale);
-//	return *this;
-//}
-//
-//scene_builder& scene_builder::addBumpTexture(const std::string& textureName, const std::string& filepath, double strength)
-//{
-//    auto bump_tex = std::make_shared<image_texture>(filepath);
-//    this->m_textures[textureName] = std::make_shared<bump_texture>(bump_tex, strength);
+//    auto bump_tex = new image_texture(img);
+//    this->m_textures[textureName] = new bump_texture(bump_tex, strength);
 //    return *this;
 //}
 //
-//scene_builder& scene_builder::addAlphaTexture(const std::string& textureName, const std::string& filepath, bool double_sided)
+//scene_builder& scene_builder::addAlphaTexture(const char* textureName, const bitmap_image& img, bool double_sided)
 //{
-//    auto alpha_tex = std::make_shared<image_texture>(filepath);
-//    this->m_textures[textureName] = std::make_shared<alpha_texture>(alpha_tex, double_sided);
+//    auto alpha_tex = new image_texture(img);
+//    this->m_textures[textureName] = new alpha_texture(alpha_tex, double_sided);
 //    return *this;
 //}
 //
-//scene_builder& scene_builder::addEmissiveTexture(const std::string& textureName, const std::string& filepath, double strength)
+//scene_builder& scene_builder::addEmissiveTexture(const char* textureName, const bitmap_image& img, float strength)
 //{
-//    auto emissive_tex = std::make_shared<image_texture>(filepath);
-//    this->m_textures[textureName] = std::make_shared<emissive_texture>(emissive_tex, strength);
+//    auto emissive_tex = new image_texture(img);
+//    this->m_textures[textureName] = new emissive_texture(emissive_tex, strength);
 //    return *this;
 //}
 //
-//scene_builder& scene_builder::addGlassMaterial(const std::string &materialName, double refraction)
+//scene_builder& scene_builder::addGlassMaterial(const char* materialName, float refraction)
 //{
-//  this->m_materials[materialName] = std::make_shared<dielectric>(refraction);
+//  this->m_materials[materialName] = new dielectric(refraction);
 //  return *this;
 //}
 //
-//scene_builder& scene_builder::addLambertianMaterial(const std::string& materialName, const color& rgb)
+//scene_builder& scene_builder::addLambertianMaterial(const char* materialName, const color& rgb)
 //{
-//  this->m_materials[materialName] = std::make_shared<lambertian>(rgb);
+//  this->m_materials[materialName] = new lambertian(rgb);
 //  return *this;
 //}
 //
-//scene_builder& scene_builder::addLambertianMaterial(const std::string& materialName, const std::string& textureName)
+//scene_builder& scene_builder::addLambertianMaterial(const char* materialName, const char* textureName)
 //{
-//  this->m_materials[materialName] = std::make_shared<lambertian>(this->m_textures[textureName]);
+//  this->m_materials[materialName] = new lambertian(this->m_textures[textureName]);
 //  return *this;
 //}
 //
-//scene_builder& scene_builder::addPhongMaterial(const std::string& materialName, const std::string& diffuseTextureName, const std::string& specularTextureName, std::string& normalTextureName, const std::string& bumpTextureName, std::string& displaceTextureName, std::string& alphaTextureName, std::string& emissiveTextureName, const color& ambient, double shininess)
+//scene_builder& scene_builder::addPhongMaterial(const char* materialName, const char* diffuseTextureName, const char* specularTextureName, const char* normalTextureName, const char* bumpTextureName, const char* displaceTextureName, const char* alphaTextureName, const char* emissiveTextureName, const color& ambient, float shininess)
 //{
-//    this->m_materials[materialName] = std::make_shared<phong>(
+//    this->m_materials[materialName] = new phong(
 //        fetchTexture(diffuseTextureName),
 //        fetchTexture(specularTextureName),
 //        fetchTexture(bumpTextureName),
@@ -329,50 +322,50 @@
 //    return *this;
 //}
 //
-//scene_builder& scene_builder::addOrenNayarMaterial(const std::string& materialName, const color& rgb, double albedo_temp, double roughness)
+//scene_builder& scene_builder::addOrenNayarMaterial(const char* materialName, const color& rgb, float albedo_temp, float roughness)
 //{
-//	this->m_materials[materialName] = std::make_shared<oren_nayar>(rgb, albedo_temp, roughness);
+//	this->m_materials[materialName] = new oren_nayar(rgb, albedo_temp, roughness);
 //	return *this;
 //}
 //
-//scene_builder& scene_builder::addOrenNayarMaterial(const std::string& materialName, const std::string& textureName, double albedo_temp, double roughness)
+//scene_builder& scene_builder::addOrenNayarMaterial(const char* materialName, const char* textureName, float albedo_temp, float roughness)
 //{
-//	this->m_materials[materialName] = std::make_shared<oren_nayar>(fetchTexture(textureName), albedo_temp, roughness);
+//	this->m_materials[materialName] = new oren_nayar(fetchTexture(textureName), albedo_temp, roughness);
 //	return *this;
 //}
 //
-//scene_builder& scene_builder::addIsotropicMaterial(const std::string& materialName, const color& rgb)
+//scene_builder& scene_builder::addIsotropicMaterial(const char* materialName, const color& rgb)
 //{
-//    this->m_materials[materialName] = std::make_shared<isotropic>(rgb);
+//    this->m_materials[materialName] = new isotropic(rgb);
 //    return *this;
 //}
 //
-//scene_builder& scene_builder::addIsotropicMaterial(const std::string& materialName, const std::string& textureName)
+//scene_builder& scene_builder::addIsotropicMaterial(const char* materialName, const char* textureName)
 //{
-//    this->m_materials[materialName] = std::make_shared<isotropic>(fetchTexture(textureName));
+//    this->m_materials[materialName] = new isotropic(fetchTexture(textureName));
 //    return *this;
 //}
 //
-//scene_builder& scene_builder::addAnisotropicMaterial(const std::string& materialName, double nu, double nv, const color& rgb)
+//scene_builder& scene_builder::addAnisotropicMaterial(const char* materialName, float nu, float nv, const color& rgb)
 //{
-//    auto diffuse_tex = std::make_shared<solid_color_texture>(rgb);
-//    this->m_materials[materialName] = std::make_shared<anisotropic>(nu, nv, diffuse_tex, nullptr, nullptr);
+//    auto diffuse_tex = new solid_color_texture(rgb);
+//    this->m_materials[materialName] = new anisotropic(nu, nv, diffuse_tex, nullptr, nullptr);
 //    return *this;
 //}
 //
-//scene_builder& scene_builder::addAnisotropicMaterial(const std::string& materialName, double nu, double nv, const std::string& diffuseTextureName, const std::string& specularTextureName, const std::string& exponentTextureName)
+//scene_builder& scene_builder::addAnisotropicMaterial(const char* materialName, float nu, float nv, const char* diffuseTextureName, const char* specularTextureName, const char* exponentTextureName)
 //{
-//    this->m_materials[materialName] = std::make_shared<anisotropic>(nu, nv, fetchTexture(diffuseTextureName), fetchTexture(specularTextureName), fetchTexture(exponentTextureName));
+//    this->m_materials[materialName] = new anisotropic(nu, nv, fetchTexture(diffuseTextureName), fetchTexture(specularTextureName), fetchTexture(exponentTextureName));
 //    return *this;
 //}
 //
-//scene_builder& scene_builder::addMetalMaterial(const std::string &materialName, color rgb, double fuzz)
+//scene_builder& scene_builder::addMetalMaterial(const char* materialName, color rgb, float fuzz)
 //{
-//  this->m_materials[materialName] = std::make_shared<metal>(rgb, fuzz);
+//  this->m_materials[materialName] = new metal(rgb, fuzz);
 //  return *this;
 //}
 //
-//scene_builder& scene_builder::addDirectionalLight(const point3& pos, const vector3& u, const vector3& v, double intensity, color rgb, bool invisible, std::string name)
+//scene_builder& scene_builder::addDirectionalLight(const point3& pos, const vector3& u, const vector3& v, float intensity, color rgb, bool invisible, const char* name)
 //{
 //    this->m_objects.add(
 //        scene_factory::createDirectionalLight(
@@ -388,7 +381,7 @@
 //    return *this;
 //}
 //
-//scene_builder& scene_builder::addOmniDirectionalLight(const point3& pos, double radius, double intensity, color rgb, bool invisible, std::string name)
+//scene_builder& scene_builder::addOmniDirectionalLight(const point3& pos, float radius, float intensity, color rgb, bool invisible, const char* name)
 //{
 //    this->m_objects.add(
 //        scene_factory::createOmniDirectionalLight(
@@ -403,7 +396,7 @@
 //    return *this;
 //}
 //
-//scene_builder& scene_builder::addSpotLight(const point3& pos, const vector3& dir, double cutoff, double falloff, double intensity, double radius, color rgb, bool invisible, std::string name)
+//scene_builder& scene_builder::addSpotLight(const point3& pos, const vector3& dir, float cutoff, float falloff, float intensity, float radius, color rgb, bool invisible, const char* name)
 //{
 //    this->m_objects.add(
 //        scene_factory::createSpotLight(
@@ -421,43 +414,29 @@
 //    return *this;
 //}
 //
-//
-////scene_builder& RayTracer::scene_builder::addDirectionalLightMaterial(const std::string &materialName, const std::string &textureName) {
-////  this->_materials[materialName] =
-////      std::make_shared<diffuse_light>(this->_textures[textureName]);
-////  return *this;
-////}
-////
-////scene_builder::setAmbianceLight(color rgb) {
-////  this->_config.backgroundColor[0] = rgb.r();
-////  this->_config.backgroundColor[1] = rgb.g();
-////  this->_config.backgroundColor[2] = rgb.b();
-////  return *this;
-////}
-////
-//scene_builder& scene_builder::addObject(const std::shared_ptr<hittable> &obj)
+//scene_builder& scene_builder::addObject(hittable* obj)
 //{
 //  this->m_objects.add(obj);
 //  return *this;
 //}
 //
-//scene_builder& scene_builder::addSphere(std::string name, point3 pos, double radius, const std::string& materialName, const uvmapping& uv, const std::string& group)
+//scene_builder& scene_builder::addSphere(const char* name, point3 pos, float radius, const char* materialName, const uvmapping& uv, const char* group)
 //{
 //    auto sphere = scene_factory::createSphere(name, pos, radius, fetchMaterial(materialName), uv);
 //
-//    if (!group.empty())
+//    if (group != nullptr && group[0] != '\0')
 //    {
 //        auto it = this->m_groups.find(group);
 //        if (it != this->m_groups.end())
 //        {
 //            // add to existing group is found
-//            std::shared_ptr<hittable_list> grp = it->second;
+//            hittable_list* grp = it->second;
 //            if (grp) { grp->add(sphere); }
 //        }
 //        else
 //        {
 //            // create group if not found
-//            this->m_groups.emplace(group, std::make_shared<hittable_list>(sphere));
+//            this->m_groups.emplace(group, new hittable_list(sphere));
 //        }
 //    }
 //    else
@@ -468,23 +447,23 @@
 //	return *this;
 //}
 //
-//scene_builder& scene_builder::addPlane(std::string name, point3 p0, point3 p1, const std::string& materialName, const uvmapping& uv, const std::string& group)
+//scene_builder& scene_builder::addPlane(const char* name, point3 p0, point3 p1, const char* materialName, const uvmapping& uv, const char* group)
 //{
 //    auto plane = scene_factory::createPlane(name, p0, p1, fetchMaterial(materialName), uv);
 //    
-//	if (!group.empty())
+//    if (group != nullptr && group[0] != '\0')
 //	{
 //		auto it = this->m_groups.find(group);
 //		if (it != this->m_groups.end())
 //		{
 //			// add to existing group is found
-//			std::shared_ptr<hittable_list> grp = it->second;
+//            hittable_list* grp = it->second;
 //			if (grp) { grp->add(plane); }
 //		}
 //		else
 //		{
 //			// create group if not found
-//			this->m_groups.emplace(group, std::make_shared<hittable_list>(plane));
+//			this->m_groups.emplace(group, new hittable_list(plane));
 //		}
 //	}
 //	else
@@ -495,23 +474,23 @@
 //    return *this;
 //}
 //
-//scene_builder& scene_builder::addQuad(std::string name, point3 position, vector3 u, vector3 v, const std::string& materialName, const uvmapping& uv, const std::string& group)
+//scene_builder& scene_builder::addQuad(const char* name, point3 position, vector3 u, vector3 v, const char* materialName, const uvmapping& uv, const char* group)
 //{
 //    auto quad = scene_factory::createQuad(name, position, u, v, fetchMaterial(materialName), uv);
 //    
-//    if (!group.empty())
+//    if (group != nullptr && group[0] != '\0')
 //	{
 //		auto it = this->m_groups.find(group);
 //		if (it != this->m_groups.end())
 //		{
 //			// add to existing group is found
-//			std::shared_ptr<hittable_list> grp = it->second;
+//            hittable_list* grp = it->second;
 //			if (grp) { grp->add(quad); }
 //		}
 //		else
 //		{
 //			// create group if not found
-//			this->m_groups.emplace(group, std::make_shared<hittable_list>(quad));
+//			this->m_groups.emplace(group, new hittable_list(quad));
 //		}
 //	}
 //	else
@@ -522,18 +501,18 @@
 //    return *this;
 //}
 //
-//scene_builder& scene_builder::addBox(std::string name, point3 p0, point3 p1, const std::string& materialName, const uvmapping& uv, const std::string& group)
+//scene_builder& scene_builder::addBox(const char* name, point3 p0, point3 p1, const char* materialName, const uvmapping& uv, const char* group)
 //{
 //    auto box = scene_factory::createBox(name, p0, p1, fetchMaterial(materialName), uv);
 //
-//    if (!group.empty())
+//    if (group != nullptr && group[0] != '\0')
 //    {
 //        auto it = this->m_groups.find(group);
 //
 //        if (it != this->m_groups.end())
 //        {
 //            // if key is found
-//            std::shared_ptr<hittable_list> grp = it->second;
+//            hittable_list* grp = it->second;
 //            if (grp)
 //            {
 //                grp->add(box);
@@ -542,7 +521,7 @@
 //        else
 //        {
 //            // if key is not found
-//            this->m_groups.emplace(group, std::make_shared<hittable_list>(box));
+//            this->m_groups.emplace(group, new hittable_list(box));
 //        }
 //    }
 //    else
@@ -553,18 +532,18 @@
 //    return *this;
 //}
 //
-//scene_builder& scene_builder::addCylinder(std::string name, point3 pos, double radius, double height, const std::string & materialName, const uvmapping& uv, const std::string& group)
+//scene_builder& scene_builder::addCylinder(const char* name, point3 pos, float radius, float height, const char* materialName, const uvmapping& uv, const char* group)
 //{
 //    auto cylinder = scene_factory::createCylinder(name, pos, radius, height, fetchMaterial(materialName), uv);
 //    
-//	if (!group.empty())
+//    if (group != nullptr && group[0] != '\0')
 //	{
 //		auto it = this->m_groups.find(group);
 //
 //		if (it != this->m_groups.end())
 //		{
 //			// if key is found
-//			std::shared_ptr<hittable_list> grp = it->second;
+//            hittable_list* grp = it->second;
 //			if (grp)
 //			{
 //				grp->add(cylinder);
@@ -573,7 +552,7 @@
 //		else
 //		{
 //			// if key is not found
-//			this->m_groups.emplace(group, std::make_shared<hittable_list>(cylinder));
+//			this->m_groups.emplace(group, new hittable_list(cylinder));
 //		}
 //	}
 //	else
@@ -584,18 +563,18 @@
 //    return *this;
 //}
 //
-//scene_builder& scene_builder::addDisk(std::string name, point3 pos, double radius, double height, const std::string& materialName, const uvmapping& uv, const std::string& group)
+//scene_builder& scene_builder::addDisk(const char* name, point3 pos, float radius, float height, const char* materialName, const uvmapping& uv, const char* group)
 //{
 //    auto disk = scene_factory::createDisk(name, pos, radius, height, fetchMaterial(materialName), uv);
 //    
-//	if (!group.empty())
+//    if (group != nullptr && group[0] != '\0')
 //	{
 //		auto it = this->m_groups.find(group);
 //
 //		if (it != this->m_groups.end())
 //		{
 //			// if key is found
-//			std::shared_ptr<hittable_list> grp = it->second;
+//            hittable_list* grp = it->second;
 //			if (grp)
 //			{
 //				grp->add(disk);
@@ -604,7 +583,7 @@
 //		else
 //		{
 //			// if key is not found
-//			this->m_groups.emplace(group, std::make_shared<hittable_list>(disk));
+//			this->m_groups.emplace(group, new hittable_list(disk));
 //		}
 //	}
 //	else
@@ -615,18 +594,18 @@
 //    return *this;
 //}
 //
-//scene_builder& scene_builder::addTorus(std::string name, point3 pos, double major_radius, double minor_radius, const std::string& materialName, const uvmapping& uv, const std::string& group)
+//scene_builder& scene_builder::addTorus(const char* name, point3 pos, float major_radius, float minor_radius, const char* materialName, const uvmapping& uv, const char* group)
 //{
 //    auto torus = scene_factory::createTorus(name, pos, major_radius, minor_radius, fetchMaterial(materialName), uv);
 //
-//	if (!group.empty())
+//    if (group != nullptr && group[0] != '\0')
 //	{
 //		auto it = this->m_groups.find(group);
 //
 //		if (it != this->m_groups.end())
 //		{
 //			// if key is found
-//			std::shared_ptr<hittable_list> grp = it->second;
+//            hittable_list* grp = it->second;
 //			if (grp)
 //			{
 //				grp->add(torus);
@@ -635,7 +614,7 @@
 //		else
 //		{
 //			// if key is not found
-//			this->m_groups.emplace(group, std::make_shared<hittable_list>(torus));
+//			this->m_groups.emplace(group, new hittable_list(torus));
 //		}
 //	}
 //	else
@@ -646,18 +625,18 @@
 //    return *this;
 //}
 //
-//scene_builder& scene_builder::addCone(std::string name, point3 pos, double radius, double height, const std::string & materialName, const uvmapping& uv, const std::string& group)
+//scene_builder& scene_builder::addCone(const char* name, point3 pos, float radius, float height, const char* materialName, const uvmapping& uv, const char* group)
 //{
 //    auto cone = scene_factory::createCone(name, pos, height, radius, fetchMaterial(materialName), uv);
 //    
-//	if (!group.empty())
+//    if (group != nullptr && group[0] != '\0')
 //	{
 //		auto it = this->m_groups.find(group);
 //
 //		if (it != this->m_groups.end())
 //		{
 //			// if key is found
-//			std::shared_ptr<hittable_list> grp = it->second;
+//            hittable_list* grp = it->second;
 //			if (grp)
 //			{
 //				grp->add(cone);
@@ -666,7 +645,7 @@
 //		else
 //		{
 //			// if key is not found
-//			this->m_groups.emplace(group, std::make_shared<hittable_list>(cone));
+//			this->m_groups.emplace(group, new hittable_list(cone));
 //		}
 //	}
 //	else
@@ -677,21 +656,21 @@
 //    return *this;
 //}
 //
-//scene_builder& scene_builder::addVolume(std::string name, std::string boundaryObjectName, double density, const std::string& textureName, const std::string& group)
+//scene_builder& scene_builder::addVolume(const char* name, const char* boundaryObjectName, float density, const char* textureName, const char* group)
 //{
 //    auto boundaryObject = this->m_objects.get(boundaryObjectName);
 //    if (boundaryObject)
 //    {
 //        auto volume = scene_factory::createVolume(name, boundaryObject, density, fetchTexture(textureName));
 //
-//		if (!group.empty())
+//        if (group != nullptr && group[0] != '\0')
 //		{
 //			auto it = this->m_groups.find(group);
 //
 //			if (it != this->m_groups.end())
 //			{
 //				// if key is found
-//				std::shared_ptr<hittable_list> grp = it->second;
+//                hittable_list* grp = it->second;
 //				if (grp)
 //				{
 //					grp->add(volume);
@@ -700,7 +679,7 @@
 //			else
 //			{
 //				// if key is not found
-//				this->m_groups.emplace(group, std::make_shared<hittable_list>(volume));
+//				this->m_groups.emplace(group, new hittable_list(volume));
 //			}
 //		}
 //		else
@@ -714,21 +693,21 @@
 //    return *this;
 //}
 //
-//scene_builder& scene_builder::addVolume(std::string name, std::string boundaryObjectName, double density, const color& rgb, const std::string& group)
+//scene_builder& scene_builder::addVolume(const char* name, const char* boundaryObjectName, float density, const color& rgb, const char* group)
 //{
 //    auto boundaryObject = this->m_objects.get(boundaryObjectName);
 //    if (boundaryObject)
 //    {
 //        auto volume = scene_factory::createVolume(name, boundaryObject, density, rgb);
 //
-//		if (!group.empty())
+//        if (group != nullptr && group[0] != '\0')
 //		{
 //			auto it = this->m_groups.find(group);
 //
 //			if (it != this->m_groups.end())
 //			{
 //				// if key is found
-//				std::shared_ptr<hittable_list> grp = it->second;
+//                hittable_list* grp = it->second;
 //				if (grp)
 //				{
 //					grp->add(volume);
@@ -737,7 +716,7 @@
 //			else
 //			{
 //				// if key is not found
-//				this->m_groups.emplace(group, std::make_shared<hittable_list>(volume));
+//				this->m_groups.emplace(group, new hittable_list(volume));
 //			}
 //		}
 //		else
@@ -751,18 +730,18 @@
 //    return *this;
 //}
 //
-//scene_builder& scene_builder::addMesh(std::string name, point3 pos, const std::string& filepath, const std::string& materialName, bool use_mtl, bool use_smoothing, const std::string& group)
+//scene_builder& scene_builder::addMesh(const char* name, point3 pos, const char* filepath, const char* materialName, bool use_mtl, bool use_smoothing, const char* group)
 //{
 //    auto mesh = scene_factory::createMesh(name, pos, filepath, fetchMaterial(materialName), use_mtl, use_smoothing);
 //
-//    if (!group.empty())
+//    if (group != nullptr && group[0] != '\0')
 //    {
 //        auto it = this->m_groups.find(group);
 //
 //        if (it != this->m_groups.end())
 //        {
 //            // if key is found
-//            std::shared_ptr<hittable_list> grp = it->second;
+//            hittable_list* grp = it->second;
 //            if (grp)
 //            {
 //                grp->add(mesh);
@@ -771,7 +750,7 @@
 //        else
 //        {
 //            // if key is not found
-//            this->m_groups.emplace(group, std::make_shared<hittable_list>(mesh));
+//            this->m_groups.emplace(group, new hittable_list(mesh));
 //        }
 //    }
 //    else
@@ -782,7 +761,7 @@
 //	return *this;
 //}
 //
-//scene_builder& scene_builder::addGroup(std::string name, bool& isUsed)
+//scene_builder& scene_builder::addGroup(const char* name, bool& isUsed)
 //{
 //    isUsed = false;
 //    
@@ -790,10 +769,15 @@
 //
 //    if (it != this->m_groups.end())
 //    {
-//        std::shared_ptr<hittable_list> group_objects = it->second;
+//        hittable_list* group_objects = it->second;
 //        if (group_objects)
 //        {
-//            auto bvh_group = std::make_shared<bvh_node>(*group_objects, name);
+//            // ?????????????????????????
+//            int seed = 7896333;
+//            thrust::minstd_rand rng(seed);
+//
+//            
+//            auto bvh_group = new bvh_node(group_objects->objects, 0, group_objects->object_count, rng, name);
 //            this->m_objects.add(bvh_group);
 //
 //            isUsed = true;
@@ -803,24 +787,24 @@
 //    return *this;
 //}
 //
-//scene_builder& scene_builder::translate(const vector3& vector, std::string name)
+//scene_builder& scene_builder::translate(const vector3& vector, const char* name)
 //{
-//    if (!name.empty())
+//    if (name != nullptr && name[0] != '\0')
 //    {
-//        auto& found = this->m_objects.get(name);
+//        hittable* found = this->m_objects.get(name);
 //        if (found)
 //        {
-//            found = std::make_shared<rt::translate>(found, vector);
+//            found = new rt::translate(found, vector);
 //        }
 //        else
 //        {
 //            // search in groups
 //            for (auto& group : this->m_groups)
 //            {
-//                auto& found2 = group.second->get(name);
+//                hittable* found2 = group.second->get(name);
 //                if (found2)
 //                {
-//                    found2 = std::make_shared<rt::translate>(found2, vector);
+//                    found2 = new rt::translate(found2, vector);
 //                    break;
 //                }
 //            }
@@ -828,38 +812,36 @@
 //    }
 //    else
 //    {
-//        std::shared_ptr<hittable> back = this->m_objects.back();
+//        hittable* back = this->m_objects.back();
 //        std::string n = back->getName();
 //        if (n == name)
 //        {
-//            this->m_objects.back() = std::make_shared<rt::translate>(back, vector);
+//            hittable* tmp = this->m_objects.back();
+//            tmp = new rt::translate(back, vector);
 //        }
 //    }
 //
 //    return *this;
 //}
 //
-//scene_builder& scene_builder::rotate(const vector3& vector, std::string name)
+//scene_builder& scene_builder::rotate(const vector3& vector, const char* name)
 //{
-//   /* this->m_objects.back() = std::make_shared<rt::rotate>(this->m_objects.back(), vector);
-//    return *this;*/
-//
-//    if (!name.empty())
+//    if (name != nullptr && name[0] != '\0')
 //    {
-//        auto& found = this->m_objects.get(name);
+//        hittable* found = this->m_objects.get(name);
 //        if (found)
 //        {
-//            found = std::make_shared<rt::rotate>(found, vector);
+//            found = new rt::rotate(found, vector);
 //        }
 //        else
 //        {
 //            // search in groups
 //            for (auto& group : this->m_groups)
 //            {
-//                auto& found2 = group.second->get(name);
+//                hittable* found2 = group.second->get(name);
 //                if (found2)
 //                {
-//                    found2 = std::make_shared<rt::rotate>(found2, vector);
+//                    found2 = new rt::rotate(found2, vector);
 //                    break;
 //                }
 //            }
@@ -867,38 +849,36 @@
 //    }
 //    else
 //    {
-//        std::shared_ptr<hittable> back = this->m_objects.back();
-//        std::string n = back->getName();
+//        hittable* back = this->m_objects.back();
+//        char* n = back->getName();
 //        if (n == name)
 //        {
-//            this->m_objects.back() = std::make_shared<rt::rotate>(back, vector);
+//            hittable* tmp = this->m_objects.back();
+//            tmp = new rt::rotate(back, vector);
 //        }
 //    }
 //
 //    return *this;
 //}
 //
-//scene_builder& scene_builder::scale(const vector3& vector, std::string name)
+//scene_builder& scene_builder::scale(const vector3& vector, const char* name)
 //{
-//    /*this->m_objects.back() = std::make_shared<rt::scale>(this->m_objects.back(), vector);
-//    return *this;*/
-//
-//    if (!name.empty())
+//    if (name != nullptr && name[0] != '\0')
 //    {
-//        auto& found = this->m_objects.get(name);
+//        hittable* found = this->m_objects.get(name);
 //        if (found)
 //        {
-//            found = std::make_shared<rt::scale>(found, vector);
+//            found = new  rt::scale(found, vector);
 //        }
 //        else
 //        {
 //            // search in groups
 //            for (auto& group : this->m_groups)
 //            {
-//                auto& found2 = group.second->get(name);
+//                hittable* found2 = group.second->get(name);
 //                if (found2)
 //                {
-//                    found2 = std::make_shared<rt::scale>(found2, vector);
+//                    found2 = new rt::scale(found2, vector);
 //                    break;
 //                }
 //            }
@@ -906,20 +886,21 @@
 //    }
 //    else
 //    {
-//        std::shared_ptr<hittable> back = this->m_objects.back();
+//        hittable* back = this->m_objects.back();
 //        std::string n = back->getName();
 //        if (n == name)
 //        {
-//            this->m_objects.back() = std::make_shared<rt::scale>(back, vector);
+//            hittable* tmp = this->m_objects.back();
+//            tmp= new rt::scale(back, vector);
 //        }
 //    }
 //
 //    return *this;
 //}
 //
-//std::shared_ptr<material> scene_builder::fetchMaterial(const std::string& name)
+//material* scene_builder::fetchMaterial(const char* name)
 //{
-//    if (!name.empty())
+//    if (name != nullptr && name[0] != '\0')
 //    {
 //        auto it = this->m_materials.find(name);
 //
@@ -939,9 +920,9 @@
 //    return nullptr;
 //}
 //
-//std::shared_ptr<texture> scene_builder::fetchTexture(const std::string& name)
+//texture* scene_builder::fetchTexture(const char* name)
 //{
-//    if (!name.empty())
+//    if (name != nullptr && name[0] != '\0')
 //    {
 //        auto it = this->m_textures.find(name);
 //

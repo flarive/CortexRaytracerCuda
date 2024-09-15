@@ -37,5 +37,5 @@ __host__ __device__ perlin_noise_texture::perlin_noise_texture(double sc) : scal
 __host__ __device__ color perlin_noise_texture::value(float u, float v, const point3& p) const
 {
     auto s = scale * p;
-    return color(1, 1, 1) * 0.5f * (1 + sin(s.z + 10 * noise.turb(s)));
+    return color(1, 1, 1) * 0.5f * (1 + sin(s.z + 10 * noise.turb(10.0f, s))); // 10.0f ?????????????
 }

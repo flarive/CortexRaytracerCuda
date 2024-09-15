@@ -7,11 +7,11 @@ public:
     __host__ __device__ xy_rect(float _x0, float _x1, float _y0, float _y1, float _k, material* mat, const char* _name = nullptr);
     __host__ __device__ xy_rect(float _x0, float _x1, float _y0, float _y1, float _k, material* mat, const uvmapping& _mapping, const char* _name = nullptr);
 
-    __device__ float pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const override;
+    __device__ float pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const override;
 
-    __device__ vector3 random(const vector3& o, curandState* local_rand_state) const override;
+    __device__ vector3 random(const vector3& o, thrust::default_random_engine& rng) const override;
 
-    __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const override;
+    __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const override;
     __host__ __device__ aabb bounding_box() const override;
 
     __host__ __device__ HittableTypeID getTypeID() const override { return HittableTypeID::hittableAaRectType; }
@@ -46,7 +46,7 @@ __host__ __device__ xy_rect::xy_rect(float _x0, float _x1, float _y0, float _y1,
     m_bbox = aabb(point3(x0, y0, k - 0.0001f), point3(x1, y1, k + 0.0001f));
 }
 
-__device__ bool xy_rect::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const
+__device__ bool xy_rect::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
     double t = (k - r.origin().z) / r.direction().z;
     if (t < ray_t.min || t > ray_t.max)
@@ -70,12 +70,12 @@ __device__ bool xy_rect::hit(const ray& r, interval ray_t, hit_record& rec, int 
     return true;
 }
 
-__device__ float xy_rect::pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const
+__device__ float xy_rect::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
 {
     return 0.0f;
 }
 
-__device__ vector3 xy_rect::random(const vector3& o, curandState* local_rand_state) const
+__device__ vector3 xy_rect::random(const vector3& o, thrust::default_random_engine& rng) const
 {
     return vector3(1, 0, 0);
 }
@@ -125,11 +125,11 @@ public:
     __host__ __device__ xz_rect(float _x0, float _x1, float _z0, float _z1, float _k, material* mat, const char* _name = nullptr);
     __host__ __device__ xz_rect(float _x0, float _x1, float _z0, float _z1, float _k, material* mat, const uvmapping& _mapping, const char* _name = nullptr);
 
-    __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const override;
+    __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const override;
 
-    __device__ float pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const override;
+    __device__ float pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const override;
 
-    __device__ vector3 random(const vector3& o, curandState* local_rand_state) const override;
+    __device__ vector3 random(const vector3& o, thrust::default_random_engine& rng) const override;
 
     __host__ __device__ aabb bounding_box() const override;
 
@@ -166,7 +166,7 @@ __host__ __device__ xz_rect::xz_rect(float _x0, float _x1, float _z0, float _z1,
     m_bbox = aabb(vector3(x0, k - 0.0001f, z0), vector3(x1, k + 0.0001f, z1));
 }
 
-__device__ bool xz_rect::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const
+__device__ bool xz_rect::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
     double t = (k - r.origin().y) / r.direction().y;
     if (t < ray_t.min || t > ray_t.max)
@@ -195,12 +195,12 @@ __host__ __device__ aabb xz_rect::bounding_box() const
     return m_bbox;
 }
 
-__device__ float xz_rect::pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const
+__device__ float xz_rect::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
 {
     return 0.0f;
 }
 
-__device__ vector3 xz_rect::random(const vector3& o, curandState* local_rand_state) const
+__device__ vector3 xz_rect::random(const vector3& o, thrust::default_random_engine& rng) const
 {
     return vector3(1, 0, 0);
 }
@@ -248,11 +248,11 @@ public:
     __host__ __device__ yz_rect(float _y0, float _y1, float _z0, float _z1, float _k, material* mat, const char* _name = nullptr);
     __host__ __device__ yz_rect(float _y0, float _y1, float _z0, float _z1, float _k, material* mat, const uvmapping& _mapping, const char* _name = nullptr);
 
-    __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const override;
+    __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const override;
 
-    __device__ float pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const override;
+    __device__ float pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const override;
 
-    __device__ vector3 random(const vector3& o, curandState* local_rand_state) const override;
+    __device__ vector3 random(const vector3& o, thrust::default_random_engine& rng) const override;
 
     __host__ __device__ aabb bounding_box() const override;
 
@@ -289,7 +289,7 @@ __host__ __device__ yz_rect::yz_rect(float _y0, float _y1, float _z0, float _z1,
 }
 
 
-__device__ bool yz_rect::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const
+__device__ bool yz_rect::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
     double t = (k - r.origin().x) / r.direction().x;
     if (t < ray_t.min || t > ray_t.max)
@@ -313,12 +313,12 @@ __device__ bool yz_rect::hit(const ray& r, interval ray_t, hit_record& rec, int 
     return true;
 }
 
-__device__ float yz_rect::pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const
+__device__ float yz_rect::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
 {
     return 0.0;
 }
 
-__device__ vector3 yz_rect::random(const vector3& o, curandState* local_rand_state) const
+__device__ vector3 yz_rect::random(const vector3& o, thrust::default_random_engine& rng) const
 {
     return vector3(1, 0, 0);
 }

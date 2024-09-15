@@ -30,7 +30,7 @@ public:
     /// <param name="i"></param>
     /// <param name="j"></param>
     /// <returns></returns>
-    __device__ const ray get_ray(float i, float j, int s_i, int s_j, sampler* aa_sampler, curandState* local_rand_state) const override;
+    __device__ const ray get_ray(float i, float j, int s_i, int s_j, sampler* aa_sampler, thrust::default_random_engine& rng) const override;
 };
 
 
@@ -106,16 +106,16 @@ __device__ inline void perspective_camera::initialize(vector3 lookfrom, vector3 
     defocus_disk_v = v * defocus_radius;
 }
 
-__device__ inline const ray perspective_camera::get_ray(float s, float t, int s_i, int s_j, sampler* aa_sampler, curandState* local_rand_state) const
+__device__ inline const ray perspective_camera::get_ray(float s, float t, int s_i, int s_j, sampler* aa_sampler, thrust::default_random_engine& rng) const
 {
-    vector3 ray_direction = lens_radius * random_in_unit_disk(local_rand_state);
+    vector3 ray_direction = lens_radius * random_in_unit_disk(rng);
     vector3 offset = u * ray_direction.x + v * ray_direction.y;
-    float time = time0 + curand_uniform(local_rand_state) * (time1 - time0);
+    float time = time0 + get_real(rng) * (time1 - time0);
 
     return ray(origin + offset, lower_left_corner + s * horizontal + t * vertical - origin - offset, time);
 }
 
-//__device__ inline const ray perspective_camera::get_ray(float s, float t, int s_i, int s_j, sampler* aa_sampler, curandState* local_rand_state) const
+//__device__ inline const ray perspective_camera::get_ray(float s, float t, int s_i, int s_j, sampler* aa_sampler, thrust::default_random_engine& rng) const
 //{
 //    vector3 pixel_center = pixel00_loc + (vector3(s) * pixel_delta_u) + (vector3(t) * pixel_delta_v);
 //
@@ -127,7 +127,7 @@ __device__ inline const ray perspective_camera::get_ray(float s, float t, int s_
 //    if (aa_sampler)
 //    {
 //        // using given anti aliasing sampler
-//        pixel_sample = pixel_center + aa_sampler->generate_samples(s_i, s_j, local_rand_state);
+//        pixel_sample = pixel_center + aa_sampler->generate_samples(s_i, s_j, rng);
 //    }
 //    else
 //    {
@@ -136,9 +136,9 @@ __device__ inline const ray perspective_camera::get_ray(float s, float t, int s_
 //    }
 //
 //
-//    auto ray_origin = (defocus_angle <= 0) ? center : defocus_disk_sample(local_rand_state);
+//    auto ray_origin = (defocus_angle <= 0) ? center : defocus_disk_sample(rng);
 //    auto ray_direction = pixel_sample - ray_origin;
-//    auto ray_time = get_real(local_rand_state); // for motion blur
+//    auto ray_time = get_real(rng); // for motion blur
 //
 //    return ray(ray_origin, ray_direction, static_cast<int>(s), static_cast<int>(t), ray_time);
 //}

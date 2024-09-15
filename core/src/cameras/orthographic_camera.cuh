@@ -30,7 +30,7 @@ public:
     /// <param name="i"></param>
     /// <param name="j"></param>
     /// <returns></returns>
-    __device__ const ray get_ray(float i, float j, int s_i, int s_j, sampler* aa_sampler, curandState* local_rand_state) const override;
+    __device__ const ray get_ray(float i, float j, int s_i, int s_j, sampler* aa_sampler, thrust::default_random_engine& rng) const override;
 };
 
 
@@ -118,14 +118,14 @@ __device__ inline void orthographic_camera::initialize(vector3 lookfrom, vector3
 /// In an orthographic camera, rays are parallel, meaning the direction remains constant for all rays.
 /// The position of the ray, however, changes depending on the screen space coordinates (s, t), but there is no perspective distortion or depth scaling.
 /// </summary>
-__device__ inline const ray orthographic_camera::get_ray(float s, float t, int s_i, int s_j, sampler* aa_sampler, curandState* local_rand_state) const
+__device__ inline const ray orthographic_camera::get_ray(float s, float t, int s_i, int s_j, sampler* aa_sampler, thrust::default_random_engine& rng) const
 {
     // Generate a random point on the lens (for depth of field, if needed)
-    vector3 ray_direction = lens_radius * random_in_unit_disk(local_rand_state);
+    vector3 ray_direction = lens_radius * random_in_unit_disk(rng);
     vector3 offset = u * ray_direction.x + v * ray_direction.y;
 
     // Ray time for motion blur (if applicable)
-    float time = time0 + curand_uniform(local_rand_state) * (time1 - time0);
+    float time = time0 + get_real(rng) * (time1 - time0);
 
     // Calculate the position on the viewport based on the normalized (s, t) coordinates
     vector3 ray_origin = lower_left_corner + s * horizontal + t * vertical;

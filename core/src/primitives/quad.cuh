@@ -11,13 +11,13 @@ public:
 
 
 
-    __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const override;
+    __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const override;
 
 
     
 
 
-    __device__ float pdf_value(const point3& origin, const vector3& v, int max_depth, curandState* local_rand_state) const override;
+    __device__ float pdf_value(const point3& origin, const vector3& v, int max_depth, thrust::default_random_engine& rng) const override;
 
 
     /// <summary>
@@ -25,7 +25,7 @@ public:
     /// </summary>
     /// <param name="origin"></param>
     /// <returns></returns>
-    __device__ vector3 random(const point3& origin, curandState* local_rand_state) const override;
+    __device__ vector3 random(const point3& origin, thrust::default_random_engine& rng) const override;
 
     __host__ __device__ HittableTypeID getTypeID() const override { return HittableTypeID::hittableQuadType; }
 
@@ -97,7 +97,7 @@ __host__ __device__ aabb quad::bounding_box() const
     return m_bbox;
 }
 
-__device__ bool quad::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const
+__device__ bool quad::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
     auto denom = glm::dot(m_normal, r.direction());
 
@@ -132,11 +132,11 @@ __device__ bool quad::hit(const ray& r, interval ray_t, hit_record& rec, int dep
     return true;
 }
 
-__device__ float quad::pdf_value(const point3& origin, const vector3& v, int max_depth, curandState* local_rand_state) const
+__device__ float quad::pdf_value(const point3& origin, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
 {
     hit_record rec;
 
-    if (!this->hit(ray(origin, v), interval(SHADOW_ACNE_FIX, INFINITY), rec, 0, max_depth, local_rand_state))
+    if (!this->hit(ray(origin, v), interval(SHADOW_ACNE_FIX, INFINITY), rec, 0, max_depth, rng))
         return 0;
 
     auto distance_squared = rec.t * rec.t * vector_length_squared(v);
@@ -150,11 +150,11 @@ __device__ float quad::pdf_value(const point3& origin, const vector3& v, int max
 /// </summary>
 /// <param name="origin"></param>
 /// <returns></returns>
-__device__ vector3 quad::random(const point3& origin, curandState* local_rand_state) const
+__device__ vector3 quad::random(const point3& origin, thrust::default_random_engine& rng) const
 {
     auto p = m_position
-        + (get_real(local_rand_state) * m_u)
-        + (get_real(local_rand_state) * m_v);
+        + (get_real(rng) * m_u)
+        + (get_real(rng) * m_v);
 
     return p - origin;
 }

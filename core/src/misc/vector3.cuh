@@ -16,6 +16,8 @@
 #include <device_launch_parameters.h>
 #include <curand_kernel.h>
 
+#include <thrust/random.h>
+
 #include <Eigen/Eigen/Core>
 #include <Eigen/Eigen/StdVector>
 #include <Eigen/Eigen/Geometry>
@@ -99,9 +101,9 @@ __host__ __device__ inline vector3 unitv(vector3 v) {
 }
 
 //
-//#define RANDVEC3 vector3(curand_uniform(local_rand_state),curand_uniform(local_rand_state),curand_uniform(local_rand_state))
+//#define RANDVEC3 vector3(curand_uniform(rng),curand_uniform(rng),curand_uniform(rng))
 //
-//__device__ vector3 random_in_unit_sphere(curandState *local_rand_state) {
+//__device__ vector3 random_in_unit_sphere(curandState *rng) {
 //    vector3 p;
 //    do {
 //        p = 2.0f * RANDVEC3 - vector3(1, 1, 1);

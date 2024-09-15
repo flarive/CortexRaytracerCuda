@@ -87,7 +87,7 @@ public:
     /// <param name="r"></param>
     /// <param name="world"></param>
     /// <returns></returns>
-    __device__ virtual const ray get_ray(float i, float j, int s_i, int s_j, sampler* aa_sampler, curandState* local_rand_state) const = 0;
+    __device__ virtual const ray get_ray(float i, float j, int s_i, int s_j, sampler* aa_sampler, thrust::default_random_engine& rng) const = 0;
 
     /// <summary>
     /// Calculate ray color
@@ -97,7 +97,7 @@ public:
     /// <param name="_scene"></param>
     /// <param name="random"></param>
     /// <returns></returns>
-    __device__ virtual color ray_color(const ray& r, int i, int j, int depth, int max_depth, hittable_list& _world, hittable_list& _lights, curandState* local_rand_state);
+    __device__ virtual color ray_color(const ray& r, int i, int j, int depth, int max_depth, hittable_list& _world, hittable_list& _lights, thrust::default_random_engine& rng);
 
 
     //vector3 origin;
@@ -133,7 +133,7 @@ protected:
 
 
 
-    __device__ point3 defocus_disk_sample(curandState* local_rand_state) const;
+    __device__ point3 defocus_disk_sample(thrust::default_random_engine& rng) const;
 
     __device__ vector3 direction_from(const point3& light_pos, const point3& hit_point) const;
 
@@ -144,7 +144,7 @@ protected:
 /// <summary>
 /// New iterative version (no recursion)
 /// </summary>
-__device__ inline color camera::ray_color(const ray& r, int i, int j, int depth, int max_depth, hittable_list& _world, hittable_list& _lights, curandState* local_rand_state)
+__device__ inline color camera::ray_color(const ray& r, int i, int j, int depth, int max_depth, hittable_list& _world, hittable_list& _lights, thrust::default_random_engine& rng)
 {
     color result_color = color::black();
     color current_attenuation = color(1.0f, 1.0f, 1.0f); // Initialize attenuation to full (no color loss)
@@ -156,7 +156,7 @@ __device__ inline color camera::ray_color(const ray& r, int i, int j, int depth,
         hit_record rec;
 
         // Check if the ray hits an object in the world
-        if (!_world.hit(current_ray, interval(SHADOW_ACNE_FIX, FLT_MAX), rec, current_depth, max_depth, local_rand_state))
+        if (!_world.hit(current_ray, interval(SHADOW_ACNE_FIX, FLT_MAX), rec, current_depth, max_depth, rng))
         {
             // If the ray hits nothing, return the background color
             vector3 unit_dir = unit_vector(current_ray.direction());
@@ -172,16 +172,16 @@ __device__ inline color camera::ray_color(const ray& r, int i, int j, int depth,
         }
 
         scatter_record srec;
-        color emitted = rec.mat->emitted(current_ray, rec, rec.u, rec.v, rec.hit_point, local_rand_state);
+        color emitted = rec.mat->emitted(current_ray, rec, rec.u, rec.v, rec.hit_point, rng);
 
         // Handle invisible primitives (like lights) if necessary
         if (emitted.a() == 0.0f)
         {
-            _world.hit(current_ray, interval(rec.t + 0.001f, FLT_MAX), rec, current_depth, max_depth, local_rand_state);
+            _world.hit(current_ray, interval(rec.t + 0.001f, FLT_MAX), rec, current_depth, max_depth, rng);
         }
 
         // If the material doesn't scatter, accumulate the emitted light and stop
-        if (!rec.mat->scatter(current_ray, _lights, rec, srec, local_rand_state))
+        if (!rec.mat->scatter(current_ray, _lights, rec, srec, rng))
         {
             result_color += current_attenuation * emitted;
             break;
@@ -203,8 +203,8 @@ __device__ inline color camera::ray_color(const ray& r, int i, int j, int depth,
         mixture_pdf mpdf(&hpdf, srec.pdf_ptr);
 
         // Sample the new ray direction using mixture PDF
-        ray scattered = ray(rec.hit_point, mpdf.generate(srec, local_rand_state), current_ray.time());
-        float pdf_val = mpdf.value(scattered.direction(), max_depth, local_rand_state);
+        ray scattered = ray(rec.hit_point, mpdf.generate(srec, rng), current_ray.time());
+        float pdf_val = mpdf.value(scattered.direction(), max_depth, rng);
         float scattering_pdf = rec.mat->scattering_pdf(current_ray, rec, scattered);
 
         // Update attenuation (how much light is lost at each bounce)
@@ -221,10 +221,10 @@ __device__ inline color camera::ray_color(const ray& r, int i, int j, int depth,
             ray ray_behind(rec.hit_point, current_ray.direction(), current_ray.x, current_ray.y, current_ray.time());
 
             hit_record rec_behind;
-            if (_world.hit(ray_behind, interval(0.001f, INFINITY), rec_behind, current_depth, max_depth, local_rand_state))
+            if (_world.hit(ray_behind, interval(0.001f, INFINITY), rec_behind, current_depth, max_depth, rng))
             {
                 scatter_record srec_behind;
-                color background_infrontof = ray_color(ray_behind, i, j, current_depth - 1, max_depth, _world, _lights, local_rand_state);
+                color background_infrontof = ray_color(ray_behind, i, j, current_depth - 1, max_depth, _world, _lights, rng);
 
                 // Blend colors using alpha values
                 if (double_sided)
@@ -265,7 +265,7 @@ __device__ inline color camera::ray_color(const ray& r, int i, int j, int depth,
 
 
 
-//__device__ inline color camera::ray_color(const ray& r, int i, int j, int depth, int max_depth, hittable_list& _world, hittable_list& _lights, curandState* local_rand_state)
+//__device__ inline color camera::ray_color(const ray& r, int i, int j, int depth, int max_depth, hittable_list& _world, hittable_list& _lights, thrust::default_random_engine& rng)
 //{
 //    // If we've exceeded the ray bounce limit, no more light is gathered.
 //    if (depth <= 0)
@@ -279,7 +279,7 @@ __device__ inline color camera::ray_color(const ray& r, int i, int j, int depth,
 //
 //    // If the ray hits nothing, return the background color.
 //    // 0.001 is to fix shadow acne interval
-//    if (!_world.hit(r, interval(SHADOW_ACNE_FIX, FLT_MAX), rec, depth, max_depth, local_rand_state))
+//    if (!_world.hit(r, interval(SHADOW_ACNE_FIX, FLT_MAX), rec, depth, max_depth, rng))
 //    {
 //        if (background_texture)
 //        {
@@ -293,16 +293,16 @@ __device__ inline color camera::ray_color(const ray& r, int i, int j, int depth,
 //
 //    // ray hit a world object
 //    scatter_record srec;
-//    color color_from_emission = rec.mat->emitted(r, rec, rec.u, rec.v, rec.hit_point, local_rand_state);
+//    color color_from_emission = rec.mat->emitted(r, rec, rec.u, rec.v, rec.hit_point, rng);
 //
 //    // hack for invisible primitives (such as lights)
 //    if (color_from_emission.a() == 0.0f)
 //    {
 //        // rethrow a new ray
-//        _world.hit(r, interval(rec.t + 0.001f, FLT_MAX), rec, depth, max_depth, local_rand_state);
+//        _world.hit(r, interval(rec.t + 0.001f, FLT_MAX), rec, depth, max_depth, rng);
 //    }
 //
-//    if (!rec.mat->scatter(r, _lights, rec, srec, local_rand_state))
+//    if (!rec.mat->scatter(r, _lights, rec, srec, rng))
 //    {
 //        return color_from_emission;
 //    }
@@ -313,13 +313,13 @@ __device__ inline color camera::ray_color(const ray& r, int i, int j, int depth,
 //    {
 //        // no lights
 //        // no importance sampling
-//        return srec.attenuation * ray_color(srec.skip_pdf_ray, i, j, depth - 1, max_depth, _world, _lights, local_rand_state);
+//        return srec.attenuation * ray_color(srec.skip_pdf_ray, i, j, depth - 1, max_depth, _world, _lights, rng);
 //    }
 //
 //    // no importance sampling
 //    if (srec.skip_pdf)
 //    {
-//        return srec.attenuation * ray_color(srec.skip_pdf_ray, i, j, depth - 1, max_depth, _world, _lights, local_rand_state);
+//        return srec.attenuation * ray_color(srec.skip_pdf_ray, i, j, depth - 1, max_depth, _world, _lights, rng);
 //    }
 //
 //
@@ -338,8 +338,8 @@ __device__ inline color camera::ray_color(const ray& r, int i, int j, int depth,
 //        mpdf = mixture_pdf(&hpdf, srec.pdf_ptr);
 //    }
 //
-//    ray scattered = ray(rec.hit_point, mpdf.generate(srec, local_rand_state), r.time());
-//    float pdf_val = mpdf.value(scattered.direction(), local_rand_state);
+//    ray scattered = ray(rec.hit_point, mpdf.generate(srec, rng), r.time());
+//    float pdf_val = mpdf.value(scattered.direction(), rng);
 //    float scattering_pdf = rec.mat->scattering_pdf(r, rec, scattered);
 //
 //    color final_color(0, 0, 0);
@@ -354,24 +354,24 @@ __device__ inline color camera::ray_color(const ray& r, int i, int j, int depth,
 //            color background_behind = rec.mat->get_diffuse_pixel_color(rec);
 //
 //            ray ray_behind(rec.hit_point, r.direction(), r.x, r.y, r.time());
-//            color background_infrontof = ray_color(ray_behind, i, j, depth - 1, max_depth, _world, _lights, local_rand_state);
+//            color background_infrontof = ray_color(ray_behind, i, j, depth - 1, max_depth, _world, _lights, rng);
 //
 //            hit_record rec_behind;
-//            if (_world.hit(ray_behind, interval(0.001f, INFINITY), rec_behind, depth, max_depth, local_rand_state))
+//            if (_world.hit(ray_behind, interval(0.001f, INFINITY), rec_behind, depth, max_depth, rng))
 //            {
 //                // another object is behind the alpha textured object, display it behind
 //                scatter_record srec_behind;
 //
 //                if (double_sided)
 //                {
-//                    if (rec_behind.mat->scatter(ray_behind, _lights, rec_behind, srec_behind, local_rand_state))
+//                    if (rec_behind.mat->scatter(ray_behind, _lights, rec_behind, srec_behind, rng))
 //                    {
 //                        final_color = color::blend_colors(background_behind, background_infrontof, srec.alpha_value);
 //                    }
 //                }
 //                else
 //                {
-//                    if (rec_behind.mat->scatter(ray_behind, _lights, rec_behind, srec_behind, local_rand_state) && rec.front_face)
+//                    if (rec_behind.mat->scatter(ray_behind, _lights, rec_behind, srec_behind, rng) && rec.front_face)
 //                    {
 //                        final_color = color::blend_colors(background_behind, background_infrontof, srec.alpha_value);
 //                    }
@@ -386,7 +386,7 @@ __device__ inline color camera::ray_color(const ray& r, int i, int j, int depth,
 //                // no other object behind the alpha textured object, just display background image
 //                if (double_sided)
 //                {
-//                    final_color = color::blend_colors(color_from_emission + background_behind, ray_color(ray(rec.hit_point, r.direction(), r.x, r.y, r.time()), i, j, depth - 1, max_depth, _world, _lights, local_rand_state), srec.alpha_value);
+//                    final_color = color::blend_colors(color_from_emission + background_behind, ray_color(ray(rec.hit_point, r.direction(), r.x, r.y, r.time()), i, j, depth - 1, max_depth, _world, _lights, rng), srec.alpha_value);
 //                }
 //                else
 //                {
@@ -397,21 +397,21 @@ __device__ inline color camera::ray_color(const ray& r, int i, int j, int depth,
 //        else
 //        {
 //            // render opaque object
-//            color color_from_scatter = ray_color(scattered, i, j, depth - 1, max_depth, _world, _lights, local_rand_state) / pdf_val;
+//            color color_from_scatter = ray_color(scattered, i, j, depth - 1, max_depth, _world, _lights, rng) / pdf_val;
 //            final_color = color_from_emission + srec.attenuation * scattering_pdf * color_from_scatter;
 //        }
 //    }
 //    else
 //    {
 //        // with background color
-//        color sample_color = ray_color(scattered, i, j, depth - 1, max_depth, _world, _lights, local_rand_state);
+//        color sample_color = ray_color(scattered, i, j, depth - 1, max_depth, _world, _lights, rng);
 //        color color_from_scatter = (srec.attenuation * scattering_pdf * sample_color) / pdf_val;
 //
 //        bool double_sided = false;
 //        if (rec.mat->has_alpha_texture(double_sided))
 //        {
 //            // render transparent object (having an alpha texture)
-//            final_color = color::blend_colors(color_from_emission + color_from_scatter, ray_color(ray(rec.hit_point, r.direction(), r.x, r.y, r.time()), i, j, depth - 1, max_depth, _world, _lights, local_rand_state), srec.alpha_value);
+//            final_color = color::blend_colors(color_from_emission + color_from_scatter, ray_color(ray(rec.hit_point, r.direction(), r.x, r.y, r.time()), i, j, depth - 1, max_depth, _world, _lights, rng), srec.alpha_value);
 //        }
 //        else
 //        {
@@ -426,7 +426,7 @@ __device__ inline color camera::ray_color(const ray& r, int i, int j, int depth,
 
 
 // old partial not recursive
-//__device__ inline color camera::ray_color(const ray& r, int i, int j, int depth, int max_depth, hittable_list& _world, hittable_list& _lights, curandState* local_rand_state)
+//__device__ inline color camera::ray_color(const ray& r, int i, int j, int depth, int max_depth, hittable_list& _world, hittable_list& _lights, thrust::default_random_engine& rng)
 //{
 //    color result_color = color::black();
 //    ray current_ray = r;
@@ -435,15 +435,15 @@ __device__ inline color camera::ray_color(const ray& r, int i, int j, int depth,
 //    for (int current_depth = max_depth; current_depth > 0; --current_depth)
 //    {
 //        hit_record rec;
-//        if (!_world.hit(current_ray, interval(SHADOW_ACNE_FIX, FLT_MAX), rec, current_depth, max_depth, local_rand_state))
+//        if (!_world.hit(current_ray, interval(SHADOW_ACNE_FIX, FLT_MAX), rec, current_depth, max_depth, rng))
 //        {
 //            break;
 //        }
 //
 //        scatter_record srec;
-//        color emitted = rec.mat->emitted(current_ray, rec, rec.u, rec.v, rec.hit_point, local_rand_state);
+//        color emitted = rec.mat->emitted(current_ray, rec, rec.u, rec.v, rec.hit_point, rng);
 //
-//        if (!rec.mat->scatter(current_ray, _lights, rec, srec, local_rand_state))
+//        if (!rec.mat->scatter(current_ray, _lights, rec, srec, rng))
 //        {
 //            result_color += current_attenuation * emitted;
 //            break;
@@ -452,8 +452,8 @@ __device__ inline color camera::ray_color(const ray& r, int i, int j, int depth,
 //        hittable_pdf hpdf(_lights, rec.hit_point);
 //        mixture_pdf mpdf(&hpdf, srec.pdf_ptr);
 //
-//        ray scattered = ray(rec.hit_point, mpdf.generate(srec, local_rand_state), current_ray.time());
-//        float pdf_val = mpdf.value(scattered.direction(), local_rand_state);
+//        ray scattered = ray(rec.hit_point, mpdf.generate(srec, rng), current_ray.time());
+//        float pdf_val = mpdf.value(scattered.direction(), rng);
 //        float scattering_pdf = rec.mat->scattering_pdf(current_ray, rec, scattered);
 //
 //        result_color += current_attenuation * emitted;
@@ -470,10 +470,10 @@ __device__ inline color camera::ray_color(const ray& r, int i, int j, int depth,
 
 
 
-__device__ inline point3 camera::defocus_disk_sample(curandState* local_rand_state) const
+__device__ inline point3 camera::defocus_disk_sample(thrust::default_random_engine& rng) const
 {
     // Returns a random point in the camera defocus disk.
-    vector3 p = random_in_unit_disk(local_rand_state);
+    vector3 p = random_in_unit_disk(rng);
     return center + (p.x * defocus_disk_u) + (p.y * defocus_disk_v);
 }
 

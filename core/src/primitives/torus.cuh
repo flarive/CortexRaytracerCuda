@@ -16,11 +16,11 @@ public:
 	__host__ __device__ torus(point3 _center, float _majorRadius, float _minorRadius, material* _material, const char* _name = "Torus");
 	__host__ __device__ torus(point3 _center, float _majorRadius, float _minorRadius, material* _material, const uvmapping& _mapping, const char* _name = "Torus");
 
-	__device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const override;
+	__device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const override;
 
-    __device__ float pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const override;
+    __device__ float pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const override;
 
-    __device__ vector3 random(const vector3& o, curandState* local_rand_state) const override;
+    __device__ vector3 random(const vector3& o, thrust::default_random_engine& rng) const override;
 
 	__host__ __device__ aabb bounding_box() const override;
 
@@ -59,7 +59,7 @@ __host__ __device__ torus::torus(point3 _center, float _majorRadius, float _mino
 }
 
 
-__device__ bool torus::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const
+__device__ bool torus::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
 	//const vector3 d = r.direction();
 	//const vector3 e = r.origin() - center;
@@ -125,13 +125,13 @@ __device__ bool torus::hit(const ray& r, interval ray_t, hit_record& rec, int de
 }
 
 
-__device__ float torus::pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const
+__device__ float torus::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
 {
 	return 0.0f;
 }
 
 
-__device__ vector3 torus::random(const vector3& o, curandState* local_rand_state) const
+__device__ vector3 torus::random(const vector3& o, thrust::default_random_engine& rng) const
 {
     return vector3();
 }

@@ -5,6 +5,13 @@
 #include "../primitives/hittable_list.cuh"
 #include "../lights/light.cuh"
 #include "../misc/gpu_randomizer.cuh"
+#include "../pdf/sphere_pdf.cuh"
+
+#include "../textures/alpha_texture.cuh"
+#include "../textures/bump_texture.cuh"
+#include "../textures/normal_texture.cuh"
+#include "../textures/displacement_texture.cuh"
+#include "../textures/emissive_texture.cuh"
 
 /// <summary>
 /// Phong material
@@ -18,7 +25,7 @@ public:
 
     __host__ __device__ phong(texture* diffuseTexture, texture* specularTexture, texture* bumpTexture, texture* normalTexture, texture* displaceTexture, texture* alphaTexture, texture* emissiveTexture, const color& ambientColor, float shininess);
 
-    __device__ bool scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, curandState* local_rand_state) const override;
+    __device__ bool scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, thrust::default_random_engine& rng) const override;
 
     __host__ __device__ float scattering_pdf(const ray& r_in, const hit_record& rec, const ray& scattered) const override;
 
@@ -44,7 +51,7 @@ __host__ __device__ phong::phong(texture* diffuseTexture, texture* specularTextu
 }
 
 
-__device__ bool phong::scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, curandState* local_rand_state) const
+__device__ bool phong::scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, thrust::default_random_engine& rng) const
 {
     vector3 normalv = rec.normal;
 
@@ -196,9 +203,9 @@ __device__ bool phong::scatter(const ray& r_in, const hittable_list& lights, con
         }
     }
 
-    vector3 v = glm::normalize(-1.0 * (hit_point - r_in.origin()));
-    double nl = maxDot3(normalv, dirToLight);
-    vector3 r = glm::normalize((2.0 * nl * normalv) - dirToLight);
+    vector3 v = glm::normalize(-1.0f * (hit_point - r_in.origin()));
+    float nl = maxDot3(normalv, dirToLight);
+    vector3 r = glm::normalize((2.0f * nl * normalv) - dirToLight);
 
 
     // Combine the surface color with the light's color/intensity
@@ -208,7 +215,7 @@ __device__ bool phong::scatter(const ray& r_in, const hittable_list& lights, con
 
     // No refraction, only reflection
     srec.attenuation = final_color;
-    srec.pdf_ptr = std::make_shared<sphere_pdf>();
+    srec.pdf_ptr = new sphere_pdf();
     srec.skip_pdf = false;
 
     return true;

@@ -4,11 +4,18 @@
 #include "../misc/vector3.cuh"
 #include "../utilities/bitmap_image.cuh"
 
+//#define STB_IMAGE_IMPLEMENTATION
+//#define STB_IMAGE_WRITE_IMPLEMENTATION
+//#include <stb/stb_image.h>
+//#include <stb/stb_image_write.h>
+
 class image_texture : public texture
 {
 public:
     //__host__ __device__ image_texture() {}
-    __host__ __device__ image_texture(bitmap_image img) : m_image(img) {}
+    __host__ __device__ image_texture(bitmap_image img) : m_image(img)
+    {
+    }
 
     __host__ __device__ virtual TextureTypeID getTypeID() const { return TextureTypeID::textureImageType; }
 

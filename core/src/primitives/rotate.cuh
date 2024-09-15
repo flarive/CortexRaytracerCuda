@@ -25,9 +25,9 @@ namespace rt
 
         __host__ __device__ rotate(hittable* _p, const vector3& _rotation);
 
-        __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const override;
-        __device__ float pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const override;
-        __device__ vector3 random(const vector3& o, curandState* local_rand_state) const override;
+        __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const override;
+        __device__ float pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const override;
+        __device__ vector3 random(const vector3& o, thrust::default_random_engine& rng) const override;
         __host__ __device__ aabb bounding_box() const override;
 
         __host__ __device__ HittableTypeID getTypeID() const override { return HittableTypeID::hittableTransformRotateType; }
@@ -101,7 +101,7 @@ __host__ __device__ rt::rotate::rotate(hittable* _object, const vector3& _rotati
     bbox = aabb(min, max);
 }
 
-__device__ bool rt::rotate::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const
+__device__ bool rt::rotate::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
     // Change the ray from world space to object space
     auto origin = r.origin();
@@ -127,7 +127,7 @@ __device__ bool rt::rotate::hit(const ray& r, interval ray_t, hit_record& rec, i
         r.time());
 
     // Determine whether an intersection exists in object space (and if so, where)
-    if (!m_object->hit(rotated_r, ray_t, rec, depth, max_depth, local_rand_state))
+    if (!m_object->hit(rotated_r, ray_t, rec, depth, max_depth, rng))
         return false;
 
     // Change the intersection point from object space to world space
@@ -148,12 +148,12 @@ __device__ bool rt::rotate::hit(const ray& r, interval ray_t, hit_record& rec, i
     return true;
 }
 
-__device__ float  rt::rotate::pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const
+__device__ float  rt::rotate::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
 {
     return 0.0f;
 }
 
-__device__ vector3 rt::rotate::random(const vector3& o, curandState* local_rand_state) const
+__device__ vector3 rt::rotate::random(const vector3& o, thrust::default_random_engine& rng) const
 {
     return vector3();
 }

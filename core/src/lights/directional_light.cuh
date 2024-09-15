@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../materials/diffuse_light.cuh"
+
 /// <summary>
 /// Directional light
 /// </summary>
@@ -9,15 +11,15 @@ public:
     __host__ __device__ directional_light(const point3& _position, const vector3& _u, const vector3& _v, float _intensity, color _color, const char* _name = "QuadLight", bool _invisible = true);
 
 
-    __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const override;
-    __device__ float pdf_value(const point3& origin, const vector3& v, int max_depth, curandState* local_rand_state) const override;
+    __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const override;
+    __device__ float pdf_value(const point3& origin, const vector3& v, int max_depth, thrust::default_random_engine& rng) const override;
 
     /// <summary>
     /// Random special implementation for quad light (override base)
     /// </summary>
     /// <param name="origin"></param>
     /// <returns></returns>
-    __device__ vector3 random(const point3& origin, curandState* local_rand_state) const override;
+    __device__ vector3 random(const point3& origin, thrust::default_random_engine& rng) const override;
 
     __host__ __device__ void set_bounding_box();
     __host__ __device__ aabb bounding_box() const override;
@@ -71,7 +73,7 @@ __host__ __device__ aabb directional_light::bounding_box() const
     return m_bbox;
 }
 
-__device__ bool directional_light::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const
+__device__ bool directional_light::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
     float denom = glm::dot(m_normal, r.direction());
 
@@ -142,11 +144,11 @@ __host__ __device__ bool directional_light::is_interior(float a, float b, hit_re
     return true;
 }
 
-__device__ float directional_light::pdf_value(const point3& origin, const vector3& v, int max_depth, curandState* local_rand_state) const
+__device__ float directional_light::pdf_value(const point3& origin, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
 {
     hit_record rec;
 
-    if (!this->hit(ray(origin, v), interval(SHADOW_ACNE_FIX, INFINITY), rec, 0, max_depth, local_rand_state))
+    if (!this->hit(ray(origin, v), interval(SHADOW_ACNE_FIX, INFINITY), rec, 0, max_depth, rng))
         return 0;
 
     auto distance_squared = rec.t * rec.t * vector_length_squared(v);
@@ -160,11 +162,11 @@ __device__ float directional_light::pdf_value(const point3& origin, const vector
 /// </summary>
 /// <param name="origin"></param>
 /// <returns></returns>
-__device__ vector3 directional_light::random(const point3& origin, curandState* local_rand_state) const
+__device__ vector3 directional_light::random(const point3& origin, thrust::default_random_engine& rng) const
 {
     auto p = m_position
-        + (get_real(local_rand_state) - 0.5f) * m_u
-        + (get_real(local_rand_state) - 0.5f) * m_v;
+        + (get_real(rng) - 0.5f) * m_u
+        + (get_real(rng) - 0.5f) * m_v;
 
     return p - origin;
 }

@@ -11,7 +11,7 @@ class sampler
 public:
     __host__ __device__ sampler(const vector3& pixel_delta_u, const vector3& pixel_delta_v, int samples = 50, int spp = 2);
 
-    __device__ virtual vector3 generate_samples(int s_i, int s_j, curandState* local_rand_state) const;
+    __device__ virtual vector3 generate_samples(int s_i, int s_j, thrust::default_random_engine& rng) const;
 
 
 protected:
@@ -30,7 +30,7 @@ __host__ __device__ inline sampler::sampler(const vector3& pixel_delta_u, const 
     m_recip_sqrt_spp = 1.0f / sqrt_spp;
 }
 
-__device__ inline vector3 sampler::generate_samples(int s_i, int s_j, curandState* local_rand_state) const
+__device__ inline vector3 sampler::generate_samples(int s_i, int s_j, thrust::default_random_engine& rng) const
 {
     return vector3{};
 }

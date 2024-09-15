@@ -131,3 +131,33 @@ __host__ __device__ static float maxDot3(const vector3& v1, const vector3& v2)
     // Return the maximum of the dot product and zero
     return glm::max(dotProduct, 0.0f);
 }
+
+__host__ __device__ static double getRatio(const char* value)
+{
+    double p1 = 0, p2 = 0;
+
+    std::stringstream test(value);
+    std::string segment;
+
+    unsigned int loop = 0;
+    while (getline(test, segment, ':'))
+    {
+        if (loop == 0)
+        {
+            p1 = stoul(segment, 0, 10);
+        }
+        else if (loop == 1)
+        {
+            p2 = stoul(segment, 0, 10);
+        }
+
+        loop++;
+    }
+
+    if (p1 > 0 && p2 > 0)
+    {
+        return p1 / p2;
+    }
+
+    return 0.0;
+}

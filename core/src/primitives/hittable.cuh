@@ -6,6 +6,8 @@
 #include "../utilities/uvmapping.cuh"
 
 
+
+
 __host__ __device__ enum class HittableTypeID {
 	hittableBaseType = 0,
 	hittableListType = 1,
@@ -42,9 +44,9 @@ public:
 	// pure virtual function 
 	// virtual hit method that needs to be implemented for all primitives
 	// because each primitive has it own intersection calculation logic
-	__device__ virtual bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const = 0;
-	__device__ virtual float pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const = 0;
-	__device__ virtual vector3 random(const vector3& o, curandState* local_rand_state) const = 0;
+	__device__ virtual bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const = 0;
+	__device__ virtual float pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const = 0;
+	__device__ virtual vector3 random(const vector3& o, thrust::default_random_engine& rng) const = 0;
 	__host__ __device__ virtual aabb bounding_box() const = 0;
 
 

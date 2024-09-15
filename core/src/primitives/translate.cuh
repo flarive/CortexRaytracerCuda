@@ -12,9 +12,9 @@ namespace rt
     public:
         __host__ __device__ translate(hittable* p, const vector3& displacement);
 
-        __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const override;
-        __device__ float pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const override;
-        __device__ vector3 random(const vector3& o, curandState* local_rand_state) const override;
+        __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const override;
+        __device__ float pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const override;
+        __device__ vector3 random(const vector3& o, thrust::default_random_engine& rng) const override;
         __host__ __device__ aabb bounding_box() const override;
 
         __host__ __device__ HittableTypeID getTypeID() const override { return HittableTypeID::hittableTransformTranslateType; }
@@ -35,13 +35,13 @@ __host__ __device__ rt::translate::translate(hittable* p, const vector3& displac
     m_bbox = m_object->bounding_box() + m_offset;
 }
 
-__device__ bool rt::translate::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const
+__device__ bool rt::translate::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
     // Move the ray backwards by the offset
     ray offset_r(r.origin() - m_offset, r.direction(), r.time());
 
     // Determine where (if any) an intersection occurs along the offset ray
-    if (!m_object->hit(offset_r, ray_t, rec, depth, max_depth, local_rand_state))
+    if (!m_object->hit(offset_r, ray_t, rec, depth, max_depth, rng))
         return false;
 
     // Move the intersection point forwards by the offset
@@ -50,12 +50,12 @@ __device__ bool rt::translate::hit(const ray& r, interval ray_t, hit_record& rec
     return true;
 }
 
-__device__ float  rt::translate::pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const
+__device__ float  rt::translate::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
 {
     return 0.0f;
 }
 
-__device__ vector3 rt::translate::random(const vector3& o, curandState* local_rand_state) const
+__device__ vector3 rt::translate::random(const vector3& o, thrust::default_random_engine& rng) const
 {
     return vector3();
 }

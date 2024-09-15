@@ -16,7 +16,7 @@ public:
     {
     }
 
-    __device__ bool scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, curandState* local_rand_state) const override;
+    __device__ bool scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, thrust::default_random_engine& rng) const override;
 
     __host__ __device__ MaterialTypeID getTypeID() const override { return MaterialTypeID::materialDielectricType; }
 
@@ -29,7 +29,7 @@ private:
 };
 
 
-__device__ bool dielectric::scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, curandState* local_rand_state) const
+__device__ bool dielectric::scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, thrust::default_random_engine& rng) const
 {
     srec.attenuation = color(1.0, 1.0, 1.0);
     srec.pdf_ptr = nullptr;
@@ -43,7 +43,7 @@ __device__ bool dielectric::scatter(const ray& r_in, const hittable_list& lights
     bool cannot_refract = refraction_ratio * sin_theta > 1.0;
     vector3 direction;
 
-    if (cannot_refract || reflectance(cos_theta, refraction_ratio) > get_real(local_rand_state))
+    if (cannot_refract || reflectance(cos_theta, refraction_ratio) > get_real(rng))
         direction = glm::reflect(unit_direction, rec.normal);
     else
         direction = glm::refract(unit_direction, rec.normal, refraction_ratio);
@@ -76,7 +76,7 @@ __host__ __device__ float dielectric::reflectance(float cosine, float ref_idx)
 //    __device__ dielectric(float ri) : ref_idx(ri) {}
 //
 //
-//    __device__ virtual bool scatter(const ray& r_in, const hit_record& rec, vector3& attenuation, ray& scattered, curandState *local_rand_state) const
+//    __device__ virtual bool scatter(const ray& r_in, const hit_record& rec, vector3& attenuation, ray& scattered, curandState *rng) const
 //    {
 //        vector3 outward_normal;
 //        vector3 reflected = reflect(r_in.direction(), rec.normal);
@@ -105,7 +105,7 @@ __host__ __device__ float dielectric::reflectance(float cosine, float ref_idx)
 //            reflect_prob = 1.0;
 //        }
 //
-//        if (curand_uniform(local_rand_state) < reflect_prob) {
+//        if (curand_uniform(rng) < reflect_prob) {
 //            scattered = ray(rec.hit_point, reflected);
 //        }
 //        else {

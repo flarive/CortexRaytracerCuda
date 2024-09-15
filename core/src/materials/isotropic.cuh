@@ -2,20 +2,6 @@
 
 #include "../pdf/sphere_pdf.cuh"
 
-//class isotropic : public material
-//{
-//public:
-//    __device__ isotropic(texture* a) : albedo(a) {}
-//
-//    __device__ virtual bool scatter(const ray& r_in, const hit_record& rec, vector3& attenuation, ray& scattered, curandState* local_rand_state) const {
-//        scattered = ray(rec.hit_point, random_in_unit_sphere(local_rand_state), r_in.time());
-//        attenuation = albedo->value(rec.u, rec.v, rec.hit_point);
-//        return true;
-//    }
-//
-//    texture* albedo;
-//};
-
 /// <summary>
 /// Isotropic material
 /// Isotropic materials show the same properties in all directions.
@@ -27,7 +13,7 @@ public:
     __host__ __device__ isotropic(color _color);
     __host__ __device__ isotropic(texture* _albedo);
 
-    __device__ bool scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, curandState* local_rand_state) const override;
+    __device__ bool scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, thrust::default_random_engine& rng) const override;
     __host__ __device__ float scattering_pdf(const ray& r_in, const hit_record& rec, const ray& scattered) const override;
 
     __host__ __device__ MaterialTypeID getTypeID() const override { return MaterialTypeID::materialIsotropicType; }
@@ -41,7 +27,7 @@ __host__ __device__ isotropic::isotropic(texture* _albedo) : material(_albedo)
 {
 }
 
-__device__ bool isotropic::scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, curandState* local_rand_state) const
+__device__ bool isotropic::scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, thrust::default_random_engine& rng) const
 {
     srec.attenuation = m_diffuse_texture->value(rec.u, rec.v, rec.hit_point);
     srec.pdf_ptr = new sphere_pdf();

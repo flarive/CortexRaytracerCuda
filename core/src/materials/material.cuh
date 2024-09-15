@@ -2,6 +2,9 @@
 
 #include "../misc/scatter_record.cuh"
 
+#include "../primitives/hittable.cuh"
+#include "../primitives/hittable_list.cuh"
+
 
 __host__ __device__ enum class MaterialTypeID {
     materialBaseType = 0,
@@ -9,9 +12,11 @@ __host__ __device__ enum class MaterialTypeID {
     materialMetalType = 2,
     materialDielectricType = 3,
     materialIsotropicType = 4,
-    materialPhongType = 5,
-    materialDiffuseLightType = 6,
-    materialDiffuseSpotLightType = 7
+    materialAnisotropicType = 5,
+    materialPhongType = 6,
+    materialOrenNayarType = 7,
+    materialDiffuseLightType = 8,
+    materialDiffuseSpotLightType = 9
 };
 
 
@@ -19,7 +24,7 @@ class material
 {
 public:
     //__host__ __device__ virtual color emitted(float u, float v, const vector3& p) const { return color(0,0,0); }
-    //__host__ __device__ virtual bool scatter(const ray& r_in, const hit_record& rec, vector3& attenuation, ray& scattered, curandState *local_rand_state) const = 0;
+    //__host__ __device__ virtual bool scatter(const ray& r_in, const hit_record& rec, vector3& attenuation, ray& scattered, curandState *rng) const = 0;
 
 
 
@@ -72,9 +77,9 @@ public:
 
     __host__ __device__ virtual MaterialTypeID getTypeID() const { return MaterialTypeID::materialBaseType; }
 
-    __device__ virtual bool scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, curandState* local_rand_state) const;
+    __device__ virtual bool scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, thrust::default_random_engine& rng) const;
     __host__ __device__ virtual float scattering_pdf(const ray& r_in, const hit_record& rec, const ray& scattered) const;
-    __device__ virtual color emitted(const ray& r_in, const hit_record& rec, float u, float v, const point3& p, curandState* local_rand_state) const;
+    __device__ virtual color emitted(const ray& r_in, const hit_record& rec, float u, float v, const point3& p, thrust::default_random_engine& rng) const;
 
     __host__ __device__ bool has_alpha_texture(bool& double_sided) const;
     __host__ __device__ bool has_displace_texture() const;
@@ -112,7 +117,7 @@ protected:
 
 
 
-__device__ inline bool material::scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, curandState* local_rand_state) const
+__device__ inline bool material::scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, thrust::default_random_engine& rng) const
 {
     return false;
 }
@@ -122,7 +127,7 @@ __host__ __device__ inline float material::scattering_pdf(const ray& r_in, const
     return 0;
 }
 
-__device__ inline color material::emitted(const ray& r_in, const hit_record& rec, float u, float v, const point3& p, curandState* local_rand_state) const
+__device__ inline color material::emitted(const ray& r_in, const hit_record& rec, float u, float v, const point3& p, thrust::default_random_engine& rng) const
 {
     return color(0, 0, 0);
 }

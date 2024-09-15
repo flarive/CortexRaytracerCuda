@@ -28,10 +28,10 @@ public:
     /// <param name="ray_t"></param>
     /// <param name="rec"></param>
     /// <returns></returns>
-    __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const override;
+    __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const override;
 
 
-    __device__ float pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const override;
+    __device__ float pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const override;
 
 
     /// <summary>
@@ -39,7 +39,7 @@ public:
     /// </summary>
     /// <param name="origin"></param>
     /// <returns></returns>
-    __device__ vector3 random(const point3& o, curandState* local_rand_state) const override;
+    __device__ vector3 random(const point3& o, thrust::default_random_engine& rng) const override;
 
     __host__ __device__ HittableTypeID getTypeID() const override { return HittableTypeID::lightOmniType; }
 
@@ -51,7 +51,7 @@ private:
 
 
 
-__device__ bool omni_light::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const
+__device__ bool omni_light::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
     point3 center = m_position;
     vector3 oc = r.origin() - center;
@@ -103,11 +103,11 @@ __device__ bool omni_light::hit(const ray& r, interval ray_t, hit_record& rec, i
     return true;
 }
 
-__device__ float omni_light::pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const
+__device__ float omni_light::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
 {
     // This method only works for stationary spheres.
     hit_record rec;
-    if (!this->hit(ray(o, v), interval(SHADOW_ACNE_FIX, INFINITY), rec, 0, max_depth, local_rand_state))
+    if (!this->hit(ray(o, v), interval(SHADOW_ACNE_FIX, INFINITY), rec, 0, max_depth, rng))
         return 0;
 
     auto cos_theta_max = sqrt(1 - radius * radius / vector_length_squared(m_position - o));
@@ -116,13 +116,13 @@ __device__ float omni_light::pdf_value(const point3& o, const vector3& v, int ma
     return 1.0f / solid_angle;
 }
 
-__device__ vector3 omni_light::random(const point3& o, curandState* local_rand_state) const
+__device__ vector3 omni_light::random(const point3& o, thrust::default_random_engine& rng) const
 {
     vector3 direction = m_position - o;
     float distance_squared = vector_length_squared(direction);
     onb uvw;
     uvw.build_from_w(direction);
-    return uvw.local(random_to_sphere(local_rand_state, radius, distance_squared));
+    return uvw.local(random_to_sphere(rng, radius, distance_squared));
 }
 
 __host__ __device__ aabb omni_light::bounding_box() const

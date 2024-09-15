@@ -13,8 +13,8 @@ public:
 
 	__device__ ~image_pdf();
 
-	__device__ float value(const vector3& direction, int max_depth, curandState* local_rand_state) const override;
-	__device__ vector3 generate(scatter_record& rec, curandState* local_rand_state) override;
+	__device__ float value(const vector3& direction, int max_depth, thrust::default_random_engine& rng) const override;
+	__device__ vector3 generate(scatter_record& rec, thrust::default_random_engine& rng) override;
 
 	__host__ __device__ virtual pdfTypeID getTypeID() const { return pdfTypeID::pdfImage; }
 
@@ -76,7 +76,7 @@ __device__ image_pdf::image_pdf(image_texture* img)
 	}
 }
 
-__device__ inline float image_pdf::value(const vector3& direction, int max_depth, curandState* local_rand_state) const
+__device__ inline float image_pdf::value(const vector3& direction, int max_depth, thrust::default_random_engine& rng) const
 {
 	float _u, _v;
 	get_spherical_uv(unit_vector(direction), _u, _v);
@@ -102,10 +102,10 @@ __device__ inline float image_pdf::value(const vector3& direction, int max_depth
 	return Pdf;
 }
 
-__device__ inline vector3 image_pdf::generate(scatter_record& rec, curandState* local_rand_state)
+__device__ inline vector3 image_pdf::generate(scatter_record& rec, thrust::default_random_engine& rng)
 {
-	double r1 = get_real(local_rand_state);
-	double r2 = get_real(local_rand_state);
+	double r1 = get_real(rng);
+	double r2 = get_real(rng);
 
 	float maxUVal = m_pUDist[m_width - 1];
 	float* pUPos = std::lower_bound(m_pUDist, m_pUDist + m_width, r1 * maxUVal);

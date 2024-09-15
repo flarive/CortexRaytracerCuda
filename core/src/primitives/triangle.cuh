@@ -27,9 +27,9 @@ public:
 
 
 
-    __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const override;
+    __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const override;
 
-    __device__ float pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const override;
+    __device__ float pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const override;
 
     __host__ __device__ HittableTypeID getTypeID() const override { return HittableTypeID::hittableTriangleType; }
 
@@ -41,7 +41,7 @@ public:
     /// </summary>
     /// <param name="origin"></param>
     /// <returns></returns>
-    __device__ vector3 random(const point3& o, curandState* local_rand_state) const override;
+    __device__ vector3 random(const point3& o, thrust::default_random_engine& rng) const override;
 
 public:
     vector3 verts[3]{};
@@ -127,7 +127,7 @@ __host__ __device__ triangle::triangle(const vector3 v0, const vector3 v1, const
     m_bbox = aabb(min_extent - epsv, max_extent + epsv);
 }
 
-__device__ bool triangle::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const
+__device__ bool triangle::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
     // Möller-Trumbore algorithm for fast triangle hit
     // https://web.archive.org/web/20200927071045/https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/moller-trumbore-ray-triangle-intersection
@@ -189,10 +189,10 @@ __host__ __device__ aabb triangle::bounding_box() const
     return m_bbox;
 }
 
-__device__ float triangle::pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const
+__device__ float triangle::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
 {
     hit_record rec;
-    if (!this->hit(ray(o, v), interval(EPS, INFINITY), rec, 0, max_depth, local_rand_state))
+    if (!this->hit(ray(o, v), interval(EPS, INFINITY), rec, 0, max_depth, rng))
         return 0;
 
     // from https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=4121581
@@ -208,11 +208,11 @@ __device__ float triangle::pdf_value(const point3& o, const vector3& v, int max_
     return 1.0f / omega;
 }
 
-__device__ vector3 triangle::random(const point3& o, curandState* local_rand_state) const
+__device__ vector3 triangle::random(const point3& o, thrust::default_random_engine& rng) const
 {
     // From https://math.stackexchange.com/questions/18686/uniform-random-point-in-triangle-in-3d
-    float r1 = get_real(local_rand_state);
-    float r2 = get_real(local_rand_state);
+    float r1 = get_real(rng);
+    float r2 = get_real(rng);
     float ca = (1.0f - glm::sqrt(r1)), cb = glm::sqrt(r1) * (1. - r2), cc = r2 * glm::sqrt(r1);
     vector3 random_in_triangle = verts[0] * ca + verts[1] * cb + verts[2] * cc;
     return random_in_triangle - o;

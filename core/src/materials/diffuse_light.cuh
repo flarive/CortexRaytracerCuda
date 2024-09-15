@@ -8,7 +8,7 @@ class diffuse_light : public material
 {
 //public:
 //    __device__ diffuse_light(texture* tex) : emit(tex) {}
-//    __device__ virtual bool scatter(const ray& r_in, const hit_record& rec, vector3& attenuation, ray& scattered, curandState *local_rand_state) const {
+//    __device__ virtual bool scatter(const ray& r_in, const hit_record& rec, vector3& attenuation, ray& scattered, curandState *rng) const {
 //        return false;
 //    }
 //    __device__ vector3 emitted(float u, float v, const vector3& p) const {
@@ -29,7 +29,7 @@ public:
     {
     }
 
-    __device__ color emitted(const ray& r_in, const hit_record& rec, float u, float v, const point3& p, curandState* local_rand_state) const override;
+    __device__ color emitted(const ray& r_in, const hit_record& rec, float u, float v, const point3& p, thrust::default_random_engine& rng) const override;
 
     __host__ __device__ MaterialTypeID getTypeID() const override { return MaterialTypeID::materialDiffuseLightType; }
 
@@ -42,7 +42,7 @@ private:
 };
 
 
-__device__ inline color diffuse_light::emitted(const ray& r_in, const hit_record& rec, float u, float v, const point3& p, curandState* local_rand_state) const
+__device__ inline color diffuse_light::emitted(const ray& r_in, const hit_record& rec, float u, float v, const point3& p, thrust::default_random_engine& rng) const
 {
     // Material emission, directional or not
     if (m_directional)

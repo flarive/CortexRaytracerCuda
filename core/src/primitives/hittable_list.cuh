@@ -57,8 +57,8 @@ public:
 
 
 
-    __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const override;
-    __device__ float pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const override;
+    __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const override;
+    __device__ float pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const override;
 
 
     /// <summary>
@@ -66,7 +66,7 @@ public:
     /// </summary>
     /// <param name="origin"></param>
     /// <returns></returns>
-    __device__ vector3 random(const vector3& o, curandState* local_rand_state) const override;
+    __device__ vector3 random(const vector3& o, thrust::default_random_engine& rng) const override;
 
     __host__ __device__ aabb bounding_box() const override;
 };
@@ -140,7 +140,7 @@ __host__ __device__ inline bool hittable_list::remove(hittable* object)
     return found;
 }
 
-__device__ inline bool hittable_list::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const
+__device__ inline bool hittable_list::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
     hit_record temp_rec;
     bool hit_anything = false;
@@ -148,7 +148,7 @@ __device__ inline bool hittable_list::hit(const ray& r, interval ray_t, hit_reco
 
     for (unsigned int i = 0; i < object_count; i++)
     {
-        if (objects[i]->hit(r, interval(ray_t.min, closest_so_far), temp_rec, depth, max_depth, local_rand_state))
+        if (objects[i]->hit(r, interval(ray_t.min, closest_so_far), temp_rec, depth, max_depth, rng))
         {
             hit_anything = true;
             closest_so_far = temp_rec.t;
@@ -164,14 +164,14 @@ __host__ __device__ inline aabb hittable_list::bounding_box() const
     return m_bbox;
 }
 
-__device__ inline float hittable_list::pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const
+__device__ inline float hittable_list::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
 {
     float weight = 1.0f / object_count;
     float sum = 0.0f;
 
     for (unsigned int i = 0; i < object_count; i++)
     {
-        sum += weight * objects[i]->pdf_value(o, v, max_depth, local_rand_state);
+        sum += weight * objects[i]->pdf_value(o, v, max_depth, rng);
     }
 
     return sum;
@@ -182,14 +182,14 @@ __device__ inline float hittable_list::pdf_value(const point3& o, const vector3&
 ///// </summary>
 ///// <param name="origin"></param>
 ///// <returns></returns>
-__device__ inline vector3 hittable_list::random(const vector3& o, curandState* local_rand_state) const
+__device__ inline vector3 hittable_list::random(const vector3& o, thrust::default_random_engine& rng) const
 {
     if (object_count > 0)
     {
         unsigned int r = 0;
         
         if (object_count > 1)
-            r = get_int(local_rand_state, 0, object_count - 1);
+            r = get_int(rng, 0, object_count - 1);
 
         if (r >= object_count)
         {
@@ -203,7 +203,7 @@ __device__ inline vector3 hittable_list::random(const vector3& o, curandState* l
             return vector3(); // Or handle the error accordingly
         }
 
-        return objects[r]->random(o, local_rand_state);
+        return objects[r]->random(o, rng);
     }
 
     return vector3();

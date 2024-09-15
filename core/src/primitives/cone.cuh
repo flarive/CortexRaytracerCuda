@@ -15,7 +15,11 @@ public:
     __host__ __device__ cone(vector3 _center, float _radius, float _height, material* _material, const uvmapping& _mapping, const char* _name = "Cone");
     virtual ~cone() {}
 
-    __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const;
+    __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const override;
+
+    __device__ float pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const override;
+    __device__ vector3 random(const vector3& o, thrust::default_random_engine& rng) const override;
+
     __host__ __device__ aabb bounding_box() const override;
 
     __host__ __device__ HittableTypeID getTypeID() const override { return HittableTypeID::hittableConeType; }
@@ -51,7 +55,7 @@ __host__ __device__ cone::cone(vector3 _center, float _radius, float _height, ma
     );
 }
 
-__device__ bool cone::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const
+__device__ bool cone::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
     double A = r.origin().x - center.x;
     double B = r.origin().z - center.z;
@@ -122,6 +126,17 @@ __device__ bool cone::hit(const ray& r, interval ray_t, hit_record& rec, int dep
 
     return true;
 }
+
+__device__ float cone::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
+{
+    return 0.0f;
+}
+
+__device__ vector3 cone::random(const vector3& o, thrust::default_random_engine& rng) const
+{
+    return vector3(1, 0, 0);
+}
+
 
 __host__ __device__ aabb cone::bounding_box() const
 {

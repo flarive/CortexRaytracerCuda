@@ -2,6 +2,7 @@
 
 #include "hittable.cuh"
 #include "../materials/material.cuh"
+#include "../materials/isotropic.cuh"
 
 /// <summary>
 /// Constant Density Medium primitive (volume)
@@ -13,7 +14,11 @@ public:
     __host__ __device__ volume(hittable* boundary, float density, texture* tex, const char* _name = "Volume");
     __host__ __device__ volume(hittable* boundary, float density, color c, const char* _name = "Volume");
 
-    __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const override;
+    __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const override;
+
+    __device__ float pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const override;
+    __device__ vector3 random(const vector3& o, thrust::default_random_engine& rng) const override;
+
     __host__ __device__ aabb bounding_box() const override;
 
     __host__ __device__ HittableTypeID getTypeID() const override { return HittableTypeID::hittableVolumeType; }
@@ -38,7 +43,7 @@ __host__ __device__ volume::volume(hittable* boundary, float density, color c, c
     setName(_name);
 }
 
-__device__ bool volume::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const
+__device__ bool volume::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
     // Print occasional samples when debugging. To enable, set enableDebug true.
     //const bool enableDebug = false;
@@ -46,10 +51,10 @@ __device__ bool volume::hit(const ray& r, interval ray_t, hit_record& rec, int d
 
     hit_record rec1, rec2;
 
-    if (!m_boundary->hit(r, interval::get_universe(), rec1, depth, max_depth, local_rand_state))
+    if (!m_boundary->hit(r, interval::get_universe(), rec1, depth, max_depth, rng))
         return false;
 
-    if (!m_boundary->hit(r, interval(rec1.t + 0.0001f, INFINITY), rec2, depth, max_depth, local_rand_state))
+    if (!m_boundary->hit(r, interval(rec1.t + 0.0001f, INFINITY), rec2, depth, max_depth, rng))
         return false;
 
     //if (debugging) std::clog << "\nray_tmin=" << rec1.t << ", ray_tmax=" << rec2.t << '\n';
@@ -67,7 +72,7 @@ __device__ bool volume::hit(const ray& r, interval ray_t, hit_record& rec, int d
 
     auto ray_length = vector_length(r.direction());// .length(); ??????????
     auto distance_inside_boundary = (rec2.t - rec1.t) * ray_length;
-    auto hit_distance = m_neg_inv_density * log(get_real(local_rand_state));
+    auto hit_distance = m_neg_inv_density * log(get_real(rng));
 
     if (hit_distance > distance_inside_boundary)
         return false;
@@ -88,6 +93,16 @@ __device__ bool volume::hit(const ray& r, interval ray_t, hit_record& rec, int d
     //rec.bbox = bbox;
 
     return true;
+}
+
+__device__ float volume::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
+{
+    return 0.0f;
+}
+
+__device__ vector3 volume::random(const vector3& o, thrust::default_random_engine& rng) const
+{
+    return vector3(1, 0, 0);
 }
 
 __host__ __device__ aabb volume::bounding_box() const

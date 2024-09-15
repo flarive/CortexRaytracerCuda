@@ -19,8 +19,8 @@ public:
 
 	__device__ ~anisotropic_phong_pdf() = default;
 
-	__device__ float value(const vector3& direction, int max_depth, curandState* local_rand_state) const override;
-	__device__ vector3 generate(scatter_record& rec, curandState* local_rand_state) override;
+	__device__ float value(const vector3& direction, int max_depth, thrust::default_random_engine& rng) const override;
+	__device__ vector3 generate(scatter_record& rec, thrust::default_random_engine& rng) override;
 
 	__host__ __device__ virtual pdfTypeID getTypeID() const { return pdfTypeID::pdfAnisotropicPhong; }
 
@@ -62,23 +62,23 @@ private:
 
 
 
-__device__ inline float anisotropic_phong_pdf::value(const vector3& direction, int max_depth, curandState* local_rand_state) const
+__device__ inline float anisotropic_phong_pdf::value(const vector3& direction, int max_depth, thrust::default_random_engine& rng) const
 {
 	const float cosine = vector_multiply_to_double(direction, m_onb.Normal());
 	if (cosine < 0) return 0;
 
-	return cosine * get_1_div_pi();
+	return cosine * M_1_PI;
 }
 
-__device__ inline vector3 anisotropic_phong_pdf::generate(scatter_record& rec, curandState* local_rand_state)
+__device__ inline vector3 anisotropic_phong_pdf::generate(scatter_record& rec, thrust::default_random_engine& rng)
 {
 	float phase;
 	bool flip;
 
-	float xi = get_real(local_rand_state);
+	float xi = get_real(rng);
 	DealWithQuadrants(xi, phase, flip);
 
-	float phi = atan(m_prefactor1 * tan(get_half_pi() * xi));
+	float phi = atan(m_prefactor1 * tan(M_PI_2 * xi));
 	if (flip)
 		phi = phase - phi;
 	else
@@ -89,7 +89,7 @@ __device__ inline vector3 anisotropic_phong_pdf::generate(scatter_record& rec, c
 	const float c2 = c * c;
 	const float s2 = 1. - c2;
 
-	xi = get_real(local_rand_state);
+	xi = get_real(rng);
 	DealWithQuadrants(xi, phase, flip);
 
 	float theta = acos(pow(1.0f - xi, 1.0f / (m_nu * c2 + m_nv * s2 + 1.0f)));
@@ -120,10 +120,10 @@ __device__ inline vector3 anisotropic_phong_pdf::generate(scatter_record& rec, c
 		diffuseProbability = 1. / weight;
 	}
 
-	if (get_real(local_rand_state) < diffuseProbability)
+	if (get_real(rng) < diffuseProbability)
 	{
 		rec.attenuation = rec.diffuseColor;
-		return m_onb.LocalToGlobal(random_cosine_direction(local_rand_state));
+		return m_onb.LocalToGlobal(random_cosine_direction(rng));
 	}
 
 	// I don't like the white specular color that's typical in obj files, mix it with the diffuse color

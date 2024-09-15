@@ -58,7 +58,7 @@
     <ClInclude Include="src\textures\checker_texture.cuh">
       <Filter>Headers\textures</Filter>
     </ClInclude>
-    <ClInclude Include="src\textures\perlin_noise_texturer.cuh">
+    <ClInclude Include="src\textures\perlin_noise_texture.cuh">
       <Filter>Headers\textures</Filter>
     </ClInclude>
     <ClInclude Include="src\textures\perlin.cuh">
@@ -253,6 +253,15 @@
     </ClInclude>
     <ClInclude Include="src\misc\randomizer.cuh">
       <Filter>Headers\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\random\randomizer2.cuh">
+      <Filter>Headers\random</Filter>
+    </ClInclude>
+    <ClInclude Include="src\materials\oren_nayar.cuh">
+      <Filter>Headers\materials</Filter>
+    </ClInclude>
+    <ClInclude Include="src\materials\anisotropic.cuh">
+      <Filter>Headers\materials</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

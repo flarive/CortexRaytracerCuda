@@ -11,7 +11,11 @@ public:
     __host__ __device__ disk(point3 _center, float _radius, float _height, material* _mat, const char* _name = "Disk");
     __host__ __device__ disk(point3 _center, float _radius, float _height, material* _mat, const uvmapping& _mapping, const char* _name = "Disk");
 
-    __device__ virtual bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const override;
+    __device__ virtual bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const override;
+
+    __device__ float pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const override;
+    __device__ vector3 random(const vector3& o, thrust::default_random_engine& rng) const override;
+
     __host__ __device__ virtual aabb bounding_box() const override;
 
     __host__ __device__ HittableTypeID getTypeID() const override { return HittableTypeID::hittableDiskType; }
@@ -45,7 +49,7 @@ __host__ __device__ disk::disk(point3 _center, float _radius, float _height, mat
     m_bbox = aabb(center - vector3(radius, height / 2, radius), center + vector3(radius, height / 2, radius));
 }
 
-__device__ bool disk::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const
+__device__ bool disk::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
     // Compute the intersection with the plane containing the disk
     float t = (center.y - r.origin().y) / r.direction().y;
@@ -76,6 +80,16 @@ __device__ bool disk::hit(const ray& r, interval ray_t, hit_record& rec, int dep
     rec.bbox = m_bbox;
 
     return true;
+}
+
+__device__ float disk::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
+{
+    return 0.0f;
+}
+
+__device__ vector3 disk::random(const vector3& o, thrust::default_random_engine& rng) const
+{
+    return vector3(1, 0, 0);
 }
 
 __host__ __device__ aabb disk::bounding_box() const

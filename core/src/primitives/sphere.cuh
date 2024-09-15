@@ -65,11 +65,11 @@ public:
     /// <param name="ray_t"></param>
     /// <param name="rec"></param>
     /// <returns></returns>
-    __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const override;
+    __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const override;
 
 
 
-    __device__ float pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const override;
+    __device__ float pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const override;
 
 
     /// <summary>
@@ -77,7 +77,7 @@ public:
     /// </summary>
     /// <param name="origin"></param>
     /// <returns></returns>
-    __device__ vector3 random(const point3& o, curandState* local_rand_state) const override;
+    __device__ vector3 random(const point3& o, thrust::default_random_engine& rng) const override;
 
 
 private:
@@ -108,7 +108,7 @@ __host__ __device__ aabb sphere::bounding_box() const
 /// <param name="ray_t"></param>
 /// <param name="rec"></param>
 /// <returns></returns>
-__device__ bool sphere::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, curandState* local_rand_state) const
+__device__ bool sphere::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
     point3 center = is_moving ? sphere_center(r.time()) : center1;
     point3 oc = r.origin() - center;
@@ -165,12 +165,12 @@ __device__ bool sphere::hit(const ray& r, interval ray_t, hit_record& rec, int d
     return true;
 }
 
-__device__ float sphere::pdf_value(const point3& o, const vector3& v, int max_depth, curandState* local_rand_state) const
+__device__ float sphere::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
 {
     // This method only works for stationary spheres.
 
     hit_record rec;
-    if (!this->hit(ray(o, v), interval(SHADOW_ACNE_FIX, INFINITY), rec, 0, max_depth, local_rand_state))
+    if (!this->hit(ray(o, v), interval(SHADOW_ACNE_FIX, INFINITY), rec, 0, max_depth, rng))
         return 0;
 
     auto cos_theta_max = sqrt(1 - radius * radius / vector_length_squared(center1 - o));
@@ -184,13 +184,13 @@ __device__ float sphere::pdf_value(const point3& o, const vector3& v, int max_de
 /// </summary>
 /// <param name="origin"></param>
 /// <returns></returns>
-__device__ vector3 sphere::random(const point3& o, curandState* local_rand_state) const
+__device__ vector3 sphere::random(const point3& o, thrust::default_random_engine& rng) const
 {
     vector3 direction = center1 - o;
     auto distance_squared = vector_length_squared(direction);
     onb uvw;
     uvw.build_from_w(direction);
-    return uvw.local(random_to_sphere(local_rand_state, radius, distance_squared));
+    return uvw.local(random_to_sphere(rng, radius, distance_squared));
 }
 
 

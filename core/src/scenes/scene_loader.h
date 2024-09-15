@@ -31,7 +31,7 @@
 //  void loadMeshes(scene_builder& builder, const libconfig::Setting& setting);
 //  void loadGroups(scene_builder& builder, const libconfig::Setting& setting);
 //
-//  void applyTransform(const libconfig::Setting& primitive, scene_builder& builder, std::string name);
+//  void applyTransform(const libconfig::Setting& primitive, scene_builder& builder, const char* name);
 //  point3 getPoint(const libconfig::Setting& setting);
 //  vector3 getVector(const libconfig::Setting& setting);
 //  color getColor(const libconfig::Setting& setting);
@@ -56,7 +56,6 @@
 //  void addSolidColorTexture(const libconfig::Setting& textures, scene_builder& builder);
 //  void addCheckerTexture(const libconfig::Setting& textures, scene_builder& builder);
 //  void addGradientColorTexture(const libconfig::Setting& textures, scene_builder& builder);
-//  void addMarbleTexture(const libconfig::Setting& textures, scene_builder& builder);
 //  void addBumpTexture(const libconfig::Setting& textures, scene_builder& builder);
 //  void addDisplacementTexture(const libconfig::Setting& textures, scene_builder& builder);
 //  void addAlphaTexture(const libconfig::Setting& textures, scene_builder& builder);

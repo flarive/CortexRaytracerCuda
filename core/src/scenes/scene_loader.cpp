@@ -6,6 +6,14 @@
 //#include "iostream"
 //#include <filesystem>
 //
+//#define STB_IMAGE_IMPLEMENTATION
+//#define STB_IMAGE_WRITE_IMPLEMENTATION
+//#include <stb/stb_image.h>
+//#include <stb/stb_image_write.h>
+//
+//
+//
+//
 //scene_loader::scene_loader(std::string path) : _path(std::move(path))
 //{
 //}
@@ -141,7 +149,6 @@
 //	addSolidColorTexture(textures, builder);
 //	addCheckerTexture(textures, builder);
 //	addGradientColorTexture(textures, builder);
-//	addMarbleTexture(textures, builder);
 //	addNoiseTexture(textures, builder);
 //	addBumpTexture(textures, builder);
 //	addNormalTexture(textures, builder);
@@ -259,9 +266,9 @@
 //
 //			if (active)
 //			{
-//				builder.addMesh(name, position, filePath, materialName, use_mtl, use_smoothing, groupName);
+//				builder.addMesh(name.c_str(), position, filePath.c_str(), materialName.c_str(), use_mtl, use_smoothing, groupName.c_str());
 //
-//				applyTransform(mesh, builder, name);
+//				applyTransform(mesh, builder, name.c_str());
 //			}
 //		}
 //	}
@@ -278,14 +285,14 @@
 //			group.lookupValue("name", name);
 //
 //		bool groupIsUsed = false;
-//		builder.addGroup(name, groupIsUsed);
+//		builder.addGroup(name.c_str(), groupIsUsed);
 //
 //		if (groupIsUsed)
-//			applyTransform(group, builder, name);
+//			applyTransform(group, builder, name.c_str());
 //	}
 //}
 //	
-//void scene_loader::applyTransform(const libconfig::Setting& primitive, scene_builder& builder, std::string name)
+//void scene_loader::applyTransform(const libconfig::Setting& primitive, scene_builder& builder, const char* name)
 //{
 //	if (primitive.exists("transform"))
 //	{
@@ -320,7 +327,19 @@
 //			if (name.empty())
 //				throw std::runtime_error("Image texture name is empty");
 //
-//			builder.addImageTexture(name, filepath);
+//			if (!filepath.empty())
+//			{
+//				int bytes_per_pixel = 3;
+//				int tex_x, tex_y, tex_n;
+//				unsigned char* tex_data_host = stbi_load(filepath.c_str(), &tex_x, &tex_y, &tex_n, bytes_per_pixel);
+//				if (!tex_data_host) {
+//					std::cerr << "[ERROR] Failed to load texture." << std::endl;
+//					return;
+//				}
+//
+//				bitmap_image img = bitmap_image(tex_data_host, tex_x, tex_y, bytes_per_pixel);
+//				builder.addImageTexture(name.c_str(), img);
+//			}
 //		}
 //	}
 //}
@@ -345,7 +364,7 @@
 //			if (name.empty())
 //				throw std::runtime_error("Noise texture name is empty");
 //
-//			builder.addNoiseTexture(name, scale);
+//			builder.addNoiseTexture(name.c_str(), scale);
 //		}
 //	}
 //}
@@ -370,7 +389,7 @@
 //			if (name.empty())
 //				throw std::runtime_error("Solid color texture name is empty");
 //
-//			builder.addSolidColorTexture(name, color);
+//			builder.addSolidColorTexture(name.c_str(), color);
 //		}
 //	}
 //}
@@ -389,7 +408,7 @@
 //			std::string evenTextureName;
 //			color oddColor{};
 //			color evenColor{};
-//			double scale = 0.0;
+//			float scale = 0.0f;
 //
 //			if (texture.exists("name"))
 //				texture.lookupValue("name", name);
@@ -408,9 +427,9 @@
 //				throw std::runtime_error("Checker texture name is empty");
 //
 //			if (!oddTextureName.empty() && !evenTextureName.empty())
-//				builder.addCheckerTexture(name, scale, oddTextureName, evenTextureName);
+//				builder.addCheckerTexture(name.c_str(), scale, oddTextureName.c_str(), evenTextureName.c_str());
 //			else
-//				builder.addCheckerTexture(name, scale, oddColor, evenColor);
+//				builder.addCheckerTexture(name.c_str(), scale, oddColor, evenColor);
 //		}
 //	}
 //}
@@ -444,32 +463,7 @@
 //			if (name.empty())
 //				throw std::runtime_error("Gradient color texture name is empty");
 //
-//			builder.addGradientColorTexture(name, color1, color2, !vertical, hsv);
-//		}
-//	}
-//}
-//
-//void scene_loader::addMarbleTexture(const libconfig::Setting& textures, scene_builder& builder)
-//{
-//	if (textures.exists("marble"))
-//	{
-//		const libconfig::Setting& texs = textures["marble"];
-//
-//		for (int i = 0; i < texs.getLength(); i++)
-//		{
-//			const libconfig::Setting& texture = texs[i];
-//			std::string name;
-//			double scale = 0.0;
-//
-//			if (texture.exists("name"))
-//				texture.lookupValue("name", name);
-//			if (texture.exists("scale"))
-//				texture.lookupValue("scale", scale);
-//
-//			if (name.empty())
-//				throw std::runtime_error("Marble texture name is empty");
-//
-//			builder.addMarbleTexture(name, scale);
+//			builder.addGradientColorTexture(name.c_str(), color1, color2, !vertical, hsv);
 //		}
 //	}
 //}
@@ -497,7 +491,19 @@
 //			if (name.empty())
 //				throw std::runtime_error("Bump texture name is empty");
 //
-//			builder.addBumpTexture(name, filepath, strength);
+//			if (!filepath.empty())
+//			{
+//				int bytes_per_pixel = 3;
+//				int tex_x, tex_y, tex_n;
+//				unsigned char* tex_data_host = stbi_load(filepath.c_str(), &tex_x, &tex_y, &tex_n, bytes_per_pixel);
+//				if (!tex_data_host) {
+//					std::cerr << "[ERROR] Failed to load texture." << std::endl;
+//					return;
+//				}
+//
+//				bitmap_image img = bitmap_image(tex_data_host, tex_x, tex_y, bytes_per_pixel);
+//				builder.addBumpTexture(name.c_str(), img, strength);
+//			}
 //		}
 //	}
 //}
@@ -513,7 +519,7 @@
 //			const libconfig::Setting& texture = image[i];
 //			std::string name;
 //			std::string filepath;
-//			double strength = 10.0;
+//			float strength = 10.0f;
 //
 //			if (texture.exists("name"))
 //				texture.lookupValue("name", name);
@@ -525,7 +531,19 @@
 //			if (name.empty())
 //				throw std::runtime_error("Normal texture name is empty");
 //
-//			builder.addNormalTexture(name, filepath, strength);
+//			if (!filepath.empty())
+//			{
+//				int bytes_per_pixel = 3;
+//				int tex_x, tex_y, tex_n;
+//				unsigned char* tex_data_host = stbi_load(filepath.c_str(), &tex_x, &tex_y, &tex_n, bytes_per_pixel);
+//				if (!tex_data_host) {
+//					std::cerr << "[ERROR] Failed to load texture." << std::endl;
+//					return;
+//				}
+//
+//				bitmap_image img = bitmap_image(tex_data_host, tex_x, tex_y, bytes_per_pixel);
+//				builder.addNormalTexture(name.c_str(), img, strength);
+//			}
 //		}
 //	}
 //}
@@ -541,7 +559,7 @@
 //			const libconfig::Setting& texture = image[i];
 //			std::string name;
 //			std::string filepath;
-//			double strength = 10.0;
+//			float strength = 10.0f;
 //
 //			if (texture.exists("name"))
 //				texture.lookupValue("name", name);
@@ -553,7 +571,19 @@
 //			if (name.empty())
 //				throw std::runtime_error("Displacement texture name is empty");
 //
-//			builder.addDisplacementTexture(name, filepath, strength);
+//			if (!filepath.empty())
+//			{
+//				int bytes_per_pixel = 3;
+//				int tex_x, tex_y, tex_n;
+//				unsigned char* tex_data_host = stbi_load(filepath.c_str(), &tex_x, &tex_y, &tex_n, bytes_per_pixel);
+//				if (!tex_data_host) {
+//					std::cerr << "[ERROR] Failed to load texture." << std::endl;
+//					return;
+//				}
+//
+//				bitmap_image img = bitmap_image(tex_data_host, tex_x, tex_y, bytes_per_pixel);
+//				builder.addDisplacementTexture(name.c_str(), img, strength);
+//			}
 //		}
 //	}
 //}
@@ -581,7 +611,19 @@
 //			if (name.empty())
 //				throw std::runtime_error("Alpha texture name is empty");
 //
-//			builder.addAlphaTexture(name, filepath, double_sided);
+//			if (!filepath.empty())
+//			{
+//				int bytes_per_pixel = 3;
+//				int tex_x, tex_y, tex_n;
+//				unsigned char* tex_data_host = stbi_load(filepath.c_str(), &tex_x, &tex_y, &tex_n, bytes_per_pixel);
+//				if (!tex_data_host) {
+//					std::cerr << "[ERROR] Failed to load texture." << std::endl;
+//					return;
+//				}
+//
+//				bitmap_image img = bitmap_image(tex_data_host, tex_x, tex_y, bytes_per_pixel);
+//				builder.addAlphaTexture(name.c_str(), img, double_sided);
+//			}
 //		}
 //	}
 //}
@@ -609,7 +651,19 @@
 //			if (name.empty())
 //				throw std::runtime_error("Emissive texture name is empty");
 //
-//			builder.addEmissiveTexture(name, filepath, strength);
+//			if (!filepath.empty())
+//			{
+//				int bytes_per_pixel = 3;
+//				int tex_x, tex_y, tex_n;
+//				unsigned char* tex_data_host = stbi_load(filepath.c_str(), &tex_x, &tex_y, &tex_n, bytes_per_pixel);
+//				if (!tex_data_host) {
+//					std::cerr << "[ERROR] Failed to load texture." << std::endl;
+//					return;
+//				}
+//
+//				bitmap_image img = bitmap_image(tex_data_host, tex_x, tex_y, bytes_per_pixel);
+//				builder.addEmissiveTexture(name.c_str(), img, strength);
+//			}
 //		}
 //	}
 //}
@@ -649,9 +703,9 @@
 //
 //			if (active)
 //			{
-//				builder.addDirectionalLight(position, u, v, intensity, rgb, invisible, name);
+//				builder.addDirectionalLight(position, u, v, intensity, rgb, invisible, name.c_str());
 //
-//				applyTransform(light, builder, name);
+//				applyTransform(light, builder, name.c_str());
 //			}
 //		}
 //	}
@@ -689,9 +743,9 @@
 //
 //			if (active)
 //			{
-//				builder.addOmniDirectionalLight(position, radius, intensity, rgb, invisible, name);
+//				builder.addOmniDirectionalLight(position, radius, intensity, rgb, invisible, name.c_str());
 //
-//				applyTransform(light, builder, name);
+//				applyTransform(light, builder, name.c_str());
 //			}
 //		}
 //	}
@@ -738,9 +792,9 @@
 //
 //			if (active)
 //			{
-//				builder.addSpotLight(position, direction, cutoff, falloff, intensity, radius, rgb, invisible, name);
+//				builder.addSpotLight(position, direction, cutoff, falloff, intensity, radius, rgb, invisible, name.c_str());
 //
-//				applyTransform(light, builder, name);
+//				applyTransform(light, builder, name.c_str());
 //			}
 //		}
 //	}
@@ -768,9 +822,9 @@
 //				throw std::runtime_error("Material name is empty");
 //
 //			if (!textureName.empty())
-//				builder.addLambertianMaterial(name, textureName);
+//				builder.addLambertianMaterial(name.c_str(), textureName.c_str());
 //			else
-//				builder.addLambertianMaterial(name, rgb);
+//				builder.addLambertianMaterial(name.c_str(), rgb);
 //		}
 //	}
 //}
@@ -818,7 +872,7 @@
 //				throw std::runtime_error("Material name is empty");
 //
 //			if (!diffuseTextureName.empty() || !specularTextureName.empty() || !bumpTextureName.empty() || !normalTextureName.empty() || !displacementTextureName.empty() || !alphaTextureName.empty() || !emissiveTextureName.empty())
-//				builder.addPhongMaterial(name, diffuseTextureName, specularTextureName, normalTextureName, bumpTextureName, displacementTextureName, alphaTextureName, emissiveTextureName, ambientColor, shininess);
+//				builder.addPhongMaterial(name.c_str(), diffuseTextureName.c_str(), specularTextureName.c_str(), normalTextureName.c_str(), bumpTextureName.c_str(), displacementTextureName.c_str(), alphaTextureName.c_str(), emissiveTextureName.c_str(), ambientColor, shininess);
 //		}
 //	}
 //}
@@ -833,8 +887,8 @@
 //			std::string name{};
 //			color rgb{};
 //			std::string textureName{};
-//			double albedo_temp = 0.0;
-//			double roughness = 0.0;
+//			float albedo_temp = 0.0f;
+//			float roughness = 0.0f;
 //
 //			if (material.exists("name"))
 //				material.lookupValue("name", name);
@@ -851,9 +905,9 @@
 //				throw std::runtime_error("Material name is empty");
 //
 //			if (!textureName.empty())
-//				builder.addOrenNayarMaterial(name, textureName, albedo_temp, roughness);
+//				builder.addOrenNayarMaterial(name.c_str(), textureName.c_str(), albedo_temp, roughness);
 //			else
-//				builder.addOrenNayarMaterial(name, rgb, albedo_temp, roughness);
+//				builder.addOrenNayarMaterial(name.c_str(), rgb, albedo_temp, roughness);
 //		}
 //	}
 //}
@@ -880,9 +934,9 @@
 //				throw std::runtime_error("Material name is empty");
 //
 //			if (!textureName.empty())
-//				builder.addIsotropicMaterial(name, textureName);
+//				builder.addIsotropicMaterial(name.c_str(), textureName.c_str());
 //			else
-//				builder.addIsotropicMaterial(name, rgb);
+//				builder.addIsotropicMaterial(name.c_str(), rgb);
 //		}
 //	}
 //}
@@ -896,12 +950,12 @@
 //			const libconfig::Setting& material = materials["anisotropic"][i];
 //			std::string name{};
 //			color rgb{};
-//			double nu = 0.0;
-//			double nv = 0.0;
+//			float nu = 0.0f;
+//			float nv = 0.0f;
 //			std::string diffuseTextureName;
 //			std::string specularTextureName;
 //			std::string exponentTextureName;
-//			double roughness = 0.0;
+//			float roughness = 0.0f;
 //
 //			if (material.exists("name"))
 //				material.lookupValue("name", name);
@@ -923,9 +977,9 @@
 //				throw std::runtime_error("Material name is empty");
 //
 //			if (!diffuseTextureName.empty())
-//				builder.addAnisotropicMaterial(name, nu, nv, diffuseTextureName, specularTextureName, exponentTextureName);
+//				builder.addAnisotropicMaterial(name.c_str(), nu, nv, diffuseTextureName.c_str(), specularTextureName.c_str(), exponentTextureName.c_str());
 //			else
-//				builder.addAnisotropicMaterial(name, nu, nv, rgb);
+//				builder.addAnisotropicMaterial(name.c_str(), nu, nv, rgb);
 //		}
 //	}
 //}
@@ -938,7 +992,7 @@
 //		{
 //			const libconfig::Setting& material = materials["glass"][i];
 //			std::string name;
-//			double refraction = 0.0;
+//			float refraction = 0.0f;
 //
 //			if (material.exists("name"))
 //				material.lookupValue("name", name);
@@ -948,7 +1002,7 @@
 //			if (name.empty())
 //				throw std::runtime_error("Material name is empty");
 //
-//			builder.addGlassMaterial(name, refraction);
+//			builder.addGlassMaterial(name.c_str(), refraction);
 //		}
 //	}
 //}
@@ -962,7 +1016,7 @@
 //			const libconfig::Setting& material = materials["metal"][i];
 //			std::string name;
 //			color color = { 0.0, 0.0, 0.0 };
-//			double fuzziness = 0.0;
+//			float fuzziness = 0.0f;
 //
 //			if (material.exists("name"))
 //				material.lookupValue("name", name);
@@ -973,7 +1027,7 @@
 //			if (name.empty())
 //				throw std::runtime_error("Material name is empty");
 //
-//			builder.addMetalMaterial(name, color, fuzziness);
+//			builder.addMetalMaterial(name.c_str(), color, fuzziness);
 //		}
 //	}
 //}
@@ -987,7 +1041,7 @@
 //			const libconfig::Setting& primitive = primitives["spheres"][i];
 //			std::string name;
 //			point3 position{};
-//			double radius = 0.0;
+//			float radius = 0.0f;
 //			std::string materialName;
 //			uvmapping uv = { 1, 1, 0, 0, 1, 1 };
 //			std::string groupName;
@@ -1013,9 +1067,9 @@
 //
 //			if (active)
 //			{
-//				builder.addSphere(name, position, radius, materialName, uv, groupName);
+//				builder.addSphere(name.c_str(), position, radius, materialName.c_str(), uv, groupName.c_str());
 //
-//				applyTransform(primitive, builder, name);
+//				applyTransform(primitive, builder, name.c_str());
 //			}
 //		}
 //	}
@@ -1056,9 +1110,9 @@
 //
 //			if (active)
 //			{
-//				builder.addPlane(name, point1, point2, materialName, uv, groupName);
+//				builder.addPlane(name.c_str(), point1, point2, materialName.c_str(), uv, groupName.c_str());
 //
-//				applyTransform(primitive, builder, name);
+//				applyTransform(primitive, builder, name.c_str());
 //			}
 //		}
 //	}
@@ -1102,9 +1156,9 @@
 //
 //			if (active)
 //			{
-//				builder.addQuad(name, position, u, v, materialName, uv, groupName);
+//				builder.addQuad(name.c_str(), position, u, v, materialName.c_str(), uv, groupName.c_str());
 //
-//				applyTransform(primitive, builder, name);
+//				applyTransform(primitive, builder, name.c_str());
 //			}
 //		}
 //	}
@@ -1145,9 +1199,9 @@
 //
 //			if (active)
 //			{
-//				builder.addBox(name, position, size, materialName, uv, groupName);
+//				builder.addBox(name.c_str(), position, size, materialName.c_str(), uv, groupName.c_str());
 //
-//				applyTransform(primitive, builder, name);
+//				applyTransform(primitive, builder, name.c_str());
 //			}
 //		}
 //	}
@@ -1191,9 +1245,9 @@
 //
 //			if (active)
 //			{
-//				builder.addCone(name, position, radius, height, materialName, uv, groupName);
+//				builder.addCone(name.c_str(), position, radius, height, materialName.c_str(), uv, groupName.c_str());
 //
-//				applyTransform(primitive, builder, name);
+//				applyTransform(primitive, builder, name.c_str());
 //			}
 //		}
 //	}
@@ -1208,8 +1262,8 @@
 //			const libconfig::Setting& primitive = primitives["cylinders"][i];
 //			std::string name;
 //			point3 position{};
-//			double radius = 0.0;
-//			double height = 0.0;
+//			float radius = 0.0f;
+//			float height = 0.0f;
 //			std::string materialName;
 //			uvmapping uv = { 1, 1, 0, 0, 1, 1 };
 //			std::string groupName;
@@ -1237,9 +1291,9 @@
 //
 //			if (active)
 //			{
-//				builder.addCylinder(name, position, radius, height, materialName, uv, groupName);
+//				builder.addCylinder(name.c_str(), position, radius, height, materialName.c_str(), uv, groupName.c_str());
 //
-//				applyTransform(primitive, builder, name);
+//				applyTransform(primitive, builder, name.c_str());
 //			}
 //		}
 //	}
@@ -1254,8 +1308,8 @@
 //			const libconfig::Setting& primitive = primitives["disks"][i];
 //			std::string name;
 //			point3 position{};
-//			double radius = 0.0;
-//			double height = 0.0;
+//			float radius = 0.0f;
+//			float height = 0.0f;
 //			std::string materialName;
 //			uvmapping uv = { 1, 1, 0, 0, 1, 1 };
 //			std::string groupName;
@@ -1283,9 +1337,9 @@
 //
 //			if (active)
 //			{
-//				builder.addDisk(name, position, radius, height, materialName, uv, groupName);
+//				builder.addDisk(name.c_str(), position, radius, height, materialName.c_str(), uv, groupName.c_str());
 //
-//				applyTransform(primitive, builder, name);
+//				applyTransform(primitive, builder, name.c_str());
 //			}
 //		}
 //	}
@@ -1300,8 +1354,8 @@
 //			const libconfig::Setting& primitive = primitives["toruses"][i];
 //			std::string name;
 //			point3 position{};
-//			double major_radius = 0.0;
-//			double minor_radius = 0.0;
+//			float major_radius = 0.0f;
+//			float minor_radius = 0.0f;
 //			std::string materialName;
 //			uvmapping uv = { 1, 1, 0, 0, 1, 1 };
 //			std::string groupName;
@@ -1329,9 +1383,9 @@
 //
 //			if (active)
 //			{
-//				builder.addTorus(name, position, major_radius, minor_radius, materialName, uv, groupName);
+//				builder.addTorus(name.c_str(), position, major_radius, minor_radius, materialName.c_str(), uv, groupName.c_str());
 //
-//				applyTransform(primitive, builder, name);
+//				applyTransform(primitive, builder, name.c_str());
 //			}
 //		}
 //	}
@@ -1346,7 +1400,7 @@
 //			const libconfig::Setting& primitive = primitives["volumes"][i];
 //			std::string name;
 //			std::string boundary;
-//			double density = 0.0;
+//			float density = 0.0f;
 //			color rgb{};
 //			std::string textureName;
 //			std::string groupName;
@@ -1370,11 +1424,11 @@
 //			if (active)
 //			{
 //				if (!textureName.empty())
-//					builder.addVolume(name, boundary, density, textureName, groupName);
+//					builder.addVolume(name.c_str(), boundary.c_str(), density, textureName.c_str(), groupName.c_str());
 //				else
-//					builder.addVolume(name, boundary, density, rgb, groupName);
+//					builder.addVolume(name.c_str(), boundary.c_str(), density, rgb, groupName.c_str());
 //
-//				applyTransform(primitive, builder, name);
+//				applyTransform(primitive, builder, name.c_str());
 //			}
 //		}
 //	}

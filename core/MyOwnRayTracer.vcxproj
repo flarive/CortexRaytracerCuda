@@ -108,7 +108,9 @@
     <ClInclude Include="src\lights\light.cuh" />
     <ClInclude Include="src\lights\omni_light.cuh" />
     <ClInclude Include="src\lights\spot_light.cuh" />
+    <ClInclude Include="src\materials\anisotropic.cuh" />
     <ClInclude Include="src\materials\diffuse_spot_light.cuh" />
+    <ClInclude Include="src\materials\oren_nayar.cuh" />
     <ClInclude Include="src\materials\phong.cuh" />
     <ClInclude Include="src\misc\randomizer.cuh" />
     <ClInclude Include="src\misc\transform.cuh" />
@@ -154,6 +156,7 @@
     <ClInclude Include="src\materials\lambertian.cuh" />
     <ClInclude Include="src\materials\material.cuh" />
     <ClInclude Include="src\materials\metal.cuh" />
+    <ClInclude Include="src\random\randomizer2.cuh" />
     <ClInclude Include="src\renderers\gpu_cuda_renderer.h" />
     <ClInclude Include="src\renderers\renderer.h" />
     <ClInclude Include="src\samplers\msaa_sampler.cuh" />
@@ -176,7 +179,7 @@
     <ClInclude Include="src\misc\ray.cuh" />
     <ClInclude Include="src\primitives\aarect.cuh" />
     <ClInclude Include="src\primitives\sphere.cuh" />
-    <ClInclude Include="src\textures\perlin_noise_texturer.cuh" />
+    <ClInclude Include="src\textures\perlin_noise_texture.cuh" />
     <ClInclude Include="src\textures\solid_color_texture.cuh" />
     <ClInclude Include="src\textures\texture.cuh" />
     <ClInclude Include="src\primitives\rotate.cuh" />
