@@ -35,16 +35,16 @@ private:
 };
 
 
-__host__ __device__ torus::torus(const char* _name) : torus(vector3(0, 0, 0), 0.5, 0.25, nullptr, uvmapping(), _name)
+__host__ __device__ inline torus::torus(const char* _name) : torus(vector3(0, 0, 0), 0.5, 0.25, nullptr, uvmapping(), _name)
 {
 }
 
-__host__ __device__ torus::torus(point3 _center, float _majorRadius, float _minorRadius, material* _material, const char* _name)
+__host__ __device__ inline torus::torus(point3 _center, float _majorRadius, float _minorRadius, material* _material, const char* _name)
 	: torus(_center, _majorRadius, _minorRadius, _material, uvmapping(), _name)
 {
 }
 
-__host__ __device__ torus::torus(point3 _center, float _majorRadius, float _minorRadius, material* _material, const uvmapping& _mapping, const char* _name)
+__host__ __device__ inline torus::torus(point3 _center, float _majorRadius, float _minorRadius, material* _material, const uvmapping& _mapping, const char* _name)
 	: center(_center), majorRadius(_majorRadius), minorRadius(_minorRadius), mat(_material)
 {
 	setName(_name);
@@ -59,7 +59,7 @@ __host__ __device__ torus::torus(point3 _center, float _majorRadius, float _mino
 }
 
 
-__device__ bool torus::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline bool torus::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
 	//const vector3 d = r.direction();
 	//const vector3 e = r.origin() - center;
@@ -125,19 +125,19 @@ __device__ bool torus::hit(const ray& r, interval ray_t, hit_record& rec, int de
 }
 
 
-__device__ float torus::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline float torus::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
 {
 	return 0.0f;
 }
 
 
-__device__ vector3 torus::random(const vector3& o, thrust::default_random_engine& rng) const
+__device__ inline vector3 torus::random(const vector3& o, thrust::default_random_engine& rng) const
 {
     return vector3();
 }
 
 
-__host__ __device__ aabb torus::bounding_box() const
+__host__ __device__ inline aabb torus::bounding_box() const
 {
 	return m_bbox;
 }

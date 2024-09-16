@@ -33,22 +33,22 @@ private:
 
 
 
-__host__ __device__ cylinder::cylinder(const char* _name)
+__host__ __device__ inline cylinder::cylinder(const char* _name)
     : cylinder(vector3(0, 0, 0), 0, 0, nullptr, uvmapping(), _name)
 {
 }
 
-__host__ __device__ cylinder::cylinder(point3 _center, float _radius, float _height, const char* _name)
+__host__ __device__ inline cylinder::cylinder(point3 _center, float _radius, float _height, const char* _name)
     : cylinder(_center, _radius, _height, nullptr, uvmapping(), _name)
 {
 }
 
-__host__ __device__ cylinder::cylinder(point3 _center, float _radius, float _height, material* _material, const char* _name)
+__host__ __device__ inline cylinder::cylinder(point3 _center, float _radius, float _height, material* _material, const char* _name)
     : cylinder(_center, _radius, _height, _material, uvmapping(), _name)
 {
 }
 
-__host__ __device__ cylinder::cylinder(point3 _center, float _radius, float _height, material* _material, const uvmapping& _mapping, const char* _name)
+__host__ __device__ inline cylinder::cylinder(point3 _center, float _radius, float _height, material* _material, const uvmapping& _mapping, const char* _name)
     : center(_center), radius(_radius), height(_height), mat(_material)
 {
     setName(_name);
@@ -61,7 +61,7 @@ __host__ __device__ cylinder::cylinder(point3 _center, float _radius, float _hei
     );
 }
 
-__device__ bool cylinder::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline bool cylinder::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
     vector3 oc = r.origin() - center;
     double a = r.direction().x * r.direction().x + r.direction().z * r.direction().z;
@@ -105,17 +105,17 @@ __device__ bool cylinder::hit(const ray& r, interval ray_t, hit_record& rec, int
     return true;
 }
 
-__device__ float cylinder::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline float cylinder::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
 {
     return 0.0f;
 }
 
-__device__ vector3 cylinder::random(const vector3& o, thrust::default_random_engine& rng) const
+__device__ inline vector3 cylinder::random(const vector3& o, thrust::default_random_engine& rng) const
 {
     return vector3(1, 0, 0);
 }
 
-__host__ __device__ aabb cylinder::bounding_box() const
+__host__ __device__ inline aabb cylinder::bounding_box() const
 {
     return m_bbox;
 }

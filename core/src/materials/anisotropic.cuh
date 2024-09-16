@@ -57,7 +57,7 @@ private:
 
 
 
-__device__ bool anisotropic::scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, thrust::default_random_engine& rng) const
+__device__ inline bool anisotropic::scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, thrust::default_random_engine& rng) const
 {
 	srec.skip_pdf = true;
 	srec.attenuation = srec.diffuseColor = m_diffuse->value(rec.u, rec.v, rec.hit_point);
@@ -93,13 +93,13 @@ __device__ bool anisotropic::scatter(const ray& r_in, const hittable_list& light
 	return true;
 }
 
-__host__ __device__ color anisotropic::emitted(const ray& r_in, const hit_record& rec, double u, double v, const point3& p) const
+__host__ __device__ inline color anisotropic::emitted(const ray& r_in, const hit_record& rec, double u, double v, const point3& p) const
 {
 	return color::black();
 }
 
 
-__host__ __device__ float anisotropic::scattering_pdf(const ray& r_in, const hit_record& rec, const ray& scattered) const
+__host__ __device__ inline float anisotropic::scattering_pdf(const ray& r_in, const hit_record& rec, const ray& scattered) const
 {
 	const float cosine = vector_multiply_to_double(rec.normal, scattered.direction());
 

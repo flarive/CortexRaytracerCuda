@@ -96,7 +96,7 @@ private:
 
 
 
-__host__ __device__ aabb sphere::bounding_box() const
+__host__ __device__ inline aabb sphere::bounding_box() const
 {
     return m_bbox;
 }
@@ -108,7 +108,7 @@ __host__ __device__ aabb sphere::bounding_box() const
 /// <param name="ray_t"></param>
 /// <param name="rec"></param>
 /// <returns></returns>
-__device__ bool sphere::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline bool sphere::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
     point3 center = is_moving ? sphere_center(r.time()) : center1;
     point3 oc = r.origin() - center;
@@ -165,7 +165,7 @@ __device__ bool sphere::hit(const ray& r, interval ray_t, hit_record& rec, int d
     return true;
 }
 
-__device__ float sphere::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline float sphere::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
 {
     // This method only works for stationary spheres.
 
@@ -184,7 +184,7 @@ __device__ float sphere::pdf_value(const point3& o, const vector3& v, int max_de
 /// </summary>
 /// <param name="origin"></param>
 /// <returns></returns>
-__device__ vector3 sphere::random(const point3& o, thrust::default_random_engine& rng) const
+__device__ inline vector3 sphere::random(const point3& o, thrust::default_random_engine& rng) const
 {
     vector3 direction = center1 - o;
     auto distance_squared = vector_length_squared(direction);
@@ -195,7 +195,7 @@ __device__ vector3 sphere::random(const point3& o, thrust::default_random_engine
 
 
 
-__device__ point3 sphere::sphere_center(float time) const
+__device__ inline point3 sphere::sphere_center(float time) const
 {
     // Linearly interpolate from center1 to center2 according to time, where t=0 yields
     // center1, and t=1 yields center2.
@@ -211,7 +211,7 @@ __device__ point3 sphere::sphere_center(float time) const
 /// <param name="theta"></param>
 /// <param name="tan"></param>
 /// <param name="bitan"></param>
-__host__ __device__ void sphere::getTangentAndBitangentAroundPoint(const vector3& p, float radius, float phi, float theta, vector3& tan, vector3& bitan)
+__host__ __device__ inline void sphere::getTangentAndBitangentAroundPoint(const vector3& p, float radius, float phi, float theta, vector3& tan, vector3& bitan)
 {
     // Tangent in the direction of increasing phi
     //tan.x = -p.z;

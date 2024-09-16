@@ -134,7 +134,7 @@ private:
 /// <param name="rec"></param>
 /// <param name="srec"></param>
 /// <returns></returns>
-__device__ bool oren_nayar::scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, thrust::default_random_engine& rng) const
+__device__ inline bool oren_nayar::scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, thrust::default_random_engine& rng) const
 {
 	vector3 scatterDirection = rec.normal + random_on_hemisphere(rng, rec.normal);
 	color mycolor = m_diffuse_texture->value(rec.u, rec.v, rec.hit_point);
@@ -194,7 +194,7 @@ __device__ bool oren_nayar::scatter(const ray& r_in, const hittable_list& lights
 
 
 
-__host__ __device__ float oren_nayar::scattering_pdf(const ray& r_in, const hit_record& rec, const ray& scattered) const
+__host__ __device__ inline float oren_nayar::scattering_pdf(const ray& r_in, const hit_record& rec, const ray& scattered) const
 {
 	auto cos_theta = glm::dot(rec.normal, unit_vector(scattered.direction()));
 	return cos_theta < 0 ? 0.0f : cos_theta / M_PI;

@@ -58,7 +58,7 @@ namespace rt
 }
 
 
-__host__ __device__ rt::rotate::rotate(hittable* _object, const vector3& _rotation) : m_object(_object), m_rotation(_rotation)
+__host__ __device__ inline rt::rotate::rotate(hittable* _object, const vector3& _rotation) : m_object(_object), m_rotation(_rotation)
 {
     m_name = _object->getName();
 
@@ -101,7 +101,7 @@ __host__ __device__ rt::rotate::rotate(hittable* _object, const vector3& _rotati
     bbox = aabb(min, max);
 }
 
-__device__ bool rt::rotate::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline bool rt::rotate::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
     // Change the ray from world space to object space
     auto origin = r.origin();
@@ -148,17 +148,17 @@ __device__ bool rt::rotate::hit(const ray& r, interval ray_t, hit_record& rec, i
     return true;
 }
 
-__device__ float  rt::rotate::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline float  rt::rotate::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
 {
     return 0.0f;
 }
 
-__device__ vector3 rt::rotate::random(const vector3& o, thrust::default_random_engine& rng) const
+__device__ inline vector3 rt::rotate::random(const vector3& o, thrust::default_random_engine& rng) const
 {
     return vector3();
 }
 
-__host__ __device__ aabb rt::rotate::bounding_box() const
+__host__ __device__ inline aabb rt::rotate::bounding_box() const
 {
     return bbox;
 }

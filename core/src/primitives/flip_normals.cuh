@@ -23,14 +23,14 @@ namespace rt
 
 
 
-__host__ __device__ rt::flip_normals::flip_normals(hittable* p) : m_object(p)
+__host__ __device__ inline rt::flip_normals::flip_normals(hittable* p) : m_object(p)
 {
     setName(p->getName());
 
     m_bbox = m_object->bounding_box();
 }
 
-__device__ bool rt::flip_normals::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline bool rt::flip_normals::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
     if (m_object->hit(r, ray_t, rec, depth, max_depth, rng))
     {
@@ -41,17 +41,17 @@ __device__ bool rt::flip_normals::hit(const ray& r, interval ray_t, hit_record& 
         return false;
 }
 
-__device__ float rt::flip_normals::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline float rt::flip_normals::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
 {
     return 0.0f;
 }
 
-__device__ vector3 rt::flip_normals::random(const vector3& o, thrust::default_random_engine& rng) const
+__device__ inline vector3 rt::flip_normals::random(const vector3& o, thrust::default_random_engine& rng) const
 {
     return vector3();
 }
 
-__host__ __device__ aabb rt::flip_normals::bounding_box() const
+__host__ __device__ inline aabb rt::flip_normals::bounding_box() const
 {
     return m_bbox;
 }

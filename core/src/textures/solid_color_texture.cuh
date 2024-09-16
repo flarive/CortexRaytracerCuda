@@ -23,20 +23,20 @@ private:
 };
 
 
-__host__ __device__ solid_color_texture::solid_color_texture(color c) : m_color_value(c)
+__host__ __device__ inline solid_color_texture::solid_color_texture(color c) : m_color_value(c)
 {
 }
 
-__host__ __device__ solid_color_texture::solid_color_texture(float red, float green, float blue) : solid_color_texture(color(red, green, blue))
+__host__ __device__ inline solid_color_texture::solid_color_texture(float red, float green, float blue) : solid_color_texture(color(red, green, blue))
 {
 }
 
-__host__ __device__ color solid_color_texture::value(float u, float v, const point3& p) const
+__host__ __device__ inline color solid_color_texture::value(float u, float v, const point3& p) const
 {
     return m_color_value;
 }
 
-__host__ __device__ color solid_color_texture::get_color() const
+__host__ __device__ inline color solid_color_texture::get_color() const
 {
     return m_color_value;
 }

@@ -20,17 +20,17 @@ private:
     texture* m_odd;
 };
 
-__host__ __device__ checker_texture::checker_texture(float _scale, texture* _even, texture* _odd)
+__host__ __device__ inline checker_texture::checker_texture(float _scale, texture* _even, texture* _odd)
     : m_scale(_scale), m_inv_scale(1.0f / _scale), m_even(_even), m_odd(_odd)
 {
 }
 
-__host__ __device__ checker_texture::checker_texture(float _scale, color c1, color c2)
+__host__ __device__ inline checker_texture::checker_texture(float _scale, color c1, color c2)
     : m_scale(_scale), m_inv_scale(1.0f / _scale), m_even(new solid_color_texture(c1)), m_odd(new solid_color_texture(c2))
 {
 }
 
-__host__ __device__ color checker_texture::value(float u, float v, const point3& p) const
+__host__ __device__ inline color checker_texture::value(float u, float v, const point3& p) const
 {
     auto xInteger = static_cast<int>(std::floor(m_inv_scale * p.x));
     auto yInteger = static_cast<int>(std::floor(m_inv_scale * p.y));

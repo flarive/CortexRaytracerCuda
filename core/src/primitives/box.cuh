@@ -28,17 +28,17 @@ private:
 
 
 
-__host__ __device__ box::box(const char* _name)
+__host__ __device__ inline box::box(const char* _name)
     : box(vector3(0, 0, 0), vector3(0, 0, 0), nullptr, uvmapping(), _name)
 {
 }
 
-__host__ __device__ box::box(const vector3& _center, const vector3& _size, material* _mat, const char* _name)
+__host__ __device__ inline box::box(const vector3& _center, const vector3& _size, material* _mat, const char* _name)
     : box(_center, _size, _mat, uvmapping(), _name)
 {
 }
 
-__host__ __device__ box::box(const vector3& _center, const vector3& _size, material* _mat, const uvmapping& _mapping, const char* _name)
+__host__ __device__ inline box::box(const vector3& _center, const vector3& _size, material* _mat, const uvmapping& _mapping, const char* _name)
 {
     setName(_name);
 
@@ -68,22 +68,22 @@ __host__ __device__ box::box(const vector3& _center, const vector3& _size, mater
     m_bbox = aabb(pmin, pmax);
 }
 
-__device__ bool box::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline bool box::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
     return list_ptr->hit(r, ray_t, rec, depth, max_depth, rng);
 }
 
-__device__ float box::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline float box::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
 {
     return 0.0f;
 }
 
-__device__ vector3 box::random(const vector3& o, thrust::default_random_engine& rng) const
+__device__ inline vector3 box::random(const vector3& o, thrust::default_random_engine& rng) const
 {
     return vector3();
 }
 
-aabb box::bounding_box() const
+__host__ __device__ inline aabb box::bounding_box() const
 {
     return m_bbox;
 }

@@ -27,7 +27,7 @@ namespace rt
 
 
 
-__host__ __device__ rt::scale::scale(hittable* p, const vector3& _scale)
+__host__ __device__ inline rt::scale::scale(hittable* p, const vector3& _scale)
 	: m_object(p), m_scale(_scale)
 {
 	m_name = p->getName();
@@ -46,7 +46,7 @@ __host__ __device__ rt::scale::scale(hittable* p, const vector3& _scale)
 	m_bbox.z.max *= m_scale.z;
 }
 
-__device__ bool rt::scale::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline bool rt::scale::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
 	// Apply scaling to ray's origin and direction
 	vector3 origin = r.origin() / m_scale;
@@ -68,17 +68,17 @@ __device__ bool rt::scale::hit(const ray& r, interval ray_t, hit_record& rec, in
 	return false;
 }
 
-__device__ float  rt::scale::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline float rt::scale::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
 {
     return 0.0f;
 }
 
-__device__ vector3 rt::scale::random(const vector3& o, thrust::default_random_engine& rng) const
+__device__ inline vector3 rt::scale::random(const vector3& o, thrust::default_random_engine& rng) const
 {
 	return vector3();
 }
 
-__host__ __device__ aabb rt::scale::bounding_box() const
+__host__ __device__ inline aabb rt::scale::bounding_box() const
 {
     return m_bbox;
 }

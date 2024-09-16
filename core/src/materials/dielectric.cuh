@@ -29,7 +29,7 @@ private:
 };
 
 
-__device__ bool dielectric::scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, thrust::default_random_engine& rng) const
+__device__ inline bool dielectric::scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, thrust::default_random_engine& rng) const
 {
     srec.attenuation = color(1.0, 1.0, 1.0);
     srec.pdf_ptr = nullptr;
@@ -54,7 +54,7 @@ __device__ bool dielectric::scatter(const ray& r_in, const hittable_list& lights
 
 
 // Static methods gets constructed only once no matter how many times the function is called.
-__host__ __device__ float dielectric::reflectance(float cosine, float ref_idx)
+__host__ __device__ inline float dielectric::reflectance(float cosine, float ref_idx)
 {
     // Use Schlick's approximation for reflectance.
     float r0 = (1 - ref_idx) / (1 + ref_idx);

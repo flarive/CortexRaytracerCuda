@@ -27,7 +27,7 @@ namespace rt
 
 
 
-__host__ __device__ rt::translate::translate(hittable* p, const vector3& displacement)
+__host__ __device__ inline rt::translate::translate(hittable* p, const vector3& displacement)
     : m_object(p), m_offset(displacement)
 {
     setName(p->getName());
@@ -35,7 +35,7 @@ __host__ __device__ rt::translate::translate(hittable* p, const vector3& displac
     m_bbox = m_object->bounding_box() + m_offset;
 }
 
-__device__ bool rt::translate::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline bool rt::translate::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
     // Move the ray backwards by the offset
     ray offset_r(r.origin() - m_offset, r.direction(), r.time());
@@ -50,17 +50,17 @@ __device__ bool rt::translate::hit(const ray& r, interval ray_t, hit_record& rec
     return true;
 }
 
-__device__ float  rt::translate::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline float  rt::translate::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
 {
     return 0.0f;
 }
 
-__device__ vector3 rt::translate::random(const vector3& o, thrust::default_random_engine& rng) const
+__device__ inline vector3 rt::translate::random(const vector3& o, thrust::default_random_engine& rng) const
 {
     return vector3();
 }
 
-__host__ __device__ aabb rt::translate::bounding_box() const
+__host__ __device__ inline aabb rt::translate::bounding_box() const
 {
     return m_bbox;
 }

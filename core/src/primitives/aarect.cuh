@@ -23,17 +23,17 @@ private:
 };
 
 
-__host__ __device__ xy_rect::xy_rect(const char* _name)
+__host__ __device__ inline xy_rect::xy_rect(const char* _name)
     : xy_rect(0, 10, 0, 10, 10, nullptr, uvmapping(), _name)
 {
 }
 
-__host__ __device__ xy_rect::xy_rect(float _x0, float _x1, float _y0, float _y1, float _k, material* mat, const char* _name)
+__host__ __device__ inline xy_rect::xy_rect(float _x0, float _x1, float _y0, float _y1, float _k, material* mat, const char* _name)
     : xy_rect(_x0, _x1, _y0, _y1, k, mat, uvmapping(), _name)
 {
 }
 
-__host__ __device__ xy_rect::xy_rect(float _x0, float _x1, float _y0, float _y1, float _k, material* mat, const uvmapping& _mapping, const char* _name)
+__host__ __device__ inline xy_rect::xy_rect(float _x0, float _x1, float _y0, float _y1, float _k, material* mat, const uvmapping& _mapping, const char* _name)
     : x0(_x0), x1(_x1), y0(_y0), y1(_y1), k(_k), mp(mat)
 {
     if (_name != nullptr)
@@ -46,7 +46,7 @@ __host__ __device__ xy_rect::xy_rect(float _x0, float _x1, float _y0, float _y1,
     m_bbox = aabb(point3(x0, y0, k - 0.0001f), point3(x1, y1, k + 0.0001f));
 }
 
-__device__ bool xy_rect::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline bool xy_rect::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
     double t = (k - r.origin().z) / r.direction().z;
     if (t < ray_t.min || t > ray_t.max)
@@ -70,18 +70,18 @@ __device__ bool xy_rect::hit(const ray& r, interval ray_t, hit_record& rec, int 
     return true;
 }
 
-__device__ float xy_rect::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline float xy_rect::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
 {
     return 0.0f;
 }
 
-__device__ vector3 xy_rect::random(const vector3& o, thrust::default_random_engine& rng) const
+__device__ inline vector3 xy_rect::random(const vector3& o, thrust::default_random_engine& rng) const
 {
     return vector3(1, 0, 0);
 }
 
 
-__host__ __device__ aabb xy_rect::bounding_box() const
+__host__ __device__ inline aabb xy_rect::bounding_box() const
 {
     return m_bbox;
 }
@@ -143,17 +143,17 @@ private:
 
 
 
-__host__ __device__ xz_rect::xz_rect(const char* _name)
+__host__ __device__ inline xz_rect::xz_rect(const char* _name)
     : xz_rect(0, 10, 0, 10, 10, nullptr, uvmapping(), _name)
 {
 }
 
-__host__ __device__ xz_rect::xz_rect(float _x0, float _x1, float _z0, float _z1, float _k, material* mat, const char* _name)
+__host__ __device__ inline xz_rect::xz_rect(float _x0, float _x1, float _z0, float _z1, float _k, material* mat, const char* _name)
     : xz_rect(_x0, _x1, _z0, _z1, _k, mat, uvmapping(), _name)
 {
 }
 
-__host__ __device__ xz_rect::xz_rect(float _x0, float _x1, float _z0, float _z1, float _k, material* mat, const uvmapping& _mapping, const char* _name)
+__host__ __device__ inline xz_rect::xz_rect(float _x0, float _x1, float _z0, float _z1, float _k, material* mat, const uvmapping& _mapping, const char* _name)
     : x0(_x0), x1(_x1), z0(_z0), z1(_z1), k(_k), mp(mat)
 {
     if (_name != nullptr)
@@ -166,7 +166,7 @@ __host__ __device__ xz_rect::xz_rect(float _x0, float _x1, float _z0, float _z1,
     m_bbox = aabb(vector3(x0, k - 0.0001f, z0), vector3(x1, k + 0.0001f, z1));
 }
 
-__device__ bool xz_rect::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline bool xz_rect::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
     double t = (k - r.origin().y) / r.direction().y;
     if (t < ray_t.min || t > ray_t.max)
@@ -190,17 +190,17 @@ __device__ bool xz_rect::hit(const ray& r, interval ray_t, hit_record& rec, int 
     return true;
 }
 
-__host__ __device__ aabb xz_rect::bounding_box() const
+__host__ __device__ inline aabb xz_rect::bounding_box() const
 {
     return m_bbox;
 }
 
-__device__ float xz_rect::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline float xz_rect::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
 {
     return 0.0f;
 }
 
-__device__ vector3 xz_rect::random(const vector3& o, thrust::default_random_engine& rng) const
+__device__ inline vector3 xz_rect::random(const vector3& o, thrust::default_random_engine& rng) const
 {
     return vector3(1, 0, 0);
 }
@@ -265,17 +265,17 @@ private:
 
 
 
-__host__ __device__ yz_rect::yz_rect(const char* _name)
+__host__ __device__ inline yz_rect::yz_rect(const char* _name)
     : yz_rect(0, 10, 0, 10, 10, nullptr, uvmapping(), _name)
 {
 }
 
-__host__ __device__ yz_rect::yz_rect(float _y0, float _y1, float _z0, float _z1, float _k, material* mat, const char* _name)
+__host__ __device__ inline yz_rect::yz_rect(float _y0, float _y1, float _z0, float _z1, float _k, material* mat, const char* _name)
     : yz_rect(_y0, _y1, _z0, _z1, _k, mat, uvmapping(), _name)
 {
 }
 
-__host__ __device__ yz_rect::yz_rect(float _y0, float _y1, float _z0, float _z1, float _k, material* mat, const uvmapping& _mapping, const char* _name)
+__host__ __device__ inline yz_rect::yz_rect(float _y0, float _y1, float _z0, float _z1, float _k, material* mat, const uvmapping& _mapping, const char* _name)
     : y0(_y0), y1(_y1), z0(_z0), z1(_z1), k(_k), mp(mat)
 {
     if (_name != nullptr)
@@ -289,7 +289,7 @@ __host__ __device__ yz_rect::yz_rect(float _y0, float _y1, float _z0, float _z1,
 }
 
 
-__device__ bool yz_rect::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline bool yz_rect::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
     double t = (k - r.origin().x) / r.direction().x;
     if (t < ray_t.min || t > ray_t.max)
@@ -313,18 +313,18 @@ __device__ bool yz_rect::hit(const ray& r, interval ray_t, hit_record& rec, int 
     return true;
 }
 
-__device__ float yz_rect::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline float yz_rect::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
 {
     return 0.0;
 }
 
-__device__ vector3 yz_rect::random(const vector3& o, thrust::default_random_engine& rng) const
+__device__ inline vector3 yz_rect::random(const vector3& o, thrust::default_random_engine& rng) const
 {
     return vector3(1, 0, 0);
 }
 
 
-__host__ __device__ aabb yz_rect::bounding_box() const
+__host__ __device__ inline aabb yz_rect::bounding_box() const
 {
     return m_bbox;
 }

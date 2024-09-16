@@ -63,28 +63,28 @@ private:
 
 
 
-#define EPS 0.000001
+#define EPS 0.000001f
 
-__host__ __device__ triangle::triangle(const char* _name)
+__host__ __device__ inline triangle::triangle(const char* _name)
 {
 }
 
-__host__ __device__ triangle::triangle(const vector3 v0, const vector3 v1, const vector3 v2, material* m, const char* _name)
+__host__ __device__ inline triangle::triangle(const vector3 v0, const vector3 v1, const vector3 v2, material* m, const char* _name)
     : triangle(v0, v1, v2, vector3(), vector3(), vector3(), vector2(), vector2(), vector2(), vector3(), vector3(), vector3(), vector3(), vector3(), vector3(), false, m, _name)
 {
 }
 
-__host__ __device__ triangle::triangle(const vector3 v0, const vector3 v1, const vector3 v2, const vector3 vn0, const vector3 vn1, const vector3 vn2, bool smooth_shading, material* m, const char* _name)
+__host__ __device__ inline triangle::triangle(const vector3 v0, const vector3 v1, const vector3 v2, const vector3 vn0, const vector3 vn1, const vector3 vn2, bool smooth_shading, material* m, const char* _name)
     : triangle(v0, v1, v2, vn0, vn1, vn2, vector2(), vector2(), vector2(), vector3(), vector3(), vector3(), vector3(), vector3(), vector3(), false, m, _name)
 {
 }
 
-__host__ __device__ triangle::triangle(const vector3 v0, const vector3 v1, const vector3 v2, const vector3 vn0, const vector3 vn1, const vector3 vn2, const vector2& vuv0, const vector2& vuv1, const vector2& vuv2, bool smooth_shading, material* m, const char* _name)
+__host__ __device__ inline triangle::triangle(const vector3 v0, const vector3 v1, const vector3 v2, const vector3 vn0, const vector3 vn1, const vector3 vn2, const vector2& vuv0, const vector2& vuv1, const vector2& vuv2, bool smooth_shading, material* m, const char* _name)
     : triangle(v0, v1, v2, vn0, vn1, vn2, vuv0, vuv1, vuv2, vector3(), vector3(), vector3(), vector3(), vector3(), vector3(), false, m, _name)
 {
 }
 
-__host__ __device__ triangle::triangle(const vector3 v0, const vector3 v1, const vector3 v2, const vector3 vn0, const vector3 vn1, const vector3 vn2, const vector2& vuv0, const vector2& vuv1, const vector2& vuv2, const vector3& tan0, const vector3& tan1, const vector3& tan2,
+__host__ __device__ inline triangle::triangle(const vector3 v0, const vector3 v1, const vector3 v2, const vector3 vn0, const vector3 vn1, const vector3 vn2, const vector2& vuv0, const vector2& vuv1, const vector2& vuv2, const vector3& tan0, const vector3& tan1, const vector3& tan2,
     const vector3& bitan0, const vector3& bitan1, const vector3& bitan2, bool smooth_shading, material* m, const char* _name) : mat_ptr(m)
 {
     verts[0] = v0;
@@ -127,7 +127,7 @@ __host__ __device__ triangle::triangle(const vector3 v0, const vector3 v1, const
     m_bbox = aabb(min_extent - epsv, max_extent + epsv);
 }
 
-__device__ bool triangle::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline bool triangle::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
     // Möller-Trumbore algorithm for fast triangle hit
     // https://web.archive.org/web/20200927071045/https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/moller-trumbore-ray-triangle-intersection
@@ -184,12 +184,12 @@ __device__ bool triangle::hit(const ray& r, interval ray_t, hit_record& rec, int
     return true;
 }
 
-__host__ __device__ aabb triangle::bounding_box() const
+__host__ __device__ inline aabb triangle::bounding_box() const
 {
     return m_bbox;
 }
 
-__device__ float triangle::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline float triangle::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
 {
     hit_record rec;
     if (!this->hit(ray(o, v), interval(EPS, INFINITY), rec, 0, max_depth, rng))
@@ -208,7 +208,7 @@ __device__ float triangle::pdf_value(const point3& o, const vector3& v, int max_
     return 1.0f / omega;
 }
 
-__device__ vector3 triangle::random(const point3& o, thrust::default_random_engine& rng) const
+__device__ inline vector3 triangle::random(const point3& o, thrust::default_random_engine& rng) const
 {
     // From https://math.stackexchange.com/questions/18686/uniform-random-point-in-triangle-in-3d
     float r1 = get_real(rng);

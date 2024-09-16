@@ -31,19 +31,19 @@ private:
 };
 
 
-__host__ __device__ volume::volume(hittable* boundary, float density, texture* tex, const char* _name)
+__host__ __device__ inline volume::volume(hittable* boundary, float density, texture* tex, const char* _name)
     : m_boundary(boundary), m_neg_inv_density(-1 / density), m_phase_function(new isotropic(tex))
 {
     setName(m_name);
 }
 
-__host__ __device__ volume::volume(hittable* boundary, float density, color c, const char* _name)
+__host__ __device__ inline volume::volume(hittable* boundary, float density, color c, const char* _name)
     : m_boundary(boundary), m_neg_inv_density(-1 / density), m_phase_function(new isotropic(c))
 {
     setName(_name);
 }
 
-__device__ bool volume::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline bool volume::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
     // Print occasional samples when debugging. To enable, set enableDebug true.
     //const bool enableDebug = false;
@@ -95,17 +95,17 @@ __device__ bool volume::hit(const ray& r, interval ray_t, hit_record& rec, int d
     return true;
 }
 
-__device__ float volume::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline float volume::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
 {
     return 0.0f;
 }
 
-__device__ vector3 volume::random(const vector3& o, thrust::default_random_engine& rng) const
+__device__ inline vector3 volume::random(const vector3& o, thrust::default_random_engine& rng) const
 {
     return vector3(1, 0, 0);
 }
 
-__host__ __device__ aabb volume::bounding_box() const
+__host__ __device__ inline aabb volume::bounding_box() const
 {
     return m_boundary->bounding_box();
 }

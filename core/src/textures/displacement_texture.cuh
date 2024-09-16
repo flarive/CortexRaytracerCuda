@@ -33,11 +33,11 @@ private:
 };
 
 
-__host__ __device__ displacement_texture::displacement_texture()
+__host__ __device__ inline displacement_texture::displacement_texture()
 {
 }
 
-__host__ __device__ displacement_texture::displacement_texture(texture* t, float strength)
+__host__ __device__ inline displacement_texture::displacement_texture(texture* t, float strength)
     : m_displacement(t), m_strength(strength)
 {
     //image_texture* imageTex = dynamic_cast<image_texture*>(m_displacement);
@@ -62,7 +62,7 @@ __host__ __device__ displacement_texture::displacement_texture(texture* t, float
     }
 }
 
-__host__ __device__ color displacement_texture::value(float u, float v, const point3& p) const
+__host__ __device__ inline color displacement_texture::value(float u, float v, const point3& p) const
 {
     double value = 0.0;
 
@@ -100,7 +100,7 @@ __host__ __device__ color displacement_texture::value(float u, float v, const po
     return color(value, value, value);
 }
 
-__host__ __device__ float displacement_texture::getStrenth()
+__host__ __device__ inline float displacement_texture::getStrenth()
 {
     return m_strength;
 }

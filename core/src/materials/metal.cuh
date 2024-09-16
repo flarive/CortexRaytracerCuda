@@ -49,12 +49,12 @@ private:
 };
 
 
-__host__ __device__ metal::metal(const color& _color, float _fuzz) : material(new solid_color_texture(_color)), m_fuzz(_fuzz < 1 ? _fuzz : 1)
+__host__ __device__ inline metal::metal(const color& _color, float _fuzz) : material(new solid_color_texture(_color)), m_fuzz(_fuzz < 1 ? _fuzz : 1)
 {
 
 }
 
-__device__ bool metal::scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, thrust::default_random_engine& rng) const
+__device__ inline bool metal::scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, thrust::default_random_engine& rng) const
 {
     srec.attenuation = m_diffuse_texture->value(rec.u, rec.v, rec.hit_point);
     srec.pdf_ptr = nullptr;

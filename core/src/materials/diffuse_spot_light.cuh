@@ -24,13 +24,13 @@ private:
 };
 
 
-__host__ __device__ diffuse_spot_light::diffuse_spot_light(texture* emitTex, point3 pos, vector3 dir, float cutoff, float falloff, float intensity, bool invisible) :
+__host__ __device__ inline diffuse_spot_light::diffuse_spot_light(texture* emitTex, point3 pos, vector3 dir, float cutoff, float falloff, float intensity, bool invisible) :
     m_emit(emitTex), m_position(pos), m_direction(dir), m_intensity(intensity), m_cutoff(cutoff),
     m_falloff(falloff), m_invisible(invisible)
 {
 }
 
-__device__ color diffuse_spot_light::emitted(const ray& r_in, const hit_record& rec, float u, float v, const point3& p, thrust::default_random_engine& rng) const
+__device__ inline color diffuse_spot_light::emitted(const ray& r_in, const hit_record& rec, float u, float v, const point3& p, thrust::default_random_engine& rng) const
 {
     if (m_directional && !rec.front_face)
     {

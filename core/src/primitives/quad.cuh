@@ -53,7 +53,7 @@ private:
 
 
 
-__host__ __device__ quad::quad(const point3& _position, const vector3& _u, const vector3& _v, material* _mat, const char* _name)
+__host__ __device__ inline quad::quad(const point3& _position, const vector3& _u, const vector3& _v, material* _mat, const char* _name)
     : m_position(_position), m_u(_u), m_v(_v), m_mat(_mat)
 {
     auto n = glm::cross(m_u, m_v);
@@ -68,7 +68,7 @@ __host__ __device__ quad::quad(const point3& _position, const vector3& _u, const
     set_bounding_box();
 }
 
-__host__ __device__ quad::quad(const point3& _position, const vector3& _u, const vector3& _v, material* _mat, const uvmapping& _mapping, const char* _name)
+__host__ __device__ inline quad::quad(const point3& _position, const vector3& _u, const vector3& _v, material* _mat, const uvmapping& _mapping, const char* _name)
     : m_position(_position), m_u(_u), m_v(_v), m_mat(_mat)
 {
     auto n = glm::cross(m_u, m_v);
@@ -87,17 +87,17 @@ __host__ __device__ quad::quad(const point3& _position, const vector3& _u, const
 
 
 
-__host__ __device__ void quad::set_bounding_box()
+__host__ __device__ inline void quad::set_bounding_box()
 {
     m_bbox = aabb(m_position, m_position + m_u + m_v).pad();
 }
 
-__host__ __device__ aabb quad::bounding_box() const
+__host__ __device__ inline aabb quad::bounding_box() const
 {
     return m_bbox;
 }
 
-__device__ bool quad::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline bool quad::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
     auto denom = glm::dot(m_normal, r.direction());
 
@@ -132,7 +132,7 @@ __device__ bool quad::hit(const ray& r, interval ray_t, hit_record& rec, int dep
     return true;
 }
 
-__device__ float quad::pdf_value(const point3& origin, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline float quad::pdf_value(const point3& origin, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
 {
     hit_record rec;
 
@@ -150,7 +150,7 @@ __device__ float quad::pdf_value(const point3& origin, const vector3& v, int max
 /// </summary>
 /// <param name="origin"></param>
 /// <returns></returns>
-__device__ vector3 quad::random(const point3& origin, thrust::default_random_engine& rng) const
+__device__ inline vector3 quad::random(const point3& origin, thrust::default_random_engine& rng) const
 {
     auto p = m_position
         + (get_real(rng) * m_u)
@@ -160,7 +160,7 @@ __device__ vector3 quad::random(const point3& origin, thrust::default_random_eng
 }
 
 
-__host__ __device__ bool quad::is_interior(float a, float b, hit_record& rec) const
+__host__ __device__ inline bool quad::is_interior(float a, float b, hit_record& rec) const
 {
     // Given the hit point in plane coordinates, return false if it is outside the
     // primitive, otherwise set the hit record UV coordinates and return true.

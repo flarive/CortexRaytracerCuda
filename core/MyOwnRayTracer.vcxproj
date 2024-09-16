@@ -112,7 +112,6 @@
     <ClInclude Include="src\materials\diffuse_spot_light.cuh" />
     <ClInclude Include="src\materials\oren_nayar.cuh" />
     <ClInclude Include="src\materials\phong.cuh" />
-    <ClInclude Include="src\misc\randomizer.cuh" />
     <ClInclude Include="src\misc\transform.cuh" />
     <ClInclude Include="src\outputs\namedpipes_output.cuh" />
     <ClInclude Include="src\outputs\no_output.cuh" />
@@ -156,7 +155,6 @@
     <ClInclude Include="src\materials\lambertian.cuh" />
     <ClInclude Include="src\materials\material.cuh" />
     <ClInclude Include="src\materials\metal.cuh" />
-    <ClInclude Include="src\random\randomizer2.cuh" />
     <ClInclude Include="src\renderers\gpu_cuda_renderer.h" />
     <ClInclude Include="src\renderers\renderer.h" />
     <ClInclude Include="src\samplers\msaa_sampler.cuh" />

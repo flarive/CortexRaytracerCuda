@@ -44,7 +44,7 @@ private:
 
 
 
-__host__ __device__ spot_light::spot_light(point3 position, vector3 direction, float cutoff, float falloff, float intensity, float radius, color rgb, const char* name, bool invisible)
+__host__ __device__ inline spot_light::spot_light(point3 position, vector3 direction, float cutoff, float falloff, float intensity, float radius, color rgb, const char* name, bool invisible)
 	: light(position, intensity, rgb, invisible, name)
 {
 	m_direction = direction;
@@ -59,12 +59,12 @@ __host__ __device__ spot_light::spot_light(point3 position, vector3 direction, f
 	m_bbox = aabb(m_position - rvec, m_position + rvec);
 }
 
-__host__ __device__ aabb spot_light::bounding_box() const
+__host__ __device__ inline aabb spot_light::bounding_box() const
 {
 	return m_bbox;
 }
 
-__device__ bool spot_light::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline bool spot_light::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
 	point3 center = m_position;
 	vector3 oc = r.origin() - center;
@@ -115,7 +115,7 @@ __device__ bool spot_light::hit(const ray& r, interval ray_t, hit_record& rec, i
 	return true;
 }
 
-__device__ float spot_light::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline float spot_light::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
 {
 	// This method only works for stationary spheres.
 	hit_record rec;
@@ -128,7 +128,7 @@ __device__ float spot_light::pdf_value(const point3& o, const vector3& v, int ma
 	return  1 / solid_angle;
 }
 
-__device__ vector3 spot_light::random(const point3& o, thrust::default_random_engine& rng) const
+__device__ inline vector3 spot_light::random(const point3& o, thrust::default_random_engine& rng) const
 {
 	vector3 direction = m_position - o;
 	auto distance_squared = vector_length_squared(direction);

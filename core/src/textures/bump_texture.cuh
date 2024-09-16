@@ -32,16 +32,16 @@ private:
 //{
 //}
 
-__host__ __device__ bump_texture::bump_texture(texture* bump, float strength) : m_bump(bump), m_strength(strength * 10.0f)
+__host__ __device__ inline bump_texture::bump_texture(texture* bump, float strength) : m_bump(bump), m_strength(strength * 10.0f)
 {
 }
 
-__host__ __device__ color bump_texture::value(float u, float v, const point3& p) const
+__host__ __device__ inline color bump_texture::value(float u, float v, const point3& p) const
 {
     return m_bump->value(u, v, p);
 }
 
-__host__ __device__ vector3 bump_texture::perturb_normal(const vector3& normal, float u, float v, const vector3& p) const
+__host__ __device__ inline vector3 bump_texture::perturb_normal(const vector3& normal, float u, float v, const vector3& p) const
 {
     float m_bump_width = 0.0f; // doesn't change anything ?
     float m_bump_height = 0.0f; // doesn't change anything ?
@@ -84,7 +84,7 @@ __host__ __device__ vector3 bump_texture::perturb_normal(const vector3& normal, 
     return convert_to_world_space(tangentSpaceNormal, normal);
 }
 
-__host__ __device__ vector3 bump_texture::convert_to_world_space(const vector3& tangentSpaceNormal, const vector3& originalNormal) const
+__host__ __device__ inline vector3 bump_texture::convert_to_world_space(const vector3& tangentSpaceNormal, const vector3& originalNormal) const
 {
     vector3 tangent, bitangent;
     compute_tangent_space(originalNormal, tangent, bitangent);
@@ -98,7 +98,7 @@ __host__ __device__ vector3 bump_texture::convert_to_world_space(const vector3& 
     return worldNormal;
 }
 
-__host__ __device__ void bump_texture::compute_tangent_space(const vector3& normal, vector3& tangent, vector3& bitangent) const
+__host__ __device__ inline void bump_texture::compute_tangent_space(const vector3& normal, vector3& tangent, vector3& bitangent) const
 {
     if (fabs(normal.x) > fabs(normal.y))
     {

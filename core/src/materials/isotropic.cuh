@@ -19,15 +19,15 @@ public:
     __host__ __device__ MaterialTypeID getTypeID() const override { return MaterialTypeID::materialIsotropicType; }
 };
 
-__host__ __device__ isotropic::isotropic(color _color) : material(new solid_color_texture(_color))
+__host__ __device__ inline isotropic::isotropic(color _color) : material(new solid_color_texture(_color))
 {
 }
 
-__host__ __device__ isotropic::isotropic(texture* _albedo) : material(_albedo)
+__host__ __device__ inline isotropic::isotropic(texture* _albedo) : material(_albedo)
 {
 }
 
-__device__ bool isotropic::scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, thrust::default_random_engine& rng) const
+__device__ inline bool isotropic::scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, thrust::default_random_engine& rng) const
 {
     srec.attenuation = m_diffuse_texture->value(rec.u, rec.v, rec.hit_point);
     srec.pdf_ptr = new sphere_pdf();
@@ -36,7 +36,7 @@ __device__ bool isotropic::scatter(const ray& r_in, const hittable_list& lights,
     return true;
 }
 
-__host__ __device__ float isotropic::scattering_pdf(const ray& r_in, const hit_record& rec, const ray& scattered) const
+__host__ __device__ inline float isotropic::scattering_pdf(const ray& r_in, const hit_record& rec, const ray& scattered) const
 {
     return 1.0f / (4.0f * M_PI);
 }

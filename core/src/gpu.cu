@@ -73,10 +73,10 @@
 
 
 
-#define STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include <stb/stb_image.h>
-#include <stb/stb_image_write.h>
+//#define STB_IMAGE_IMPLEMENTATION
+//#define STB_IMAGE_WRITE_IMPLEMENTATION
+//#include <stb/stb_image.h>
+//#include <stb/stb_image_write.h>
 
 
 
@@ -351,11 +351,12 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
 
     int bytes_per_pixel = 3;
     int tex_x, tex_y, tex_n;
-    unsigned char *tex_data_host = stbi_load("e:\\uv_mapper_no_numbers.jpg", &tex_x, &tex_y, &tex_n, bytes_per_pixel);
-    if (!tex_data_host) {
-        std::cerr << "[ERROR] Failed to load texture." << std::endl;
-        return;
-    }
+    unsigned char* tex_data_host = nullptr;
+    //unsigned char *tex_data_host = stbi_load("e:\\uv_mapper_no_numbers.jpg", &tex_x, &tex_y, &tex_n, bytes_per_pixel);
+    //if (!tex_data_host) {
+    //    std::cerr << "[ERROR] Failed to load texture." << std::endl;
+    //    return;
+    //}
 
     unsigned char *tex_data;
     checkCudaErrors(cudaMallocManaged(&tex_data, tex_x * tex_y * tex_n * sizeof(unsigned char)));
@@ -460,7 +461,7 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
         }
     }
 
-    stbi_write_png(filepath, width, height, 3, imageHost, width * 3);
+    //stbi_write_png(filepath, width, height, 3, imageHost, width * 3);
 
     // Clean up
     checkCudaErrors(cudaDeviceSynchronize());

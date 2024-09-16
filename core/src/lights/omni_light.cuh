@@ -51,7 +51,7 @@ private:
 
 
 
-__device__ bool omni_light::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline bool omni_light::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
     point3 center = m_position;
     vector3 oc = r.origin() - center;
@@ -103,7 +103,7 @@ __device__ bool omni_light::hit(const ray& r, interval ray_t, hit_record& rec, i
     return true;
 }
 
-__device__ float omni_light::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline float omni_light::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
 {
     // This method only works for stationary spheres.
     hit_record rec;
@@ -116,7 +116,7 @@ __device__ float omni_light::pdf_value(const point3& o, const vector3& v, int ma
     return 1.0f / solid_angle;
 }
 
-__device__ vector3 omni_light::random(const point3& o, thrust::default_random_engine& rng) const
+__device__ inline vector3 omni_light::random(const point3& o, thrust::default_random_engine& rng) const
 {
     vector3 direction = m_position - o;
     float distance_squared = vector_length_squared(direction);
@@ -125,7 +125,7 @@ __device__ vector3 omni_light::random(const point3& o, thrust::default_random_en
     return uvw.local(random_to_sphere(rng, radius, distance_squared));
 }
 
-__host__ __device__ aabb omni_light::bounding_box() const
+__host__ __device__ inline aabb omni_light::bounding_box() const
 {
     return m_bbox;
 }

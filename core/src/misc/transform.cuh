@@ -31,50 +31,50 @@ namespace rt
 }
 
 
-__host__ __device__ void rt::transform::setTranslate(const vector3& v)
+__host__ __device__ inline void rt::transform::setTranslate(const vector3& v)
 {
 	m_translate = v;
 	m_hasTranslate = true;
 }
 
-__host__ __device__ void rt::transform::setRotate(const vector3& v)
+__host__ __device__ inline void rt::transform::setRotate(const vector3& v)
 {
 	m_rotate = v;
 	m_hasRotate = true;
 }
 
-__host__ __device__ void rt::transform::setScale(const vector3& v)
+__host__ __device__ inline void rt::transform::setScale(const vector3& v)
 {
 	m_scale = v;
 	m_hasScale = true;
 }
 
-__host__ __device__ vector3 rt::transform::getTranslate() const
+__host__ __device__ inline vector3 rt::transform::getTranslate() const
 {
 	return m_translate;
 }
 
-__host__ __device__ vector3 rt::transform::getRotate() const
+__host__ __device__ inline vector3 rt::transform::getRotate() const
 {
 	return m_rotate;
 }
 
-__host__ __device__ vector3 rt::transform::getScale() const
+__host__ __device__ inline vector3 rt::transform::getScale() const
 {
 	return m_scale;
 }
 
-__host__ __device__ bool rt::transform::hasTranslate() const
+__host__ __device__ inline bool rt::transform::hasTranslate() const
 {
 	return m_hasTranslate;
 }
 
-__host__ __device__ bool rt::transform::hasRotate() const
+__host__ __device__ inline bool rt::transform::hasRotate() const
 {
 	return m_hasRotate;
 }
 
-__host__ __device__ bool rt::transform::hasScale() const
+__host__ __device__ inline bool rt::transform::hasScale() const
 {
 	return m_hasScale;
 }

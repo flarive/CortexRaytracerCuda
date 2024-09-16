@@ -38,12 +38,12 @@ private:
 
 
 
-__host__ __device__ phong::phong(texture* diffuseTexture, texture* specularTexture, const color& ambientColor, float shininess) 
+__host__ __device__ inline phong::phong(texture* diffuseTexture, texture* specularTexture, const color& ambientColor, float shininess)
     : phong(diffuseTexture, specularTexture, nullptr, nullptr, nullptr, nullptr, nullptr, ambientColor, shininess)
 {
 }
 
-__host__ __device__ phong::phong(texture* diffuseTexture, texture* specularTexture, texture* bumpTexture, texture* normalTexture, texture* displaceTexture, texture* alphaTexture, texture* emissiveTexture, const color& ambientColor, float shininess) 
+__host__ __device__ inline phong::phong(texture* diffuseTexture, texture* specularTexture, texture* bumpTexture, texture* normalTexture, texture* displaceTexture, texture* alphaTexture, texture* emissiveTexture, const color& ambientColor, float shininess)
     : material(diffuseTexture, specularTexture, normalTexture, bumpTexture, displaceTexture, alphaTexture, emissiveTexture)
 {
     m_ambientColor = ambientColor;
@@ -51,7 +51,7 @@ __host__ __device__ phong::phong(texture* diffuseTexture, texture* specularTextu
 }
 
 
-__device__ bool phong::scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, thrust::default_random_engine& rng) const
+__device__ inline bool phong::scatter(const ray& r_in, const hittable_list& lights, const hit_record& rec, scatter_record& srec, thrust::default_random_engine& rng) const
 {
     vector3 normalv = rec.normal;
 
@@ -221,7 +221,7 @@ __device__ bool phong::scatter(const ray& r_in, const hittable_list& lights, con
     return true;
 }
 
-__host__ __device__ float phong::scattering_pdf(const ray& r_in, const hit_record& rec, const ray& scattered) const
+__host__ __device__ inline float phong::scattering_pdf(const ray& r_in, const hit_record& rec, const ray& scattered) const
 {
     auto cos_theta = dot(rec.normal, unit_vector(scattered.direction()));
     return cos_theta < 0 ? 0 : cos_theta / M_PI;

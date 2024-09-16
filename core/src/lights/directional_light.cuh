@@ -42,7 +42,7 @@ private:
 };
 
 
-__host__ __device__ directional_light::directional_light(const point3& _position, const vector3& _u, const vector3& _v, float _intensity, color _color, const char* _name, bool _invisible)
+__host__ __device__ inline directional_light::directional_light(const point3& _position, const vector3& _u, const vector3& _v, float _intensity, color _color, const char* _name, bool _invisible)
     : light(_position, _intensity, _color, _invisible, _name), m_u(_u), m_v(_v)
 {
     m_mat = new diffuse_light(m_color, _intensity, true, m_invisible);
@@ -57,7 +57,7 @@ __host__ __device__ directional_light::directional_light(const point3& _position
     set_bounding_box();
 }
 
-__host__ __device__ void directional_light::set_bounding_box()
+__host__ __device__ inline void directional_light::set_bounding_box()
 {
     //m_bbox = aabb(m_position, m_position + m_u + m_v).pad();
 
@@ -68,12 +68,12 @@ __host__ __device__ void directional_light::set_bounding_box()
     m_bbox = aabb(corner1, corner2).pad();
 }
 
-__host__ __device__ aabb directional_light::bounding_box() const
+__host__ __device__ inline aabb directional_light::bounding_box() const
 {
     return m_bbox;
 }
 
-__device__ bool directional_light::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline bool directional_light::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
     float denom = glm::dot(m_normal, r.direction());
 
@@ -120,7 +120,7 @@ __device__ bool directional_light::hit(const ray& r, interval ray_t, hit_record&
     return true;
 }
 
-__host__ __device__ bool directional_light::is_interior(float a, float b, hit_record& rec) const
+__host__ __device__ inline bool directional_light::is_interior(float a, float b, hit_record& rec) const
 {
     // Given the hit point in plane coordinates, return false if it is outside the
     // primitive, otherwise set the hit record UV coordinates and return true.
@@ -144,7 +144,7 @@ __host__ __device__ bool directional_light::is_interior(float a, float b, hit_re
     return true;
 }
 
-__device__ float directional_light::pdf_value(const point3& origin, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline float directional_light::pdf_value(const point3& origin, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
 {
     hit_record rec;
 
@@ -162,7 +162,7 @@ __device__ float directional_light::pdf_value(const point3& origin, const vector
 /// </summary>
 /// <param name="origin"></param>
 /// <returns></returns>
-__device__ vector3 directional_light::random(const point3& origin, thrust::default_random_engine& rng) const
+__device__ inline vector3 directional_light::random(const point3& origin, thrust::default_random_engine& rng) const
 {
     auto p = m_position
         + (get_real(rng) - 0.5f) * m_u

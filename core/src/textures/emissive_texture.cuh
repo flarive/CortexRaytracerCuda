@@ -18,19 +18,19 @@ public:
 	__host__ __device__ TextureTypeID getTypeID() const override { return TextureTypeID::textureEmissiveType; }
 
 private:
-	texture* m_emissive;
+	texture* m_emissive = nullptr;
 	float m_strength = 10.0f;     // Scaling factor for emissive effect
 };
 
-__host__ __device__ emissive_texture::emissive_texture()
+__host__ __device__ inline emissive_texture::emissive_texture()
 {
 }
 
-__host__ __device__ emissive_texture::emissive_texture(texture* bump, float strength) : m_emissive(bump), m_strength(strength)
+__host__ __device__ inline emissive_texture::emissive_texture(texture* bump, float strength) : m_emissive(bump), m_strength(strength)
 {
 }
 
-__host__ __device__ color emissive_texture::value(float u, float v, const point3& p) const
+__host__ __device__ inline color emissive_texture::value(float u, float v, const point3& p) const
 {
 	return m_emissive->value(u, v, p);
 }

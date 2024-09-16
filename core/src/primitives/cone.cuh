@@ -32,17 +32,17 @@ private:
 };
 
 
-__host__ __device__ cone::cone(const char* _name)
+__host__ __device__ inline cone::cone(const char* _name)
     : cone(vector3(0), 1, 1, nullptr, uvmapping(), _name)
 {
 };
 
-__host__ __device__ cone::cone(vector3 _center, float _radius, float _height, material* _material, const char* _name)
+__host__ __device__ inline cone::cone(vector3 _center, float _radius, float _height, material* _material, const char* _name)
     : cone(_center, _radius, _height, _material, uvmapping(), _name)
 {
 };
 
-__host__ __device__ cone::cone(vector3 _center, float _radius, float _height, material* _material, const uvmapping& _mapping, const char* _name)
+__host__ __device__ inline cone::cone(vector3 _center, float _radius, float _height, material* _material, const uvmapping& _mapping, const char* _name)
     : center(_center), radius(_radius), height(_height), mat(_material)
 {
     m_mapping = _mapping;
@@ -55,7 +55,7 @@ __host__ __device__ cone::cone(vector3 _center, float _radius, float _height, ma
     );
 }
 
-__device__ bool cone::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline bool cone::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
     double A = r.origin().x - center.x;
     double B = r.origin().z - center.z;
@@ -127,18 +127,18 @@ __device__ bool cone::hit(const ray& r, interval ray_t, hit_record& rec, int dep
     return true;
 }
 
-__device__ float cone::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
+__device__ inline float cone::pdf_value(const point3& o, const vector3& v, int max_depth, thrust::default_random_engine& rng) const
 {
     return 0.0f;
 }
 
-__device__ vector3 cone::random(const vector3& o, thrust::default_random_engine& rng) const
+__device__ inline vector3 cone::random(const vector3& o, thrust::default_random_engine& rng) const
 {
     return vector3(1, 0, 0);
 }
 
 
-__host__ __device__ aabb cone::bounding_box() const
+__host__ __device__ inline aabb cone::bounding_box() const
 {
     return m_bbox;
 }
