@@ -1546,12 +1546,12 @@ color scene_loader::getColor(const libconfig::Setting& setting)
 
 	if (r1 >= 0 && g1 >= 0 && b1 >= 0)
 	{
-		return color(r1 / 255.0, g1 / 255.0, b1 / 255.0);
+		return color(r1 / 255.0f, g1 / 255.0f, b1 / 255.0f);
 	}
 
-	double r2 = 0.0;
-	double g2 = 0.0;
-	double b2 = 0.0;
+	float r2 = 0.0f;
+	float g2 = 0.0f;
+	float b2 = 0.0f;
 
 	// test if format is 0.0-1.0
 	if (setting.exists("r"))
@@ -1568,12 +1568,12 @@ uvmapping scene_loader::getUVmapping(const libconfig::Setting& setting)
 {
 	uvmapping uv{};
 
-	double scale_u = 1.0;
-	double scale_v = 1.0;
-	double offset_u = 0.0;
-	double offset_v = 0.0;
-	double repeat_u = 1.0;
-	double repeat_v = 1.0;
+	float scale_u = 1.0f;
+	float scale_v = 1.0f;
+	float offset_u = 0.0f;
+	float offset_v = 0.0f;
+	float repeat_u = 1.0f;
+	float repeat_v = 1.0f;
 
 	if (setting.exists("scale_u"))
 		setting.lookupValue("scale_u", scale_u);

@@ -1,5 +1,6 @@
 #pragma once
 
+#define TINYOBJLOADER_IMPLEMENTATION
 #include "obj/tinyobjloader.hpp"
 
 #include "../primitives/hittable.cuh"
@@ -22,7 +23,9 @@ class mesh_loader
 {
 public:
 
-    mesh_loader();
+    mesh_loader()
+    {
+    }
 
 
     typedef struct
@@ -57,11 +60,6 @@ public:
 
 
 
-mesh_loader::mesh_loader()
-{
-}
-
-
 /// <summary>
 /// https://github.com/Drummersbrother/raytracing-in-one-weekend/blob/90b1d3d7ce7f6f9244bcb925c77baed4e9d51705/rtw_stb_obj_loader.h
 /// </summary>
@@ -69,7 +67,7 @@ mesh_loader::mesh_loader()
 /// <param name="model_material"></param>
 /// <param name="use_mtl"></param>
 /// <param name="shade_smooth"></param>
-bool mesh_loader::load_model_from_file(std::string filepath, mesh_data& mesh)
+inline bool mesh_loader::load_model_from_file(std::string filepath, mesh_data& mesh)
 {
     // from https://github.com/mojobojo/OBJLoader/blob/master/example.cc
     std::filesystem::path dir(std::filesystem::current_path());
@@ -125,7 +123,7 @@ bool mesh_loader::load_model_from_file(std::string filepath, mesh_data& mesh)
 }
 
 
-hittable* mesh_loader::convert_model_from_file(mesh_data& data, material* model_material, bool use_mtl, bool shade_smooth, std::string name)
+inline hittable* mesh_loader::convert_model_from_file(mesh_data& data, material* model_material, bool use_mtl, bool shade_smooth, std::string name)
 {
     hittable_list model_output;
 
@@ -275,7 +273,7 @@ hittable* mesh_loader::convert_model_from_file(mesh_data& data, material* model_
 /// <param name="normals"></param>
 /// <param name="tangents"></param>
 /// <param name="bitangents"></param>
-void mesh_loader::computeTangentBasis(std::array<vector3, 3>& vertices, std::array<vector2, 3>& uvs, std::array<vector3, 3>& normals, std::array<vector3, 3>& tangents, std::array<vector3, 3>& bitangents)
+inline void mesh_loader::computeTangentBasis(std::array<vector3, 3>& vertices, std::array<vector2, 3>& uvs, std::array<vector3, 3>& normals, std::array<vector3, 3>& tangents, std::array<vector3, 3>& bitangents)
 {
     //For each triangle, we compute the edge(deltaPos) and the deltaUV
     for (uint64_t i = 0; i < vertices.size(); i += 3)
@@ -315,13 +313,13 @@ void mesh_loader::computeTangentBasis(std::array<vector3, 3>& vertices, std::arr
     }
 }
 
-color mesh_loader::get_color(tinyobj::real_t* raws)
+inline color mesh_loader::get_color(tinyobj::real_t* raws)
 {
     return color(raws[0], raws[1], raws[2]);
 }
 
 
-material* mesh_loader::get_mtl_mat(const tinyobj::material_t& reader_mat)
+inline material* mesh_loader::get_mtl_mat(const tinyobj::material_t& reader_mat)
 {
     color ambient(0.0, 0.0, 0.0);
     texture* diffuse_a = nullptr;
@@ -407,7 +405,7 @@ material* mesh_loader::get_mtl_mat(const tinyobj::material_t& reader_mat)
     return new phong(diffuse_a, specular_a, bump_a, normal_a, displace_a, alpha_a, emissive_a, ambient, shininess);
 }
 
-void mesh_loader::applyDisplacement(mesh_data& data, displacement_texture* tex)
+inline void mesh_loader::applyDisplacement(mesh_data& data, displacement_texture* tex)
 {
     //std::cout << "[INFO] Start applying model displacement " << data.shapes.size() << std::endl;
 

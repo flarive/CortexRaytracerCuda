@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../materials/diffuse_light.cuh"
+
 /// <summary>
 /// Omni directional light
 /// </summary>

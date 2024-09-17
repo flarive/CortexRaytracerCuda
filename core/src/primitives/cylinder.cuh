@@ -64,17 +64,17 @@ __host__ __device__ inline cylinder::cylinder(point3 _center, float _radius, flo
 __device__ inline bool cylinder::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
     vector3 oc = r.origin() - center;
-    double a = r.direction().x * r.direction().x + r.direction().z * r.direction().z;
-    double b = 2.0 * (oc.x * r.direction().x + oc.z * r.direction().z);
-    double c = oc.x * oc.x + oc.z * oc.z - radius * radius;
-    double d = b * b - 4 * a * c;
+    float a = r.direction().x * r.direction().x + r.direction().z * r.direction().z;
+    float b = 2.0 * (oc.x * r.direction().x + oc.z * r.direction().z);
+    float c = oc.x * oc.x + oc.z * oc.z - radius * radius;
+    float d = b * b - 4 * a * c;
 
     if (d < 0)
     {
         return false;
     }
 
-    double root = (-b - sqrt(d)) / (2.0 * a);
+    float root = (-b - sqrt(d)) / (2.0 * a);
 
     if (root < ray_t.min || ray_t.max < root)
     {

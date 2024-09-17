@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../pdf/sphere_pdf.cuh"
+#include "../textures/solid_color_texture.cuh"
 
 /// <summary>
 /// Isotropic material

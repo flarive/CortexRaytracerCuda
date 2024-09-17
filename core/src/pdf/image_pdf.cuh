@@ -31,7 +31,6 @@ __device__ image_pdf::image_pdf(image_texture* img)
 {
 	unsigned int k = 0;
 	float angleFrac = M_PI / m_height;
-	float angleFrac = M_PI / m_height;
 	float theta = static_cast<float>(angleFrac) * 0.5f;
 	float sinTheta = 0.f;
 	float* pSinTheta = (float*)malloc(sizeof(float) * m_height);

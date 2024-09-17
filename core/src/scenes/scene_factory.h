@@ -4,7 +4,6 @@
 #include "../materials/material.cuh"
 #include "../misc/vector3.cuh"
 
-
 class scene_factory
 {
 public:
