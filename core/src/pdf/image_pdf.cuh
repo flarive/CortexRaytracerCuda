@@ -18,12 +18,14 @@ public:
 
 	__host__ __device__ virtual pdfTypeID getTypeID() const { return pdfTypeID::pdfImage; }
 
-public:
+private:
 	image_texture* m_image = nullptr;
 	unsigned int m_width = 0, m_height = 0, m_channels = 0;
 	float* m_pUDist;
 	float* m_pBuffer;
 	float* m_pData;
+
+	__device__ float* device_lower_bound(float* first, float* last, float value);
 };
 
 __device__ image_pdf::image_pdf(image_texture* img)
@@ -108,16 +110,35 @@ __device__ inline vector3 image_pdf::generate(scatter_record& rec, thrust::defau
 	float r2 = get_real(rng);
 
 	float maxUVal = m_pUDist[m_width - 1];
-	float* pUPos = std::lower_bound(m_pUDist, m_pUDist + m_width, r1 * maxUVal);
+	float* pUPos = device_lower_bound(m_pUDist, m_pUDist + m_width, r1 * maxUVal);
 	int u = int(pUPos - m_pUDist);
 	float* pVDist = &m_pBuffer[m_height * u];
-	float* pVPos = std::lower_bound(pVDist, pVDist + m_height, r2 * pVDist[m_height - 1]);
+	float* pVPos = device_lower_bound(pVDist, pVDist + m_height, r2 * pVDist[m_height - 1]);
 	int v = int(pVPos - pVDist);
 
 	float _u = float(u) / m_height, _v = float(v) / m_width;
 	_u = 1.0f - _u;
 
 	return from_spherical_uv(_u, _v);
+}
+
+__device__ inline float* image_pdf::device_lower_bound(float* first, float* last, float value)
+{
+	float* low = first;
+	float* high = last;
+
+	while (low < high) {
+		float* mid = low + (high - low) / 2;
+
+		if (*mid < value) {
+			low = mid + 1;
+		}
+		else {
+			high = mid;
+		}
+	}
+
+	return low;  // Return pointer to the first element not less than `value`
 }
 
 // Destructor implementation

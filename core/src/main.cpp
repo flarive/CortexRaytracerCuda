@@ -11,12 +11,21 @@ int main(int argc, char* argv[])
 {
 	render_parameters params = render_parameters::getArgs(argc, argv);
 
+    // Create world
+    scene_manager builder;
+
+    //scene world = builder.cornell_box(cam);
+
+
+    
+
+
 
     std::cout << "[INFO] Ready !" << std::endl;
 
     timer renderTimer;
 
-    scene world;
+    scene world = builder.load_scene(params);
 
     // Start measuring time
     renderTimer.start();

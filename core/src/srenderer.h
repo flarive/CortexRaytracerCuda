@@ -21,11 +21,15 @@ void srenderer::render(scene& _scene, const render_parameters& _params)
     camera* cam = _scene.get_camera();
     //cam->initialize(camera->lookfrom, camera->lookat, camera->vup, camera->vfov, camera->aspect_ratio, 1.0f, camera->focus_dist, 0, 1, camera->getSqrtSpp());
 
-    //_scene.extract_emissive_objects();
+    _scene.extract_emissive_objects();
 
     std::cout << "[INFO] Optimizing scene" << std::endl;
 
-    //_scene.build_optimized_world();
+    int seed = 78411111;
+    thrust::minstd_rand rng(seed);
+    //thrust::uniform_real_distribution<float> uniform_dist(0.0f, 1.0f);
+
+    _scene.build_optimized_world(rng);
 
 
     // init default anti aliasing sampler

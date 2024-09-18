@@ -7,6 +7,46 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "core", "core\MyOwnRayTracer
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UI", "UI\Examples\UI\UI.vcxproj", "{4A1FB5EA-22F5-42A8-AB92-1D2DF5D47FB9}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scenes", "scenes", "{413D75D6-BB7F-4FEA-9ED5-851EA9839049}"
+	ProjectSection(SolutionItems) = preProject
+		data\scenes\advanced_lights.scene = data\scenes\advanced_lights.scene
+		data\scenes\all_lights_types.scene = data\scenes\all_lights_types.scene
+		data\scenes\all_materials_spheres.scene = data\scenes\all_materials_spheres.scene
+		data\scenes\all_textures_spheres.scene = data\scenes\all_textures_spheres.scene
+		data\scenes\angel_mesh.scene = data\scenes\angel_mesh.scene
+		data\scenes\cornell_box.scene = data\scenes\cornell_box.scene
+		data\scenes\cornell_box_advanced.scene = data\scenes\cornell_box_advanced.scene
+		data\scenes\cornell_box_smoke.scene = data\scenes\cornell_box_smoke.scene
+		data\scenes\cow_mesh.scene = data\scenes\cow_mesh.scene
+		data\scenes\crate_mesh.scene = data\scenes\crate_mesh.scene
+		data\scenes\crate_mesh_mtl.scene = data\scenes\crate_mesh_mtl.scene
+		data\scenes\cushion_mesh.scene = data\scenes\cushion_mesh.scene
+		data\scenes\cushion_mesh_mtl.scene = data\scenes\cushion_mesh_mtl.scene
+		data\scenes\earth_mesh.scene = data\scenes\earth_mesh.scene
+		data\scenes\extended_primitives.scene = data\scenes\extended_primitives.scene
+		data\scenes\extended_primitives_old.scene = data\scenes\extended_primitives_old.scene
+		data\scenes\extended_primitives_textured.scene = data\scenes\extended_primitives_textured.scene
+		data\scenes\final_scene.scene = data\scenes\final_scene.scene
+		data\scenes\isotropic_anisotropic_spheres.scene = data\scenes\isotropic_anisotropic_spheres.scene
+		data\scenes\lambertian_spheres.scene = data\scenes\lambertian_spheres.scene
+		data\scenes\nautilus_mesh.scene = data\scenes\nautilus_mesh.scene
+		data\scenes\orennayar_spheres.scene = data\scenes\orennayar_spheres.scene
+		data\scenes\phong_spheres.scene = data\scenes\phong_spheres.scene
+		data\scenes\random_spheres.scene = data\scenes\random_spheres.scene
+		data\scenes\rocky_sphere_mesh.scene = data\scenes\rocky_sphere_mesh.scene
+		data\scenes\simple_light.scene = data\scenes\simple_light.scene
+		data\scenes\simple_spot_light.scene = data\scenes\simple_spot_light.scene
+		data\scenes\teapot_mesh.scene = data\scenes\teapot_mesh.scene
+		data\scenes\teapot_mesh_mtl.scene = data\scenes\teapot_mesh_mtl.scene
+		data\scenes\test_alpha_texture.scene = data\scenes\test_alpha_texture.scene
+		data\scenes\test_bump_texture.scene = data\scenes\test_bump_texture.scene
+		data\scenes\test_cameras.scene = data\scenes\test_cameras.scene
+		data\scenes\test_displacement_texture.scene = data\scenes\test_displacement_texture.scene
+		data\scenes\test_emissive_texture.scene = data\scenes\test_emissive_texture.scene
+		data\scenes\test_normal_texture.scene = data\scenes\test_normal_texture.scene
+		data\scenes\transforms.scene = data\scenes\transforms.scene
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64

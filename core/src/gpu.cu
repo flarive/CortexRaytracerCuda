@@ -131,8 +131,6 @@ __global__ void load_scene(hittable_list **elist, hittable_list **elights,  came
 {
     if (threadIdx.x == 0 && blockIdx.x == 0)
     {
-        //curandState rng = *rand_state;
-
         // thrust random engine and distribution
         thrust::minstd_rand rng(seed);
         thrust::uniform_real_distribution<float> uniform_dist(0.0f, 1.0f);
@@ -208,24 +206,6 @@ __global__ void load_scene(hittable_list **elist, hittable_list **elights,  came
     }
 }
 
-//__global__ void rand_init(curandState *rand_state)
-//{
-//    // https://forums.developer.nvidia.com/t/differences-between-host-api-and-device-api-for-curand/20624/4
-//    
-//    if (threadIdx.x == 0 && blockIdx.x == 0) {
-//        curand_init(1984, 0, 0, rand_state);
-//    }
-//}
-
-//__global__ void render_init(int maxx, int maxy, curandState *rand_state)
-//{
-//    int i = threadIdx.x + blockIdx.x * blockDim.x;
-//    int j = threadIdx.y + blockIdx.y * blockDim.y;
-//    if((i >= maxx) || (j >= maxy)) return;
-//    int pixel_index = j*maxx + i;
-//    curand_init(1984, pixel_index, 0, &rand_state[pixel_index]);
-//}
-
 __global__ void texture_init(unsigned char* tex_data, int width, int height, int channels, image_texture** tex)
 {
     if (threadIdx.x == 0 && blockIdx.x == 0) {
@@ -233,14 +213,13 @@ __global__ void texture_init(unsigned char* tex_data, int width, int height, int
     }
 }
 
-__global__ void render(color* fb, int width, int height, int spp, int sqrt_spp, int max_depth, hittable_list** world, hittable_list** lights, camera** cam, sampler** aa_sampler, int seed)
+__global__ void render(scene* world_scene, color* fb, int width, int height, int spp, int sqrt_spp, int max_depth, hittable_list** world, hittable_list** lights, camera** cam, sampler** aa_sampler, int seed)
 {
     int i = threadIdx.x + blockIdx.x * blockDim.x;
     int j = threadIdx.y + blockIdx.y * blockDim.y;
     if ((i >= width) || (j >= height)) return;
 
     int pixel_index = j * width + i;
-    //curandState rng = randState[pixel_index];
 
     // Initialize the random engine and distribution
     thrust::minstd_rand rng(seed + pixel_index);
@@ -248,12 +227,6 @@ __global__ void render(color* fb, int width, int height, int spp, int sqrt_spp, 
 
 
     color pixel_color(0, 0, 0);
-
-    //float uniform_random = curand_uniform(&rng);
-    //float normal_random = curand_normal(&rng);
-    //int poisson_random = curand_poisson(&rng, 100.0f);
-
-
 
     for (int s_j = 0; s_j < sqrt_spp; ++s_j)
     {
@@ -273,8 +246,6 @@ __global__ void render(color* fb, int width, int height, int spp, int sqrt_spp, 
 
     const color& fix = prepare_pixel_color(i, j, pixel_color, spp, true);
     const interval intensity(0.000f, 0.999f);
-
-    //randState[pixel_index] = rng;
 
     int color_r = static_cast<int>(255.99f * intensity.clamp(fix.r()));
     int color_g = static_cast<int>(255.99f * intensity.clamp(fix.g()));
@@ -338,7 +309,7 @@ void setupCuda(const cudaDeviceProp& prop)
     std::cout << "[INFO] New printf fifo size: " << newPrintfFifoSize << " bytes" << std::endl;
 }
 
-void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int max_depth, int tx, int ty, const char* filepath)
+void renderGPU(const scene& world, const cudaDeviceProp& prop, int width, int height, int spp, int max_depth, int tx, int ty, const char* filepath)
 {
     std::cout << "[INFO] Rendering " << width << "x" << height << " " << spp << " samples > " << filepath << std::endl;
 
@@ -349,8 +320,7 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
     float ratio = (float)height / (float)width;
     int sqrt_spp = static_cast<int>(sqrt(spp));
     
-    // Values
-    //int num_pixels = width * height;
+
 
     int bytes_per_pixel = 3;
     int tex_x, tex_y, tex_n;
@@ -383,19 +353,12 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
     color* image;
     checkCudaErrors(cudaMallocManaged((void**)&image, width * height * sizeof(color)));
 
-    // Allocate first random state (image)
-    //curandState *d_rand_state_image;
-    //checkCudaErrors(cudaMalloc((void **)&d_rand_state_image, num_pixels * sizeof(curandState)));
+
+    scene* world_device;
+    checkCudaErrors(cudaMalloc((void**)&world_device, sizeof(scene)));
+    checkCudaErrors(cudaMemcpy(world_device, &world, sizeof(scene), cudaMemcpyHostToDevice));
 
 
-    //
-   
-    // Allocate 2nd random state to be initialized for the world creation
-    //curandState* d_rand_state_world;
-    //checkCudaErrors(cudaMalloc((void**)&d_rand_state_world, 1 * sizeof(curandState)));
-    //rand_init<<<single_block, single_thread>>>(d_rand_state_world);
-    //checkCudaErrors(cudaGetLastError());
-    //checkCudaErrors(cudaDeviceSynchronize());
 
     // Building the world
     hittable_list **elist;
@@ -422,14 +385,11 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
     dim3 render_blocks(width / tx+1, height / ty+1);
     dim3 render_threads(tx, ty);
 
-    //render_init<<<render_blocks, render_threads>>>(width, height, d_rand_state_image);
-    //checkCudaErrors(cudaGetLastError());
-    //checkCudaErrors(cudaDeviceSynchronize());
 
     printf("[INFO] Render with %u/%u blocks of %u/%u threads\n", render_blocks.x, render_blocks.y, render_threads.x, render_threads.y);
 
 
-    render<<<render_blocks, render_threads>>>(image, width, height, spp, sqrt_spp, max_depth, elist, elights, cam, aa_sampler, 2580);
+    render<<<render_blocks, render_threads>>>(world_device, image, width, height, spp, sqrt_spp, max_depth, elist, elights, cam, aa_sampler, 2580);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
@@ -439,14 +399,7 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
     {
         for (int ii = 0; ii < width; ii++)
         {
-            printf(
-                "p %u %u %u %u %u\n",
-                ii,
-                height - jj - 1,
-                0,
-                0,
-                0
-            );
+            printf("p %u %u %u %u %u\n", ii, height - jj - 1, 0, 0, 0);
         }
     }
     
@@ -463,7 +416,7 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
         }
     }
 
-    //stbi_write_png(filepath, width, height, 3, imageHost, width * 3);
+    stbi_write_png(filepath, width, height, 3, imageHost, width * 3);
 
     // Clean up
     checkCudaErrors(cudaDeviceSynchronize());
@@ -472,15 +425,13 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
     checkCudaErrors(cudaFree(cam));
     checkCudaErrors(cudaFree(elights));
     checkCudaErrors(cudaFree(elist));
-    //checkCudaErrors(cudaFree(myscene));
+    checkCudaErrors(cudaFree(world_device));
     checkCudaErrors(cudaFree(aa_sampler));
-    //checkCudaErrors(cudaFree(d_rand_state_world));
     checkCudaErrors(cudaFree(image));
-    //checkCudaErrors(cudaFree(d_rand_state_image));
 }
 
 
-void launchGPU(int width, int height, int spp, int max_depth, int tx, int ty, const char* filepath, bool quietMode)
+void launchGPU(const scene& world, int width, int height, int spp, int max_depth, int tx, int ty, const char* filepath, bool quietMode)
 {
     cudaDeviceProp prop;
 
@@ -501,7 +452,7 @@ void launchGPU(int width, int height, int spp, int max_depth, int tx, int ty, co
     // --expt-relaxed-constexpr -Xcudafe --diag_suppress=esa_on_defaulted_function_ignored --std c++20 --verbose
     // --expt-relaxed-constexpr --std c++20 -Xcudafe="--diag_suppress=20012 --diag_suppress=20208" 
     //
-    renderGPU(prop, width, height, spp, max_depth, tx, ty, filepath);
+    renderGPU(world, prop, width, height, spp, max_depth, tx, ty, filepath);
 }
 
 
