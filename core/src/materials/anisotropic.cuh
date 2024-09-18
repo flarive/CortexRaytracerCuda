@@ -38,7 +38,7 @@ public:
 
 
 private:
-    const float epsilon = 1E-5;
+    const float epsilon = 1E-5f;
 
     texture* m_diffuse;
     texture* m_specular;
@@ -51,7 +51,7 @@ private:
     float m_nv = 0.0f;
 
 
-    __host__ __device__ color emitted(const ray& r_in, const hit_record& rec, double u, double v, const point3& p) const;
+    __host__ __device__ color emitted(const ray& r_in, const hit_record& rec, float u, float v, const point3& p) const;
 };
 
 
@@ -68,7 +68,7 @@ __device__ inline bool anisotropic::scatter(const ray& r_in, const hittable_list
 	if (m_exponent)
 	{
 		const color c = m_exponent->value(rec.u, rec.v, rec.hit_point);
-		const double e = (c.r() + c.g() + c.b()) / 3.;
+		const float e = (c.r() + c.g() + c.b()) / 3.0f;
 
 		if (e > 0)
 			srec.pdf_ptr = new anisotropic_phong_pdf(r_in.direction(), rec.normal, e * m_nu, e * m_nv);
@@ -93,7 +93,7 @@ __device__ inline bool anisotropic::scatter(const ray& r_in, const hittable_list
 	return true;
 }
 
-__host__ __device__ inline color anisotropic::emitted(const ray& r_in, const hit_record& rec, double u, double v, const point3& p) const
+__host__ __device__ inline color anisotropic::emitted(const ray& r_in, const hit_record& rec, float u, float v, const point3& p) const
 {
 	return color::black();
 }

@@ -48,11 +48,11 @@ __host__ __device__ inline xy_rect::xy_rect(float _x0, float _x1, float _y0, flo
 
 __device__ inline bool xy_rect::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
-    double t = (k - r.origin().z) / r.direction().z;
+    float t = (k - r.origin().z) / r.direction().z;
     if (t < ray_t.min || t > ray_t.max)
         return false;
-    double x = r.origin().x + t * r.direction().x;
-    double y = r.origin().y + t * r.direction().y;
+    float x = r.origin().x + t * r.direction().x;
+    float y = r.origin().y + t * r.direction().y;
     if (x < x0 || x > x1 || y < y0 || y > y1)
         return false;
     //rec.u = (x - x0) / (x1 - x0);
@@ -168,11 +168,11 @@ __host__ __device__ inline xz_rect::xz_rect(float _x0, float _x1, float _z0, flo
 
 __device__ inline bool xz_rect::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
-    double t = (k - r.origin().y) / r.direction().y;
+    float t = (k - r.origin().y) / r.direction().y;
     if (t < ray_t.min || t > ray_t.max)
         return false;
-    double x = r.origin().x + t * r.direction().x;
-    double z = r.origin().z + t * r.direction().z;
+    float x = r.origin().x + t * r.direction().x;
+    float z = r.origin().z + t * r.direction().z;
     if (x < x0 || x > x1 || z < z0 || z > z1)
         return false;
     //rec.u = (x - x0) / (x1 - x0);

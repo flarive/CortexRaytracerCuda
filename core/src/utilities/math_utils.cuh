@@ -132,9 +132,9 @@ __host__ __device__ static float maxDot3(const vector3& v1, const vector3& v2)
     return glm::max(dotProduct, 0.0f);
 }
 
-__host__ __device__ static double getRatio(const char* value)
+__host__ __device__ static float getRatio(const char* value)
 {
-    double p1 = 0, p2 = 0;
+    float p1 = 0, p2 = 0;
 
     std::stringstream test(value);
     std::string segment;
@@ -144,11 +144,11 @@ __host__ __device__ static double getRatio(const char* value)
     {
         if (loop == 0)
         {
-            p1 = stoul(segment, 0, 10);
+            p1 = stof(segment);
         }
         else if (loop == 1)
         {
-            p2 = stoul(segment, 0, 10);
+            p2 = stof(segment);
         }
 
         loop++;

@@ -197,9 +197,9 @@ __device__ inline float triangle::pdf_value(const point3& o, const vector3& v, i
 
     // from https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=4121581
     vector3 R1 = verts[0] - o, R2 = verts[1] - o, R3 = verts[2] - o;
-    float r1 = R1.length();
-    float r2 = R2.length();
-    float r3 = R3.length();
+    int r1 = R1.length();
+    int r2 = R2.length();
+    int r3 = R3.length();
     float N = glm::dot(R1, cross(R2, R3));
     float D = r1 * r2 * r3 + glm::dot(R1, R2) * r3 + glm::dot(R1, R3) * r2 + glm::dot(R2, R3) * r3;
 
@@ -213,7 +213,7 @@ __device__ inline vector3 triangle::random(const point3& o, thrust::default_rand
     // From https://math.stackexchange.com/questions/18686/uniform-random-point-in-triangle-in-3d
     float r1 = get_real(rng);
     float r2 = get_real(rng);
-    float ca = (1.0f - glm::sqrt(r1)), cb = glm::sqrt(r1) * (1. - r2), cc = r2 * glm::sqrt(r1);
+    float ca = (1.0f - glm::sqrt(r1)), cb = glm::sqrt(r1) * (1.0f - r2), cc = r2 * glm::sqrt(r1);
     vector3 random_in_triangle = verts[0] * ca + verts[1] * cb + verts[2] * cc;
     return random_in_triangle - o;
 }

@@ -8,13 +8,13 @@
 class anisotropic_phong_pdf : public pdf
 {
 public:
-	__device__ anisotropic_phong_pdf(const vector3& inc, const vector3& norm, double Nu, double Nv)
+	__device__ anisotropic_phong_pdf(const vector3& inc, const vector3& norm, float Nu, float Nv)
 		: m_incident(inc), m_onb(norm, inc), m_nu(Nu), m_nv(Nv)
 	{
-		const double nu1 = m_nu + 1.;
-		const double nv1 = m_nv + 1.;
-		m_prefactor1 = sqrt(nu1 / nv1);
-		m_prefactor2 = sqrt(nu1 * nv1) / (2.0f * M_PI);
+		const float nu1 = m_nu + 1.0f;
+		const float nv1 = m_nv + 1.0f;
+		m_prefactor1 = glm::sqrt(nu1 / nv1);
+		m_prefactor2 = glm::sqrt(nu1 * nv1) / (2.0f * M_PI);
 	}
 
 	__device__ ~anisotropic_phong_pdf() = default;
@@ -25,7 +25,7 @@ public:
 	__host__ __device__ virtual pdfTypeID getTypeID() const { return pdfTypeID::pdfAnisotropicPhong; }
 
 private:
-	__host__ __device__ inline static double Schlick(const double val, float cosine)
+	__host__ __device__ inline static float Schlick(const float val, float cosine)
 	{
 		return val + (1.0f - val) * pow(1.0f - cosine, 5.0f);
 	}
@@ -35,15 +35,15 @@ private:
 		return m_incident + 2.0f * kh * h;
 	}
 
-	__host__ __device__ inline double GetSpecularPDH(const vector3& h, float kh, float cos2, float sin2) const
+	__host__ __device__ inline float GetSpecularPDH(const vector3& h, float kh, float cos2, float sin2) const
 	{
 		return GetHPDH(h, cos2, sin2) / (4.0f * kh);
 	}
 
-	__host__ __device__ inline double GetHPDH(const vector3& h, float cos2, float sin2) const
+	__host__ __device__ inline float GetHPDH(const vector3& h, float cos2, float sin2) const
 	{
 		auto kkk = m_onb.Normal();
-		double nh = h.x * kkk.x + h.y * kkk.y + h.z * kkk.z;
+		float nh = h.x * kkk.x + h.y * kkk.y + h.z * kkk.z;
 
 		return m_prefactor2 * glm::pow(nh, m_nu * cos2 + m_nv * sin2);
 	}
@@ -87,7 +87,7 @@ __device__ inline vector3 anisotropic_phong_pdf::generate(scatter_record& rec, t
 	const float c = cos(phi);
 	const float s = sin(phi);
 	const float c2 = c * c;
-	const float s2 = 1. - c2;
+	const float s2 = 1.0f - c2;
 
 	xi = get_real(rng);
 	DealWithQuadrants(xi, phase, flip);
@@ -107,17 +107,17 @@ __device__ inline vector3 anisotropic_phong_pdf::generate(scatter_record& rec, t
 	const vector3 h = m_onb.LocalToGlobal(vector3(st * c, st * s, ct));
 
 	float diffuseProbability;
-	float kh = 0.; // avoid complains about not being initialized
+	float kh = 0.0f; // avoid complains about not being initialized
 
 	if (vector_multiply_to_double(h, m_onb.Normal()) < 0)
-		diffuseProbability = 1.;
+		diffuseProbability = 1.0f;
 	else
 	{
 		kh = vector_multiply_to_double(-m_incident, h);
 		const float specularProbability = GetSpecularPDH(h, kh, cos2, sin2);
-		const float weight = 1. + specularProbability;
+		const float weight = 1.0f + specularProbability;
 
-		diffuseProbability = 1. / weight;
+		diffuseProbability = 1.0f / weight;
 	}
 
 	if (get_real(rng) < diffuseProbability)
@@ -127,7 +127,7 @@ __device__ inline vector3 anisotropic_phong_pdf::generate(scatter_record& rec, t
 	}
 
 	// I don't like the white specular color that's typical in obj files, mix it with the diffuse color
-	rec.attenuation = 0.8 * rec.specularColor + 0.2f * rec.diffuseColor;
+	rec.attenuation = 0.8f * rec.specularColor + 0.2f * rec.diffuseColor;
 
 	return GetSpecularReflected(h, kh);
 }

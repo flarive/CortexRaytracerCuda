@@ -71,7 +71,7 @@ __device__ inline void orthographic_camera::initialize(vector3 lookfrom, vector3
 
     // Determine viewport dimensions based on orthographic projection.
     float viewport_height = 2.0f * ortho_height;
-    float viewport_width = viewport_height * (static_cast<double>(image_width) / image_height);
+    float viewport_width = viewport_height * (static_cast<float>(image_width) / image_height);
 
     // Set the time range for motion blur.
     time0 = t0;

@@ -64,7 +64,7 @@ __host__ __device__ inline displacement_texture::displacement_texture(texture* t
 
 __host__ __device__ inline color displacement_texture::value(float u, float v, const point3& p) const
 {
-    double value = 0.0;
+    float value = 0.0f;
 
     // Clamp u and v to [0, 1]
     u = std::fmod(u, 1.0f);

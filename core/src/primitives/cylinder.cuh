@@ -65,7 +65,7 @@ __device__ inline bool cylinder::hit(const ray& r, interval ray_t, hit_record& r
 {
     vector3 oc = r.origin() - center;
     float a = r.direction().x * r.direction().x + r.direction().z * r.direction().z;
-    float b = 2.0 * (oc.x * r.direction().x + oc.z * r.direction().z);
+    float b = 2.0f * (oc.x * r.direction().x + oc.z * r.direction().z);
     float c = oc.x * oc.x + oc.z * oc.z - radius * radius;
     float d = b * b - 4 * a * c;
 
@@ -74,11 +74,11 @@ __device__ inline bool cylinder::hit(const ray& r, interval ray_t, hit_record& r
         return false;
     }
 
-    float root = (-b - sqrt(d)) / (2.0 * a);
+    float root = (-b - sqrt(d)) / (2.0f * a);
 
     if (root < ray_t.min || ray_t.max < root)
     {
-        root = (-b + sqrt(d)) / (2.0 * a);
+        root = (-b + sqrt(d)) / (2.0f * a);
         if (root < ray_t.min || ray_t.max < root)
         {
             return false;

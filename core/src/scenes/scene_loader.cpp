@@ -354,7 +354,7 @@ void scene_loader::addNoiseTexture(const libconfig::Setting& textures, scene_bui
 		{
 			const libconfig::Setting& texture = noise[i];
 			std::string name;
-			double scale = 1.0;
+			float scale = 1.0f;
 
 			if (texture.exists("name"))
 				texture.lookupValue("name", name);
@@ -479,7 +479,7 @@ void scene_loader::addBumpTexture(const libconfig::Setting& textures, scene_buil
 			const libconfig::Setting& texture = texs[i];
 			std::string name;
 			std::string filepath;
-			double strength = 0.0;
+			float strength = 0.0f;
 
 			if (texture.exists("name"))
 				texture.lookupValue("name", name);
@@ -639,7 +639,7 @@ void scene_loader::addEmissiveTexture(const libconfig::Setting& textures, scene_
 			const libconfig::Setting& texture = image[i];
 			std::string name;
 			std::string filepath;
-			double strength = 10.0;
+			float strength = 10.0f;
 
 			if (texture.exists("name"))
 				texture.lookupValue("name", name);
@@ -680,7 +680,7 @@ void scene_loader::addDirectionalLight(const libconfig::Setting& lights, scene_b
 			point3 position{};
 			vector3 u{};
 			vector3 v{};
-			double intensity{};
+			float intensity = 0.0f;
 			bool invisible = true;
 			bool active = true;
 
@@ -721,8 +721,8 @@ void scene_loader::addOmniLight(const libconfig::Setting& lights, scene_builder&
 			std::string name{};
 			color rgb{};
 			point3 position{};
-			double radius = 0.0;
-			double intensity = 0.0;
+			float radius = 0.0f;
+			float intensity = 0.0f;
 			bool invisible = true;
 			bool active = true;
 
@@ -761,10 +761,10 @@ void scene_loader::addSpotLight(const libconfig::Setting& lights, scene_builder&
 			std::string name{};
 			point3 position{};
 			vector3 direction{};
-			double cutoff = 0.0;
-			double falloff = 0.0;
-			double intensity = 0.0;
-			double radius = 0.0;
+			float cutoff = 0.0f;
+			float falloff = 0.0f;
+			float intensity = 0.0f;
+			float radius = 0.0f;
 			color rgb{};
 			bool invisible = true;
 			bool active = true;
@@ -845,7 +845,7 @@ void scene_loader::addPhongMaterial(const libconfig::Setting& materials, scene_b
 			std::string alphaTextureName;
 			std::string emissiveTextureName;
 			color ambientColor{};
-			double shininess = 0.0;
+			float shininess = 0.0f;
 
 			if (material.exists("name"))
 				material.lookupValue("name", name);
@@ -1216,8 +1216,8 @@ void scene_loader::addConePrimitives(const libconfig::Setting& primitives, scene
 			const libconfig::Setting& primitive = primitives["cones"][i];
 			std::string name;
 			point3 position{};
-			double radius = 0.0;
-			double height = 0.0;
+			float radius = 0.0f;
+			float height = 0.0f;
 			std::string materialName;
 			uvmapping uv = { 1, 1, 0, 0, 1, 1 };
 			std::string groupName;
@@ -1450,7 +1450,7 @@ point3 scene_loader::getPoint(const libconfig::Setting& setting)
 			int x = 0;
 			if (setting.lookupValue("x", x))
 			{
-				point.x = x;
+				point.x = float(x);
 			}
 		}
 	}
@@ -1462,7 +1462,7 @@ point3 scene_loader::getPoint(const libconfig::Setting& setting)
 			int y = 0;
 			if (setting.lookupValue("y", y))
 			{
-				point.y = y;
+				point.y = float(y);
 			}
 		}
 	}
@@ -1474,7 +1474,7 @@ point3 scene_loader::getPoint(const libconfig::Setting& setting)
 			int z = 0;
 			if (setting.lookupValue("z", z))
 			{
-				point.z = z;
+				point.z = float(z);
 			}
 		}
 	}
@@ -1496,7 +1496,7 @@ vector3 scene_loader::getVector(const libconfig::Setting& setting)
 			int x = 0;
 			if (setting.lookupValue("x", x))
 			{
-				vector.x = x;
+				vector.x = float(x);
 			}
 		}
 	}
@@ -1508,7 +1508,7 @@ vector3 scene_loader::getVector(const libconfig::Setting& setting)
 			int y = 0;
 			if (setting.lookupValue("y", y))
 			{
-				vector.y = y;
+				vector.y = float(y);
 			}
 		}
 	}
@@ -1520,7 +1520,7 @@ vector3 scene_loader::getVector(const libconfig::Setting& setting)
 			int z = 0;
 			if (setting.lookupValue("z", z))
 			{
-				vector.z = z;
+				vector.z = float(z);
 			}
 		}
 	}

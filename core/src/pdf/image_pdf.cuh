@@ -20,7 +20,7 @@ public:
 
 public:
 	image_texture* m_image = nullptr;
-	int m_width = 0, m_height = 0, m_channels = 0;
+	unsigned int m_width = 0, m_height = 0, m_channels = 0;
 	float* m_pUDist;
 	float* m_pBuffer;
 	float* m_pData;
@@ -79,8 +79,9 @@ __device__ inline float image_pdf::value(const vector3& direction, int max_depth
 {
 	float _u, _v;
 	get_spherical_uv(unit_vector(direction), _u, _v);
-	_u = 1. - _u;
-	int u = _u * double(m_height - 1), v = _v * double(m_width - 1);
+	_u = 1.0f - _u;
+	unsigned int u = int(_u * float(m_height - 1));
+	unsigned int v = int(_v * float(m_width - 1));
 	if (u < 0) u = 0;
 	if (u >= m_height) u = m_height - 1;
 
@@ -95,7 +96,7 @@ __device__ inline float image_pdf::value(const vector3& direction, int max_depth
 	pdfU /= m_pUDist[m_width - 1];
 	float pdfV = (v == 0) ? (pVDist[0]) : (pVDist[v] - pVDist[v - 1]);
 	pdfV /= pVDist[m_height - 1];
-	float theta = angleFrac * 0.5 + angleFrac * u;
+	float theta = angleFrac * 0.5f + angleFrac * u;
 	float Pdf = (pdfU * pdfV) * sin(theta) / invPdfNorm;
 
 	return Pdf;
@@ -103,18 +104,18 @@ __device__ inline float image_pdf::value(const vector3& direction, int max_depth
 
 __device__ inline vector3 image_pdf::generate(scatter_record& rec, thrust::default_random_engine& rng)
 {
-	double r1 = get_real(rng);
-	double r2 = get_real(rng);
+	float r1 = get_real(rng);
+	float r2 = get_real(rng);
 
 	float maxUVal = m_pUDist[m_width - 1];
 	float* pUPos = std::lower_bound(m_pUDist, m_pUDist + m_width, r1 * maxUVal);
-	int u = pUPos - m_pUDist;
+	int u = int(pUPos - m_pUDist);
 	float* pVDist = &m_pBuffer[m_height * u];
 	float* pVPos = std::lower_bound(pVDist, pVDist + m_height, r2 * pVDist[m_height - 1]);
-	int v = pVPos - pVDist;
+	int v = int(pVPos - pVDist);
 
-	double _u = double(u) / m_height, _v = double(v) / m_width;
-	_u = 1. - _u;
+	float _u = float(u) / m_height, _v = float(v) / m_width;
+	_u = 1.0f - _u;
 
 	return from_spherical_uv(_u, _v);
 }

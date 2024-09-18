@@ -57,17 +57,17 @@ __host__ __device__ inline cone::cone(vector3 _center, float _radius, float _hei
 
 __device__ inline bool cone::hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const
 {
-    double A = r.origin().x - center.x;
-    double B = r.origin().z - center.z;
-    double D = height - r.origin().y + center.y;
+    float A = r.origin().x - center.x;
+    float B = r.origin().z - center.z;
+    float D = height - r.origin().y + center.y;
 
-    double tan = (radius / height) * (radius / height);
+    float tan = (radius / height) * (radius / height);
 
-    double a = (r.direction().x * r.direction().x) + (r.direction().z * r.direction().z) - (tan * (r.direction().y * r.direction().y));
-    double b = (2 * A * r.direction().x) + (2 * B * r.direction().z) + (2 * tan * D * r.direction().y);
-    double c = (A * A) + (B * B) - (tan * (D * D));
+    float a = (r.direction().x * r.direction().x) + (r.direction().z * r.direction().z) - (tan * (r.direction().y * r.direction().y));
+    float b = (2 * A * r.direction().x) + (2 * B * r.direction().z) + (2 * tan * D * r.direction().y);
+    float c = (A * A) + (B * B) - (tan * (D * D));
 
-    double delta = b * b - 4 * (a * c);
+    float delta = b * b - 4 * (a * c);
     if (fabs(delta) < 0.001) return false;
 
     if (delta < 0)
@@ -75,7 +75,7 @@ __device__ inline bool cone::hit(const ray& r, interval ray_t, hit_record& rec, 
         return false;
     }
 
-    double root = (-b - sqrt(delta)) / (2 * a);
+    float root = (-b - sqrt(delta)) / (2 * a);
 
     if (root < ray_t.min || ray_t.max < root)
     {
@@ -87,7 +87,7 @@ __device__ inline bool cone::hit(const ray& r, interval ray_t, hit_record& rec, 
     }
 
 
-    double y = r.origin().y + root * r.direction()[1];
+    float y = r.origin().y + root * r.direction()[1];
 
     if ((y < center.y) || (y > center.y + height))
     {

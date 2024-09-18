@@ -334,7 +334,7 @@ inline material* mesh_loader::get_mtl_mat(const tinyobj::material_t& reader_mat)
     texture* sharpness_a = new solid_color_texture(color(1, 0, 0) * reader_mat.shininess);
 
     // Ns
-    double shininess = reader_mat.shininess; // 0.0
+    float shininess = reader_mat.shininess; // 0.0
 
     // diffuse
     // map_Kd ..\..\data\models\crate_diffuse.jpg
@@ -427,8 +427,8 @@ inline void mesh_loader::applyDisplacement(mesh_data& data, displacement_texture
                 float vy = data.attributes.vertices[3 * idx.vertex_index + 1];
                 float vz = data.attributes.vertices[3 * idx.vertex_index + 2];
 
-                double tx = data.attributes.texcoords[2 * idx.texcoord_index + 0];
-                double ty = data.attributes.texcoords[2 * idx.texcoord_index + 1];
+                float tx = data.attributes.texcoords[2 * idx.texcoord_index + 0];
+                float ty = data.attributes.texcoords[2 * idx.texcoord_index + 1];
 
 
                 color displacement = tex->value(tx, ty, point3());

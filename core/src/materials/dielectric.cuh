@@ -34,11 +34,11 @@ __device__ inline bool dielectric::scatter(const ray& r_in, const hittable_list&
     srec.attenuation = color(1.0, 1.0, 1.0);
     srec.pdf_ptr = nullptr;
     srec.skip_pdf = true;
-    float refraction_ratio = rec.front_face ? (1.0 / ir) : ir;
+    float refraction_ratio = rec.front_face ? (1.0f / ir) : ir;
 
     vector3 unit_direction = unit_vector(r_in.direction());
-    float cos_theta = ffmin(dot(-unit_direction, rec.normal), 1.0);
-    float sin_theta = glm::sqrt(1.0 - cos_theta * cos_theta);
+    float cos_theta = ffmin(dot(-unit_direction, rec.normal), 1.0f);
+    float sin_theta = glm::sqrt(1.0f - cos_theta * cos_theta);
 
     bool cannot_refract = refraction_ratio * sin_theta > 1.0;
     vector3 direction;

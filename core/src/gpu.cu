@@ -350,11 +350,10 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
     int sqrt_spp = static_cast<int>(sqrt(spp));
     
     // Values
-    int num_pixels = width * height;
+    //int num_pixels = width * height;
 
     int bytes_per_pixel = 3;
     int tex_x, tex_y, tex_n;
-    //unsigned char* tex_data_host = nullptr;
     unsigned char *tex_data_host = stbi_load("e:\\uv_mapper_no_numbers.jpg", &tex_x, &tex_y, &tex_n, bytes_per_pixel);
     if (!tex_data_host) {
         std::cerr << "[ERROR] Failed to load texture." << std::endl;
@@ -458,9 +457,9 @@ void renderGPU(const cudaDeviceProp& prop, int width, int height, int spp, int m
         for (int i = 0; i < width; i++) {
             size_t pixel_index = j * width + i;
 
-            imageHost[(height - j - 1) * width * 3 + i * 3] = (size_t)image[pixel_index].r();
-            imageHost[(height - j - 1) * width * 3 + i * 3 + 1] = (size_t)image[pixel_index].g();
-            imageHost[(height - j - 1) * width * 3 + i * 3 + 2] = (size_t)image[pixel_index].b();
+            imageHost[(height - j - 1) * width * 3 + i * 3] = (uint8_t)image[pixel_index].r();
+            imageHost[(height - j - 1) * width * 3 + i * 3 + 1] = (uint8_t)image[pixel_index].g();
+            imageHost[(height - j - 1) * width * 3 + i * 3 + 2] = (uint8_t)image[pixel_index].b();
         }
     }
 
