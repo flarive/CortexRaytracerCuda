@@ -158,9 +158,25 @@ void scene_loader::loadTextures(scene_builder& builder, const libconfig::Setting
 
 void scene_loader::loadLights(scene_builder& builder, const libconfig::Setting& lights)
 {
-	addDirectionalLight(lights, builder);
-	addOmniLight(lights, builder);
-	addSpotLight(lights, builder);
+		int countOmniLights = 0;
+		int countDirLights = 0;
+		int countSpotLights = 0;
+		
+		if (lights.exists("omnis"))
+			countOmniLights = lights["omnis"].getLength();
+
+		if (lights.exists("directionals"))
+			countDirLights = lights["directionals"].getLength();
+
+		if (lights.exists("spots"))
+			countSpotLights = lights["spots"].getLength();
+
+
+		builder.initLightsConfig(countOmniLights, countDirLights, countSpotLights);
+
+		addDirectionalLight(lights, builder);
+		addOmniLight(lights, builder);
+		addSpotLight(lights, builder);
 }
 
 void scene_loader::loadImageConfig(scene_builder& builder, const libconfig::Setting& setting)
@@ -176,7 +192,7 @@ void scene_loader::loadImageConfig(scene_builder& builder, const libconfig::Sett
 	if (setting.exists("background"))
 		loadImageBackgroundConfig(builder, setting["background"]);
 	if (setting.exists("outputFilePath"))
-		builder.imageOutputFilePath(setting["outputFilePath"]);
+		builder.imageOutputFilePath(setting["outputFilePath"].c_str());
 }
 
 void scene_loader::loadImageBackgroundConfig(scene_builder& builder, const libconfig::Setting& setting)
@@ -194,7 +210,7 @@ void scene_loader::loadImageBackgroundConfig(scene_builder& builder, const libco
 	if (setting.exists("is_skybox"))
 		setting.lookupValue("is_skybox", is_skybox);
 	
-	builder.setImageBackgroundConfig(rgb, filepath, is_skybox);
+	builder.setImageBackgroundConfig(rgb, filepath.c_str(), is_skybox);
 }
 
 void scene_loader::loadCameraConfig(scene_builder& builder, const libconfig::Setting& setting)
@@ -703,9 +719,11 @@ void scene_loader::addDirectionalLight(const libconfig::Setting& lights, scene_b
 
 			if (active)
 			{
-				builder.addDirectionalLight(position, u, v, intensity, rgb, invisible, name.c_str());
+				builder.addDirectionalLight(position, u, v, intensity, rgb, invisible, const_cast<char*>(name.c_str()));
 
-				applyTransform(light, builder, name.c_str());
+				//applyTransform(light, builder, name.c_str());
+
+
 			}
 		}
 	}
@@ -745,7 +763,7 @@ void scene_loader::addOmniLight(const libconfig::Setting& lights, scene_builder&
 			{
 				builder.addOmniDirectionalLight(position, radius, intensity, rgb, invisible, name.c_str());
 
-				applyTransform(light, builder, name.c_str());
+				//applyTransform(light, builder, name.c_str());
 			}
 		}
 	}
@@ -794,7 +812,7 @@ void scene_loader::addSpotLight(const libconfig::Setting& lights, scene_builder&
 			{
 				builder.addSpotLight(position, direction, cutoff, falloff, intensity, radius, rgb, invisible, name.c_str());
 
-				applyTransform(light, builder, name.c_str());
+				//applyTransform(light, builder, name.c_str());
 			}
 		}
 	}

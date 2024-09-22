@@ -13,7 +13,7 @@
 class orthographic_camera : public camera
 {
 public:
-    __device__ orthographic_camera()
+    __host__ __device__ orthographic_camera()
     {
     }
 
@@ -21,7 +21,7 @@ public:
     /// Initialize camera with settings
     /// </summary>
     /// <param name="params"></param>
-    __device__ void initialize(vector3 lookfrom, vector3 lookat, vector3 vup, int width, float ratio, float vfov, float aperture, float focus_dist, float ortho_height, float t0, float t1, int sqrt_spp) override;
+    __host__ __device__ void initialize(vector3 lookfrom, vector3 lookat, vector3 vup, int width, float ratio, float vfov, float aperture, float focus_dist, float ortho_height, float t0, float t1, int sqrt_spp) override;
 
     /// <summary>
     /// Get a randomly-sampled camera ray for the pixel at location i,j, originating from the camera defocus disk,
@@ -30,7 +30,9 @@ public:
     /// <param name="i"></param>
     /// <param name="j"></param>
     /// <returns></returns>
-    __device__ const ray get_ray(float i, float j, int s_i, int s_j, sampler* aa_sampler, thrust::default_random_engine& rng) const override;
+    __host__ __device__ const ray get_ray(float i, float j, int s_i, int s_j, sampler* aa_sampler, thrust::default_random_engine& rng) const override;
+
+    __host__ __device__ const ray get_ray(float i, float j, int s_i, int s_j) const override;
 };
 
 
@@ -53,7 +55,7 @@ public:
 ///
 /// Orthographic cameras generally do not have depth of field, so the lens_radius is set to a fixed value.If you want to simulate defocus effects in an orthographic camera, you can adjust this as needed, but generally, it will be 0.
 /// </summary>
-__device__ inline void orthographic_camera::initialize(vector3 lookfrom, vector3 lookat, vector3 vup, int width, float ratio, float vfov, float aperture, float focus_dist, float ortho_height, float t0, float t1, int sqrt_spp)
+__host__ __device__ inline void orthographic_camera::initialize(vector3 lookfrom, vector3 lookat, vector3 vup, int width, float ratio, float vfov, float aperture, float focus_dist, float ortho_height, float t0, float t1, int sqrt_spp)
 {
     image_width = width;
     aspect_ratio = ratio;
@@ -118,7 +120,7 @@ __device__ inline void orthographic_camera::initialize(vector3 lookfrom, vector3
 /// In an orthographic camera, rays are parallel, meaning the direction remains constant for all rays.
 /// The position of the ray, however, changes depending on the screen space coordinates (s, t), but there is no perspective distortion or depth scaling.
 /// </summary>
-__device__ inline const ray orthographic_camera::get_ray(float s, float t, int s_i, int s_j, sampler* aa_sampler, thrust::default_random_engine& rng) const
+__host__ __device__ inline const ray orthographic_camera::get_ray(float s, float t, int s_i, int s_j, sampler* aa_sampler, thrust::default_random_engine& rng) const
 {
     // Generate a random point on the lens (for depth of field, if needed)
     vector3 ray_direction = lens_radius * random_in_unit_disk(rng);
@@ -135,4 +137,9 @@ __device__ inline const ray orthographic_camera::get_ray(float s, float t, int s
 
     // Return the ray from the point on the viewport with an offset (for depth of field), and constant direction
     return ray(ray_origin + offset, ray_direction_parallel, time);
+}
+
+__host__ __device__ inline const ray orthographic_camera::get_ray(float s, float t, int s_i, int s_j) const
+{
+    return ray();
 }

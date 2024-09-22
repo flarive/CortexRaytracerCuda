@@ -5,6 +5,7 @@
 #include "cameras/camera.cuh"
 #include "misc/render_parameters.h"
 #include "samplers/sampler.cuh"
+#include "scenes/scene_config.h"
 
 class renderer
 {
@@ -12,7 +13,7 @@ public:
 	renderer();
 	virtual ~renderer() = default;
 
-	virtual void render(scene& _scene, camera& _camera, const render_parameters& _params, sampler* aa_sampler) const = 0;
+	virtual void render(const sceneConfig& _sceneCfg, const render_parameters& _params) const = 0;
 
 protected:
 	static void preview_line(int j, std::vector<color> i, int spp);

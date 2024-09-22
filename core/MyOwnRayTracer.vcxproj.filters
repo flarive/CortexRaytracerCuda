@@ -257,6 +257,9 @@
     <ClInclude Include="src\materials\anisotropic.cuh">
       <Filter>Headers\materials</Filter>
     </ClInclude>
+    <ClInclude Include="src\scenes\scene_config.h">
+      <Filter>Headers\scenes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">

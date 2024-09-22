@@ -81,13 +81,7 @@ imageConfig scene_builder::getImageConfig() const
   return this->m_imageConfig;
 }
 
-scene_builder& scene_builder::setImageConfig(const imageConfig &config)
-{
-  this->m_imageConfig = config;
-  return *this;
-}
-
-scene_builder& scene_builder::setImageBackgroundConfig(const color& rgb, const std::string& filepath, bool is_skybox)
+scene_builder& scene_builder::setImageBackgroundConfig(const color& rgb, const char* filepath, bool is_skybox)
 {
     imageBackgroundConfig bgConfig;
     bgConfig.rgb = rgb;
@@ -141,7 +135,7 @@ scene_builder& scene_builder::imageSamplesPerPixel(int samplesPerPixel)
   return *this;
 }
 
-scene_builder& scene_builder::imageOutputFilePath(std::string filepath)
+scene_builder& scene_builder::imageOutputFilePath(const char* filepath)
 {
     this->m_imageConfig.outputFilePath = filepath;
     return *this;
@@ -152,10 +146,14 @@ cameraConfig scene_builder::getCameraConfig() const
     return this->m_cameraConfig;
 }
 
-scene_builder& scene_builder::setCameraConfig(const cameraConfig &config)
+lightsConfig scene_builder::getLightsConfig() const
 {
-  this->m_cameraConfig = config;
-  return *this;
+    return this->m_lightsConfig;
+}
+
+texturesConfig scene_builder::getTexturesConfig() const
+{
+    return this->m_texturesConfig;
 }
 
 scene_builder& scene_builder::cameraAspectRatio(std::string aspectRatio)
@@ -216,6 +214,26 @@ scene_builder& scene_builder::cameraIsOrthographic(bool orthographic)
 scene_builder& scene_builder::cameraOrthoHeight(float height)
 {
     this->m_cameraConfig.orthoHeight = height;
+    return *this;
+}
+
+
+
+
+scene_builder& scene_builder::initLightsConfig(const uint32_t countOmni, const uint32_t countDir, const uint32_t countSpot)
+{
+    m_lightsConfig.omniLightCount = 0;
+    m_lightsConfig.omniLightCapacity = countOmni;
+    m_lightsConfig.omniLights = new omniLightConfig[countOmni];
+
+    m_lightsConfig.dirLightCount = 0;
+    m_lightsConfig.dirLightCapacity = countDir;
+    m_lightsConfig.dirLights = new directionalLightConfig[countDir];
+
+    m_lightsConfig.spotLightCount = 0;
+    m_lightsConfig.spotLightCapacity = countDir;
+    m_lightsConfig.spotLights = new spotLightConfig[countSpot];
+
     return *this;
 }
 
@@ -365,9 +383,9 @@ scene_builder& scene_builder::addMetalMaterial(const char* materialName, color r
   return *this;
 }
 
-scene_builder& scene_builder::addDirectionalLight(const point3& pos, const vector3& u, const vector3& v, float intensity, color rgb, bool invisible, const char* name)
+scene_builder& scene_builder::addDirectionalLight(const point3& pos, const vector3& u, const vector3& v, float intensity, color rgb, bool invisible, char* name)
 {
-    this->m_objects.add(
+    /*this->m_objects.add(
         scene_factory::createDirectionalLight(
             name,
             pos,
@@ -377,40 +395,98 @@ scene_builder& scene_builder::addDirectionalLight(const point3& pos, const vecto
             rgb,
             invisible
         )
-    );
+    );*/
+
+    // Get current count of directional lights
+    int c = this->m_lightsConfig.dirLightCount;
+
+    if (m_lightsConfig.dirLightCount < m_lightsConfig.dirLightCapacity)
+    {
+        // When assigning the name, allocate memory and copy the string
+        size_t length = strlen(name) + 1;  // +1 for null terminator
+        char* name_copy = new char[length]; // Allocate memory for the name
+        strcpy(name_copy, name);  // Copy the string
+
+        m_lightsConfig.dirLights[c] = directionalLightConfig{ pos, u, v, intensity, rgb, name_copy, invisible };
+        m_lightsConfig.dirLightCount++;
+    }
+    else {
+        // Handle error, for example, log a message or throw an exception
+        std::cerr << "Exceeded maximum number of directional lights." << std::endl;
+    }
+
     return *this;
 }
 
 scene_builder& scene_builder::addOmniDirectionalLight(const point3& pos, float radius, float intensity, color rgb, bool invisible, const char* name)
 {
-    this->m_objects.add(
-        scene_factory::createOmniDirectionalLight(
-            name,
-            pos,
-            radius,
-            intensity,
-            rgb,
-            invisible
-        )
-    );
+    //this->m_objects.add(
+    //    scene_factory::createOmniDirectionalLight(
+    //        name,
+    //        pos,
+    //        radius,
+    //        intensity,
+    //        rgb,
+    //        invisible
+    //    )
+    //);
+
+
+    // Get current count of omni lights
+    int c = this->m_lightsConfig.omniLightCount;
+
+    if (m_lightsConfig.omniLightCount < m_lightsConfig.omniLightCapacity)
+    {
+        // When assigning the name, allocate memory and copy the string
+        size_t length = strlen(name) + 1;  // +1 for null terminator
+        char* name_copy = new char[length]; // Allocate memory for the name
+        strcpy(name_copy, name);  // Copy the string
+
+        m_lightsConfig.omniLights[c] = omniLightConfig{ pos, radius, intensity, rgb, name_copy, invisible };
+        m_lightsConfig.omniLightCount++;
+    }
+    else {
+        // Handle error, for example, log a message or throw an exception
+        std::cerr << "Exceeded maximum number of omni lights." << std::endl;
+    }
+
     return *this;
 }
 
 scene_builder& scene_builder::addSpotLight(const point3& pos, const vector3& dir, float cutoff, float falloff, float intensity, float radius, color rgb, bool invisible, const char* name)
 {
-    this->m_objects.add(
-        scene_factory::createSpotLight(
-            name,
-            pos,
-            dir,
-            cutoff,
-            falloff,
-            intensity,
-            radius,
-            rgb,
-            invisible
-        )
-    );
+//    this->m_objects.add(
+//        scene_factory::createSpotLight(
+//            name,
+//            pos,
+//            dir,
+//            cutoff,
+//            falloff,
+//            intensity,
+//            radius,
+//            rgb,
+//            invisible
+//        )
+//    );
+
+    // Get current count of spot lights
+    int c = this->m_lightsConfig.spotLightCount;
+
+    if (m_lightsConfig.spotLightCount < m_lightsConfig.spotLightCapacity)
+    {
+        // When assigning the name, allocate memory and copy the string
+        size_t length = strlen(name) + 1;  // +1 for null terminator
+        char* name_copy = new char[length]; // Allocate memory for the name
+        strcpy(name_copy, name);  // Copy the string
+
+        m_lightsConfig.spotLights[c] = spotLightConfig{ pos, dir, cutoff, falloff, intensity, radius, rgb, name_copy, invisible };
+        m_lightsConfig.spotLightCount++;
+    }
+    else {
+        // Handle error, for example, log a message or throw an exception
+        std::cerr << "Exceeded maximum number of spot lights." << std::endl;
+    }
+
     return *this;
 }
 

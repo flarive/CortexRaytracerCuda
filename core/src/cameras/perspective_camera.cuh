@@ -13,7 +13,7 @@
 class perspective_camera : public camera
 {
 public:
-    __device__ perspective_camera()
+    __host__ __device__ perspective_camera()
     {
     }
 
@@ -21,7 +21,7 @@ public:
     /// Initialize camera with settings
     /// </summary>
     /// <param name="params"></param>
-    __device__ void initialize(vector3 lookfrom, vector3 lookat, vector3 vup, int width, float ratio, float vfov, float aperture, float focus_dist, float ortho_height, float t0, float t1, int sqrt_spp) override;
+    __host__ __device__ void initialize(vector3 lookfrom, vector3 lookat, vector3 vup, int width, float ratio, float vfov, float aperture, float focus_dist, float ortho_height, float t0, float t1, int sqrt_spp) override;
 
     /// <summary>
     /// Get a randomly-sampled camera ray for the pixel at location i,j, originating from the camera defocus disk,
@@ -30,13 +30,15 @@ public:
     /// <param name="i"></param>
     /// <param name="j"></param>
     /// <returns></returns>
-    __device__ const ray get_ray(float i, float j, int s_i, int s_j, sampler* aa_sampler, thrust::default_random_engine& rng) const override;
+    __host__ __device__ const ray get_ray(float i, float j, int s_i, int s_j, sampler* aa_sampler, thrust::default_random_engine& rng) const override;
+
+    __host__ __device__ const ray get_ray(float i, float j, int s_i, int s_j) const override;
 };
 
 
 
 
-__device__ inline void perspective_camera::initialize(vector3 lookfrom, vector3 lookat, vector3 vup, int width, float ratio, float vfov, float aperture, float focus_dist, float ortho_height, float t0, float t1, int sqrt_spp)
+__host__ __device__ inline void perspective_camera::initialize(vector3 lookfrom, vector3 lookat, vector3 vup, int width, float ratio, float vfov, float aperture, float focus_dist, float ortho_height, float t0, float t1, int sqrt_spp)
 {
     image_width = width;
     aspect_ratio = ratio;
@@ -106,13 +108,19 @@ __device__ inline void perspective_camera::initialize(vector3 lookfrom, vector3 
     defocus_disk_v = v * defocus_radius;
 }
 
-__device__ inline const ray perspective_camera::get_ray(float s, float t, int s_i, int s_j, sampler* aa_sampler, thrust::default_random_engine& rng) const
+__host__ __device__ inline const ray perspective_camera::get_ray(float s, float t, int s_i, int s_j, sampler* aa_sampler, thrust::default_random_engine& rng) const
 {
     vector3 ray_direction = lens_radius * random_in_unit_disk(rng);
     vector3 offset = u * ray_direction.x + v * ray_direction.y;
     float time = time0 + get_real(rng) * (time1 - time0);
 
     return ray(origin + offset, lower_left_corner + s * horizontal + t * vertical - origin - offset, time);
+}
+
+
+__host__ __device__ inline const ray perspective_camera::get_ray(float s, float t, int s_i, int s_j) const
+{
+    return ray();
 }
 
 //__device__ inline const ray perspective_camera::get_ray(float s, float t, int s_i, int s_j, sampler* aa_sampler, thrust::default_random_engine& rng) const

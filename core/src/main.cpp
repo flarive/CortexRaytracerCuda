@@ -2,8 +2,8 @@
 #include "misc/scene.cuh"
 #include "misc/timer.h"
 #include "srenderer.h"
-
-
+#include "scenes/scene_builder.h"
+#include "scenes/scene_config.h"
 #include "scenes/scene_manager.h"
 
 
@@ -14,24 +14,17 @@ int main(int argc, char* argv[])
     // Create world
     scene_manager builder;
 
-    //scene world = builder.cornell_box(cam);
-
-
-    
-
-
-
     std::cout << "[INFO] Ready !" << std::endl;
 
     timer renderTimer;
 
-    scene world = builder.load_scene(params);
+    sceneConfig sceneCfg = builder.load_scene(params);
 
     // Start measuring time
     renderTimer.start();
 
     srenderer render;
-    render.render(world, params);
+    render.render(sceneCfg, params);
 
     // Stop measuring time
     renderTimer.stop();

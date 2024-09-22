@@ -35,6 +35,15 @@ lights:
             intensity = 1.5;
             color = { r = 15.0; g = 15.0; b = 15.0; };
             invisible = true;
+        },
+        {
+            name = "QuadLight2";
+            position = { x = 278.0; y = 554.0; z = 332.0; };
+            u = { x = -130.0; y = 0.0; z = 0.0; };
+            v = { x = 0.0; y = 0.0; z = -105.0; };
+            intensity = 2.8;
+            color = { r = 15.0; g = 15.0; b = 15.0; };
+            invisible = true;
         }
     )
 }

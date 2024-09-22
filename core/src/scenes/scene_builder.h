@@ -8,40 +8,15 @@
 #include "../misc/color.cuh"
 #include "../textures/texture.cuh"
 #include "../cameras/perspective_camera.cuh"
+#include "scene_config.h"
 
 
 //#include <string>
 #include <map>
 
 
-typedef struct {
-    color rgb;
-    std::string filepath;
-    bool is_skybox;
-} imageBackgroundConfig;
 
-typedef struct {
-    int height;
-    int width;
-    int depth;
-    int spp;
-    imageBackgroundConfig background;
-    std::string outputFilePath;
-} imageConfig;
 
-typedef struct {
-    float aspectRatio;
-    float openingTime;
-    point3 lookFrom;
-    point3 lookAt;
-    point3 upAxis;
-    float aperture;
-    float focus;
-    bool isOrthographic;
-    float fov; // for perspective cams
-    float orthoHeight; // for orthographic cams
-    
-} cameraConfig;
 
 class scene_builder
 {
@@ -51,12 +26,15 @@ class scene_builder
 
         [[nodiscard]] perspective_camera getCamera() const;
         [[nodiscard]] hittable_list getSceneObjects() const;
+
         [[nodiscard]] imageConfig getImageConfig() const;
         [[nodiscard]] cameraConfig getCameraConfig() const;
+        [[nodiscard]] lightsConfig getLightsConfig() const;
+        [[nodiscard]] texturesConfig getTexturesConfig() const;
 
         // Image
-        scene_builder& setImageConfig(const imageConfig& config);
-        scene_builder& setImageBackgroundConfig(const color& rgb, const std::string& filepath, bool is_skybox);
+        //scene_builder& setImageConfig(const imageConfig& config);
+        scene_builder& setImageBackgroundConfig(const color& rgb, const char* filepath, bool is_skybox);
         scene_builder& imageSize(int width, int height);
         scene_builder& imageWidth(int width);
         scene_builder& imageHeight(int height);
@@ -64,10 +42,10 @@ class scene_builder
         scene_builder& imageHeightWithAspectRatio(float aspectRatio);
         scene_builder& imageDepth(int depth);
         scene_builder& imageSamplesPerPixel(int samplesPerPixel);
-        scene_builder& imageOutputFilePath(std::string filepath);
+        scene_builder& imageOutputFilePath(const char* filepath);
 
         // Camera
-        scene_builder& setCameraConfig(const cameraConfig& config);
+        //scene_builder& setCameraConfig(const cameraConfig& config);
         scene_builder& cameraAspectRatio(std::string aspectRatio);
         scene_builder& cameraOpeningTime(float time);
         scene_builder& cameraLookFrom(point3 point);
@@ -107,7 +85,10 @@ class scene_builder
         
 
         // Lights
-        scene_builder& addDirectionalLight(const point3& pos, const vector3& u, const vector3& v, float intensity, color rgb, bool invisible, const char* name);
+
+        scene_builder& initLightsConfig(const uint32_t countOmni, const uint32_t countDir, const uint32_t countSpot);
+
+        scene_builder& addDirectionalLight(const point3& pos, const vector3& u, const vector3& v, float intensity, color rgb, bool invisible, char* name);
         scene_builder& addOmniDirectionalLight(const point3& pos, float radius, float intensity, color rgb, bool invisible, const char* name);
         scene_builder& addSpotLight(const point3& pos, const vector3& dir, float cosTotalWidth, float cosFalloffStart, float intensity, float radius, color rgb, bool invisible, const char* name);
 
@@ -139,6 +120,8 @@ class scene_builder
     protected:
 		imageConfig m_imageConfig{};
 		cameraConfig m_cameraConfig{};
+        lightsConfig m_lightsConfig{};
+        texturesConfig m_texturesConfig{};
 
 		std::map<std::string, texture*> m_textures{};
 		std::map<std::string, material*> m_materials{};

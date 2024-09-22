@@ -127,8 +127,16 @@ void check_cuda(cudaError_t result, char const* const func, const char* const fi
 
 //#define RND (curand_uniform(&rng))
 
-__global__ void load_scene(hittable_list **elist, hittable_list **elights,  camera **cam, sampler **aa_sampler, int width, int height, float ratio, int spp, int sqrt_spp, image_texture** texture, int seed)
+__global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittable_list **elights,  camera **cam, sampler **aa_sampler, int width, int height, float ratio, int spp, int sqrt_spp, image_texture** texture, int seed)
 {
+    
+    
+
+
+
+
+
+    
     if (threadIdx.x == 0 && blockIdx.x == 0)
     {
         // thrust random engine and distribution
@@ -142,7 +150,22 @@ __global__ void load_scene(hittable_list **elist, hittable_list **elights,  came
 
         *elist = new hittable_list();
 
-        
+
+        //int aa = sceneCfg->lightsCfg.dirLightCount;
+
+        //printf("ZZZZZZZZZZZZ COUNT %i !!!!!!!!!!\n", aa);
+
+
+
+        //directionalLightConfig light1 = sceneCfg->lightsCfg.dirLights[0];
+        //printf("light1 %g %s !!!!!!!!!!\n", light1.intensity, light1.name);
+
+        //directionalLightConfig light2 = sceneCfg->lightsCfg.dirLights[1];
+        //printf("light2 %g %s !!!!!!!!!!\n", light2.intensity, light2.name);
+
+
+
+
 
         (*elist)->add(new rt::flip_normals(new yz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(color(0.12, 0.45, 0.15))), "MyLeft")));
         (*elist)->add(new yz_rect(0, 555, 0, 555, 0, new lambertian(new solid_color_texture(color(0.65, 0.05, 0.05))), "MyRight"));
@@ -309,7 +332,7 @@ void setupCuda(const cudaDeviceProp& prop)
     std::cout << "[INFO] New printf fifo size: " << newPrintfFifoSize << " bytes" << std::endl;
 }
 
-void renderGPU(const scene& world, const cudaDeviceProp& prop, int width, int height, int spp, int max_depth, int tx, int ty, const char* filepath)
+void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int width, int height, int spp, int max_depth, int tx, int ty, const char* filepath)
 {
     std::cout << "[INFO] Rendering " << width << "x" << height << " " << spp << " samples > " << filepath << std::endl;
 
@@ -356,7 +379,74 @@ void renderGPU(const scene& world, const cudaDeviceProp& prop, int width, int he
 
     scene* world_device;
     checkCudaErrors(cudaMalloc((void**)&world_device, sizeof(scene)));
-    checkCudaErrors(cudaMemcpy(world_device, &world, sizeof(scene), cudaMemcpyHostToDevice));
+    //checkCudaErrors(cudaMemcpy(world_device, &world, sizeof(scene), cudaMemcpyHostToDevice));
+
+
+    sceneConfig* d_sceneCfg;
+
+    // Allocate memory on the device for the top-level `sceneConfig` struct
+    cudaMalloc((void**)&d_sceneCfg, sizeof(sceneConfig));
+
+    // Allocate and copy the lights data (for omniLights, dirLights, spotLights)
+    lightsConfig* d_lightsCfg;
+    cudaMalloc((void**)&d_lightsCfg, sizeof(lightsConfig));
+
+    // Copy omniLights
+    if (sceneCfg.lightsCfg.omniLightCount > 0) {
+        omniLightConfig* d_omniLights;
+        cudaMalloc((void**)&d_omniLights, sceneCfg.lightsCfg.omniLightCount * sizeof(omniLightConfig));
+        cudaMemcpy(d_omniLights, sceneCfg.lightsCfg.omniLights, sceneCfg.lightsCfg.omniLightCount * sizeof(omniLightConfig), cudaMemcpyHostToDevice);
+        // Assign the pointer on device lightsCfg
+        cudaMemcpy(&d_lightsCfg->omniLights, &d_omniLights, sizeof(omniLightConfig*), cudaMemcpyHostToDevice);
+    }
+
+    // Copy dirLights array if there are directional lights
+    if (sceneCfg.lightsCfg.dirLightCount > 0)
+    {
+        // 1. Allocate memory for the dirLights array on the device
+        directionalLightConfig* d_dirLights;
+        cudaMalloc((void**)&d_dirLights, sceneCfg.lightsCfg.dirLightCount * sizeof(directionalLightConfig));
+
+        // 2. Copy the dirLights array contents from host to device
+        cudaMemcpy(d_dirLights, sceneCfg.lightsCfg.dirLights, sceneCfg.lightsCfg.dirLightCount * sizeof(directionalLightConfig), cudaMemcpyHostToDevice);
+
+        // 3. Allocate memory and copy the names for each directional light
+        for (int i = 0; i < sceneCfg.lightsCfg.dirLightCount; i++)
+        {
+            const char* hostName = sceneCfg.lightsCfg.dirLights[i].name;  // Get the string from the host
+
+            // Allocate memory on the device for the string (with null terminator)
+            char* d_name;
+            size_t nameLen = strlen(hostName) + 1;  // +1 for null terminator
+            cudaMalloc((void**)&d_name, nameLen);
+
+            // Copy the string from host to device
+            cudaMemcpy(d_name, hostName, nameLen, cudaMemcpyHostToDevice);
+
+            // Update the device-side directionalLightConfig to point to the device string
+            cudaMemcpy(&(d_dirLights[i].name), &d_name, sizeof(char*), cudaMemcpyHostToDevice);
+        }
+
+        // 4. Update the device-side lightsConfig to point to the dirLights array on the device
+        cudaMemcpy(&(d_lightsCfg->dirLights), &d_dirLights, sizeof(directionalLightConfig*), cudaMemcpyHostToDevice);
+    }
+
+    // 5. Copy the scalar values (like dirLightCount) from host to device
+    cudaMemcpy(&(d_lightsCfg->dirLightCount), &(sceneCfg.lightsCfg.dirLightCount), sizeof(int8_t), cudaMemcpyHostToDevice);
+
+
+
+    // Copy spotLights
+    if (sceneCfg.lightsCfg.spotLightCount > 0) {
+        spotLightConfig* d_spotLights;
+        cudaMalloc((void**)&d_spotLights, sceneCfg.lightsCfg.spotLightCount * sizeof(spotLightConfig));
+        cudaMemcpy(d_spotLights, sceneCfg.lightsCfg.spotLights, sceneCfg.lightsCfg.spotLightCount * sizeof(spotLightConfig), cudaMemcpyHostToDevice);
+        cudaMemcpy(&d_lightsCfg->spotLights, &d_spotLights, sizeof(spotLightConfig*), cudaMemcpyHostToDevice);
+    }
+
+    // Now copy the lightsConfig pointer from host to device sceneConfig
+    cudaMemcpy(&d_sceneCfg->lightsCfg, d_lightsCfg, sizeof(lightsConfig), cudaMemcpyHostToDevice);
+
 
 
 
@@ -378,7 +468,7 @@ void renderGPU(const scene& world, const cudaDeviceProp& prop, int width, int he
     //checkCudaErrors(cudaMalloc((void**)&myscene, sizeof(scene*)));
 
 
-    load_scene<<<single_block, single_thread>>>(elist, elights, cam, aa_sampler, width, height, ratio, spp, sqrt_spp, texture, 1984);
+    load_scene<<<single_block, single_thread>>>(d_sceneCfg, elist, elights, cam, aa_sampler, width, height, ratio, spp, sqrt_spp, texture, 1984);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
@@ -428,10 +518,11 @@ void renderGPU(const scene& world, const cudaDeviceProp& prop, int width, int he
     checkCudaErrors(cudaFree(world_device));
     checkCudaErrors(cudaFree(aa_sampler));
     checkCudaErrors(cudaFree(image));
+    checkCudaErrors(cudaFree(d_sceneCfg));
 }
 
 
-void launchGPU(const scene& world, int width, int height, int spp, int max_depth, int tx, int ty, const char* filepath, bool quietMode)
+void launchGPU(const sceneConfig& sceneCfg, int width, int height, int spp, int max_depth, int tx, int ty, const char* filepath, bool quietMode)
 {
     cudaDeviceProp prop;
 
@@ -452,7 +543,7 @@ void launchGPU(const scene& world, int width, int height, int spp, int max_depth
     // --expt-relaxed-constexpr -Xcudafe --diag_suppress=esa_on_defaulted_function_ignored --std c++20 --verbose
     // --expt-relaxed-constexpr --std c++20 -Xcudafe="--diag_suppress=20012 --diag_suppress=20208" 
     //
-    renderGPU(world, prop, width, height, spp, max_depth, tx, ty, filepath);
+    renderGPU(sceneCfg, prop, width, height, spp, max_depth, tx, ty, filepath);
 }
 
 

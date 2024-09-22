@@ -37,49 +37,49 @@ public:
     float ortho_height = 0.0;
 
 
-    __device__ camera()
+    __host__ __device__ camera()
     {
     }
 
-    __device__ virtual ~camera() = default;
+    __host__ __device__ virtual ~camera() = default;
 
 
-    __device__ int getImageHeight() const
+    __host__ __device__ int getImageHeight() const
     {
         return image_height;
     }
 
-    __device__ int getImageWidth() const
+    __host__ __device__ int getImageWidth() const
     {
         return image_width;
     }
 
-    __device__ int getSqrtSpp() const
+    __host__ __device__ int getSqrtSpp() const
     {
         return sqrt_spp;
     }
 
-    __device__ int getMaxDepth() const
+    __host__ __device__ int getMaxDepth() const
     {
         return max_depth;
     }
 
-    __device__ int getSamplePerPixel() const
+    __host__ __device__ int getSamplePerPixel() const
     {
         return samples_per_pixel;
     }
 
-    __device__ vector3 get_pixel_delta_u() const
+    __host__ __device__ vector3 get_pixel_delta_u() const
     {
         return pixel_delta_u;
     }
 
-    __device__ vector3 get_pixel_delta_v() const
+    __host__ __device__ vector3 get_pixel_delta_v() const
     {
         return pixel_delta_v;
     }
 
-    __device__ virtual void initialize(vector3 lookfrom, vector3 lookat, vector3 vup, int width, float ratio, float vfov, float aperture, float focus_dist, float ortho_height, float t0, float t1, int sqrt_spp) = 0;
+    __host__ __device__ virtual void initialize(vector3 lookfrom, vector3 lookat, vector3 vup, int width, float ratio, float vfov, float aperture, float focus_dist, float ortho_height, float t0, float t1, int sqrt_spp) = 0;
 
     /// <summary>
     /// Fire a given ray and get the hit record (recursive)
@@ -87,7 +87,9 @@ public:
     /// <param name="r"></param>
     /// <param name="world"></param>
     /// <returns></returns>
-    __device__ virtual const ray get_ray(float i, float j, int s_i, int s_j, sampler* aa_sampler, thrust::default_random_engine& rng) const = 0;
+    __host__ __device__ virtual const ray get_ray(float i, float j, int s_i, int s_j, sampler* aa_sampler, thrust::default_random_engine& rng) const = 0;
+
+    __host__ __device__ virtual const ray get_ray(float i, float j, int s_i, int s_j) const = 0;
 
     /// <summary>
     /// Calculate ray color
@@ -124,7 +126,7 @@ protected:
 
     // new
     float time0 = 0.0f, time1 = 0.0f;
-    float lens_radius = 0.0;
+    float lens_radius = 0.0f;
 
     vector3 origin{};
     vector3 lower_left_corner{};
