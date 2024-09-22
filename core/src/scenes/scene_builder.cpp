@@ -231,7 +231,7 @@ scene_builder& scene_builder::initLightsConfig(const uint32_t countOmni, const u
     m_lightsConfig.dirLights = new directionalLightConfig[countDir];
 
     m_lightsConfig.spotLightCount = 0;
-    m_lightsConfig.spotLightCapacity = countDir;
+    m_lightsConfig.spotLightCapacity = countSpot;
     m_lightsConfig.spotLights = new spotLightConfig[countSpot];
 
     return *this;

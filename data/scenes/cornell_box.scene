@@ -45,6 +45,56 @@ lights:
             color = { r = 15.0; g = 15.0; b = 15.0; };
             invisible = true;
         }
+    ),
+    omnis: (
+        {
+            name = "MyOmniLight1";
+            position = { x = 0.0; y = 8.0; z = 5.0; };
+            radius = 3.0;
+            intensity = 2.0;
+            color = { r = 1.0; g = 1.0; b = 1.0; };
+            invisible = true;
+        },
+        {
+            name = "MyOmniLight2";
+            position = { x = 0.0; y = 8.0; z = 5.0; };
+            radius = 4.0;
+            intensity = 2.0;
+            color = { r = 1.0; g = 1.0; b = 1.0; };
+            invisible = true;
+        },
+        {
+            name = "MyOmniLight3";
+            position = { x = 0.0; y = 8.0; z = 5.0; };
+            radius = 5.0;
+            intensity = 2.0;
+            color = { r = 1.0; g = 1.0; b = 1.0; };
+            invisible = true;
+        }
+    ),
+    spots: (
+        {
+            name = "SpotLight1";
+            position = { x = 0.0; y = 5.0; z = 0.0; };
+            direction = { x = 0.0; y = 1.0; z = 0.0; };
+            cutoff = 50.0;
+            falloff = 0.0;
+            intensity = 8.0;
+            radius = 0.5;
+            color = { r = 4.0; g = 4.0; b = 4.0; };
+            invisible = false;
+        },
+        {
+            name = "SpotLight2";
+            position = { x = 0.0; y = 5.0; z = 0.0; };
+            direction = { x = 0.0; y = 1.0; z = 0.0; };
+            cutoff = 50.0;
+            falloff = 0.0;
+            intensity = 16.0;
+            radius = 0.5;
+            color = { r = 4.0; g = 4.0; b = 4.0; };
+            invisible = false;
+        }
     )
 }
 
