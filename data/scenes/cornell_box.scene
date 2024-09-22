@@ -110,6 +110,64 @@ textures:
         {
             name = "white_texture";
             color = { r = 0.73; g = 0.73; b = 0.73; };
+        },
+        {
+            name = "white_texture2";
+            color = { r = 0.13; g = 0.73; b = 0.73; };
+        }
+    ),
+    gradientColor: (
+        {
+            name = "gradient_color_texture";
+            color1 = { r = 1.0; g = 0.0; b = 0.0; };
+            color2 = { r = 0.0; g = 1.0; b = 1.0; };
+            vertical = true;
+            hsv = false;
+        },
+        {
+            name = "gradient_color_texture2";
+            color1 = { r = 1.0; g = 0.0; b = 0.0; };
+            color2 = { r = 0.0; g = 1.0; b = 1.0; };
+            vertical = false;
+            hsv = true;
+        }
+    ),
+    checker: (
+        {
+            name = "checker_image_texture";
+            oddTextureName = "image_texture_1";
+            evenTextureName = "image_texture_2";
+            scale = 0.3;
+        },
+        {
+            name = "checker_color_texture";
+            oddColor = { r = 1.0; g = 1.0; b = 1.0; };
+            evenColor = { r = 0.0; g = 0.0; b = 0.0; };
+            scale = 0.2;
+        }
+    ),
+    image: (
+        {
+            name = "angel_diffuse_texture";
+            filepath = "../../data/models/angel_diffuse.jpg";
+        },
+        {
+            name = "angel_specular_texture";
+            filepath = "../../data/models/angel_specular.jpg";
+        }
+    ),
+    bump: (
+        {
+            name = "angel_bump_texture";
+            filepath = "../../data/models/angel_bump.jpg";
+            strength = 5.0;
+        }
+    ),
+    normal: (
+        {
+            name = "angel_normal_texture";
+            filepath = "../../data/models/angel_normal.jpg";
+            strength = 1.0;
         }
     )
 }

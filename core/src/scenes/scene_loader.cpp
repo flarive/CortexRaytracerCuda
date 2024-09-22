@@ -145,22 +145,67 @@ void scene_loader::loadMaterials(scene_builder& builder, const libconfig::Settin
 
 void scene_loader::loadTextures(scene_builder& builder, const libconfig::Setting& textures)
 {
-	addImageTexture(textures, builder);
+	uint8_t countSolidColorTextures = 0;
+	uint8_t countGradientColorTextures = 0;
+	uint8_t countImageTextures = 0;
+	uint8_t countNoiseTextures = 0;
+	uint8_t countCheckerTextures = 0;
+	uint8_t countBumpTextures = 0;
+	uint8_t countNormalTextures = 0;
+	uint8_t countDisplacementTextures = 0;
+	uint8_t countAlphaTextures = 0;
+	uint8_t countEmissiveTextures = 0;
+
+	if (textures.exists("solidColor"))
+		countSolidColorTextures = textures["solidColor"].getLength();
+
+	if (textures.exists("gradientColor"))
+		countGradientColorTextures = textures["gradientColor"].getLength();
+
+	if (textures.exists("image"))
+		countImageTextures = textures["image"].getLength();
+
+	if (textures.exists("noise"))
+		countNoiseTextures = textures["noise"].getLength();
+
+	if (textures.exists("checker"))
+		countCheckerTextures = textures["checker"].getLength();
+
+	if (textures.exists("bump"))
+		countBumpTextures = textures["bump"].getLength();
+
+	if (textures.exists("normal"))
+		countNormalTextures = textures["normal"].getLength();
+
+	if (textures.exists("displacement"))
+		countDisplacementTextures = textures["displacement"].getLength();
+
+	if (textures.exists("alpha"))
+		countAlphaTextures = textures["alpha"].getLength();
+
+	if (textures.exists("emissive"))
+		countEmissiveTextures = textures["emissive"].getLength();
+
+
+	builder.initTexturesConfig(countSolidColorTextures, countGradientColorTextures, countImageTextures, countNoiseTextures, countCheckerTextures, countBumpTextures, countNormalTextures, countDisplacementTextures, countAlphaTextures, countEmissiveTextures);
+
 	addSolidColorTexture(textures, builder);
-	addCheckerTexture(textures, builder);
 	addGradientColorTexture(textures, builder);
+	addImageTexture(textures, builder);
 	addNoiseTexture(textures, builder);
+	addCheckerTexture(textures, builder);
 	addBumpTexture(textures, builder);
 	addNormalTexture(textures, builder);
 	addDisplacementTexture(textures, builder);
 	addAlphaTexture(textures, builder);
+	addEmissiveTexture(textures, builder);
 }
 
 void scene_loader::loadLights(scene_builder& builder, const libconfig::Setting& lights)
 {
-		int countOmniLights = 0;
-		int countDirLights = 0;
-		int countSpotLights = 0;
+		uint8_t countOmniLights = 0;
+		uint8_t countDirLights = 0;
+		uint8_t countSpotLights = 0;
 		
 		if (lights.exists("omnis"))
 			countOmniLights = lights["omnis"].getLength();
@@ -345,16 +390,16 @@ void scene_loader::addImageTexture(const libconfig::Setting& textures, scene_bui
 
 			if (!filepath.empty())
 			{
-				int bytes_per_pixel = 3;
-				int tex_x, tex_y, tex_n;
-				unsigned char* tex_data_host = stbi_load(filepath.c_str(), &tex_x, &tex_y, &tex_n, bytes_per_pixel);
-				if (!tex_data_host) {
-					std::cerr << "[ERROR] Failed to load texture." << std::endl;
-					return;
-				}
+				//int bytes_per_pixel = 3;
+				//int tex_x, tex_y, tex_n;
+				//unsigned char* tex_data_host = stbi_load(filepath.c_str(), &tex_x, &tex_y, &tex_n, bytes_per_pixel);
+				//if (!tex_data_host) {
+				//	std::cerr << "[ERROR] Failed to load texture." << std::endl;
+				//	return;
+				//}
 
-				bitmap_image img = bitmap_image(tex_data_host, tex_x, tex_y, bytes_per_pixel);
-				builder.addImageTexture(name.c_str(), img);
+				//bitmap_image img = bitmap_image(tex_data_host, tex_x, tex_y, bytes_per_pixel);
+				builder.addImageTexture(name.c_str(), filepath.c_str());
 			}
 		}
 	}
@@ -442,11 +487,8 @@ void scene_loader::addCheckerTexture(const libconfig::Setting& textures, scene_b
 			if (name.empty())
 				throw std::runtime_error("Checker texture name is empty");
 
-			if (!oddTextureName.empty() && !evenTextureName.empty())
-				builder.addCheckerTexture(name.c_str(), scale, oddTextureName.c_str(), evenTextureName.c_str());
-			else
-				builder.addCheckerTexture(name.c_str(), scale, oddColor, evenColor);
-		}
+			builder.addCheckerTexture(name.c_str(), scale, oddTextureName.c_str(), evenTextureName.c_str(), oddColor, evenColor);
+;		}
 	}
 }
 
@@ -509,16 +551,16 @@ void scene_loader::addBumpTexture(const libconfig::Setting& textures, scene_buil
 
 			if (!filepath.empty())
 			{
-				int bytes_per_pixel = 3;
-				int tex_x, tex_y, tex_n;
-				unsigned char* tex_data_host = stbi_load(filepath.c_str(), &tex_x, &tex_y, &tex_n, bytes_per_pixel);
-				if (!tex_data_host) {
-					std::cerr << "[ERROR] Failed to load texture." << std::endl;
-					return;
-				}
+				//int bytes_per_pixel = 3;
+				//int tex_x, tex_y, tex_n;
+				//unsigned char* tex_data_host = stbi_load(filepath.c_str(), &tex_x, &tex_y, &tex_n, bytes_per_pixel);
+				//if (!tex_data_host) {
+				//	std::cerr << "[ERROR] Failed to load texture." << std::endl;
+				//	return;
+				//}
 
-				bitmap_image img = bitmap_image(tex_data_host, tex_x, tex_y, bytes_per_pixel);
-				builder.addBumpTexture(name.c_str(), img, strength);
+				//bitmap_image img = bitmap_image(tex_data_host, tex_x, tex_y, bytes_per_pixel);
+				builder.addBumpTexture(name.c_str(), filepath.c_str(), strength);
 			}
 		}
 	}
@@ -549,16 +591,16 @@ void scene_loader::addNormalTexture(const libconfig::Setting& textures, scene_bu
 
 			if (!filepath.empty())
 			{
-				int bytes_per_pixel = 3;
-				int tex_x, tex_y, tex_n;
-				unsigned char* tex_data_host = stbi_load(filepath.c_str(), &tex_x, &tex_y, &tex_n, bytes_per_pixel);
-				if (!tex_data_host) {
-					std::cerr << "[ERROR] Failed to load texture." << std::endl;
-					return;
-				}
+				//int bytes_per_pixel = 3;
+				//int tex_x, tex_y, tex_n;
+				//unsigned char* tex_data_host = stbi_load(filepath.c_str(), &tex_x, &tex_y, &tex_n, bytes_per_pixel);
+				//if (!tex_data_host) {
+				//	std::cerr << "[ERROR] Failed to load texture." << std::endl;
+				//	return;
+				//}
 
-				bitmap_image img = bitmap_image(tex_data_host, tex_x, tex_y, bytes_per_pixel);
-				builder.addNormalTexture(name.c_str(), img, strength);
+				//bitmap_image img = bitmap_image(tex_data_host, tex_x, tex_y, bytes_per_pixel);
+				builder.addNormalTexture(name.c_str(), filepath.c_str(), strength);
 			}
 		}
 	}
@@ -589,16 +631,16 @@ void scene_loader::addDisplacementTexture(const libconfig::Setting& textures, sc
 
 			if (!filepath.empty())
 			{
-				int bytes_per_pixel = 3;
-				int tex_x, tex_y, tex_n;
-				unsigned char* tex_data_host = stbi_load(filepath.c_str(), &tex_x, &tex_y, &tex_n, bytes_per_pixel);
-				if (!tex_data_host) {
-					std::cerr << "[ERROR] Failed to load texture." << std::endl;
-					return;
-				}
+				//int bytes_per_pixel = 3;
+				//int tex_x, tex_y, tex_n;
+				//unsigned char* tex_data_host = stbi_load(filepath.c_str(), &tex_x, &tex_y, &tex_n, bytes_per_pixel);
+				//if (!tex_data_host) {
+				//	std::cerr << "[ERROR] Failed to load texture." << std::endl;
+				//	return;
+				//}
 
-				bitmap_image img = bitmap_image(tex_data_host, tex_x, tex_y, bytes_per_pixel);
-				builder.addDisplacementTexture(name.c_str(), img, strength);
+				//bitmap_image img = bitmap_image(tex_data_host, tex_x, tex_y, bytes_per_pixel);
+				builder.addDisplacementTexture(name.c_str(), filepath.c_str(), strength);
 			}
 		}
 	}
@@ -629,16 +671,16 @@ void scene_loader::addAlphaTexture(const libconfig::Setting& textures, scene_bui
 
 			if (!filepath.empty())
 			{
-				int bytes_per_pixel = 3;
-				int tex_x, tex_y, tex_n;
-				unsigned char* tex_data_host = stbi_load(filepath.c_str(), &tex_x, &tex_y, &tex_n, bytes_per_pixel);
-				if (!tex_data_host) {
-					std::cerr << "[ERROR] Failed to load texture." << std::endl;
-					return;
-				}
+				//int bytes_per_pixel = 3;
+				//int tex_x, tex_y, tex_n;
+				//unsigned char* tex_data_host = stbi_load(filepath.c_str(), &tex_x, &tex_y, &tex_n, bytes_per_pixel);
+				//if (!tex_data_host) {
+				//	std::cerr << "[ERROR] Failed to load texture." << std::endl;
+				//	return;
+				//}
 
-				bitmap_image img = bitmap_image(tex_data_host, tex_x, tex_y, bytes_per_pixel);
-				builder.addAlphaTexture(name.c_str(), img, double_sided);
+				//bitmap_image img = bitmap_image(tex_data_host, tex_x, tex_y, bytes_per_pixel);
+				builder.addAlphaTexture(name.c_str(), filepath.c_str(), double_sided);
 			}
 		}
 	}
@@ -669,16 +711,16 @@ void scene_loader::addEmissiveTexture(const libconfig::Setting& textures, scene_
 
 			if (!filepath.empty())
 			{
-				int bytes_per_pixel = 3;
-				int tex_x, tex_y, tex_n;
-				unsigned char* tex_data_host = stbi_load(filepath.c_str(), &tex_x, &tex_y, &tex_n, bytes_per_pixel);
-				if (!tex_data_host) {
-					std::cerr << "[ERROR] Failed to load texture." << std::endl;
-					return;
-				}
+				//int bytes_per_pixel = 3;
+				//int tex_x, tex_y, tex_n;
+				//unsigned char* tex_data_host = stbi_load(filepath.c_str(), &tex_x, &tex_y, &tex_n, bytes_per_pixel);
+				//if (!tex_data_host) {
+				//	std::cerr << "[ERROR] Failed to load texture." << std::endl;
+				//	return;
+				//}
 
-				bitmap_image img = bitmap_image(tex_data_host, tex_x, tex_y, bytes_per_pixel);
-				builder.addEmissiveTexture(name.c_str(), img, strength);
+				//bitmap_image img = bitmap_image(tex_data_host, tex_x, tex_y, bytes_per_pixel);
+				builder.addEmissiveTexture(name.c_str(), filepath.c_str(), strength);
 			}
 		}
 	}

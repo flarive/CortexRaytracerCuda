@@ -58,17 +58,18 @@ class scene_builder
         scene_builder& cameraOrthoHeight(float height);
 
         // Textures
+        scene_builder& initTexturesConfig(const uint32_t countSolidColor, const uint32_t countGradientColor, const uint32_t countImage, const uint32_t countPerlinNoise, const uint32_t countChecker, const uint32_t countBump, const uint32_t countNormal, const uint32_t countDisplacement, const uint32_t countAlpha, const uint32_t countEmissive);
+
         scene_builder& addSolidColorTexture(const char* textureName, color rgb);
-        scene_builder& addCheckerTexture(const char* textureName, float scale, color oddColor, color evenColor);
-        scene_builder& addCheckerTexture(const char* textureName, float scale, const char* oddTextureName, const char* evenTextureName);
+        scene_builder& addCheckerTexture(const char* textureName, float scale, const char* oddTextureName, const char* evenTextureName, color oddColor, color evenColor);
         scene_builder& addNoiseTexture(const char* textureName, float scale = 1.0);
-        scene_builder& addImageTexture(const char* textureName, const bitmap_image& img);
-        scene_builder& addNormalTexture(const char* textureName, const bitmap_image& img, float strength);
+        scene_builder& addImageTexture(const char* textureName, const char* filepath);
+        scene_builder& addNormalTexture(const char* textureName, const char* filepath, float strength);
         scene_builder& addGradientColorTexture(const char* textureName, color color1, color color2, bool aligned_v, bool hsv);
-        scene_builder& addBumpTexture(const char* textureName, const bitmap_image& img, float strength);
-        scene_builder& addDisplacementTexture(const char* textureName, const bitmap_image& img, float strength);
-        scene_builder& addAlphaTexture(const char* textureName, const bitmap_image& img, bool double_sided);
-        scene_builder& addEmissiveTexture(const char* textureName, const bitmap_image& img, float strength);
+        scene_builder& addBumpTexture(const char* textureName, const char* filepath, float strength);
+        scene_builder& addDisplacementTexture(const char* textureName, const char* filepath, float strength);
+        scene_builder& addAlphaTexture(const char* textureName, const char* filepath, bool double_sided);
+        scene_builder& addEmissiveTexture(const char* textureName, const char* filepath, float strength);
 
         // Materials
         scene_builder& addGlassMaterial(const char* materialName, float refraction);
@@ -85,10 +86,9 @@ class scene_builder
         
 
         // Lights
-
         scene_builder& initLightsConfig(const uint32_t countOmni, const uint32_t countDir, const uint32_t countSpot);
 
-        scene_builder& addDirectionalLight(const point3& pos, const vector3& u, const vector3& v, float intensity, color rgb, bool invisible, char* name);
+        scene_builder& addDirectionalLight(const point3& pos, const vector3& u, const vector3& v, float intensity, color rgb, bool invisible, const char* name);
         scene_builder& addOmniDirectionalLight(const point3& pos, float radius, float intensity, color rgb, bool invisible, const char* name);
         scene_builder& addSpotLight(const point3& pos, const vector3& dir, float cosTotalWidth, float cosFalloffStart, float intensity, float radius, color rgb, bool invisible, const char* name);
 

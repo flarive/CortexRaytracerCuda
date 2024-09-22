@@ -220,91 +220,347 @@ scene_builder& scene_builder::cameraOrthoHeight(float height)
 
 
 
-scene_builder& scene_builder::initLightsConfig(const uint32_t countOmni, const uint32_t countDir, const uint32_t countSpot)
+
+scene_builder& scene_builder::initTexturesConfig(const uint32_t countSolidColor, const uint32_t countGradientColor, const uint32_t countImage, const uint32_t countPerlinNoise, const uint32_t countChecker, const uint32_t countBump, const uint32_t countNormal, const uint32_t countDisplacement, const uint32_t countAlpha, const uint32_t countEmissive)
 {
-    m_lightsConfig.omniLightCount = 0;
-    m_lightsConfig.omniLightCapacity = countOmni;
-    m_lightsConfig.omniLights = new omniLightConfig[countOmni];
+    m_texturesConfig.solidColorTextureCount = 0;
+    m_texturesConfig.solidColorTextureCapacity = countSolidColor;
+    m_texturesConfig.solidColorTextures = new solidColorTextureConfig[countSolidColor];
 
-    m_lightsConfig.dirLightCount = 0;
-    m_lightsConfig.dirLightCapacity = countDir;
-    m_lightsConfig.dirLights = new directionalLightConfig[countDir];
+    m_texturesConfig.gradientColorTextureCount = 0;
+    m_texturesConfig.gradientColorTextureCapacity = countGradientColor;
+    m_texturesConfig.gradientColorTextures = new gradientColorTextureConfig[countGradientColor];
 
-    m_lightsConfig.spotLightCount = 0;
-    m_lightsConfig.spotLightCapacity = countSpot;
-    m_lightsConfig.spotLights = new spotLightConfig[countSpot];
+    m_texturesConfig.imageTextureCount = 0;
+    m_texturesConfig.imageTextureCapacity = countImage;
+    m_texturesConfig.imageTextures = new imageTextureConfig[countImage];
+
+    m_texturesConfig.perlinNoiseTextureCount = 0;
+    m_texturesConfig.perlinNoiseTextureCapacity = countPerlinNoise;
+    m_texturesConfig.perlinNoiseTextures = new perlinNoiseTextureConfig[countPerlinNoise];
+
+    m_texturesConfig.checkerTextureCount = 0;
+    m_texturesConfig.checkerTextureCapacity = countChecker;
+    m_texturesConfig.checkerTextures = new checkerTextureConfig[countChecker];
+    
+    m_texturesConfig.bumpTextureCount = 0;
+    m_texturesConfig.bumpTextureCapacity = countBump;
+    m_texturesConfig.bumpTextures = new bumpTextureConfig[countBump];
+
+    m_texturesConfig.normalTextureCount = 0;
+    m_texturesConfig.normalTextureCapacity = countNormal;
+    m_texturesConfig.normalTextures = new normalTextureConfig[countNormal];
+
+    m_texturesConfig.displacementTextureCount = 0;
+    m_texturesConfig.displacementTextureCapacity = countDisplacement;
+    m_texturesConfig.displacementTextures = new displacementTextureConfig[countDisplacement];
+
+    m_texturesConfig.alphaTextureCount = 0;
+    m_texturesConfig.alphaTextureCapacity = countAlpha;
+    m_texturesConfig.alphaTextures = new alphaTextureConfig[countAlpha];
+
+    m_texturesConfig.emissiveTextureCount = 0;
+    m_texturesConfig.emissiveTextureCapacity = countEmissive;
+    m_texturesConfig.emissiveTextures = new emissiveTextureConfig[countEmissive];
 
     return *this;
 }
 
 scene_builder& scene_builder::addSolidColorTexture(const char* textureName, color rgb)
 {
-  this->m_textures[textureName] = new solid_color_texture(rgb);
-  return *this;
+    //this->m_textures[textureName] = new solid_color_texture(rgb);
+
+    // Get current count of solid color textures
+    int c = m_texturesConfig.solidColorTextureCount;
+
+    if (m_texturesConfig.solidColorTextureCount < m_texturesConfig.solidColorTextureCapacity)
+    {
+        // When assigning the name, allocate memory and copy the string
+        size_t length = strlen(textureName) + 1;  // +1 for null terminator
+        char* textureName_copy = new char[length]; // Allocate memory for the name
+        strcpy(textureName_copy, textureName);  // Copy the string
+
+        m_texturesConfig.solidColorTextures[c] = solidColorTextureConfig{ textureName_copy, rgb };
+        m_texturesConfig.solidColorTextureCount++;
+    }
+    else {
+        // Handle error, for example, log a message or throw an exception
+        std::cerr << "Exceeded maximum number of solid color textures." << std::endl;
+    }
+
+    return *this;
 }
 
 scene_builder& scene_builder::addGradientColorTexture(const char* textureName, color color1, color color2, bool aligned_v, bool hsv)
 {
-	this->m_textures[textureName] = new gradient_texture(color1, color2, aligned_v, hsv);
+	//this->m_textures[textureName] = new gradient_texture(color1, color2, aligned_v, hsv);
+
+    // Get current count of gradient color textures
+    int c = m_texturesConfig.gradientColorTextureCount;
+
+    if (m_texturesConfig.gradientColorTextureCount < m_texturesConfig.gradientColorTextureCapacity)
+    {
+        // When assigning the name, allocate memory and copy the string
+        size_t length = strlen(textureName) + 1;  // +1 for null terminator
+        char* textureName_copy = new char[length]; // Allocate memory for the name
+        strcpy(textureName_copy, textureName);  // Copy the string
+
+        m_texturesConfig.gradientColorTextures[c] = gradientColorTextureConfig{ textureName_copy, color1, color2, aligned_v, hsv };
+        m_texturesConfig.gradientColorTextureCount++;
+    }
+    else {
+        // Handle error, for example, log a message or throw an exception
+        std::cerr << "Exceeded maximum number of gradient color textures." << std::endl;
+    }
+
 	return *this;
 }
 
-scene_builder& scene_builder::addCheckerTexture(const char* textureName, float scale, color oddColor, color evenColor)
+scene_builder& scene_builder::addCheckerTexture(const char* textureName, float scale, const char* oddTextureName, const char* evenTextureName, color oddColor, color evenColor)
 {
-	this->m_textures[textureName] = new checker_texture(scale, oddColor, evenColor);
+	//this->m_textures[textureName] = new checker_texture(scale, oddColor, evenColor);
+
+    // Get current count of checker textures
+    int c = m_texturesConfig.checkerTextureCount;
+
+    if (m_texturesConfig.checkerTextureCount < m_texturesConfig.checkerTextureCapacity)
+    {
+        // When assigning the name, allocate memory and copy the string
+        size_t length1 = strlen(textureName) + 1;  // +1 for null terminator
+        char* textureName_copy = new char[length1]; // Allocate memory for the name
+        strcpy(textureName_copy, textureName);  // Copy the string
+
+
+        char* oddTextureName_copy = nullptr;
+        if (oddTextureName)
+        {
+            size_t length2 = strlen(oddTextureName) + 1;  // +1 for null terminator
+            oddTextureName_copy = new char[length2]; // Allocate memory for the name
+            strcpy(oddTextureName_copy, oddTextureName);  // Copy the string
+        }
+
+        char* evenTextureName_copy = nullptr;
+        if (evenTextureName)
+        {
+            size_t length3 = strlen(evenTextureName) + 1;  // +1 for null terminator
+            evenTextureName_copy = new char[length3]; // Allocate memory for the name
+            strcpy(evenTextureName_copy, evenTextureName);  // Copy the string
+        }
+
+        m_texturesConfig.checkerTextures[c] = checkerTextureConfig{ textureName_copy, oddTextureName_copy, evenTextureName_copy, oddColor, evenColor, scale };
+        m_texturesConfig.checkerTextureCount++;
+    }
+    else {
+        // Handle error, for example, log a message or throw an exception
+        std::cerr << "Exceeded maximum number of checker textures." << std::endl;
+    }
+
 	return *this;
 }
 
-scene_builder& scene_builder::addCheckerTexture(const char* textureName, float scale, const char* oddTextureName, const char* evenTextureName)
-{
-  this->m_textures[textureName] = new checker_texture(scale, fetchTexture(oddTextureName), this->fetchTexture(evenTextureName));
-  return *this;
-}
 
-scene_builder& scene_builder::addImageTexture(const char* textureName, const bitmap_image& img)
+scene_builder& scene_builder::addImageTexture(const char* textureName, const char* filepath)
 {
-  this->m_textures[textureName] = new image_texture(img);
-  return *this;
-}
+    //this->m_textures[textureName] = new image_texture(img);
 
-scene_builder& scene_builder::addNormalTexture(const char* textureName, const bitmap_image& img, float strength)
-{
-    auto normal_tex = new image_texture(img);
-    this->m_textures[textureName] = new normal_texture(normal_tex, strength);
+
+    // Get current count of gradient color textures
+    int c = m_texturesConfig.imageTextureCount;
+
+    if (m_texturesConfig.imageTextureCount < m_texturesConfig.imageTextureCapacity)
+    {
+        // When assigning the name, allocate memory and copy the string
+        size_t length1 = strlen(textureName) + 1;  // +1 for null terminator
+        char* textureName_copy = new char[length1]; // Allocate memory for the name
+        strcpy(textureName_copy, textureName);  // Copy the string
+
+        size_t length2 = strlen(filepath) + 1;  // +1 for null terminator
+        char* filepath_copy = new char[length2]; // Allocate memory for the name
+        strcpy(filepath_copy, filepath);  // Copy the string
+
+        m_texturesConfig.imageTextures[c] = imageTextureConfig{ textureName_copy, filepath_copy };
+        m_texturesConfig.imageTextureCount++;
+    }
+    else {
+        // Handle error, for example, log a message or throw an exception
+        std::cerr << "Exceeded maximum number of image textures." << std::endl;
+    }
+
     return *this;
 }
 
-scene_builder& scene_builder::addDisplacementTexture(const char* textureName, const bitmap_image& img, float strength)
+scene_builder& scene_builder::addNormalTexture(const char* textureName, const char* filepath, float strength)
 {
-    auto displace_tex = new image_texture(img);
-    this->m_textures[textureName] = new displacement_texture(displace_tex, strength);
+    /*auto normal_tex = new image_texture(img);
+    this->m_textures[textureName] = new normal_texture(normal_tex, strength);*/
+
+    // Get current count of normal textures
+    int c = m_texturesConfig.normalTextureCount;
+
+    if (m_texturesConfig.normalTextureCount < m_texturesConfig.normalTextureCapacity)
+    {
+        // When assigning the name, allocate memory and copy the string
+        size_t length1 = strlen(textureName) + 1;  // +1 for null terminator
+        char* textureName_copy = new char[length1]; // Allocate memory for the name
+        strcpy(textureName_copy, textureName);  // Copy the string
+
+        size_t length2 = strlen(filepath) + 1;  // +1 for null terminator
+        char* filepath_copy = new char[length2]; // Allocate memory for the name
+        strcpy(filepath_copy, filepath);  // Copy the string
+
+        m_texturesConfig.normalTextures[c] = normalTextureConfig{ textureName_copy, filepath_copy, strength };
+        m_texturesConfig.normalTextureCount++;
+    }
+    else {
+        // Handle error, for example, log a message or throw an exception
+        std::cerr << "Exceeded maximum number of normal textures." << std::endl;
+    }
+
+    return *this;
+}
+
+scene_builder& scene_builder::addDisplacementTexture(const char* textureName, const char* filepath, float strength)
+{
+    //auto displace_tex = new image_texture(img);
+    //this->m_textures[textureName] = new displacement_texture(displace_tex, strength);
+
+    // Get current count of displacement textures
+    int c = m_texturesConfig.displacementTextureCount;
+
+    if (m_texturesConfig.displacementTextureCount < m_texturesConfig.displacementTextureCapacity)
+    {
+        // When assigning the name, allocate memory and copy the string
+        size_t length1 = strlen(textureName) + 1;  // +1 for null terminator
+        char* textureName_copy = new char[length1]; // Allocate memory for the name
+        strcpy(textureName_copy, textureName);  // Copy the string
+
+        size_t length2 = strlen(filepath) + 1;  // +1 for null terminator
+        char* filepath_copy = new char[length2]; // Allocate memory for the name
+        strcpy(filepath_copy, filepath);  // Copy the string
+
+        m_texturesConfig.displacementTextures[c] = displacementTextureConfig{ textureName_copy, filepath_copy, strength };
+        m_texturesConfig.displacementTextureCount++;
+    }
+    else {
+        // Handle error, for example, log a message or throw an exception
+        std::cerr << "Exceeded maximum number of displacement textures." << std::endl;
+    }
+
     return *this;
 }
 
 scene_builder& scene_builder::addNoiseTexture(const char* textureName, float scale)
 {
-  this->m_textures[textureName] = new perlin_noise_texture(scale);
-  return *this;
-}
+    //this->m_textures[textureName] = new perlin_noise_texture(scale);
 
-scene_builder& scene_builder::addBumpTexture(const char* textureName, const bitmap_image& img, float strength)
-{
-    auto bump_tex = new image_texture(img);
-    this->m_textures[textureName] = new bump_texture(bump_tex, strength);
+    // Get current count of perlin noise textures
+    int c = m_texturesConfig.perlinNoiseTextureCount;
+
+    if (m_texturesConfig.perlinNoiseTextureCount < m_texturesConfig.perlinNoiseTextureCapacity)
+    {
+        // When assigning the name, allocate memory and copy the string
+        size_t length = strlen(textureName) + 1;  // +1 for null terminator
+        char* textureName_copy = new char[length]; // Allocate memory for the name
+        strcpy(textureName_copy, textureName);  // Copy the string
+
+        m_texturesConfig.perlinNoiseTextures[c] = perlinNoiseTextureConfig{ textureName_copy, scale };
+        m_texturesConfig.perlinNoiseTextureCount++;
+    }
+    else {
+        // Handle error, for example, log a message or throw an exception
+        std::cerr << "Exceeded maximum number of perlin noise textures." << std::endl;
+    }
+
     return *this;
 }
 
-scene_builder& scene_builder::addAlphaTexture(const char* textureName, const bitmap_image& img, bool double_sided)
+scene_builder& scene_builder::addBumpTexture(const char* textureName, const char* filepath, float strength)
 {
-    auto alpha_tex = new image_texture(img);
-    this->m_textures[textureName] = new alpha_texture(alpha_tex, double_sided);
+    /*auto bump_tex = new image_texture(img);
+    this->m_textures[textureName] = new bump_texture(bump_tex, strength);*/
+
+    // Get current count of bump textures
+    int c = m_texturesConfig.bumpTextureCount;
+
+    if (m_texturesConfig.bumpTextureCount < m_texturesConfig.bumpTextureCapacity)
+    {
+        // When assigning the name, allocate memory and copy the string
+        size_t length1 = strlen(textureName) + 1;  // +1 for null terminator
+        char* textureName_copy = new char[length1]; // Allocate memory for the name
+        strcpy(textureName_copy, textureName);  // Copy the string
+
+        size_t length2 = strlen(filepath) + 1;  // +1 for null terminator
+        char* filepath_copy = new char[length2]; // Allocate memory for the name
+        strcpy(filepath_copy, filepath);  // Copy the string
+
+        m_texturesConfig.bumpTextures[c] = bumpTextureConfig{ textureName_copy, filepath_copy, strength };
+        m_texturesConfig.bumpTextureCount++;
+    }
+    else {
+        // Handle error, for example, log a message or throw an exception
+        std::cerr << "Exceeded maximum number of bump textures." << std::endl;
+    }
+
     return *this;
 }
 
-scene_builder& scene_builder::addEmissiveTexture(const char* textureName, const bitmap_image& img, float strength)
+scene_builder& scene_builder::addAlphaTexture(const char* textureName, const char* filepath, bool double_sided)
 {
-    auto emissive_tex = new image_texture(img);
-    this->m_textures[textureName] = new emissive_texture(emissive_tex, strength);
+    /*auto alpha_tex = new image_texture(img);
+    this->m_textures[textureName] = new alpha_texture(alpha_tex, double_sided);*/
+
+    // Get current count of alpha textures
+    int c = m_texturesConfig.alphaTextureCount;
+
+    if (m_texturesConfig.alphaTextureCount < m_texturesConfig.alphaTextureCapacity)
+    {
+        // When assigning the name, allocate memory and copy the string
+        size_t length1 = strlen(textureName) + 1;  // +1 for null terminator
+        char* textureName_copy = new char[length1]; // Allocate memory for the name
+        strcpy(textureName_copy, textureName);  // Copy the string
+
+        size_t length2 = strlen(filepath) + 1;  // +1 for null terminator
+        char* filepath_copy = new char[length2]; // Allocate memory for the name
+        strcpy(filepath_copy, filepath);  // Copy the string
+
+        m_texturesConfig.alphaTextures[c] = alphaTextureConfig{ textureName_copy, filepath_copy, double_sided };
+        m_texturesConfig.alphaTextureCount++;
+    }
+    else {
+        // Handle error, for example, log a message or throw an exception
+        std::cerr << "Exceeded maximum number of alpha textures." << std::endl;
+    }
+
+    return *this;
+}
+
+scene_builder& scene_builder::addEmissiveTexture(const char* textureName, const char* filepath, float strength)
+{
+    //auto emissive_tex = new image_texture(img);
+    //this->m_textures[textureName] = new emissive_texture(emissive_tex, strength);
+
+    // Get current count of emissive textures
+    int c = m_texturesConfig.emissiveTextureCount;
+
+    if (m_texturesConfig.emissiveTextureCount < m_texturesConfig.emissiveTextureCapacity)
+    {
+        // When assigning the name, allocate memory and copy the string
+        size_t length1 = strlen(textureName) + 1;  // +1 for null terminator
+        char* textureName_copy = new char[length1]; // Allocate memory for the name
+        strcpy(textureName_copy, textureName);  // Copy the string
+
+        size_t length2 = strlen(filepath) + 1;  // +1 for null terminator
+        char* filepath_copy = new char[length2]; // Allocate memory for the name
+        strcpy(filepath_copy, filepath);  // Copy the string
+
+        m_texturesConfig.emissiveTextures[c] = emissiveTextureConfig{ textureName_copy, filepath_copy, strength };
+        m_texturesConfig.emissiveTextureCount++;
+    }
+    else {
+        // Handle error, for example, log a message or throw an exception
+        std::cerr << "Exceeded maximum number of emissive textures." << std::endl;
+    }
+
     return *this;
 }
 
@@ -383,7 +639,34 @@ scene_builder& scene_builder::addMetalMaterial(const char* materialName, color r
   return *this;
 }
 
-scene_builder& scene_builder::addDirectionalLight(const point3& pos, const vector3& u, const vector3& v, float intensity, color rgb, bool invisible, char* name)
+
+
+
+
+
+
+
+scene_builder& scene_builder::initLightsConfig(const uint32_t countOmni, const uint32_t countDir, const uint32_t countSpot)
+{
+    m_lightsConfig.omniLightCount = 0;
+    m_lightsConfig.omniLightCapacity = countOmni;
+    m_lightsConfig.omniLights = new omniLightConfig[countOmni];
+
+    m_lightsConfig.dirLightCount = 0;
+    m_lightsConfig.dirLightCapacity = countDir;
+    m_lightsConfig.dirLights = new directionalLightConfig[countDir];
+
+    m_lightsConfig.spotLightCount = 0;
+    m_lightsConfig.spotLightCapacity = countSpot;
+    m_lightsConfig.spotLights = new spotLightConfig[countSpot];
+
+    return *this;
+}
+
+
+
+
+scene_builder& scene_builder::addDirectionalLight(const point3& pos, const vector3& u, const vector3& v, float intensity, color rgb, bool invisible, const char* name)
 {
     /*this->m_objects.add(
         scene_factory::createDirectionalLight(

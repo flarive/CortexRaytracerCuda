@@ -129,14 +129,6 @@ void check_cuda(cudaError_t result, char const* const func, const char* const fi
 
 __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittable_list **elights,  camera **cam, sampler **aa_sampler, int width, int height, float ratio, int spp, int sqrt_spp, image_texture** texture, int seed)
 {
-    
-    
-
-
-
-
-
-    
     if (threadIdx.x == 0 && blockIdx.x == 0)
     {
         // thrust random engine and distribution
@@ -150,15 +142,16 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
 
         *elist = new hittable_list();
 
-
-        printf("[CPU] %i omni lights found\n", sceneCfg->lightsCfg.omniLightCount);
-        printf("[CPU] %i dir lights found\n", sceneCfg->lightsCfg.dirLightCount);
-        printf("[CPU] %i spot lights found\n", sceneCfg->lightsCfg.spotLightCount);
+        // LIGHTS
+        printf("[GPU] %i omni lights found\n", sceneCfg->lightsCfg.omniLightCount);
+        printf("[GPU] %i dir lights found\n", sceneCfg->lightsCfg.dirLightCount);
+        printf("[GPU] %i spot lights found\n", sceneCfg->lightsCfg.spotLightCount);
 
         for (int i = 0; i < sceneCfg->lightsCfg.omniLightCount; i++)
         {
             omniLightConfig omnilight = sceneCfg->lightsCfg.omniLights[i];
-            printf("[CPU] omnilight%d %g %s %g/%g/%g %g/%g/%g %g/%g/%g %g %d\n", i, omnilight.intensity, omnilight.name,
+            printf("[GPU] omnilight%d %g %s %g/%g/%g %g/%g/%g %g %d\n", i, 
+                omnilight.intensity, omnilight.name,
                 omnilight.position.x, omnilight.position.y, omnilight.position.z,
                 omnilight.rgb.r(), omnilight.rgb.g(), omnilight.rgb.b(),
                 omnilight.radius,
@@ -168,7 +161,8 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
         for (int i = 0; i < sceneCfg->lightsCfg.dirLightCount; i++)
         {
             directionalLightConfig dirlight = sceneCfg->lightsCfg.dirLights[i];
-            printf("[CPU] dirlight%d %g %s %g/%g/%g %g/%g/%g %g/%g/%g %g/%g/%g %d\n", i, dirlight.intensity, dirlight.name,
+            printf("[GPU] dirlight%d %g %s %g/%g/%g %g/%g/%g %g/%g/%g %g/%g/%g %d\n", i, 
+                dirlight.intensity, dirlight.name,
                 dirlight.position.x, dirlight.position.y, dirlight.position.z,
                 dirlight.u.x, dirlight.u.y, dirlight.u.z,
                 dirlight.v.x, dirlight.v.y, dirlight.v.z,
@@ -179,7 +173,8 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
         for (int i = 0; i < sceneCfg->lightsCfg.spotLightCount; i++)
         {
             spotLightConfig spotlight = sceneCfg->lightsCfg.spotLights[i];
-            printf("[CPU] spotlight%d %g %s %g/%g/%g %g/%g/%g %g/%g/%g %g %g %g %g/%g/%g %d\n", i, spotlight.intensity, spotlight.name,
+            printf("[GPU] spotlight%d %g %s %g/%g/%g %g/%g/%g %g %g %g %g/%g/%g %d\n", i, 
+                spotlight.intensity, spotlight.name,
                 spotlight.position.x, spotlight.position.y, spotlight.position.z,
                 spotlight.direction.x, spotlight.direction.y, spotlight.direction.z,
                 spotlight.cutoff,
@@ -189,11 +184,37 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
                 spotlight.invisible);
         }
 
+
+        // TEXTURES
+        printf("[GPU] %i solidColor textures found\n", sceneCfg->texturesCfg.solidColorTextureCount);
+
+        for (int i = 0; i < sceneCfg->texturesCfg.solidColorTextureCount; i++)
+        {
+            solidColorTextureConfig solidColorTexture = sceneCfg->texturesCfg.solidColorTextures[i];
+            printf("[GPU] solidColorTexture%d %s %g/%g/%g\n", i,
+                solidColorTexture.name,
+                solidColorTexture.rgb.r(), solidColorTexture.rgb.g(), solidColorTexture.rgb.b());
+        }
+
+        for (int i = 0; i < sceneCfg->texturesCfg.gradientColorTextureCount; i++)
+        {
+            gradientColorTextureConfig gradientColorTexture = sceneCfg->texturesCfg.gradientColorTextures[i];
+            printf("[GPU] gradientColorTexture%d %s %g/%g/%g %g/%g/%g %d %d\n", i,
+                gradientColorTexture.name,
+                gradientColorTexture.color1.r(), gradientColorTexture.color1.g(), gradientColorTexture.color1.b(),
+                gradientColorTexture.color2.r(), gradientColorTexture.color2.g(), gradientColorTexture.color2.b(),
+                gradientColorTexture.vertical,
+                gradientColorTexture.hsv);
+        }
+
+        for (int i = 0; i < sceneCfg->texturesCfg.imageTextureCount; i++)
+        {
+            imageTextureConfig gradientColorTexture = sceneCfg->texturesCfg.imageTextures[i];
+            printf("[GPU] imageTexture%d %s %s\n", i,
+                gradientColorTexture.name,
+                gradientColorTexture.filepath);
+        }
         
-
-
-
-
 
         (*elist)->add(new rt::flip_normals(new yz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(color(0.12, 0.45, 0.15))), "MyLeft")));
         (*elist)->add(new yz_rect(0, 555, 0, 555, 0, new lambertian(new solid_color_texture(color(0.65, 0.05, 0.05))), "MyRight"));
@@ -357,135 +378,208 @@ void setupCuda(const cudaDeviceProp& prop)
     std::cout << "[INFO] New printf fifo size: " << newPrintfFifoSize << " bytes" << std::endl;
 }
 
-
-sceneConfig* prepareLights(const sceneConfig& sceneCfg)
+/// <summary>
+/// // Helper function to copy texture configuration
+/// </summary>
+template<typename TextureConfig>
+void copyTextureConfig(const TextureConfig* h_textures, int count, TextureConfig** d_textures, texturesConfig* d_texturesCfg, TextureConfig** d_texturesPtrOnDevice)
 {
-    sceneConfig* d_sceneCfg;
+    // 1. Allocate memory for the array on the device
+    cudaMalloc((void**)d_textures, count * sizeof(TextureConfig));
 
-    // Allocate memory on the device for the top-level `sceneConfig` struct
-    cudaMalloc((void**)&d_sceneCfg, sizeof(sceneConfig));
+    // 2. Copy the array contents from host to device
+    cudaMemcpy(*d_textures, h_textures, count * sizeof(TextureConfig), cudaMemcpyHostToDevice);
 
+    // 3. Allocate memory and copy the names for each texture
+    for (int i = 0; i < count; i++)
+    {
+        // copy name
+        const char* hostName = h_textures[i].name;  // Get the string from the host
+
+        // Allocate memory on the device for the string (with null terminator)
+        char* d_name;
+        size_t nameLen = strlen(hostName) + 1;  // +1 for null terminator
+        cudaMalloc((void**)&d_name, nameLen);
+
+        // Copy the string from host to device
+        cudaMemcpy(d_name, hostName, nameLen, cudaMemcpyHostToDevice);
+
+        // Update the device-side config to point to the device string
+        cudaMemcpy(&((*d_textures)[i].name), &d_name, sizeof(char*), cudaMemcpyHostToDevice);
+    }
+
+    // 4. Update the device-side config to point to the array on the device
+    cudaMemcpy(d_texturesPtrOnDevice, d_textures, sizeof(TextureConfig*), cudaMemcpyHostToDevice);
+}
+
+
+
+
+/// <summary>
+/// // Helper function to copy texture configuration
+/// </summary>
+template<typename TextureConfig>
+void copyTextureConfig2(const TextureConfig* h_textures, int count, TextureConfig** d_textures, texturesConfig* d_texturesCfg, TextureConfig** d_texturesPtrOnDevice)
+{
+    // 1. Allocate memory for the array on the device
+    cudaMalloc((void**)d_textures, count * sizeof(TextureConfig));
+
+    // 2. Copy the array contents from host to device
+    cudaMemcpy(*d_textures, h_textures, count * sizeof(TextureConfig), cudaMemcpyHostToDevice);
+
+    // 3. Allocate memory and copy the names for each texture
+    for (int i = 0; i < count; i++)
+    {
+        // copy name
+        const char* hostName = h_textures[i].name;  // Get the string from the host
+
+        // Allocate memory on the device for the string (with null terminator)
+        char* d_name;
+        size_t nameLen = strlen(hostName) + 1;  // +1 for null terminator
+        cudaMalloc((void**)&d_name, nameLen);
+
+        // Copy the string from host to device
+        cudaMemcpy(d_name, hostName, nameLen, cudaMemcpyHostToDevice);
+
+        // Update the device-side config to point to the device string
+        cudaMemcpy(&((*d_textures)[i].name), &d_name, sizeof(char*), cudaMemcpyHostToDevice);
+
+
+        // copy filepath
+        const char* hostFilepath = h_textures[i].filepath;  // Get the string from the host
+
+        // Allocate memory on the device for the string (with null terminator)
+        char* d_filepath;
+        size_t filepathLen = strlen(hostFilepath) + 1;  // +1 for null terminator
+        cudaMalloc((void**)&d_filepath, filepathLen);
+
+        // Copy the string from host to device
+        cudaMemcpy(d_filepath, hostFilepath, filepathLen, cudaMemcpyHostToDevice);
+
+        // Update the device-side config to point to the device string
+        cudaMemcpy(&((*d_textures)[i].filepath), &d_filepath, sizeof(char*), cudaMemcpyHostToDevice);
+    }
+
+    // 4. Update the device-side config to point to the array on the device
+    cudaMemcpy(d_texturesPtrOnDevice, d_textures, sizeof(TextureConfig*), cudaMemcpyHostToDevice);
+}
+
+
+/// <summary>
+/// Helper function to copy light configuration
+/// </summary>
+template<typename LightConfig>
+void copyLightConfig(const LightConfig* h_lights, int count, LightConfig** d_lights, lightsConfig* d_lightsCfg, LightConfig** d_lightsPtrOnDevice)
+{
+    // 1. Allocate memory for the lights array on the device
+    cudaMalloc((void**)d_lights, count * sizeof(LightConfig));
+
+    // 2. Copy the lights array contents from host to device
+    cudaMemcpy(*d_lights, h_lights, count * sizeof(LightConfig), cudaMemcpyHostToDevice);
+
+    // 3. Allocate memory and copy the names for each light
+    for (int i = 0; i < count; i++)
+    {
+        // copy name
+        const char* hostName = h_lights[i].name;  // Get the string from the host
+
+        // Allocate memory on the device for the string (with null terminator)
+        char* d_name;
+        size_t nameLen = strlen(hostName) + 1;  // +1 for null terminator
+        cudaMalloc((void**)&d_name, nameLen);
+
+        // Copy the string from host to device
+        cudaMemcpy(d_name, hostName, nameLen, cudaMemcpyHostToDevice);
+
+        // Update the device-side light config to point to the device string
+        cudaMemcpy(&((*d_lights)[i].name), &d_name, sizeof(char*), cudaMemcpyHostToDevice);
+    }
+
+    // 4. Update the device-side lightsConfig to point to the lights array on the device
+    cudaMemcpy(d_lightsPtrOnDevice, d_lights, sizeof(LightConfig*), cudaMemcpyHostToDevice);
+}
+
+
+
+texturesConfig* prepareTextures(const texturesConfig& h_texturesCfg)
+{
+    // Allocate and copy the textures data (for solid color, gradient color, image...)
+    texturesConfig* d_texturesCfg;
+    cudaMalloc((void**)&d_texturesCfg, sizeof(texturesConfig));
+
+    // Solid color texture
+    if (h_texturesCfg.solidColorTextureCount > 0)
+    {
+        solidColorTextureConfig* d_solidColorTextures;
+        copyTextureConfig(h_texturesCfg.solidColorTextures, h_texturesCfg.solidColorTextureCount, &d_solidColorTextures, d_texturesCfg, &(d_texturesCfg->solidColorTextures));
+    }
+
+    // Copy the scalar values from host to device for solid color texture count
+    cudaMemcpy(&(d_texturesCfg->solidColorTextureCount), &(h_texturesCfg.solidColorTextureCount), sizeof(int8_t), cudaMemcpyHostToDevice);
+
+    // Gradient color texture
+    if (h_texturesCfg.gradientColorTextureCount > 0)
+    {
+        gradientColorTextureConfig* d_gradientColorTextures;
+        copyTextureConfig(h_texturesCfg.gradientColorTextures, h_texturesCfg.gradientColorTextureCount, &d_gradientColorTextures, d_texturesCfg, &(d_texturesCfg->gradientColorTextures));
+    }
+
+    // Copy the scalar values from host to device for gradient color texture count
+    cudaMemcpy(&(d_texturesCfg->gradientColorTextureCount), &(h_texturesCfg.gradientColorTextureCount), sizeof(int8_t), cudaMemcpyHostToDevice);
+
+
+    // Image texture
+    if (h_texturesCfg.imageTextureCount > 0)
+    {
+        imageTextureConfig* d_imageTextures;
+        copyTextureConfig2(h_texturesCfg.imageTextures, h_texturesCfg.imageTextureCount, &d_imageTextures, d_texturesCfg, &(d_texturesCfg->imageTextures));
+    }
+
+    // Copy the scalar values from host to device for gradient color texture count
+    cudaMemcpy(&(d_texturesCfg->imageTextureCount), &(h_texturesCfg.imageTextureCount), sizeof(int8_t), cudaMemcpyHostToDevice);
+
+    return d_texturesCfg;
+}
+
+
+// Main function to prepare lights
+lightsConfig* prepareLights(const lightsConfig& h_lightsCfg)
+{
     // Allocate and copy the lights data (for omniLights, dirLights, spotLights)
     lightsConfig* d_lightsCfg;
     cudaMalloc((void**)&d_lightsCfg, sizeof(lightsConfig));
 
-
     // Copy omniLights array if there are omni lights
-    if (sceneCfg.lightsCfg.omniLightCount > 0)
+    if (h_lightsCfg.omniLightCount > 0)
     {
-        // 1. Allocate memory for the omniLights array on the device
         omniLightConfig* d_omniLights;
-        cudaMalloc((void**)&d_omniLights, sceneCfg.lightsCfg.omniLightCount * sizeof(omniLightConfig));
-
-        // 2. Copy the omniLights array contents from host to device
-        cudaMemcpy(d_omniLights, sceneCfg.lightsCfg.omniLights, sceneCfg.lightsCfg.omniLightCount * sizeof(omniLightConfig), cudaMemcpyHostToDevice);
-
-        // 3. Allocate memory and copy the names for each omni light
-        for (int i = 0; i < sceneCfg.lightsCfg.omniLightCount; i++)
-        {
-            const char* hostName = sceneCfg.lightsCfg.omniLights[i].name;  // Get the string from the host
-
-            // Allocate memory on the device for the string (with null terminator)
-            char* d_name;
-            size_t nameLen = strlen(hostName) + 1;  // +1 for null terminator
-            cudaMalloc((void**)&d_name, nameLen);
-
-            // Copy the string from host to device
-            cudaMemcpy(d_name, hostName, nameLen, cudaMemcpyHostToDevice);
-
-            // Update the device-side omniLightConfig to point to the device string
-            cudaMemcpy(&(d_omniLights[i].name), &d_name, sizeof(char*), cudaMemcpyHostToDevice);
-        }
-
-        // 4. Update the device-side lightsConfig to point to the omniLights array on the device
-        cudaMemcpy(&(d_lightsCfg->omniLights), &d_omniLights, sizeof(omniLightConfig*), cudaMemcpyHostToDevice);
+        copyLightConfig(h_lightsCfg.omniLights, h_lightsCfg.omniLightCount, &d_omniLights, d_lightsCfg, &(d_lightsCfg->omniLights));
     }
 
-    // 5. Copy the scalar values (like omniLightCount) from host to device
-    cudaMemcpy(&(d_lightsCfg->omniLightCount), &(sceneCfg.lightsCfg.omniLightCount), sizeof(int8_t), cudaMemcpyHostToDevice);
+    // Copy the scalar values (like omniLightCount) from host to device
+    cudaMemcpy(&(d_lightsCfg->omniLightCount), &(h_lightsCfg.omniLightCount), sizeof(int8_t), cudaMemcpyHostToDevice);
 
-
-
-
-
-    
     // Copy dirLights array if there are directional lights
-    if (sceneCfg.lightsCfg.dirLightCount > 0)
+    if (h_lightsCfg.dirLightCount > 0)
     {
-        // 1. Allocate memory for the dirLights array on the device
         directionalLightConfig* d_dirLights;
-        cudaMalloc((void**)&d_dirLights, sceneCfg.lightsCfg.dirLightCount * sizeof(directionalLightConfig));
-
-        // 2. Copy the dirLights array contents from host to device
-        cudaMemcpy(d_dirLights, sceneCfg.lightsCfg.dirLights, sceneCfg.lightsCfg.dirLightCount * sizeof(directionalLightConfig), cudaMemcpyHostToDevice);
-
-        // 3. Allocate memory and copy the names for each directional light
-        for (int i = 0; i < sceneCfg.lightsCfg.dirLightCount; i++)
-        {
-            const char* hostName = sceneCfg.lightsCfg.dirLights[i].name;  // Get the string from the host
-
-            // Allocate memory on the device for the string (with null terminator)
-            char* d_name;
-            size_t nameLen = strlen(hostName) + 1;  // +1 for null terminator
-            cudaMalloc((void**)&d_name, nameLen);
-
-            // Copy the string from host to device
-            cudaMemcpy(d_name, hostName, nameLen, cudaMemcpyHostToDevice);
-
-            // Update the device-side directionalLightConfig to point to the device string
-            cudaMemcpy(&(d_dirLights[i].name), &d_name, sizeof(char*), cudaMemcpyHostToDevice);
-        }
-
-        // 4. Update the device-side lightsConfig to point to the dirLights array on the device
-        cudaMemcpy(&(d_lightsCfg->dirLights), &d_dirLights, sizeof(directionalLightConfig*), cudaMemcpyHostToDevice);
+        copyLightConfig(h_lightsCfg.dirLights, h_lightsCfg.dirLightCount, &d_dirLights, d_lightsCfg, &(d_lightsCfg->dirLights));
     }
 
-    // 5. Copy the scalar values (like dirLightCount) from host to device
-    cudaMemcpy(&(d_lightsCfg->dirLightCount), &(sceneCfg.lightsCfg.dirLightCount), sizeof(int8_t), cudaMemcpyHostToDevice);
-
-
-
+    // Copy the scalar values (like dirLightCount) from host to device
+    cudaMemcpy(&(d_lightsCfg->dirLightCount), &(h_lightsCfg.dirLightCount), sizeof(int8_t), cudaMemcpyHostToDevice);
 
     // Copy spotLights array if there are spot lights
-    if (sceneCfg.lightsCfg.spotLightCount > 0)
+    if (h_lightsCfg.spotLightCount > 0)
     {
-        // 1. Allocate memory for the spotLights array on the device
         spotLightConfig* d_spotLights;
-        cudaMalloc((void**)&d_spotLights, sceneCfg.lightsCfg.spotLightCount * sizeof(spotLightConfig));
-
-        // 2. Copy the spotLights array contents from host to device
-        cudaMemcpy(d_spotLights, sceneCfg.lightsCfg.spotLights, sceneCfg.lightsCfg.spotLightCount * sizeof(spotLightConfig), cudaMemcpyHostToDevice);
-
-        // 3. Allocate memory and copy the names for each spotectional light
-        for (int i = 0; i < sceneCfg.lightsCfg.spotLightCount; i++)
-        {
-            const char* hostName = sceneCfg.lightsCfg.spotLights[i].name;  // Get the string from the host
-
-            // Allocate memory on the device for the string (with null terminator)
-            char* d_name;
-            size_t nameLen = strlen(hostName) + 1;  // +1 for null terminator
-            cudaMalloc((void**)&d_name, nameLen);
-
-            // Copy the string from host to device
-            cudaMemcpy(d_name, hostName, nameLen, cudaMemcpyHostToDevice);
-
-            // Update the device-side spotectionalLightConfig to point to the device string
-            cudaMemcpy(&(d_spotLights[i].name), &d_name, sizeof(char*), cudaMemcpyHostToDevice);
-        }
-
-        // 4. Update the device-side lightsConfig to point to the spotLights array on the device
-        cudaMemcpy(&(d_lightsCfg->spotLights), &d_spotLights, sizeof(spotLightConfig*), cudaMemcpyHostToDevice);
+        copyLightConfig(h_lightsCfg.spotLights, h_lightsCfg.spotLightCount, &d_spotLights, d_lightsCfg, &(d_lightsCfg->spotLights));
     }
 
-    // 5. Copy the scalar values (like spotLightCount) from host to device
-    cudaMemcpy(&(d_lightsCfg->spotLightCount), &(sceneCfg.lightsCfg.spotLightCount), sizeof(int8_t), cudaMemcpyHostToDevice);
+    // Copy the scalar values (like spotLightCount) from host to device
+    cudaMemcpy(&(d_lightsCfg->spotLightCount), &(h_lightsCfg.spotLightCount), sizeof(int8_t), cudaMemcpyHostToDevice);
 
-
-    // Now copy the lightsConfig pointer from host to device sceneConfig
-    cudaMemcpy(&d_sceneCfg->lightsCfg, d_lightsCfg, sizeof(lightsConfig), cudaMemcpyHostToDevice);
-
-
-    return d_sceneCfg;
+    return d_lightsCfg;
 }
 
 void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int width, int height, int spp, int max_depth, int tx, int ty, const char* filepath)
@@ -538,7 +632,27 @@ void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int widt
     //checkCudaErrors(cudaMemcpy(world_device, &world, sizeof(scene), cudaMemcpyHostToDevice));
 
 
-    sceneConfig* d_sceneCfg = prepareLights(sceneCfg);
+
+
+
+
+    sceneConfig* d_sceneCfg;
+
+    // Allocate memory on the device for the top-level `sceneConfig` struct
+    cudaMalloc((void**)&d_sceneCfg, sizeof(sceneConfig));
+
+
+    lightsConfig* d_lightsCfg = prepareLights(sceneCfg.lightsCfg);
+    texturesConfig* d_texturesCfg = prepareTextures(sceneCfg.texturesCfg);
+
+    // Now copy the lightsConfig pointer from host to device sceneConfig
+    cudaMemcpy(&d_sceneCfg->lightsCfg, d_lightsCfg, sizeof(lightsConfig), cudaMemcpyHostToDevice);
+
+    // Now copy the texturesConfig pointer from host to device sceneConfig
+    cudaMemcpy(&d_sceneCfg->texturesCfg, d_texturesCfg, sizeof(texturesConfig), cudaMemcpyHostToDevice);
+
+
+
 
 
     // Building the world

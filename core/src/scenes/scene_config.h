@@ -51,7 +51,7 @@ typedef struct {
     vector3 v;
     float intensity;
     color rgb;
-    char* name;
+    const char* name;
     bool invisible;
 } directionalLightConfig;
 
@@ -148,34 +148,44 @@ typedef struct {
 
 typedef struct {
     solidColorTextureConfig* solidColorTextures;
-    int8_t solidColorTextureCount;
+    uint8_t solidColorTextureCount;
+    uint8_t solidColorTextureCapacity;
 
     gradientColorTextureConfig* gradientColorTextures;
-    int8_t gradientColorTextureCount;
+    uint8_t gradientColorTextureCount;
+    uint8_t gradientColorTextureCapacity;
 
     imageTextureConfig* imageTextures;
-    int8_t imageTextureCount;
+    uint8_t imageTextureCount;
+    uint8_t imageTextureCapacity;
 
     checkerTextureConfig* checkerTextures;
-    int8_t checkerTextureCount;
+    uint8_t checkerTextureCount;
+    uint8_t checkerTextureCapacity;
 
     perlinNoiseTextureConfig* perlinNoiseTextures;
-    int8_t perlinNoiseTextureCount;
+    uint8_t perlinNoiseTextureCount;
+    uint8_t perlinNoiseTextureCapacity;
 
     bumpTextureConfig* bumpTextures;
-    int8_t bumpTextureCount;
+    uint8_t bumpTextureCount;
+    uint8_t bumpTextureCapacity;
 
     normalTextureConfig* normalTextures;
-    int8_t normalTextureCount;
+    uint8_t normalTextureCount;
+    uint8_t normalTextureCapacity;
 
     displacementTextureConfig* displacementTextures;
-    int8_t displacementTextureCount;
+    uint8_t displacementTextureCount;
+    uint8_t displacementTextureCapacity;
 
     alphaTextureConfig* alphaTextures;
-    int8_t alphaTextureCount;
+    uint8_t alphaTextureCount;
+    uint8_t alphaTextureCapacity;
 
     emissiveTextureConfig* emissiveTextures;
-    int8_t emissiveTextureCount;
+    uint8_t emissiveTextureCount;
+    uint8_t emissiveTextureCapacity;
 } texturesConfig;
 
 
