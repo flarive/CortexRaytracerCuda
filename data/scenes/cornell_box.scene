@@ -104,6 +104,10 @@ textures:
         {
             name = "groud_texture";
             scale = 4.0;
+        },
+        {
+            name = "groud_texture2";
+            scale = 8.0;
         }
     ),
     solidColor: (
@@ -168,6 +172,13 @@ textures:
             name = "angel_normal_texture";
             filepath = "../../data/models/angel_normal.jpg";
             strength = 1.0;
+        }
+    ),
+    displacement: (
+        {
+            name = "angel_displacement_texture";
+            filepath = "../../data/models/angel_displacement.jpg";
+            strength = 11.0;
         }
     )
 }

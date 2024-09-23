@@ -214,6 +214,53 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
                 gradientColorTexture.name,
                 gradientColorTexture.filepath);
         }
+
+        for (int i = 0; i < sceneCfg->texturesCfg.checkerTextureCount; i++)
+        {
+            checkerTextureConfig checkerTexture = sceneCfg->texturesCfg.checkerTextures[i];
+            printf("[GPU] checkerTexture%d %s %g/%g/%g %g/%g/%g %s %s %g\n", i,
+                checkerTexture.name,
+                checkerTexture.oddColor.r(), checkerTexture.oddColor.g(), checkerTexture.oddColor.b(),
+                checkerTexture.evenColor.r(), checkerTexture.evenColor.g(), checkerTexture.evenColor.b(),
+                checkerTexture.oddTextureName,
+                checkerTexture.evenTextureName,
+                checkerTexture.scale);
+        }
+
+        for (int i = 0; i < sceneCfg->texturesCfg.noiseTextureCount; i++)
+        {
+            noiseTextureConfig noiseTexture = sceneCfg->texturesCfg.noiseTextures[i];
+            printf("[GPU] noiseTexture%d %s %g\n", i,
+                noiseTexture.name,
+                noiseTexture.scale);
+        }
+
+        for (int i = 0; i < sceneCfg->texturesCfg.bumpTextureCount; i++)
+        {
+            bumpTextureConfig bumpTexture = sceneCfg->texturesCfg.bumpTextures[i];
+            printf("[GPU] bumpTexture%d %s %s %g\n", i,
+                bumpTexture.name,
+                bumpTexture.filepath,
+                bumpTexture.strength);
+        }
+
+        for (int i = 0; i < sceneCfg->texturesCfg.normalTextureCount; i++)
+        {
+            normalTextureConfig normalTexture = sceneCfg->texturesCfg.normalTextures[i];
+            printf("[GPU] normalTexture%d %s %s %g\n", i,
+                normalTexture.name,
+                normalTexture.filepath,
+                normalTexture.strength);
+        }
+
+        for (int i = 0; i < sceneCfg->texturesCfg.displacementTextureCount; i++)
+        {
+            displacementTextureConfig displacementTexture = sceneCfg->texturesCfg.displacementTextures[i];
+            printf("[GPU] displacementTexture%d %s %s %g\n", i,
+                displacementTexture.name,
+                displacementTexture.filepath,
+                displacementTexture.strength);
+        }
         
 
         (*elist)->add(new rt::flip_normals(new yz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(color(0.12, 0.45, 0.15))), "MyLeft")));
@@ -379,10 +426,26 @@ void setupCuda(const cudaDeviceProp& prop)
 }
 
 /// <summary>
+/// Helper function to copy a string from the host to the device
+/// </summary>
+/// <param name="hostString">Pointer to the host string</param>
+/// <param name="deviceString">Pointer to the device string (output)</param>
+void copyStringToDevice(const char* hostString, char** deviceString)
+{
+    // Allocate memory on the device for the string (with null terminator)
+    size_t stringLen = strlen(hostString) + 1;  // +1 for null terminator
+    cudaMalloc((void**)deviceString, stringLen);
+
+    // Copy the string from host to device
+    cudaMemcpy(*deviceString, hostString, stringLen, cudaMemcpyHostToDevice);
+}
+
+
+/// <summary>
 /// // Helper function to copy texture configuration
 /// </summary>
 template<typename TextureConfig>
-void copyTextureConfig(const TextureConfig* h_textures, int count, TextureConfig** d_textures, texturesConfig* d_texturesCfg, TextureConfig** d_texturesPtrOnDevice)
+void copyCommonTextureConfig(const TextureConfig* h_textures, int count, TextureConfig** d_textures, texturesConfig* d_texturesCfg, TextureConfig** d_texturesPtrOnDevice)
 {
     // 1. Allocate memory for the array on the device
     cudaMalloc((void**)d_textures, count * sizeof(TextureConfig));
@@ -393,18 +456,10 @@ void copyTextureConfig(const TextureConfig* h_textures, int count, TextureConfig
     // 3. Allocate memory and copy the names for each texture
     for (int i = 0; i < count; i++)
     {
-        // copy name
+        // Copy name
         const char* hostName = h_textures[i].name;  // Get the string from the host
-
-        // Allocate memory on the device for the string (with null terminator)
         char* d_name;
-        size_t nameLen = strlen(hostName) + 1;  // +1 for null terminator
-        cudaMalloc((void**)&d_name, nameLen);
-
-        // Copy the string from host to device
-        cudaMemcpy(d_name, hostName, nameLen, cudaMemcpyHostToDevice);
-
-        // Update the device-side config to point to the device string
+        copyStringToDevice(hostName, &d_name);  // Use reusable function for name
         cudaMemcpy(&((*d_textures)[i].name), &d_name, sizeof(char*), cudaMemcpyHostToDevice);
     }
 
@@ -419,7 +474,7 @@ void copyTextureConfig(const TextureConfig* h_textures, int count, TextureConfig
 /// // Helper function to copy texture configuration
 /// </summary>
 template<typename TextureConfig>
-void copyTextureConfig2(const TextureConfig* h_textures, int count, TextureConfig** d_textures, texturesConfig* d_texturesCfg, TextureConfig** d_texturesPtrOnDevice)
+void copyImageTextureConfig(const TextureConfig* h_textures, int count, TextureConfig** d_textures, texturesConfig* d_texturesCfg, TextureConfig** d_texturesPtrOnDevice)
 {
     // 1. Allocate memory for the array on the device
     cudaMalloc((void**)d_textures, count * sizeof(TextureConfig));
@@ -430,34 +485,55 @@ void copyTextureConfig2(const TextureConfig* h_textures, int count, TextureConfi
     // 3. Allocate memory and copy the names for each texture
     for (int i = 0; i < count; i++)
     {
-        // copy name
+        // Copy name
         const char* hostName = h_textures[i].name;  // Get the string from the host
-
-        // Allocate memory on the device for the string (with null terminator)
         char* d_name;
-        size_t nameLen = strlen(hostName) + 1;  // +1 for null terminator
-        cudaMalloc((void**)&d_name, nameLen);
-
-        // Copy the string from host to device
-        cudaMemcpy(d_name, hostName, nameLen, cudaMemcpyHostToDevice);
-
-        // Update the device-side config to point to the device string
+        copyStringToDevice(hostName, &d_name);  // Use reusable function for name
         cudaMemcpy(&((*d_textures)[i].name), &d_name, sizeof(char*), cudaMemcpyHostToDevice);
 
-
-        // copy filepath
+        // Copy filepath
         const char* hostFilepath = h_textures[i].filepath;  // Get the string from the host
-
-        // Allocate memory on the device for the string (with null terminator)
         char* d_filepath;
-        size_t filepathLen = strlen(hostFilepath) + 1;  // +1 for null terminator
-        cudaMalloc((void**)&d_filepath, filepathLen);
-
-        // Copy the string from host to device
-        cudaMemcpy(d_filepath, hostFilepath, filepathLen, cudaMemcpyHostToDevice);
-
-        // Update the device-side config to point to the device string
+        copyStringToDevice(hostFilepath, &d_filepath);  // Use reusable function for filepath
         cudaMemcpy(&((*d_textures)[i].filepath), &d_filepath, sizeof(char*), cudaMemcpyHostToDevice);
+    }
+
+    // 4. Update the device-side config to point to the array on the device
+    cudaMemcpy(d_texturesPtrOnDevice, d_textures, sizeof(TextureConfig*), cudaMemcpyHostToDevice);
+}
+
+/// <summary>
+/// // Helper function to copy texture configuration
+/// </summary>
+template<typename TextureConfig>
+void copyCheckerTextureConfig(const TextureConfig* h_textures, int count, TextureConfig** d_textures, texturesConfig* d_texturesCfg, TextureConfig** d_texturesPtrOnDevice)
+{
+    // 1. Allocate memory for the array on the device
+    cudaMalloc((void**)d_textures, count * sizeof(TextureConfig));
+
+    // 2. Copy the array contents from host to device
+    cudaMemcpy(*d_textures, h_textures, count * sizeof(TextureConfig), cudaMemcpyHostToDevice);
+
+    // 3. Allocate memory and copy the names for each texture
+    for (int i = 0; i < count; i++)
+    {
+        // Copy name
+        const char* hostName = h_textures[i].name;  // Get the string from the host
+        char* d_name;
+        copyStringToDevice(hostName, &d_name);  // Use reusable function for name
+        cudaMemcpy(&((*d_textures)[i].name), &d_name, sizeof(char*), cudaMemcpyHostToDevice);
+
+        // Copy oddTextureName
+        const char* hostOddTextureName = h_textures[i].oddTextureName;  // Get the string from the host
+        char* d_oddTextureName;
+        copyStringToDevice(hostOddTextureName, &d_oddTextureName);  // Use reusable function for filepath
+        cudaMemcpy(&((*d_textures)[i].oddTextureName), &d_oddTextureName, sizeof(char*), cudaMemcpyHostToDevice);
+
+        // Copy evenTextureName
+        const char* hostEvenTextureName = h_textures[i].evenTextureName;  // Get the string from the host
+        char* d_evenTextureName;
+        copyStringToDevice(hostEvenTextureName, &d_evenTextureName);  // Use reusable function for filepath
+        cudaMemcpy(&((*d_textures)[i].evenTextureName), &d_evenTextureName, sizeof(char*), cudaMemcpyHostToDevice);
     }
 
     // 4. Update the device-side config to point to the array on the device
@@ -480,18 +556,10 @@ void copyLightConfig(const LightConfig* h_lights, int count, LightConfig** d_lig
     // 3. Allocate memory and copy the names for each light
     for (int i = 0; i < count; i++)
     {
-        // copy name
+        // Copy name
         const char* hostName = h_lights[i].name;  // Get the string from the host
-
-        // Allocate memory on the device for the string (with null terminator)
         char* d_name;
-        size_t nameLen = strlen(hostName) + 1;  // +1 for null terminator
-        cudaMalloc((void**)&d_name, nameLen);
-
-        // Copy the string from host to device
-        cudaMemcpy(d_name, hostName, nameLen, cudaMemcpyHostToDevice);
-
-        // Update the device-side light config to point to the device string
+        copyStringToDevice(hostName, &d_name);  // Use reusable function for name
         cudaMemcpy(&((*d_lights)[i].name), &d_name, sizeof(char*), cudaMemcpyHostToDevice);
     }
 
@@ -511,17 +579,18 @@ texturesConfig* prepareTextures(const texturesConfig& h_texturesCfg)
     if (h_texturesCfg.solidColorTextureCount > 0)
     {
         solidColorTextureConfig* d_solidColorTextures;
-        copyTextureConfig(h_texturesCfg.solidColorTextures, h_texturesCfg.solidColorTextureCount, &d_solidColorTextures, d_texturesCfg, &(d_texturesCfg->solidColorTextures));
+        copyCommonTextureConfig(h_texturesCfg.solidColorTextures, h_texturesCfg.solidColorTextureCount, &d_solidColorTextures, d_texturesCfg, &(d_texturesCfg->solidColorTextures));
     }
 
     // Copy the scalar values from host to device for solid color texture count
     cudaMemcpy(&(d_texturesCfg->solidColorTextureCount), &(h_texturesCfg.solidColorTextureCount), sizeof(int8_t), cudaMemcpyHostToDevice);
 
+
     // Gradient color texture
     if (h_texturesCfg.gradientColorTextureCount > 0)
     {
         gradientColorTextureConfig* d_gradientColorTextures;
-        copyTextureConfig(h_texturesCfg.gradientColorTextures, h_texturesCfg.gradientColorTextureCount, &d_gradientColorTextures, d_texturesCfg, &(d_texturesCfg->gradientColorTextures));
+        copyCommonTextureConfig(h_texturesCfg.gradientColorTextures, h_texturesCfg.gradientColorTextureCount, &d_gradientColorTextures, d_texturesCfg, &(d_texturesCfg->gradientColorTextures));
     }
 
     // Copy the scalar values from host to device for gradient color texture count
@@ -532,11 +601,66 @@ texturesConfig* prepareTextures(const texturesConfig& h_texturesCfg)
     if (h_texturesCfg.imageTextureCount > 0)
     {
         imageTextureConfig* d_imageTextures;
-        copyTextureConfig2(h_texturesCfg.imageTextures, h_texturesCfg.imageTextureCount, &d_imageTextures, d_texturesCfg, &(d_texturesCfg->imageTextures));
+        copyImageTextureConfig(h_texturesCfg.imageTextures, h_texturesCfg.imageTextureCount, &d_imageTextures, d_texturesCfg, &(d_texturesCfg->imageTextures));
     }
 
     // Copy the scalar values from host to device for gradient color texture count
     cudaMemcpy(&(d_texturesCfg->imageTextureCount), &(h_texturesCfg.imageTextureCount), sizeof(int8_t), cudaMemcpyHostToDevice);
+
+
+    // Checker texture
+    if (h_texturesCfg.checkerTextureCount > 0)
+    {
+        checkerTextureConfig* d_checkerTextures;
+        copyCheckerTextureConfig(h_texturesCfg.checkerTextures, h_texturesCfg.checkerTextureCount, &d_checkerTextures, d_texturesCfg, &(d_texturesCfg->checkerTextures));
+    }
+
+    // Copy the scalar values from host to device for gradient color texture count
+    cudaMemcpy(&(d_texturesCfg->checkerTextureCount), &(h_texturesCfg.checkerTextureCount), sizeof(int8_t), cudaMemcpyHostToDevice);
+
+
+    // Noise texture
+    if (h_texturesCfg.noiseTextureCount > 0)
+    {
+        noiseTextureConfig* d_noiseTextures;
+        copyCommonTextureConfig(h_texturesCfg.noiseTextures, h_texturesCfg.noiseTextureCount, &d_noiseTextures, d_texturesCfg, &(d_texturesCfg->noiseTextures));
+    }
+
+    // Copy the scalar values from host to device for gradient color texture count
+    cudaMemcpy(&(d_texturesCfg->noiseTextureCount), &(h_texturesCfg.noiseTextureCount), sizeof(int8_t), cudaMemcpyHostToDevice);
+
+
+    // Bump texture
+    if (h_texturesCfg.bumpTextureCount > 0)
+    {
+        bumpTextureConfig* d_bumpTextures;
+        copyImageTextureConfig(h_texturesCfg.bumpTextures, h_texturesCfg.bumpTextureCount, &d_bumpTextures, d_texturesCfg, &(d_texturesCfg->bumpTextures));
+    }
+
+    // Copy the scalar values from host to device for gradient color texture count
+    cudaMemcpy(&(d_texturesCfg->bumpTextureCount), &(h_texturesCfg.bumpTextureCount), sizeof(int8_t), cudaMemcpyHostToDevice);
+
+
+    // Normal texture
+    if (h_texturesCfg.normalTextureCount > 0)
+    {
+        normalTextureConfig* d_normalTextures;
+        copyImageTextureConfig(h_texturesCfg.normalTextures, h_texturesCfg.normalTextureCount, &d_normalTextures, d_texturesCfg, &(d_texturesCfg->normalTextures));
+    }
+
+    // Copy the scalar values from host to device for gradient color texture count
+    cudaMemcpy(&(d_texturesCfg->normalTextureCount), &(h_texturesCfg.normalTextureCount), sizeof(int8_t), cudaMemcpyHostToDevice);
+
+
+    // Displacement texture
+    if (h_texturesCfg.displacementTextureCount > 0)
+    {
+        displacementTextureConfig* d_displacementTextures;
+        copyImageTextureConfig(h_texturesCfg.displacementTextures, h_texturesCfg.displacementTextureCount, &d_displacementTextures, d_texturesCfg, &(d_texturesCfg->displacementTextures));
+    }
+
+    // Copy the scalar values from host to device for gradient color texture count
+    cudaMemcpy(&(d_texturesCfg->displacementTextureCount), &(h_texturesCfg.displacementTextureCount), sizeof(int8_t), cudaMemcpyHostToDevice);
 
     return d_texturesCfg;
 }
@@ -581,6 +705,7 @@ lightsConfig* prepareLights(const lightsConfig& h_lightsCfg)
 
     return d_lightsCfg;
 }
+
 
 void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int width, int height, int spp, int max_depth, int tx, int ty, const char* filepath)
 {

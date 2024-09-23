@@ -97,7 +97,7 @@ typedef struct {
 typedef struct {
     const char* name;
     float scale;
-} perlinNoiseTextureConfig;
+} noiseTextureConfig;
 
 typedef struct {
     const char* name;
@@ -163,9 +163,9 @@ typedef struct {
     uint8_t checkerTextureCount;
     uint8_t checkerTextureCapacity;
 
-    perlinNoiseTextureConfig* perlinNoiseTextures;
-    uint8_t perlinNoiseTextureCount;
-    uint8_t perlinNoiseTextureCapacity;
+    noiseTextureConfig* noiseTextures;
+    uint8_t noiseTextureCount;
+    uint8_t noiseTextureCapacity;
 
     bumpTextureConfig* bumpTextures;
     uint8_t bumpTextureCount;

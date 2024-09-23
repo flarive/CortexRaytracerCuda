@@ -235,9 +235,9 @@ scene_builder& scene_builder::initTexturesConfig(const uint32_t countSolidColor,
     m_texturesConfig.imageTextureCapacity = countImage;
     m_texturesConfig.imageTextures = new imageTextureConfig[countImage];
 
-    m_texturesConfig.perlinNoiseTextureCount = 0;
-    m_texturesConfig.perlinNoiseTextureCapacity = countPerlinNoise;
-    m_texturesConfig.perlinNoiseTextures = new perlinNoiseTextureConfig[countPerlinNoise];
+    m_texturesConfig.noiseTextureCount = 0;
+    m_texturesConfig.noiseTextureCapacity = countPerlinNoise;
+    m_texturesConfig.noiseTextures = new noiseTextureConfig[countPerlinNoise];
 
     m_texturesConfig.checkerTextureCount = 0;
     m_texturesConfig.checkerTextureCapacity = countChecker;
@@ -454,17 +454,17 @@ scene_builder& scene_builder::addNoiseTexture(const char* textureName, float sca
     //this->m_textures[textureName] = new perlin_noise_texture(scale);
 
     // Get current count of perlin noise textures
-    int c = m_texturesConfig.perlinNoiseTextureCount;
+    int c = m_texturesConfig.noiseTextureCount;
 
-    if (m_texturesConfig.perlinNoiseTextureCount < m_texturesConfig.perlinNoiseTextureCapacity)
+    if (m_texturesConfig.noiseTextureCount < m_texturesConfig.noiseTextureCapacity)
     {
         // When assigning the name, allocate memory and copy the string
         size_t length = strlen(textureName) + 1;  // +1 for null terminator
         char* textureName_copy = new char[length]; // Allocate memory for the name
         strcpy(textureName_copy, textureName);  // Copy the string
 
-        m_texturesConfig.perlinNoiseTextures[c] = perlinNoiseTextureConfig{ textureName_copy, scale };
-        m_texturesConfig.perlinNoiseTextureCount++;
+        m_texturesConfig.noiseTextures[c] = noiseTextureConfig{ textureName_copy, scale };
+        m_texturesConfig.noiseTextureCount++;
     }
     else {
         // Handle error, for example, log a message or throw an exception
