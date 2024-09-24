@@ -72,12 +72,12 @@ class scene_builder
         scene_builder& addEmissiveTexture(const char* textureName, const char* filepath, float strength);
 
         // Materials
+        scene_builder& initMaterialsConfig(const uint32_t countLambertian, const uint32_t countMetal, const uint32_t countDielectric, const uint32_t countIsotropic, const uint32_t countAnisotropic, const uint32_t countOrenNayar, const uint32_t countPhong);
+
         scene_builder& addGlassMaterial(const char* materialName, float refraction);
-        scene_builder& addLambertianMaterial(const char* materialName, const color& rgb);
-        scene_builder& addLambertianMaterial(const char* materialName, const char* textureName);
+        scene_builder& addLambertianMaterial(const char* materialName, const color& rgb, const char* textureName);
         scene_builder& addPhongMaterial(const char* materialName, const char* diffuseTextureName, const char* specularTextureName, const char* normalTextureName, const char* bumpTextureName, const char* displaceTextureName, const char* alphaTextureName, const char* emissiveTextureName, const color& ambient, float shininess);
-        scene_builder& addOrenNayarMaterial(const char* materialName, const color& rgb, float albedo_temp, float roughness);
-        scene_builder& addOrenNayarMaterial(const char* materialName, const char* textureName, float albedo_temp, float roughness);
+        scene_builder& addOrenNayarMaterial(const char* materialName, const color& rgb, const char* textureName, float albedo_temp, float roughness);
         scene_builder& addIsotropicMaterial(const char* materialName, const color& rgb);
         scene_builder& addIsotropicMaterial(const char* materialName, const char* textureName);
         scene_builder& addAnisotropicMaterial(const char* materialName, float nu, float nv, const char* diffuseTextureName, const char* specularTextureName, const char* exponentTextureName);
@@ -122,6 +122,7 @@ class scene_builder
 		cameraConfig m_cameraConfig{};
         lightsConfig m_lightsConfig{};
         texturesConfig m_texturesConfig{};
+        materialsConfig m_materialsConfig{};
 
 		std::map<std::string, texture*> m_textures{};
 		std::map<std::string, material*> m_materials{};

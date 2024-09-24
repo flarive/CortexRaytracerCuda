@@ -564,27 +564,129 @@ scene_builder& scene_builder::addEmissiveTexture(const char* textureName, const 
     return *this;
 }
 
+
+
+
+scene_builder& scene_builder::initMaterialsConfig(const uint32_t countLambertian, const uint32_t countMetal, const uint32_t countDielectric, const uint32_t countIsotropic, const uint32_t countAnisotropic, const uint32_t countOrenNayar, const uint32_t countPhong)
+{
+    m_materialsConfig.lambertianMaterialCount = 0;
+    m_materialsConfig.lambertianMaterialCapacity = countLambertian;
+    m_materialsConfig.lambertianMaterials = new lambertianMaterialConfig[countLambertian];
+
+    m_materialsConfig.metalMaterialCount = 0;
+    m_materialsConfig.metalMaterialCapacity = countMetal;
+    m_materialsConfig.metalMaterials = new metalMaterialConfig[countMetal];
+
+    m_materialsConfig.dielectricMaterialCount = 0;
+    m_materialsConfig.dielectricMaterialCapacity = countDielectric;
+    m_materialsConfig.dielectricMaterials = new dielectricMaterialConfig[countDielectric];
+
+    m_materialsConfig.isotropicMaterialCount = 0;
+    m_materialsConfig.isotropicMaterialCapacity = countIsotropic;
+    m_materialsConfig.isotropicMaterials = new isotropicMaterialConfig[countIsotropic];
+
+    m_materialsConfig.anisotropicMaterialCount = 0;
+    m_materialsConfig.anisotropicMaterialCapacity = countAnisotropic;
+    m_materialsConfig.anisotropicMaterials = new anisotropicMaterialConfig[countAnisotropic];
+
+    m_materialsConfig.orenNayarMaterialCount = 0;
+    m_materialsConfig.orenNayarMaterialCapacity = countOrenNayar;
+    m_materialsConfig.orenNayarMaterials = new orenNayarMaterialConfig[countOrenNayar];
+
+    m_materialsConfig.phongMaterialCount = 0;
+    m_materialsConfig.phongMaterialCapacity = countPhong;
+    m_materialsConfig.phongMaterials = new phongMaterialConfig[countPhong];
+
+    return *this;
+}
+
+
+
+
+
+scene_builder& scene_builder::addLambertianMaterial(const char* materialName, const color& rgb, const char* textureName)
+{
+    //this->m_materials[materialName] = new lambertian(rgb);
+
+    // Get current count of lambertian materials
+    int c = m_materialsConfig.lambertianMaterialCount;
+
+    if (c < m_materialsConfig.lambertianMaterialCapacity)
+    {
+        // When assigning the name, allocate memory and copy the string
+        size_t length1 = strlen(materialName) + 1;  // +1 for null terminator
+        char* materialName_copy = new char[length1]; // Allocate memory for the name
+        strcpy(materialName_copy, materialName);  // Copy the string
+
+        // When assigning the textureName, allocate memory and copy the string
+        size_t length2 = strlen(textureName) + 1;  // +1 for null terminator
+        char* textureName_copy = new char[length2]; // Allocate memory for the textureName
+        strcpy(textureName_copy, textureName);  // Copy the string
+
+        m_materialsConfig.lambertianMaterials[c] = lambertianMaterialConfig{ materialName_copy, textureName_copy, rgb };
+        m_materialsConfig.lambertianMaterialCount++;
+    }
+    else {
+        // Handle error, for example, log a message or throw an exception
+        std::cerr << "Exceeded maximum number of lambertian materials." << std::endl;
+    }
+
+    return *this;
+}
+
+scene_builder& scene_builder::addMetalMaterial(const char* materialName, color rgb, float fuzz)
+{
+    //this->m_materials[materialName] = new metal(rgb, fuzz);
+
+    // Get current count of metal materials
+    int c = m_materialsConfig.metalMaterialCount;
+
+    if (c < m_materialsConfig.metalMaterialCapacity)
+    {
+        // When assigning the name, allocate memory and copy the string
+        size_t length = strlen(materialName) + 1;  // +1 for null terminator
+        char* materialName_copy = new char[length]; // Allocate memory for the name
+        strcpy(materialName_copy, materialName);  // Copy the string
+
+        m_materialsConfig.metalMaterials[c] = metalMaterialConfig{ materialName_copy, rgb, fuzz };
+        m_materialsConfig.metalMaterialCount++;
+    }
+    else {
+        // Handle error, for example, log a message or throw an exception
+        std::cerr << "Exceeded maximum number of metal materials." << std::endl;
+    }
+
+    return *this;
+}
+
 scene_builder& scene_builder::addGlassMaterial(const char* materialName, float refraction)
 {
-  this->m_materials[materialName] = new dielectric(refraction);
-  return *this;
-}
+    //this->m_materials[materialName] = new dielectric(refraction);
 
-scene_builder& scene_builder::addLambertianMaterial(const char* materialName, const color& rgb)
-{
-  this->m_materials[materialName] = new lambertian(rgb);
-  return *this;
-}
+    // Get current count of glass materials
+    int c = m_materialsConfig.dielectricMaterialCount;
 
-scene_builder& scene_builder::addLambertianMaterial(const char* materialName, const char* textureName)
-{
-  this->m_materials[materialName] = new lambertian(this->m_textures[textureName]);
-  return *this;
+    if (c < m_materialsConfig.dielectricMaterialCapacity)
+    {
+        // When assigning the name, allocate memory and copy the string
+        size_t length = strlen(materialName) + 1;  // +1 for null terminator
+        char* materialName_copy = new char[length]; // Allocate memory for the name
+        strcpy(materialName_copy, materialName);  // Copy the string
+
+        m_materialsConfig.dielectricMaterials[c] = dielectricMaterialConfig{ materialName_copy, refraction };
+        m_materialsConfig.dielectricMaterialCount++;
+    }
+    else {
+        // Handle error, for example, log a message or throw an exception
+        std::cerr << "Exceeded maximum number of glass materials." << std::endl;
+    }
+
+    return *this;
 }
 
 scene_builder& scene_builder::addPhongMaterial(const char* materialName, const char* diffuseTextureName, const char* specularTextureName, const char* normalTextureName, const char* bumpTextureName, const char* displaceTextureName, const char* alphaTextureName, const char* emissiveTextureName, const color& ambient, float shininess)
 {
-    this->m_materials[materialName] = new phong(
+    /*this->m_materials[materialName] = new phong(
         fetchTexture(diffuseTextureName),
         fetchTexture(specularTextureName),
         fetchTexture(bumpTextureName),
@@ -592,21 +694,87 @@ scene_builder& scene_builder::addPhongMaterial(const char* materialName, const c
         fetchTexture(displaceTextureName),
         fetchTexture(alphaTextureName),
         fetchTexture(emissiveTextureName),
-        ambient, shininess);
+        ambient, shininess);*/
+
+    // Get current count of phong materials
+    int c = m_materialsConfig.phongMaterialCount;
+
+    if (c < m_materialsConfig.phongMaterialCapacity)
+    {
+        // When assigning the name, allocate memory and copy the string
+        size_t length1 = strlen(materialName) + 1;  // +1 for null terminator
+        char* materialName_copy = new char[length1]; // Allocate memory for the name
+        strcpy(materialName_copy, materialName);  // Copy the string
+
+        size_t length2 = strlen(diffuseTextureName) + 1;  // +1 for null terminator
+        char* diffuseTextureName_copy = new char[length2]; // Allocate memory
+        strcpy(diffuseTextureName_copy, diffuseTextureName);  // Copy the string
+
+        size_t length3 = strlen(specularTextureName) + 1;  // +1 for null terminator
+        char* specularTextureName_copy = new char[length3]; // Allocate memory
+        strcpy(specularTextureName_copy, specularTextureName);  // Copy the string
+
+        size_t length4 = strlen(normalTextureName) + 1;  // +1 for null terminator
+        char* normalTextureName_copy = new char[length4]; // Allocate memory
+        strcpy(normalTextureName_copy, normalTextureName);  // Copy the string
+
+        size_t length5 = strlen(bumpTextureName) + 1;  // +1 for null terminator
+        char* bumpTextureName_copy = new char[length5]; // Allocate memory
+        strcpy(bumpTextureName_copy, bumpTextureName);  // Copy the string
+
+        size_t length6 = strlen(displaceTextureName) + 1;  // +1 for null terminator
+        char* displaceTextureName_copy = new char[length6]; // Allocate memory
+        strcpy(displaceTextureName_copy, displaceTextureName);  // Copy the string
+
+        size_t length7 = strlen(alphaTextureName) + 1;  // +1 for null terminator
+        char* alphaTextureName_copy = new char[length7]; // Allocate memory
+        strcpy(alphaTextureName_copy, alphaTextureName);  // Copy the string
+
+        size_t length8 = strlen(emissiveTextureName) + 1;  // +1 for null terminator
+        char* emissiveTextureName_copy = new char[length8]; // Allocate memory
+        strcpy(emissiveTextureName_copy, emissiveTextureName);  // Copy the string
+
+        m_materialsConfig.phongMaterials[c] = phongMaterialConfig{ materialName_copy, diffuseTextureName_copy, specularTextureName_copy, normalTextureName_copy, bumpTextureName_copy, displaceTextureName_copy, alphaTextureName_copy, emissiveTextureName_copy, ambient, shininess };
+        m_materialsConfig.phongMaterialCount++;
+    }
+    else {
+        // Handle error, for example, log a message or throw an exception
+        std::cerr << "Exceeded maximum number of phong materials." << std::endl;
+    }
+
     return *this;
 }
 
-scene_builder& scene_builder::addOrenNayarMaterial(const char* materialName, const color& rgb, float albedo_temp, float roughness)
+scene_builder& scene_builder::addOrenNayarMaterial(const char* materialName, const color& rgb, const char* textureName, float albedo_temp, float roughness)
 {
-	this->m_materials[materialName] = new oren_nayar(rgb, albedo_temp, roughness);
+	//this->m_materials[materialName] = new oren_nayar(rgb, albedo_temp, roughness);
+
+    // Get current count of oren nayar materials
+    int c = m_materialsConfig.orenNayarMaterialCount;
+
+    if (c < m_materialsConfig.orenNayarMaterialCapacity)
+    {
+        // When assigning the name, allocate memory and copy the string
+        size_t length1 = strlen(materialName) + 1;  // +1 for null terminator
+        char* materialName_copy = new char[length1]; // Allocate memory for the name
+        strcpy(materialName_copy, materialName);  // Copy the string
+
+        size_t length2 = strlen(textureName) + 1;  // +1 for null terminator
+        char* textureName_copy = new char[length2]; // Allocate memory
+        strcpy(textureName_copy, textureName);  // Copy the string
+
+        m_materialsConfig.orenNayarMaterials[c] = orenNayarMaterialConfig{ materialName_copy, rgb, textureName_copy, albedo_temp, roughness };
+        m_materialsConfig.orenNayarMaterialCount++;
+    }
+    else {
+        // Handle error, for example, log a message or throw an exception
+        std::cerr << "Exceeded maximum number of oren nayar materials." << std::endl;
+    }
+
 	return *this;
 }
 
-scene_builder& scene_builder::addOrenNayarMaterial(const char* materialName, const char* textureName, float albedo_temp, float roughness)
-{
-	this->m_materials[materialName] = new oren_nayar(fetchTexture(textureName), albedo_temp, roughness);
-	return *this;
-}
+
 
 scene_builder& scene_builder::addIsotropicMaterial(const char* materialName, const color& rgb)
 {
@@ -633,11 +801,6 @@ scene_builder& scene_builder::addAnisotropicMaterial(const char* materialName, f
     return *this;
 }
 
-scene_builder& scene_builder::addMetalMaterial(const char* materialName, color rgb, float fuzz)
-{
-  this->m_materials[materialName] = new metal(rgb, fuzz);
-  return *this;
-}
 
 
 

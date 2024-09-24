@@ -190,6 +190,100 @@ typedef struct {
 
 
 
+
+
+
+typedef struct {
+    const char* name;
+    const char* textureName;
+    color rgb;
+} lambertianMaterialConfig;
+
+typedef struct {
+    const char* name;
+    color rgb;
+    float fuzziness;
+} metalMaterialConfig;
+
+typedef struct {
+    const char* name;
+    float refraction;
+} dielectricMaterialConfig;
+
+typedef struct {
+    const char* name;
+    color rgb;
+    const char* textureName;
+} isotropicMaterialConfig;
+
+typedef struct {
+    const char* name;
+    color rgb;
+    float nuf;
+    float nvf;
+    const char* diffuseTextureName;
+    const char* specularTextureName;
+    const char* exponentTextureName;
+    float roughness;
+} anisotropicMaterialConfig;
+
+typedef struct {
+    const char* name;
+    color rgb;
+    const char* textureName;
+    float albedo_temp;
+    float roughness;
+} orenNayarMaterialConfig;
+
+typedef struct {
+    const char* name;
+    const char* diffuseTextureName;
+    const char* specularTextureName;
+    const char* bumpTextureName;
+    const char* normalTextureName;
+    const char* displacementTextureName;
+    const char* alphaTextureName;
+    const char* emissiveTextureName;
+    color ambientColor;
+    float shininess;
+} phongMaterialConfig;
+
+
+
+
+typedef struct {
+    lambertianMaterialConfig* lambertianMaterials;
+    uint8_t lambertianMaterialCount;
+    uint8_t lambertianMaterialCapacity;
+
+    metalMaterialConfig* metalMaterials;
+    uint8_t metalMaterialCount;
+    uint8_t metalMaterialCapacity;
+
+    dielectricMaterialConfig* dielectricMaterials;
+    uint8_t dielectricMaterialCount;
+    uint8_t dielectricMaterialCapacity;
+
+    isotropicMaterialConfig* isotropicMaterials;
+    uint8_t isotropicMaterialCount;
+    uint8_t isotropicMaterialCapacity;
+
+    anisotropicMaterialConfig* anisotropicMaterials;
+    uint8_t anisotropicMaterialCount;
+    uint8_t anisotropicMaterialCapacity;
+
+    orenNayarMaterialConfig* orenNayarMaterials;
+    uint8_t orenNayarMaterialCount;
+    uint8_t orenNayarMaterialCapacity;
+
+    phongMaterialConfig* phongMaterials;
+    uint8_t phongMaterialCount;
+    uint8_t phongMaterialCapacity;
+} materialsConfig;
+
+
+
+
 typedef struct {
     imageConfig imageCfg;
     cameraConfig cameraCfg;

@@ -261,6 +261,24 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
                 displacementTexture.filepath,
                 displacementTexture.strength);
         }
+
+        for (int i = 0; i < sceneCfg->texturesCfg.alphaTextureCount; i++)
+        {
+            alphaTextureConfig alphaTexture = sceneCfg->texturesCfg.alphaTextures[i];
+            printf("[GPU] alphaTexture%d %s %s %d\n", i,
+                alphaTexture.name,
+                alphaTexture.filepath,
+                alphaTexture.doubleSided);
+        }
+
+        for (int i = 0; i < sceneCfg->texturesCfg.emissiveTextureCount; i++)
+        {
+            emissiveTextureConfig emissiveTexture = sceneCfg->texturesCfg.emissiveTextures[i];
+            printf("[GPU] emissiveTexture%d %s %s %g\n", i,
+                emissiveTexture.name,
+                emissiveTexture.filepath,
+                emissiveTexture.strength);
+        }
         
 
         (*elist)->add(new rt::flip_normals(new yz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(color(0.12, 0.45, 0.15))), "MyLeft")));
@@ -661,6 +679,29 @@ texturesConfig* prepareTextures(const texturesConfig& h_texturesCfg)
 
     // Copy the scalar values from host to device for gradient color texture count
     cudaMemcpy(&(d_texturesCfg->displacementTextureCount), &(h_texturesCfg.displacementTextureCount), sizeof(int8_t), cudaMemcpyHostToDevice);
+
+
+    // Alpha texture
+    if (h_texturesCfg.alphaTextureCount > 0)
+    {
+        alphaTextureConfig* d_alphaTextures;
+        copyImageTextureConfig(h_texturesCfg.alphaTextures, h_texturesCfg.alphaTextureCount, &d_alphaTextures, d_texturesCfg, &(d_texturesCfg->alphaTextures));
+    }
+
+    // Copy the scalar values from host to device for gradient color texture count
+    cudaMemcpy(&(d_texturesCfg->alphaTextureCount), &(h_texturesCfg.alphaTextureCount), sizeof(int8_t), cudaMemcpyHostToDevice);
+
+
+    // Emissive texture
+    if (h_texturesCfg.emissiveTextureCount > 0)
+    {
+        emissiveTextureConfig* d_emissiveTextures;
+        copyImageTextureConfig(h_texturesCfg.emissiveTextures, h_texturesCfg.emissiveTextureCount, &d_emissiveTextures, d_texturesCfg, &(d_texturesCfg->emissiveTextures));
+    }
+
+    // Copy the scalar values from host to device for gradient color texture count
+    cudaMemcpy(&(d_texturesCfg->emissiveTextureCount), &(h_texturesCfg.emissiveTextureCount), sizeof(int8_t), cudaMemcpyHostToDevice);
+
 
     return d_texturesCfg;
 }

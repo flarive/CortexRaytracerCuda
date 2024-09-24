@@ -134,6 +134,38 @@ void scene_loader::loadPrimitives(scene_builder& builder, const libconfig::Setti
 
 void scene_loader::loadMaterials(scene_builder& builder, const libconfig::Setting& materials)
 {
+	uint8_t countLambertianMaterials = 0;
+	uint8_t countMetalMaterials = 0;
+	uint8_t countDielectricMaterials = 0;
+	uint8_t countIsotropicMaterials = 0;
+	uint8_t countAnisotropicMaterials = 0;
+	uint8_t countOrenNayarMaterials = 0;
+	uint8_t countPhongMaterials = 0;
+
+	if (materials.exists("lambertian"))
+		countLambertianMaterials = materials["lambertian"].getLength();
+
+	if (materials.exists("metal"))
+		countMetalMaterials = materials["metal"].getLength();
+
+	if (materials.exists("dielectric"))
+		countDielectricMaterials = materials["dielectric"].getLength();
+
+	if (materials.exists("isotropic"))
+		countIsotropicMaterials = materials["isotropic"].getLength();
+
+	if (materials.exists("anisotropic"))
+		countAnisotropicMaterials = materials["anisotropic"].getLength();
+
+	if (materials.exists("orennayar"))
+		countOrenNayarMaterials = materials["orennayar"].getLength();
+
+	if (materials.exists("phong"))
+		countPhongMaterials = materials["phong"].getLength();
+
+
+	builder.initMaterialsConfig(countLambertianMaterials, countMetalMaterials, countDielectricMaterials, countIsotropicMaterials, countAnisotropicMaterials, countOrenNayarMaterials, countPhongMaterials);
+
 	addLambertianMaterial(materials, builder);
 	addPhongMaterial(materials, builder);
 	addOrenNayarMaterial(materials, builder);
@@ -200,6 +232,8 @@ void scene_loader::loadTextures(scene_builder& builder, const libconfig::Setting
 	addAlphaTexture(textures, builder);
 	addEmissiveTexture(textures, builder);
 }
+
+
 
 void scene_loader::loadLights(scene_builder& builder, const libconfig::Setting& lights)
 {
@@ -881,10 +915,7 @@ void scene_loader::addLambertianMaterial(const libconfig::Setting& materials, sc
 			if (name.empty())
 				throw std::runtime_error("Material name is empty");
 
-			if (!textureName.empty())
-				builder.addLambertianMaterial(name.c_str(), textureName.c_str());
-			else
-				builder.addLambertianMaterial(name.c_str(), rgb);
+			builder.addLambertianMaterial(name.c_str(), rgb, textureName.c_str());
 		}
 	}
 }
@@ -964,10 +995,7 @@ void scene_loader::addOrenNayarMaterial(const libconfig::Setting& materials, sce
 			if (name.empty())
 				throw std::runtime_error("Material name is empty");
 
-			if (!textureName.empty())
-				builder.addOrenNayarMaterial(name.c_str(), textureName.c_str(), albedo_temp, roughness);
-			else
-				builder.addOrenNayarMaterial(name.c_str(), rgb, albedo_temp, roughness);
+			builder.addOrenNayarMaterial(name.c_str(), rgb, textureName.c_str(), albedo_temp, roughness);
 		}
 	}
 }
