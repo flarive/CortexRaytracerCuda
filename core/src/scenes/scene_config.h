@@ -289,6 +289,7 @@ typedef struct {
     cameraConfig cameraCfg;
     lightsConfig lightsCfg;
     texturesConfig texturesCfg;
+	materialsConfig materialsCfg;
 } sceneConfig;
 
 

@@ -156,6 +156,11 @@ texturesConfig scene_builder::getTexturesConfig() const
     return this->m_texturesConfig;
 }
 
+materialsConfig scene_builder::getMaterialsConfig() const
+{
+    return this->m_materialsConfig;
+}
+
 scene_builder& scene_builder::cameraAspectRatio(std::string aspectRatio)
 {
     float ratio = getRatio(aspectRatio.c_str());
@@ -776,30 +781,73 @@ scene_builder& scene_builder::addOrenNayarMaterial(const char* materialName, con
 
 
 
-scene_builder& scene_builder::addIsotropicMaterial(const char* materialName, const color& rgb)
+scene_builder& scene_builder::addIsotropicMaterial(const char* materialName, const color& rgb, const char* textureName)
 {
-    this->m_materials[materialName] = new isotropic(rgb);
+    //this->m_materials[materialName] = new isotropic(rgb);
+
+    // Get current count of isotropic materials
+    int c = m_materialsConfig.isotropicMaterialCount;
+
+    if (c < m_materialsConfig.isotropicMaterialCapacity)
+    {
+        // When assigning the name, allocate memory and copy the string
+        size_t length1 = strlen(materialName) + 1;  // +1 for null terminator
+        char* materialName_copy = new char[length1]; // Allocate memory for the name
+        strcpy(materialName_copy, materialName);  // Copy the string
+
+        size_t length2 = strlen(textureName) + 1;  // +1 for null terminator
+        char* textureName_copy = new char[length2]; // Allocate memory
+        strcpy(textureName_copy, textureName);  // Copy the string
+
+        m_materialsConfig.isotropicMaterials[c] = isotropicMaterialConfig{ materialName_copy, rgb, textureName_copy };
+        m_materialsConfig.isotropicMaterialCount++;
+    }
+    else {
+        // Handle error, for example, log a message or throw an exception
+        std::cerr << "Exceeded maximum number of isotropic materials." << std::endl;
+    }
+
     return *this;
 }
 
-scene_builder& scene_builder::addIsotropicMaterial(const char* materialName, const char* textureName)
+scene_builder& scene_builder::addAnisotropicMaterial(const char* materialName, float nu, float nv, const color& rgb, const char* diffuseTextureName, const char* specularTextureName, const char* exponentTextureName)
 {
-    this->m_materials[materialName] = new isotropic(fetchTexture(textureName));
+    /*auto diffuse_tex = new solid_color_texture(rgb);
+    this->m_materials[materialName] = new anisotropic(nu, nv, diffuse_tex, nullptr, nullptr);*/
+
+    // Get current count of anisotropic materials
+    int c = m_materialsConfig.anisotropicMaterialCount;
+
+    if (c < m_materialsConfig.anisotropicMaterialCapacity)
+    {
+        // When assigning the name, allocate memory and copy the string
+        size_t length1 = strlen(materialName) + 1;  // +1 for null terminator
+        char* materialName_copy = new char[length1]; // Allocate memory for the name
+        strcpy(materialName_copy, materialName);  // Copy the string
+
+        size_t length2 = strlen(diffuseTextureName) + 1;  // +1 for null terminator
+        char* diffuseTextureName_copy = new char[length2]; // Allocate memory
+        strcpy(diffuseTextureName_copy, diffuseTextureName);  // Copy the string
+
+        size_t length3 = strlen(specularTextureName) + 1;  // +1 for null terminator
+        char* specularTextureName_copy = new char[length3]; // Allocate memory
+        strcpy(specularTextureName_copy, specularTextureName);  // Copy the string
+
+        size_t length4 = strlen(exponentTextureName) + 1;  // +1 for null terminator
+        char* exponentTextureName_copy = new char[length4]; // Allocate memory
+        strcpy(exponentTextureName_copy, exponentTextureName);  // Copy the string
+
+        m_materialsConfig.anisotropicMaterials[c] = anisotropicMaterialConfig{ materialName_copy, rgb, nu, nv, diffuseTextureName_copy, specularTextureName_copy, exponentTextureName_copy };
+        m_materialsConfig.anisotropicMaterialCount++;
+    }
+    else {
+        // Handle error, for example, log a message or throw an exception
+        std::cerr << "Exceeded maximum number of anisotropic materials." << std::endl;
+    }
+
     return *this;
 }
 
-scene_builder& scene_builder::addAnisotropicMaterial(const char* materialName, float nu, float nv, const color& rgb)
-{
-    auto diffuse_tex = new solid_color_texture(rgb);
-    this->m_materials[materialName] = new anisotropic(nu, nv, diffuse_tex, nullptr, nullptr);
-    return *this;
-}
-
-scene_builder& scene_builder::addAnisotropicMaterial(const char* materialName, float nu, float nv, const char* diffuseTextureName, const char* specularTextureName, const char* exponentTextureName)
-{
-    this->m_materials[materialName] = new anisotropic(nu, nv, fetchTexture(diffuseTextureName), fetchTexture(specularTextureName), fetchTexture(exponentTextureName));
-    return *this;
-}
 
 
 

@@ -31,6 +31,7 @@ class scene_builder
         [[nodiscard]] cameraConfig getCameraConfig() const;
         [[nodiscard]] lightsConfig getLightsConfig() const;
         [[nodiscard]] texturesConfig getTexturesConfig() const;
+        [[nodiscard]] materialsConfig getMaterialsConfig() const;
 
         // Image
         //scene_builder& setImageConfig(const imageConfig& config);
@@ -78,10 +79,8 @@ class scene_builder
         scene_builder& addLambertianMaterial(const char* materialName, const color& rgb, const char* textureName);
         scene_builder& addPhongMaterial(const char* materialName, const char* diffuseTextureName, const char* specularTextureName, const char* normalTextureName, const char* bumpTextureName, const char* displaceTextureName, const char* alphaTextureName, const char* emissiveTextureName, const color& ambient, float shininess);
         scene_builder& addOrenNayarMaterial(const char* materialName, const color& rgb, const char* textureName, float albedo_temp, float roughness);
-        scene_builder& addIsotropicMaterial(const char* materialName, const color& rgb);
-        scene_builder& addIsotropicMaterial(const char* materialName, const char* textureName);
-        scene_builder& addAnisotropicMaterial(const char* materialName, float nu, float nv, const char* diffuseTextureName, const char* specularTextureName, const char* exponentTextureName);
-        scene_builder& addAnisotropicMaterial(const char* materialName, float nu, float nv, const color& rgb);
+        scene_builder& addIsotropicMaterial(const char* materialName, const color& rgb, const char* textureName);
+        scene_builder& addAnisotropicMaterial(const char* materialName, float nu, float nv, const color& rgb, const char* diffuseTextureName, const char* specularTextureName, const char* exponentTextureName);
         scene_builder& addMetalMaterial(const char* materialName, color rgb, float fuzz);
         
 

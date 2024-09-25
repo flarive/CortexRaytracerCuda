@@ -167,12 +167,12 @@ void scene_loader::loadMaterials(scene_builder& builder, const libconfig::Settin
 	builder.initMaterialsConfig(countLambertianMaterials, countMetalMaterials, countDielectricMaterials, countIsotropicMaterials, countAnisotropicMaterials, countOrenNayarMaterials, countPhongMaterials);
 
 	addLambertianMaterial(materials, builder);
-	addPhongMaterial(materials, builder);
-	addOrenNayarMaterial(materials, builder);
+	addMetalMaterial(materials, builder);
+	addGlassMaterial(materials, builder);
 	addIsotropicMaterial(materials, builder);
 	addAnisotropicMaterial(materials, builder);
-	addGlassMaterial(materials, builder);
-	addMetalMaterial(materials, builder);
+	addOrenNayarMaterial(materials, builder);
+	addPhongMaterial(materials, builder);
 }
 
 void scene_loader::loadTextures(scene_builder& builder, const libconfig::Setting& textures)
@@ -1022,9 +1022,7 @@ void scene_loader::addIsotropicMaterial(const libconfig::Setting& materials, sce
 				throw std::runtime_error("Material name is empty");
 
 			if (!textureName.empty())
-				builder.addIsotropicMaterial(name.c_str(), textureName.c_str());
-			else
-				builder.addIsotropicMaterial(name.c_str(), rgb);
+				builder.addIsotropicMaterial(name.c_str(), rgb, textureName.c_str());
 		}
 	}
 }
@@ -1065,9 +1063,7 @@ void scene_loader::addAnisotropicMaterial(const libconfig::Setting& materials, s
 				throw std::runtime_error("Material name is empty");
 
 			if (!diffuseTextureName.empty())
-				builder.addAnisotropicMaterial(name.c_str(), nu, nv, diffuseTextureName.c_str(), specularTextureName.c_str(), exponentTextureName.c_str());
-			else
-				builder.addAnisotropicMaterial(name.c_str(), nu, nv, rgb);
+				builder.addAnisotropicMaterial(name.c_str(), nu, nv, rgb, diffuseTextureName.c_str(), specularTextureName.c_str(), exponentTextureName.c_str());
 		}
 	}
 }

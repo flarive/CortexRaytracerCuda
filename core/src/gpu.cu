@@ -489,6 +489,35 @@ void copyCommonTextureConfig(const TextureConfig* h_textures, int count, Texture
 
 
 /// <summary>
+/// // Helper function to copy material configuration
+/// </summary>
+template<typename TextureConfig>
+void copyCommonMaterialConfig(const MaterialConfig* h_textures, int count, TextureConfig** d_textures, texturesConfig* d_texturesCfg, TextureConfig** d_texturesPtrOnDevice)
+{
+    // 1. Allocate memory for the array on the device
+    cudaMalloc((void**)d_textures, count * sizeof(TextureConfig));
+
+    // 2. Copy the array contents from host to device
+    cudaMemcpy(*d_textures, h_textures, count * sizeof(TextureConfig), cudaMemcpyHostToDevice);
+
+    // 3. Allocate memory and copy the names for each texture
+    for (int i = 0; i < count; i++)
+    {
+        // Copy name
+        const char* hostName = h_textures[i].name;  // Get the string from the host
+        char* d_name;
+        copyStringToDevice(hostName, &d_name);  // Use reusable function for name
+        cudaMemcpy(&((*d_textures)[i].name), &d_name, sizeof(char*), cudaMemcpyHostToDevice);
+    }
+
+    // 4. Update the device-side config to point to the array on the device
+    cudaMemcpy(d_texturesPtrOnDevice, d_textures, sizeof(TextureConfig*), cudaMemcpyHostToDevice);
+}
+
+
+
+
+/// <summary>
 /// // Helper function to copy texture configuration
 /// </summary>
 template<typename TextureConfig>
@@ -706,6 +735,27 @@ texturesConfig* prepareTextures(const texturesConfig& h_texturesCfg)
     return d_texturesCfg;
 }
 
+materialsConfig* prepareMaterials(const materialsConfig& h_materialsCfg)
+{
+    // Allocate and copy the materials data
+    materialsConfig* d_materialsCfg;
+    cudaMalloc((void**)&d_materialsCfg, sizeof(materialsConfig));
+
+
+    // Lambertian material
+    if (h_materialsCfg.lambertianMaterialCount > 0)
+    {
+        lambertianMaterialConfig* d_lambertianMaterials;
+        //copyCommonTextureConfig(h_texturesCfg.solidColorTextures, h_texturesCfg.solidColorTextureCount, &d_solidColorTextures, d_texturesCfg, &(d_texturesCfg->solidColorTextures));
+    }
+
+    // Copy the scalar values from host to device for solid color texture count
+    cudaMemcpy(&(d_materialsCfg->lambertianMaterialCount), &(h_materialsCfg.lambertianMaterialCount), sizeof(int8_t), cudaMemcpyHostToDevice);
+
+
+    return d_materialsCfg;
+}
+
 
 // Main function to prepare lights
 lightsConfig* prepareLights(const lightsConfig& h_lightsCfg)
@@ -808,8 +858,12 @@ void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int widt
     cudaMalloc((void**)&d_sceneCfg, sizeof(sceneConfig));
 
 
-    lightsConfig* d_lightsCfg = prepareLights(sceneCfg.lightsCfg);
+    
     texturesConfig* d_texturesCfg = prepareTextures(sceneCfg.texturesCfg);
+    materialsConfig* d_materialsCfg = prepareMaterials(sceneCfg.materialsCfg);
+    lightsConfig* d_lightsCfg = prepareLights(sceneCfg.lightsCfg);
+
+
 
     // Now copy the lightsConfig pointer from host to device sceneConfig
     cudaMemcpy(&d_sceneCfg->lightsCfg, d_lightsCfg, sizeof(lightsConfig), cudaMemcpyHostToDevice);
