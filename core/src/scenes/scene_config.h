@@ -2,7 +2,7 @@
 
 #include "../misc/vector3.cuh"
 #include "../misc/color.cuh"
-
+#include "../utilities/uvmapping.cuh"
 
 
 typedef struct {
@@ -282,6 +282,167 @@ typedef struct {
 } materialsConfig;
 
 
+typedef struct {
+    const char* name;
+    float _x0;
+    float _x1;
+    float _y0;
+    float _y1;
+    float _k;
+    const char* materialName;
+    uvmapping mapping;
+    const char* groupName;
+} xyPlanePrimitiveConfig;
+
+typedef struct {
+    const char* name;
+    float _x0;
+    float _x1;
+    float _z0;
+    float _z1;
+    float _k;
+    const char* materialName;
+    uvmapping mapping;
+    const char* groupName;
+} xzPlanePrimitiveConfig;
+
+typedef struct {
+    const char* name;
+    float _y0;
+    float _y1;
+    float _z0;
+    float _z1;
+    float _k;
+    const char* materialName;
+    uvmapping mapping;
+    const char* groupName;
+} yzPlanePrimitiveConfig;
+
+typedef struct {
+    const char* name;
+    point3 position;
+    vector3 size;
+    const char* materialName;
+    uvmapping mapping;
+    const char* groupName;
+} boxPrimitiveConfig;
+
+typedef struct {
+    const char* name;
+    point3 position;
+    vector3 u;
+    vector3 v;
+    const char* materialName;
+    uvmapping mapping;
+    const char* groupName;
+} quadPrimitiveConfig;
+
+typedef struct {
+    const char* name;
+    point3 position;
+    float radius;
+    const char* materialName;
+    const char* groupName;
+} spherePrimitiveConfig;
+
+typedef struct {
+    const char* name;
+    point3 position;
+    float radius;
+    float height;
+    const char* materialName;
+    uvmapping mapping;
+    const char* groupName;
+} cylinderPrimitiveConfig;
+
+typedef struct {
+    const char* name;
+    point3 position;
+    float radius;
+    float height;
+    const char* materialName;
+    uvmapping mapping;
+    const char* groupName;
+} conePrimitiveConfig;
+
+typedef struct {
+    const char* name;
+    point3 position;
+    float major_radius;
+    float minor_radius;
+    const char* materialName;
+    uvmapping mapping;
+    const char* groupName;
+} torusPrimitiveConfig;
+
+typedef struct {
+    const char* name;
+    point3 position;
+    float radius;
+    float height;
+    const char* materialName;
+    uvmapping mapping;
+    const char* groupName;
+} diskPrimitiveConfig;
+
+typedef struct {
+    const char* name;
+    const char* boundaryName;
+    float density;
+    color rgb;
+    const char* textureName;
+    const char* groupName;
+} volumePrimitiveConfig;
+
+
+
+typedef struct {
+    spherePrimitiveConfig* spherePrimitives;
+    uint8_t spherePrimitiveCount;
+    uint8_t spherePrimitiveCapacity;
+
+    boxPrimitiveConfig* boxPrimitives;
+    uint8_t boxPrimitiveCount;
+    uint8_t boxPrimitiveCapacity;
+
+    quadPrimitiveConfig* quadPrimitives;
+    uint8_t quadPrimitiveCount;
+    uint8_t quadPrimitiveCapacity;
+
+    xyPlanePrimitiveConfig* xyPlanePrimitives;
+    uint8_t xyPlanePrimitiveCount;
+    uint8_t xyPlanePrimitiveCapacity;
+
+    xzPlanePrimitiveConfig* xzPlanePrimitives;
+    uint8_t xzPlanePrimitiveCount;
+    uint8_t xzPlanePrimitiveCapacity;
+
+    yzPlanePrimitiveConfig* yzPlanePrimitives;
+    uint8_t yzPlanePrimitiveCount;
+    uint8_t yzPlanePrimitiveCapacity;
+
+    cylinderPrimitiveConfig* cylinderPrimitives;
+    uint8_t cylinderPrimitiveCount;
+    uint8_t cylinderPrimitiveCapacity;
+
+    conePrimitiveConfig* conePrimitives;
+    uint8_t conePrimitiveCount;
+    uint8_t conePrimitiveCapacity;
+
+    torusPrimitiveConfig* torusPrimitives;
+    uint8_t torusPrimitiveCount;
+    uint8_t torusPrimitiveCapacity;
+
+    diskPrimitiveConfig* diskPrimitives;
+    uint8_t diskPrimitiveCount;
+    uint8_t diskPrimitiveCapacity;
+
+    volumePrimitiveConfig* volumePrimitives;
+    uint8_t volumePrimitiveCount;
+    uint8_t volumePrimitiveCapacity;
+
+} primitivesConfig;
+
 
 
 typedef struct {
@@ -290,6 +451,5 @@ typedef struct {
     lightsConfig lightsCfg;
     texturesConfig texturesCfg;
 	materialsConfig materialsCfg;
+    primitivesConfig primitivesCfg;
 } sceneConfig;
-
-

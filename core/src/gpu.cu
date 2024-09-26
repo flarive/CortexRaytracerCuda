@@ -279,7 +279,87 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
                 emissiveTexture.filepath,
                 emissiveTexture.strength);
         }
-        
+
+
+        // MATERIALS
+        printf("[GPU] %i lambertian materials found\n", sceneCfg->materialsCfg.lambertianMaterialCount);
+
+        for (int i = 0; i < sceneCfg->materialsCfg.lambertianMaterialCount; i++)
+        {
+            lambertianMaterialConfig lambertianMaterial = sceneCfg->materialsCfg.lambertianMaterials[i];
+            printf("[GPU] solidColorTexture%d %s %g/%g/%g %s\n", i,
+                lambertianMaterial.name,
+                lambertianMaterial.rgb.r(), lambertianMaterial.rgb.g(), lambertianMaterial.rgb.b(),
+                lambertianMaterial.textureName);
+        }
+
+        for (int i = 0; i < sceneCfg->materialsCfg.metalMaterialCount; i++)
+        {
+            metalMaterialConfig metalMaterial = sceneCfg->materialsCfg.metalMaterials[i];
+            printf("[GPU] metalMaterial%d %s %g/%g/%g %g\n", i,
+                metalMaterial.name,
+                metalMaterial.rgb.r(), metalMaterial.rgb.g(), metalMaterial.rgb.b(),
+                metalMaterial.fuzziness);
+        }
+
+        for (int i = 0; i < sceneCfg->materialsCfg.dielectricMaterialCount; i++)
+        {
+            dielectricMaterialConfig glassMaterial = sceneCfg->materialsCfg.dielectricMaterials[i];
+            printf("[GPU] glassMaterial%d %s %g\n", i,
+                glassMaterial.name,
+                glassMaterial.refraction);
+        }
+
+        for (int i = 0; i < sceneCfg->materialsCfg.isotropicMaterialCount; i++)
+        {
+            isotropicMaterialConfig isotropicMaterial = sceneCfg->materialsCfg.isotropicMaterials[i];
+            printf("[GPU] isotropicMaterial%d %s %g/%g/%g %s\n", i,
+                isotropicMaterial.name,
+                isotropicMaterial.rgb.r(), isotropicMaterial.rgb.g(), isotropicMaterial.rgb.b(),
+                isotropicMaterial.textureName);
+        }
+
+        for (int i = 0; i < sceneCfg->materialsCfg.anisotropicMaterialCount; i++)
+        {
+            anisotropicMaterialConfig anisotropicMaterial = sceneCfg->materialsCfg.anisotropicMaterials[i];
+            printf("[GPU] anisotropicMaterial%d %s %g/%g/%g %g %g %s %s %s %g\n", i,
+                anisotropicMaterial.name,
+                anisotropicMaterial.rgb.r(), anisotropicMaterial.rgb.g(), anisotropicMaterial.rgb.b(),
+                anisotropicMaterial.nuf,
+                anisotropicMaterial.nvf,
+                anisotropicMaterial.diffuseTextureName,
+                anisotropicMaterial.specularTextureName,
+                anisotropicMaterial.exponentTextureName,
+                anisotropicMaterial.roughness);
+        }
+
+        for (int i = 0; i < sceneCfg->materialsCfg.orenNayarMaterialCount; i++)
+        {
+            orenNayarMaterialConfig orenNayarMaterial = sceneCfg->materialsCfg.orenNayarMaterials[i];
+            printf("[GPU] orenNayarMaterial%d %s %g/%g/%g %s %g %g\n", i,
+                orenNayarMaterial.name,
+                orenNayarMaterial.rgb.r(), orenNayarMaterial.rgb.g(), orenNayarMaterial.rgb.b(),
+                orenNayarMaterial.textureName,
+                orenNayarMaterial.roughness,
+                orenNayarMaterial.albedo_temp);
+        }
+
+        for (int i = 0; i < sceneCfg->materialsCfg.phongMaterialCount; i++)
+        {
+            phongMaterialConfig phongMaterial = sceneCfg->materialsCfg.phongMaterials[i];
+            printf("[GPU] phongMaterial%d %s %s %s %s %s %s %s %s %g/%g/%g\n", i,
+                phongMaterial.name,
+                phongMaterial.diffuseTextureName,
+                phongMaterial.specularTextureName,
+                phongMaterial.bumpTextureName,
+                phongMaterial.normalTextureName,
+                phongMaterial.displacementTextureName,
+                phongMaterial.alphaTextureName,
+                phongMaterial.emissiveTextureName,
+                phongMaterial.ambientColor);
+        }
+
+
 
         (*elist)->add(new rt::flip_normals(new yz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(color(0.12, 0.45, 0.15))), "MyLeft")));
         (*elist)->add(new yz_rect(0, 555, 0, 555, 0, new lambertian(new solid_color_texture(color(0.65, 0.05, 0.05))), "MyRight"));
@@ -491,27 +571,27 @@ void copyCommonTextureConfig(const TextureConfig* h_textures, int count, Texture
 /// <summary>
 /// // Helper function to copy material configuration
 /// </summary>
-template<typename TextureConfig>
-void copyCommonMaterialConfig(const MaterialConfig* h_textures, int count, TextureConfig** d_textures, texturesConfig* d_texturesCfg, TextureConfig** d_texturesPtrOnDevice)
+template<typename MaterialConfig>
+void copyCommonMaterialConfig(const MaterialConfig* h_materials, int count, MaterialConfig** d_materials, materialsConfig* d_materialsCfg, MaterialConfig** d_materialsPtrOnDevice)
 {
     // 1. Allocate memory for the array on the device
-    cudaMalloc((void**)d_textures, count * sizeof(TextureConfig));
+    cudaMalloc((void**)d_materials, count * sizeof(MaterialConfig));
 
     // 2. Copy the array contents from host to device
-    cudaMemcpy(*d_textures, h_textures, count * sizeof(TextureConfig), cudaMemcpyHostToDevice);
+    cudaMemcpy(*d_materials, h_materials, count * sizeof(MaterialConfig), cudaMemcpyHostToDevice);
 
     // 3. Allocate memory and copy the names for each texture
     for (int i = 0; i < count; i++)
     {
         // Copy name
-        const char* hostName = h_textures[i].name;  // Get the string from the host
+        const char* hostName = h_materials[i].name;  // Get the string from the host
         char* d_name;
         copyStringToDevice(hostName, &d_name);  // Use reusable function for name
-        cudaMemcpy(&((*d_textures)[i].name), &d_name, sizeof(char*), cudaMemcpyHostToDevice);
+        cudaMemcpy(&((*d_materials)[i].name), &d_name, sizeof(char*), cudaMemcpyHostToDevice);
     }
 
     // 4. Update the device-side config to point to the array on the device
-    cudaMemcpy(d_texturesPtrOnDevice, d_textures, sizeof(TextureConfig*), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_materialsPtrOnDevice, d_materials, sizeof(MaterialConfig*), cudaMemcpyHostToDevice);
 }
 
 
@@ -746,11 +826,77 @@ materialsConfig* prepareMaterials(const materialsConfig& h_materialsCfg)
     if (h_materialsCfg.lambertianMaterialCount > 0)
     {
         lambertianMaterialConfig* d_lambertianMaterials;
-        //copyCommonTextureConfig(h_texturesCfg.solidColorTextures, h_texturesCfg.solidColorTextureCount, &d_solidColorTextures, d_texturesCfg, &(d_texturesCfg->solidColorTextures));
+        copyCommonMaterialConfig(h_materialsCfg.lambertianMaterials, h_materialsCfg.lambertianMaterialCount, &d_lambertianMaterials, d_materialsCfg, &(d_materialsCfg->lambertianMaterials));
     }
 
-    // Copy the scalar values from host to device for solid color texture count
+    // Copy the scalar values from host to device for lambertian materials count
     cudaMemcpy(&(d_materialsCfg->lambertianMaterialCount), &(h_materialsCfg.lambertianMaterialCount), sizeof(int8_t), cudaMemcpyHostToDevice);
+
+
+    // Metal material
+    if (h_materialsCfg.metalMaterialCount > 0)
+    {
+        metalMaterialConfig* d_metalMaterials;
+        copyCommonMaterialConfig(h_materialsCfg.metalMaterials, h_materialsCfg.metalMaterialCount, &d_metalMaterials, d_materialsCfg, &(d_materialsCfg->metalMaterials));
+    }
+
+    // Copy the scalar values from host to device for metal materials count
+    cudaMemcpy(&(d_materialsCfg->metalMaterialCount), &(h_materialsCfg.metalMaterialCount), sizeof(int8_t), cudaMemcpyHostToDevice);
+
+
+    // Glass material
+    if (h_materialsCfg.dielectricMaterialCount > 0)
+    {
+        dielectricMaterialConfig* d_dielectricMaterials;
+        copyCommonMaterialConfig(h_materialsCfg.dielectricMaterials, h_materialsCfg.dielectricMaterialCount, &d_dielectricMaterials, d_materialsCfg, &(d_materialsCfg->dielectricMaterials));
+    }
+
+    // Copy the scalar values from host to device for dielectric materials count
+    cudaMemcpy(&(d_materialsCfg->dielectricMaterialCount), &(h_materialsCfg.dielectricMaterialCount), sizeof(int8_t), cudaMemcpyHostToDevice);
+
+
+    // Isotropic material
+    if (h_materialsCfg.isotropicMaterialCount > 0)
+    {
+        isotropicMaterialConfig* d_isotropicMaterials;
+        copyCommonMaterialConfig(h_materialsCfg.isotropicMaterials, h_materialsCfg.isotropicMaterialCount, &d_isotropicMaterials, d_materialsCfg, &(d_materialsCfg->isotropicMaterials));
+    }
+
+    // Copy the scalar values from host to device for isotropic materials count
+    cudaMemcpy(&(d_materialsCfg->isotropicMaterialCount), &(h_materialsCfg.isotropicMaterialCount), sizeof(int8_t), cudaMemcpyHostToDevice);
+
+
+    // Anisotropic material
+    if (h_materialsCfg.anisotropicMaterialCount > 0)
+    {
+        anisotropicMaterialConfig* d_anisotropicMaterials;
+        copyCommonMaterialConfig(h_materialsCfg.anisotropicMaterials, h_materialsCfg.anisotropicMaterialCount, &d_anisotropicMaterials, d_materialsCfg, &(d_materialsCfg->anisotropicMaterials));
+    }
+
+    // Copy the scalar values from host to device for anisotropic materials count
+    cudaMemcpy(&(d_materialsCfg->anisotropicMaterialCount), &(h_materialsCfg.anisotropicMaterialCount), sizeof(int8_t), cudaMemcpyHostToDevice);
+
+
+    // Oren nayar material
+    if (h_materialsCfg.orenNayarMaterialCount > 0)
+    {
+        orenNayarMaterialConfig* d_orenNayarMaterials;
+        copyCommonMaterialConfig(h_materialsCfg.orenNayarMaterials, h_materialsCfg.orenNayarMaterialCount, &d_orenNayarMaterials, d_materialsCfg, &(d_materialsCfg->orenNayarMaterials));
+    }
+
+    // Copy the scalar values from host to device for oren nayar materials count
+    cudaMemcpy(&(d_materialsCfg->orenNayarMaterialCount), &(h_materialsCfg.orenNayarMaterialCount), sizeof(int8_t), cudaMemcpyHostToDevice);
+
+
+    // Phong material
+    if (h_materialsCfg.phongMaterialCount > 0)
+    {
+        phongMaterialConfig* d_phongMaterials;
+        copyCommonMaterialConfig(h_materialsCfg.phongMaterials, h_materialsCfg.phongMaterialCount, &d_phongMaterials, d_materialsCfg, &(d_materialsCfg->phongMaterials));
+    }
+
+    // Copy the scalar values from host to device for phong materials count
+    cudaMemcpy(&(d_materialsCfg->phongMaterialCount), &(h_materialsCfg.phongMaterialCount), sizeof(int8_t), cudaMemcpyHostToDevice);
 
 
     return d_materialsCfg;
