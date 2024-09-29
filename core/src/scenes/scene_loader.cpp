@@ -121,6 +121,46 @@ scene_builder scene_loader::loadSceneFromFile()
 
 void scene_loader::loadPrimitives(scene_builder& builder, const libconfig::Setting& primitives)
 {
+	uint8_t countSpherePrimitives = 0;
+	uint8_t countPlanePrimitives = 0;
+	uint8_t countQuadPrimitives = 0;
+	uint8_t countBoxPrimitives = 0;
+	uint8_t countConePrimitives = 0;
+	uint8_t countCylinderPrimitives = 0;
+	uint8_t countDiskPrimitives = 0;
+	uint8_t countTorusPrimitives = 0;
+	uint8_t countVolumePrimitives = 0;
+	
+	if (primitives.exists("spheres"))
+		countSpherePrimitives = primitives["spheres"].getLength();
+
+	if (primitives.exists("planes"))
+		countPlanePrimitives = primitives["planes"].getLength();
+
+	if (primitives.exists("quads"))
+		countQuadPrimitives = primitives["quads"].getLength();
+
+	if (primitives.exists("boxes"))
+		countBoxPrimitives = primitives["boxes"].getLength();
+
+	if (primitives.exists("cones"))
+		countConePrimitives = primitives["cones"].getLength();
+
+	if (primitives.exists("cylinders"))
+		countCylinderPrimitives = primitives["cylinders"].getLength();
+
+	if (primitives.exists("disks"))
+		countDiskPrimitives = primitives["disks"].getLength();
+
+	if (primitives.exists("toruses"))
+		countTorusPrimitives = primitives["toruses"].getLength();
+
+	if (primitives.exists("volumes"))
+		countVolumePrimitives = primitives["volumes"].getLength();
+
+
+	builder.initPrimitivesConfig(countSpherePrimitives, countPlanePrimitives, countQuadPrimitives, countBoxPrimitives, countConePrimitives, countCylinderPrimitives, countDiskPrimitives, countTorusPrimitives, countVolumePrimitives);
+
 	addSpherePrimitives(primitives, builder);
 	addPlanePrimitives(primitives, builder);
 	addQuadPrimitives(primitives, builder);
@@ -585,15 +625,6 @@ void scene_loader::addBumpTexture(const libconfig::Setting& textures, scene_buil
 
 			if (!filepath.empty())
 			{
-				//int bytes_per_pixel = 3;
-				//int tex_x, tex_y, tex_n;
-				//unsigned char* tex_data_host = stbi_load(filepath.c_str(), &tex_x, &tex_y, &tex_n, bytes_per_pixel);
-				//if (!tex_data_host) {
-				//	std::cerr << "[ERROR] Failed to load texture." << std::endl;
-				//	return;
-				//}
-
-				//bitmap_image img = bitmap_image(tex_data_host, tex_x, tex_y, bytes_per_pixel);
 				builder.addBumpTexture(name.c_str(), filepath.c_str(), strength);
 			}
 		}
@@ -625,15 +656,6 @@ void scene_loader::addNormalTexture(const libconfig::Setting& textures, scene_bu
 
 			if (!filepath.empty())
 			{
-				//int bytes_per_pixel = 3;
-				//int tex_x, tex_y, tex_n;
-				//unsigned char* tex_data_host = stbi_load(filepath.c_str(), &tex_x, &tex_y, &tex_n, bytes_per_pixel);
-				//if (!tex_data_host) {
-				//	std::cerr << "[ERROR] Failed to load texture." << std::endl;
-				//	return;
-				//}
-
-				//bitmap_image img = bitmap_image(tex_data_host, tex_x, tex_y, bytes_per_pixel);
 				builder.addNormalTexture(name.c_str(), filepath.c_str(), strength);
 			}
 		}
@@ -665,15 +687,6 @@ void scene_loader::addDisplacementTexture(const libconfig::Setting& textures, sc
 
 			if (!filepath.empty())
 			{
-				//int bytes_per_pixel = 3;
-				//int tex_x, tex_y, tex_n;
-				//unsigned char* tex_data_host = stbi_load(filepath.c_str(), &tex_x, &tex_y, &tex_n, bytes_per_pixel);
-				//if (!tex_data_host) {
-				//	std::cerr << "[ERROR] Failed to load texture." << std::endl;
-				//	return;
-				//}
-
-				//bitmap_image img = bitmap_image(tex_data_host, tex_x, tex_y, bytes_per_pixel);
 				builder.addDisplacementTexture(name.c_str(), filepath.c_str(), strength);
 			}
 		}
@@ -705,15 +718,6 @@ void scene_loader::addAlphaTexture(const libconfig::Setting& textures, scene_bui
 
 			if (!filepath.empty())
 			{
-				//int bytes_per_pixel = 3;
-				//int tex_x, tex_y, tex_n;
-				//unsigned char* tex_data_host = stbi_load(filepath.c_str(), &tex_x, &tex_y, &tex_n, bytes_per_pixel);
-				//if (!tex_data_host) {
-				//	std::cerr << "[ERROR] Failed to load texture." << std::endl;
-				//	return;
-				//}
-
-				//bitmap_image img = bitmap_image(tex_data_host, tex_x, tex_y, bytes_per_pixel);
 				builder.addAlphaTexture(name.c_str(), filepath.c_str(), double_sided);
 			}
 		}
@@ -745,15 +749,6 @@ void scene_loader::addEmissiveTexture(const libconfig::Setting& textures, scene_
 
 			if (!filepath.empty())
 			{
-				//int bytes_per_pixel = 3;
-				//int tex_x, tex_y, tex_n;
-				//unsigned char* tex_data_host = stbi_load(filepath.c_str(), &tex_x, &tex_y, &tex_n, bytes_per_pixel);
-				//if (!tex_data_host) {
-				//	std::cerr << "[ERROR] Failed to load texture." << std::endl;
-				//	return;
-				//}
-
-				//bitmap_image img = bitmap_image(tex_data_host, tex_x, tex_y, bytes_per_pixel);
 				builder.addEmissiveTexture(name.c_str(), filepath.c_str(), strength);
 			}
 		}
@@ -1153,7 +1148,7 @@ void scene_loader::addSpherePrimitives(const libconfig::Setting& primitives, sce
 			{
 				builder.addSphere(name.c_str(), position, radius, materialName.c_str(), uv, groupName.c_str());
 
-				applyTransform(primitive, builder, name.c_str());
+				//applyTransform(primitive, builder, name.c_str());
 			}
 		}
 	}
@@ -1196,7 +1191,7 @@ void scene_loader::addPlanePrimitives(const libconfig::Setting& primitives, scen
 			{
 				builder.addPlane(name.c_str(), point1, point2, materialName.c_str(), uv, groupName.c_str());
 
-				applyTransform(primitive, builder, name.c_str());
+				//applyTransform(primitive, builder, name.c_str());
 			}
 		}
 	}
@@ -1242,7 +1237,7 @@ void scene_loader::addQuadPrimitives(const libconfig::Setting& primitives, scene
 			{
 				builder.addQuad(name.c_str(), position, u, v, materialName.c_str(), uv, groupName.c_str());
 
-				applyTransform(primitive, builder, name.c_str());
+				//applyTransform(primitive, builder, name.c_str());
 			}
 		}
 	}
@@ -1285,7 +1280,7 @@ void scene_loader::addBoxPrimitives(const libconfig::Setting& primitives, scene_
 			{
 				builder.addBox(name.c_str(), position, size, materialName.c_str(), uv, groupName.c_str());
 
-				applyTransform(primitive, builder, name.c_str());
+				//applyTransform(primitive, builder, name.c_str());
 			}
 		}
 	}
@@ -1331,7 +1326,7 @@ void scene_loader::addConePrimitives(const libconfig::Setting& primitives, scene
 			{
 				builder.addCone(name.c_str(), position, radius, height, materialName.c_str(), uv, groupName.c_str());
 
-				applyTransform(primitive, builder, name.c_str());
+				//applyTransform(primitive, builder, name.c_str());
 			}
 		}
 	}
@@ -1377,7 +1372,7 @@ void scene_loader::addCylinderPrimitives(const libconfig::Setting& primitives, s
 			{
 				builder.addCylinder(name.c_str(), position, radius, height, materialName.c_str(), uv, groupName.c_str());
 
-				applyTransform(primitive, builder, name.c_str());
+				//applyTransform(primitive, builder, name.c_str());
 			}
 		}
 	}
@@ -1423,7 +1418,7 @@ void scene_loader::addDiskPrimitives(const libconfig::Setting& primitives, scene
 			{
 				builder.addDisk(name.c_str(), position, radius, height, materialName.c_str(), uv, groupName.c_str());
 
-				applyTransform(primitive, builder, name.c_str());
+				//applyTransform(primitive, builder, name.c_str());
 			}
 		}
 	}
@@ -1469,7 +1464,7 @@ void scene_loader::addTorusPrimitives(const libconfig::Setting& primitives, scen
 			{
 				builder.addTorus(name.c_str(), position, major_radius, minor_radius, materialName.c_str(), uv, groupName.c_str());
 
-				applyTransform(primitive, builder, name.c_str());
+				//applyTransform(primitive, builder, name.c_str());
 			}
 		}
 	}
@@ -1507,12 +1502,9 @@ void scene_loader::addVolumePrimitives(const libconfig::Setting& primitives, sce
 
 			if (active)
 			{
-				if (!textureName.empty())
-					builder.addVolume(name.c_str(), boundary.c_str(), density, textureName.c_str(), groupName.c_str());
-				else
-					builder.addVolume(name.c_str(), boundary.c_str(), density, rgb, groupName.c_str());
+				builder.addVolume(name.c_str(), boundary.c_str(), density, rgb, textureName.c_str(), groupName.c_str());
 
-				applyTransform(primitive, builder, name.c_str());
+				//applyTransform(primitive, builder, name.c_str());
 			}
 		}
 	}

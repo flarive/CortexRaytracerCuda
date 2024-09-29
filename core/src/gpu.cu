@@ -71,8 +71,9 @@
 #include "utilities/bitmap_image.cuh"
 
 
-#include "scenes/scene_loader.h"
-#include "scenes/scene_builder.h"
+#include "scenes/scene_config.h"
+
+#include "scene_composer.cuh"
 
 
 
@@ -124,8 +125,6 @@ void check_cuda(cudaError_t result, char const* const func, const char* const fi
         exit(99);
     }
 }
-
-//#define RND (curand_uniform(&rng))
 
 __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittable_list **elights,  camera **cam, sampler **aa_sampler, int width, int height, float ratio, int spp, int sqrt_spp, image_texture** texture, int seed)
 {
@@ -186,8 +185,6 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
 
 
         // TEXTURES
-        printf("[GPU] %i solidColor textures found\n", sceneCfg->texturesCfg.solidColorTextureCount);
-
         for (int i = 0; i < sceneCfg->texturesCfg.solidColorTextureCount; i++)
         {
             solidColorTextureConfig solidColorTexture = sceneCfg->texturesCfg.solidColorTextures[i];
@@ -282,12 +279,10 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
 
 
         // MATERIALS
-        printf("[GPU] %i lambertian materials found\n", sceneCfg->materialsCfg.lambertianMaterialCount);
-
         for (int i = 0; i < sceneCfg->materialsCfg.lambertianMaterialCount; i++)
         {
             lambertianMaterialConfig lambertianMaterial = sceneCfg->materialsCfg.lambertianMaterials[i];
-            printf("[GPU] solidColorTexture%d %s %g/%g/%g %s\n", i,
+            printf("[GPU] lambertianMaterial%d %s %g/%g/%g %s\n", i,
                 lambertianMaterial.name,
                 lambertianMaterial.rgb.r(), lambertianMaterial.rgb.g(), lambertianMaterial.rgb.b(),
                 lambertianMaterial.textureName);
@@ -356,8 +351,141 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
                 phongMaterial.displacementTextureName,
                 phongMaterial.alphaTextureName,
                 phongMaterial.emissiveTextureName,
-                phongMaterial.ambientColor);
+                phongMaterial.ambientColor.r(), phongMaterial.ambientColor.g(), phongMaterial.ambientColor.b());
         }
+
+
+        // PRIMITIVES
+        for (int i = 0; i < sceneCfg->primitivesCfg.spherePrimitiveCount; i++)
+        {
+            spherePrimitiveConfig spherePrimitive = sceneCfg->primitivesCfg.spherePrimitives[i];
+            printf("[GPU] spherePrimitive%d %s %g/%g/%g %g/%g %g/%g %g/%g %g %s %s\n", i,
+                spherePrimitive.name,
+                spherePrimitive.position.x, spherePrimitive.position.y, spherePrimitive.position.z,
+                spherePrimitive.mapping.offset_u(), spherePrimitive.mapping.offset_v(),
+                spherePrimitive.mapping.repeat_u(), spherePrimitive.mapping.repeat_v(),
+                spherePrimitive.mapping.scale_u(), spherePrimitive.mapping.scale_v(),
+                spherePrimitive.radius,
+                spherePrimitive.materialName,
+                spherePrimitive.groupName);
+        }
+
+        for (int i = 0; i < sceneCfg->primitivesCfg.planePrimitiveCount; i++)
+        {
+            planePrimitiveConfig planePrimitive = sceneCfg->primitivesCfg.planePrimitives[i];
+            printf("[GPU] planePrimitive%d %s %g/%g/%g %g/%g/%g %g/%g %g/%g %g/%g %s %s\n", i,
+                planePrimitive.name,
+                planePrimitive.point1.x, planePrimitive.point1.y, planePrimitive.point1.z,
+                planePrimitive.point2.x, planePrimitive.point2.y, planePrimitive.point2.z,
+                planePrimitive.mapping.offset_u(), planePrimitive.mapping.offset_v(),
+                planePrimitive.mapping.repeat_u(), planePrimitive.mapping.repeat_v(),
+                planePrimitive.mapping.scale_u(), planePrimitive.mapping.scale_v(),
+                planePrimitive.materialName,
+                planePrimitive.groupName);
+        }
+
+        for (int i = 0; i < sceneCfg->primitivesCfg.quadPrimitiveCount; i++)
+        {
+            quadPrimitiveConfig quadPrimitive = sceneCfg->primitivesCfg.quadPrimitives[i];
+            printf("[GPU] quadPrimitive%d %s %g/%g/%g %g/%g/%g %g/%g/%g %g/%g %g/%g %g/%g %s %s\n", i,
+                quadPrimitive.name,
+                quadPrimitive.position.x, quadPrimitive.position.y, quadPrimitive.position.z,
+                quadPrimitive.u.x, quadPrimitive.u.y, quadPrimitive.u.z,
+                quadPrimitive.v.x, quadPrimitive.v.y, quadPrimitive.v.z,
+                quadPrimitive.mapping.offset_u(), quadPrimitive.mapping.offset_v(),
+                quadPrimitive.mapping.repeat_u(), quadPrimitive.mapping.repeat_v(),
+                quadPrimitive.mapping.scale_u(), quadPrimitive.mapping.scale_v(),
+                quadPrimitive.materialName,
+                quadPrimitive.groupName);
+        }
+
+        for (int i = 0; i < sceneCfg->primitivesCfg.boxPrimitiveCount; i++)
+        {
+            boxPrimitiveConfig boxPrimitive = sceneCfg->primitivesCfg.boxPrimitives[i];
+            printf("[GPU] boxPrimitive%d %s %g/%g/%g %g/%g/%g %g/%g %g/%g %g/%g %s %s\n", i,
+                boxPrimitive.name,
+                boxPrimitive.position.x, boxPrimitive.position.y, boxPrimitive.position.z,
+                boxPrimitive.size.x, boxPrimitive.size.y, boxPrimitive.size.z,
+                boxPrimitive.mapping.offset_u(), boxPrimitive.mapping.offset_v(),
+                boxPrimitive.mapping.repeat_u(), boxPrimitive.mapping.repeat_v(),
+                boxPrimitive.mapping.scale_u(), boxPrimitive.mapping.scale_v(),
+                boxPrimitive.materialName,
+                boxPrimitive.groupName);
+        }
+
+        for (int i = 0; i < sceneCfg->primitivesCfg.conePrimitiveCount; i++)
+        {
+            conePrimitiveConfig conePrimitive = sceneCfg->primitivesCfg.conePrimitives[i];
+            printf("[GPU] conePrimitive%d %s %g/%g/%g %g %g %g/%g %g/%g %g/%g %s %s\n", i,
+                conePrimitive.name,
+                conePrimitive.position.x, conePrimitive.position.y, conePrimitive.position.z,
+                conePrimitive.radius,
+                conePrimitive.height,
+                conePrimitive.mapping.offset_u(), conePrimitive.mapping.offset_v(),
+                conePrimitive.mapping.repeat_u(), conePrimitive.mapping.repeat_v(),
+                conePrimitive.mapping.scale_u(), conePrimitive.mapping.scale_v(),
+                conePrimitive.materialName,
+                conePrimitive.groupName);
+        }
+
+        for (int i = 0; i < sceneCfg->primitivesCfg.cylinderPrimitiveCount; i++)
+        {
+            cylinderPrimitiveConfig cylinderPrimitive = sceneCfg->primitivesCfg.cylinderPrimitives[i];
+            printf("[GPU] cylinderPrimitive%d %s %g/%g/%g %g %g %g/%g %g/%g %g/%g %s %s\n", i,
+                cylinderPrimitive.name,
+                cylinderPrimitive.position.x, cylinderPrimitive.position.y, cylinderPrimitive.position.z,
+                cylinderPrimitive.radius,
+                cylinderPrimitive.height,
+                cylinderPrimitive.mapping.offset_u(), cylinderPrimitive.mapping.offset_v(),
+                cylinderPrimitive.mapping.repeat_u(), cylinderPrimitive.mapping.repeat_v(),
+                cylinderPrimitive.mapping.scale_u(), cylinderPrimitive.mapping.scale_v(),
+                cylinderPrimitive.materialName,
+                cylinderPrimitive.groupName);
+        }
+
+        for (int i = 0; i < sceneCfg->primitivesCfg.diskPrimitiveCount; i++)
+        {
+            diskPrimitiveConfig diskPrimitive = sceneCfg->primitivesCfg.diskPrimitives[i];
+            printf("[GPU] diskPrimitive%d %s %g/%g/%g %g %g %g/%g %g/%g %g/%g %s %s\n", i,
+                diskPrimitive.name,
+                diskPrimitive.position.x, diskPrimitive.position.y, diskPrimitive.position.z,
+                diskPrimitive.radius,
+                diskPrimitive.height,
+                diskPrimitive.mapping.offset_u(), diskPrimitive.mapping.offset_v(),
+                diskPrimitive.mapping.repeat_u(), diskPrimitive.mapping.repeat_v(),
+                diskPrimitive.mapping.scale_u(), diskPrimitive.mapping.scale_v(),
+                diskPrimitive.materialName,
+                diskPrimitive.groupName);
+        }
+
+        for (int i = 0; i < sceneCfg->primitivesCfg.torusPrimitiveCount; i++)
+        {
+            torusPrimitiveConfig torusPrimitive = sceneCfg->primitivesCfg.torusPrimitives[i];
+            printf("[GPU] diskPrimitive%d %s %g/%g/%g %g %g %g/%g %g/%g %g/%g %s %s\n", i,
+                torusPrimitive.name,
+                torusPrimitive.position.x, torusPrimitive.position.y, torusPrimitive.position.z,
+                torusPrimitive.minor_radius,
+                torusPrimitive.major_radius,
+                torusPrimitive.mapping.offset_u(), torusPrimitive.mapping.offset_v(),
+                torusPrimitive.mapping.repeat_u(), torusPrimitive.mapping.repeat_v(),
+                torusPrimitive.mapping.scale_u(), torusPrimitive.mapping.scale_v(),
+                torusPrimitive.materialName,
+                torusPrimitive.groupName);
+        }
+
+        for (int i = 0; i < sceneCfg->primitivesCfg.volumePrimitiveCount; i++)
+        {
+            volumePrimitiveConfig volumePrimitive = sceneCfg->primitivesCfg.volumePrimitives[i];
+            printf("[GPU] volumePrimitive%d %s %s %g %g/%g/%g %s %s\n", i,
+                volumePrimitive.name,
+                volumePrimitive.boundaryName,
+                volumePrimitive.density,
+                volumePrimitive.rgb.r(), volumePrimitive.rgb.g(), volumePrimitive.rgb.b(),
+                volumePrimitive.textureName,
+                volumePrimitive.groupName);
+        }
+
+
 
 
 
@@ -569,7 +697,7 @@ void copyCommonTextureConfig(const TextureConfig* h_textures, int count, Texture
 
 
 /// <summary>
-/// // Helper function to copy material configuration
+/// // Helper function to copy common material configuration
 /// </summary>
 template<typename MaterialConfig>
 void copyCommonMaterialConfig(const MaterialConfig* h_materials, int count, MaterialConfig** d_materials, materialsConfig* d_materialsCfg, MaterialConfig** d_materialsPtrOnDevice)
@@ -594,11 +722,157 @@ void copyCommonMaterialConfig(const MaterialConfig* h_materials, int count, Mate
     cudaMemcpy(d_materialsPtrOnDevice, d_materials, sizeof(MaterialConfig*), cudaMemcpyHostToDevice);
 }
 
+/// <summary>
+/// // Helper function to copy common material configuration
+/// </summary>
+template<typename MaterialConfig>
+void copyTextureMaterialConfig(const MaterialConfig* h_materials, int count, MaterialConfig** d_materials, materialsConfig* d_materialsCfg, MaterialConfig** d_materialsPtrOnDevice)
+{
+    // 1. Allocate memory for the array on the device
+    cudaMalloc((void**)d_materials, count * sizeof(MaterialConfig));
+
+    // 2. Copy the array contents from host to device
+    cudaMemcpy(*d_materials, h_materials, count * sizeof(MaterialConfig), cudaMemcpyHostToDevice);
+
+    // 3. Allocate memory and copy the names for each texture
+    for (int i = 0; i < count; i++)
+    {
+        // Copy name
+        const char* hostName = h_materials[i].name;  // Get the string from the host
+        char* d_name;
+        copyStringToDevice(hostName, &d_name);  // Use reusable function for name
+        cudaMemcpy(&((*d_materials)[i].name), &d_name, sizeof(char*), cudaMemcpyHostToDevice);
+
+        // Copy textureName
+        const char* hostTextureName = h_materials[i].textureName;  // Get the string from the host
+        char* d_textureName;
+        copyStringToDevice(hostTextureName, &d_textureName);  // Use reusable function for name
+        cudaMemcpy(&((*d_materials)[i].textureName), &d_textureName, sizeof(char*), cudaMemcpyHostToDevice);
+    }
+
+    // 4. Update the device-side config to point to the array on the device
+    cudaMemcpy(d_materialsPtrOnDevice, d_materials, sizeof(MaterialConfig*), cudaMemcpyHostToDevice);
+}
+
+
+/// <summary>
+/// // Helper function to copy anisotropic material configuration
+/// </summary>
+template<typename MaterialConfig>
+void copyAnisotropicMaterialConfig(const MaterialConfig* h_materials, int count, MaterialConfig** d_materials, materialsConfig* d_materialsCfg, MaterialConfig** d_materialsPtrOnDevice)
+{
+    // 1. Allocate memory for the array on the device
+    cudaMalloc((void**)d_materials, count * sizeof(MaterialConfig));
+
+    // 2. Copy the array contents from host to device
+    cudaMemcpy(*d_materials, h_materials, count * sizeof(MaterialConfig), cudaMemcpyHostToDevice);
+
+    // 3. Allocate memory and copy the names for each texture
+    for (int i = 0; i < count; i++)
+    {
+        // Copy name
+        const char* hostName = h_materials[i].name;  // Get the string from the host
+        char* d_name;
+        copyStringToDevice(hostName, &d_name);  // Use reusable function for name
+        cudaMemcpy(&((*d_materials)[i].name), &d_name, sizeof(char*), cudaMemcpyHostToDevice);
+
+        // Copy diffuseTextureName
+        const char* hostDiffuseTextureName = h_materials[i].diffuseTextureName;  // Get the string from the host
+        char* d_diffuseTextureName;
+        copyStringToDevice(hostDiffuseTextureName, &d_diffuseTextureName);  // Use reusable function for name
+        cudaMemcpy(&((*d_materials)[i].diffuseTextureName), &d_diffuseTextureName, sizeof(char*), cudaMemcpyHostToDevice);
+
+        // Copy diffuseTextureName
+        const char* hostSpecularTextureName = h_materials[i].specularTextureName;  // Get the string from the host
+        char* d_specularTextureName;
+        copyStringToDevice(hostSpecularTextureName, &d_specularTextureName);  // Use reusable function for name
+        cudaMemcpy(&((*d_materials)[i].specularTextureName), &d_specularTextureName, sizeof(char*), cudaMemcpyHostToDevice);
+
+        // Copy exponentTextureName
+        const char* hostExponentTextureName = h_materials[i].exponentTextureName;  // Get the string from the host
+        char* d_exponentTextureName;
+        copyStringToDevice(hostExponentTextureName, &d_exponentTextureName);  // Use reusable function for name
+        cudaMemcpy(&((*d_materials)[i].exponentTextureName), &d_exponentTextureName, sizeof(char*), cudaMemcpyHostToDevice);
+    }
+
+    // 4. Update the device-side config to point to the array on the device
+    cudaMemcpy(d_materialsPtrOnDevice, d_materials, sizeof(MaterialConfig*), cudaMemcpyHostToDevice);
+}
+
+/// <summary>
+/// // Helper function to copy phong material configuration
+/// </summary>
+template<typename MaterialConfig>
+void copyPhongMaterialConfig(const MaterialConfig* h_materials, int count, MaterialConfig** d_materials, materialsConfig* d_materialsCfg, MaterialConfig** d_materialsPtrOnDevice)
+{
+    // 1. Allocate memory for the array on the device
+    cudaMalloc((void**)d_materials, count * sizeof(MaterialConfig));
+
+    // 2. Copy the array contents from host to device
+    cudaMemcpy(*d_materials, h_materials, count * sizeof(MaterialConfig), cudaMemcpyHostToDevice);
+
+    // 3. Allocate memory and copy the names for each texture
+    for (int i = 0; i < count; i++)
+    {
+        // Copy name
+        const char* hostName = h_materials[i].name;  // Get the string from the host
+        char* d_name;
+        copyStringToDevice(hostName, &d_name);  // Use reusable function for name
+        cudaMemcpy(&((*d_materials)[i].name), &d_name, sizeof(char*), cudaMemcpyHostToDevice);
+
+        // Copy diffuseTextureName
+        const char* hostDiffuseTextureName = h_materials[i].diffuseTextureName;  // Get the string from the host
+        char* d_diffuseTextureName;
+        copyStringToDevice(hostDiffuseTextureName, &d_diffuseTextureName);  // Use reusable function
+        cudaMemcpy(&((*d_materials)[i].diffuseTextureName), &d_diffuseTextureName, sizeof(char*), cudaMemcpyHostToDevice);
+
+        // Copy specularTextureName
+        const char* hostSpecularTextureName = h_materials[i].specularTextureName;  // Get the string from the host
+        char* d_specularTextureName;
+        copyStringToDevice(hostSpecularTextureName, &d_specularTextureName);  // Use reusable function
+        cudaMemcpy(&((*d_materials)[i].specularTextureName), &d_specularTextureName, sizeof(char*), cudaMemcpyHostToDevice);
+
+        // Copy bumpTextureName
+        const char* hostBumpTextureName = h_materials[i].bumpTextureName;  // Get the string from the host
+        char* d_bumpTextureName;
+        copyStringToDevice(hostBumpTextureName, &d_bumpTextureName);  // Use reusable function
+        cudaMemcpy(&((*d_materials)[i].bumpTextureName), &d_bumpTextureName, sizeof(char*), cudaMemcpyHostToDevice);
+
+        // Copy normalTextureName
+        const char* hostNormalTextureName = h_materials[i].normalTextureName;  // Get the string from the host
+        char* d_normalTextureName;
+        copyStringToDevice(hostNormalTextureName, &d_normalTextureName);  // Use reusable function
+        cudaMemcpy(&((*d_materials)[i].normalTextureName), &d_normalTextureName, sizeof(char*), cudaMemcpyHostToDevice);
+
+        // Copy displacementTextureName
+        const char* hostDisplacementTextureName = h_materials[i].displacementTextureName;  // Get the string from the host
+        char* d_displacementTextureName;
+        copyStringToDevice(hostDisplacementTextureName, &d_displacementTextureName);  // Use reusable function
+        cudaMemcpy(&((*d_materials)[i].displacementTextureName), &d_displacementTextureName, sizeof(char*), cudaMemcpyHostToDevice);
+
+        // Copy alphaTextureName
+        const char* hostAlphaTextureName = h_materials[i].alphaTextureName;  // Get the string from the host
+        char* d_alphaTextureName;
+        copyStringToDevice(hostAlphaTextureName, &d_alphaTextureName);  // Use reusable function
+        cudaMemcpy(&((*d_materials)[i].alphaTextureName), &d_alphaTextureName, sizeof(char*), cudaMemcpyHostToDevice);
+
+
+        // Copy emissiveTextureName
+        const char* hostEmissiveTextureName = h_materials[i].emissiveTextureName;  // Get the string from the host
+        char* d_emissiveTextureName;
+        copyStringToDevice(hostEmissiveTextureName, &d_emissiveTextureName);  // Use reusable function
+        cudaMemcpy(&((*d_materials)[i].emissiveTextureName), &d_emissiveTextureName, sizeof(char*), cudaMemcpyHostToDevice);
+    }
+
+    // 4. Update the device-side config to point to the array on the device
+    cudaMemcpy(d_materialsPtrOnDevice, d_materials, sizeof(MaterialConfig*), cudaMemcpyHostToDevice);
+}
+
 
 
 
 /// <summary>
-/// // Helper function to copy texture configuration
+/// // Helper function to copy common texture configuration
 /// </summary>
 template<typename TextureConfig>
 void copyImageTextureConfig(const TextureConfig* h_textures, int count, TextureConfig** d_textures, texturesConfig* d_texturesCfg, TextureConfig** d_texturesPtrOnDevice)
@@ -628,6 +902,91 @@ void copyImageTextureConfig(const TextureConfig* h_textures, int count, TextureC
     // 4. Update the device-side config to point to the array on the device
     cudaMemcpy(d_texturesPtrOnDevice, d_textures, sizeof(TextureConfig*), cudaMemcpyHostToDevice);
 }
+
+/// <summary>
+/// // Helper function to copy common primitive configuration
+/// </summary>
+template<typename PrimitiveConfig>
+void copyCommonPrimitiveConfig(const PrimitiveConfig* h_primitives, int count, PrimitiveConfig** d_primitives, primitivesConfig* d_primitivesCfg, PrimitiveConfig** d_primitivesPtrOnDevice)
+{
+    // 1. Allocate memory for the array on the device
+    cudaMalloc((void**)d_primitives, count * sizeof(PrimitiveConfig));
+
+    // 2. Copy the array contents from host to device
+    cudaMemcpy(*d_primitives, h_primitives, count * sizeof(PrimitiveConfig), cudaMemcpyHostToDevice);
+
+    // 3. Allocate memory and copy the names for each primitive
+    for (int i = 0; i < count; i++)
+    {
+        // Copy name
+        const char* hostName = h_primitives[i].name;  // Get the string from the host
+        char* d_name;
+        copyStringToDevice(hostName, &d_name);  // Use reusable function for name
+        cudaMemcpy(&((*d_primitives)[i].name), &d_name, sizeof(char*), cudaMemcpyHostToDevice);
+
+        // Copy materialName
+        const char* hostMaterialName = h_primitives[i].materialName;  // Get the string from the host
+        char* d_materialName;
+        copyStringToDevice(hostMaterialName, &d_materialName);  // Use reusable function for material name
+        cudaMemcpy(&((*d_primitives)[i].materialName), &d_materialName, sizeof(char*), cudaMemcpyHostToDevice);
+
+        // Copy groupName
+        const char* hostGroupName = h_primitives[i].groupName;  // Get the string from the host
+        char* d_groupName;
+        copyStringToDevice(hostGroupName, &d_groupName);  // Use reusable function for group name
+        cudaMemcpy(&((*d_primitives)[i].groupName), &d_groupName, sizeof(char*), cudaMemcpyHostToDevice);
+    }
+
+    // 4. Update the device-side config to point to the array on the device
+    cudaMemcpy(d_primitivesPtrOnDevice, d_primitives, sizeof(PrimitiveConfig*), cudaMemcpyHostToDevice);
+}
+
+
+
+/// <summary>
+/// // Helper function to copy volume primitive configuration
+/// </summary>
+template<typename PrimitiveConfig>
+void copyVolumePrimitiveConfig(const PrimitiveConfig* h_primitives, int count, PrimitiveConfig** d_primitives, primitivesConfig* d_primitivesCfg, PrimitiveConfig** d_primitivesPtrOnDevice)
+{
+    // 1. Allocate memory for the array on the device
+    cudaMalloc((void**)d_primitives, count * sizeof(PrimitiveConfig));
+
+    // 2. Copy the array contents from host to device
+    cudaMemcpy(*d_primitives, h_primitives, count * sizeof(PrimitiveConfig), cudaMemcpyHostToDevice);
+
+    // 3. Allocate memory and copy the names for each primitive
+    for (int i = 0; i < count; i++)
+    {
+        // Copy name
+        const char* hostName = h_primitives[i].name;  // Get the string from the host
+        char* d_name;
+        copyStringToDevice(hostName, &d_name);  // Use reusable function for name
+        cudaMemcpy(&((*d_primitives)[i].name), &d_name, sizeof(char*), cudaMemcpyHostToDevice);
+
+        // Copy boundaryObjectName
+        const char* hostBoundaryName = h_primitives[i].boundaryName;  // Get the string from the host
+        char* d_boundaryName;
+        copyStringToDevice(hostBoundaryName, &d_boundaryName);  // Use reusable function for boundary name
+        cudaMemcpy(&((*d_primitives)[i].boundaryName), &d_boundaryName, sizeof(char*), cudaMemcpyHostToDevice);
+
+        // Copy textureName
+        const char* hostTextureName = h_primitives[i].textureName;  // Get the string from the host
+        char* d_textureName;
+        copyStringToDevice(hostTextureName, &d_textureName);  // Use reusable function for texture name
+        cudaMemcpy(&((*d_primitives)[i].textureName), &d_textureName, sizeof(char*), cudaMemcpyHostToDevice);
+
+        // Copy groupName
+        const char* hostGroupName = h_primitives[i].groupName;  // Get the string from the host
+        char* d_groupName;
+        copyStringToDevice(hostGroupName, &d_groupName);  // Use reusable function for group name
+        cudaMemcpy(&((*d_primitives)[i].groupName), &d_groupName, sizeof(char*), cudaMemcpyHostToDevice);
+    }
+
+    // 4. Update the device-side config to point to the array on the device
+    cudaMemcpy(d_primitivesPtrOnDevice, d_primitives, sizeof(PrimitiveConfig*), cudaMemcpyHostToDevice);
+}
+
 
 /// <summary>
 /// // Helper function to copy texture configuration
@@ -702,7 +1061,7 @@ texturesConfig* prepareTextures(const texturesConfig& h_texturesCfg)
     texturesConfig* d_texturesCfg;
     cudaMalloc((void**)&d_texturesCfg, sizeof(texturesConfig));
 
-    // Solid color texture
+    // Solid color textures
     if (h_texturesCfg.solidColorTextureCount > 0)
     {
         solidColorTextureConfig* d_solidColorTextures;
@@ -713,7 +1072,7 @@ texturesConfig* prepareTextures(const texturesConfig& h_texturesCfg)
     cudaMemcpy(&(d_texturesCfg->solidColorTextureCount), &(h_texturesCfg.solidColorTextureCount), sizeof(int8_t), cudaMemcpyHostToDevice);
 
 
-    // Gradient color texture
+    // Gradient color textures
     if (h_texturesCfg.gradientColorTextureCount > 0)
     {
         gradientColorTextureConfig* d_gradientColorTextures;
@@ -724,7 +1083,7 @@ texturesConfig* prepareTextures(const texturesConfig& h_texturesCfg)
     cudaMemcpy(&(d_texturesCfg->gradientColorTextureCount), &(h_texturesCfg.gradientColorTextureCount), sizeof(int8_t), cudaMemcpyHostToDevice);
 
 
-    // Image texture
+    // Image textures
     if (h_texturesCfg.imageTextureCount > 0)
     {
         imageTextureConfig* d_imageTextures;
@@ -735,7 +1094,7 @@ texturesConfig* prepareTextures(const texturesConfig& h_texturesCfg)
     cudaMemcpy(&(d_texturesCfg->imageTextureCount), &(h_texturesCfg.imageTextureCount), sizeof(int8_t), cudaMemcpyHostToDevice);
 
 
-    // Checker texture
+    // Checker textures
     if (h_texturesCfg.checkerTextureCount > 0)
     {
         checkerTextureConfig* d_checkerTextures;
@@ -746,7 +1105,7 @@ texturesConfig* prepareTextures(const texturesConfig& h_texturesCfg)
     cudaMemcpy(&(d_texturesCfg->checkerTextureCount), &(h_texturesCfg.checkerTextureCount), sizeof(int8_t), cudaMemcpyHostToDevice);
 
 
-    // Noise texture
+    // Noise textures
     if (h_texturesCfg.noiseTextureCount > 0)
     {
         noiseTextureConfig* d_noiseTextures;
@@ -757,7 +1116,7 @@ texturesConfig* prepareTextures(const texturesConfig& h_texturesCfg)
     cudaMemcpy(&(d_texturesCfg->noiseTextureCount), &(h_texturesCfg.noiseTextureCount), sizeof(int8_t), cudaMemcpyHostToDevice);
 
 
-    // Bump texture
+    // Bump textures
     if (h_texturesCfg.bumpTextureCount > 0)
     {
         bumpTextureConfig* d_bumpTextures;
@@ -768,7 +1127,7 @@ texturesConfig* prepareTextures(const texturesConfig& h_texturesCfg)
     cudaMemcpy(&(d_texturesCfg->bumpTextureCount), &(h_texturesCfg.bumpTextureCount), sizeof(int8_t), cudaMemcpyHostToDevice);
 
 
-    // Normal texture
+    // Normal textures
     if (h_texturesCfg.normalTextureCount > 0)
     {
         normalTextureConfig* d_normalTextures;
@@ -779,7 +1138,7 @@ texturesConfig* prepareTextures(const texturesConfig& h_texturesCfg)
     cudaMemcpy(&(d_texturesCfg->normalTextureCount), &(h_texturesCfg.normalTextureCount), sizeof(int8_t), cudaMemcpyHostToDevice);
 
 
-    // Displacement texture
+    // Displacement textures
     if (h_texturesCfg.displacementTextureCount > 0)
     {
         displacementTextureConfig* d_displacementTextures;
@@ -790,7 +1149,7 @@ texturesConfig* prepareTextures(const texturesConfig& h_texturesCfg)
     cudaMemcpy(&(d_texturesCfg->displacementTextureCount), &(h_texturesCfg.displacementTextureCount), sizeof(int8_t), cudaMemcpyHostToDevice);
 
 
-    // Alpha texture
+    // Alpha textures
     if (h_texturesCfg.alphaTextureCount > 0)
     {
         alphaTextureConfig* d_alphaTextures;
@@ -801,7 +1160,7 @@ texturesConfig* prepareTextures(const texturesConfig& h_texturesCfg)
     cudaMemcpy(&(d_texturesCfg->alphaTextureCount), &(h_texturesCfg.alphaTextureCount), sizeof(int8_t), cudaMemcpyHostToDevice);
 
 
-    // Emissive texture
+    // Emissive textures
     if (h_texturesCfg.emissiveTextureCount > 0)
     {
         emissiveTextureConfig* d_emissiveTextures;
@@ -822,18 +1181,18 @@ materialsConfig* prepareMaterials(const materialsConfig& h_materialsCfg)
     cudaMalloc((void**)&d_materialsCfg, sizeof(materialsConfig));
 
 
-    // Lambertian material
+    // Lambertian materials
     if (h_materialsCfg.lambertianMaterialCount > 0)
     {
         lambertianMaterialConfig* d_lambertianMaterials;
-        copyCommonMaterialConfig(h_materialsCfg.lambertianMaterials, h_materialsCfg.lambertianMaterialCount, &d_lambertianMaterials, d_materialsCfg, &(d_materialsCfg->lambertianMaterials));
+        copyTextureMaterialConfig(h_materialsCfg.lambertianMaterials, h_materialsCfg.lambertianMaterialCount, &d_lambertianMaterials, d_materialsCfg, &(d_materialsCfg->lambertianMaterials));
     }
 
     // Copy the scalar values from host to device for lambertian materials count
     cudaMemcpy(&(d_materialsCfg->lambertianMaterialCount), &(h_materialsCfg.lambertianMaterialCount), sizeof(int8_t), cudaMemcpyHostToDevice);
 
 
-    // Metal material
+    // Metal materials
     if (h_materialsCfg.metalMaterialCount > 0)
     {
         metalMaterialConfig* d_metalMaterials;
@@ -844,7 +1203,7 @@ materialsConfig* prepareMaterials(const materialsConfig& h_materialsCfg)
     cudaMemcpy(&(d_materialsCfg->metalMaterialCount), &(h_materialsCfg.metalMaterialCount), sizeof(int8_t), cudaMemcpyHostToDevice);
 
 
-    // Glass material
+    // Glass materials
     if (h_materialsCfg.dielectricMaterialCount > 0)
     {
         dielectricMaterialConfig* d_dielectricMaterials;
@@ -855,44 +1214,44 @@ materialsConfig* prepareMaterials(const materialsConfig& h_materialsCfg)
     cudaMemcpy(&(d_materialsCfg->dielectricMaterialCount), &(h_materialsCfg.dielectricMaterialCount), sizeof(int8_t), cudaMemcpyHostToDevice);
 
 
-    // Isotropic material
+    // Isotropic materials
     if (h_materialsCfg.isotropicMaterialCount > 0)
     {
         isotropicMaterialConfig* d_isotropicMaterials;
-        copyCommonMaterialConfig(h_materialsCfg.isotropicMaterials, h_materialsCfg.isotropicMaterialCount, &d_isotropicMaterials, d_materialsCfg, &(d_materialsCfg->isotropicMaterials));
+        copyTextureMaterialConfig(h_materialsCfg.isotropicMaterials, h_materialsCfg.isotropicMaterialCount, &d_isotropicMaterials, d_materialsCfg, &(d_materialsCfg->isotropicMaterials));
     }
 
     // Copy the scalar values from host to device for isotropic materials count
     cudaMemcpy(&(d_materialsCfg->isotropicMaterialCount), &(h_materialsCfg.isotropicMaterialCount), sizeof(int8_t), cudaMemcpyHostToDevice);
 
 
-    // Anisotropic material
+    // Anisotropic materials
     if (h_materialsCfg.anisotropicMaterialCount > 0)
     {
         anisotropicMaterialConfig* d_anisotropicMaterials;
-        copyCommonMaterialConfig(h_materialsCfg.anisotropicMaterials, h_materialsCfg.anisotropicMaterialCount, &d_anisotropicMaterials, d_materialsCfg, &(d_materialsCfg->anisotropicMaterials));
+        copyAnisotropicMaterialConfig(h_materialsCfg.anisotropicMaterials, h_materialsCfg.anisotropicMaterialCount, &d_anisotropicMaterials, d_materialsCfg, &(d_materialsCfg->anisotropicMaterials));
     }
 
     // Copy the scalar values from host to device for anisotropic materials count
     cudaMemcpy(&(d_materialsCfg->anisotropicMaterialCount), &(h_materialsCfg.anisotropicMaterialCount), sizeof(int8_t), cudaMemcpyHostToDevice);
 
 
-    // Oren nayar material
+    // Oren nayar materials
     if (h_materialsCfg.orenNayarMaterialCount > 0)
     {
         orenNayarMaterialConfig* d_orenNayarMaterials;
-        copyCommonMaterialConfig(h_materialsCfg.orenNayarMaterials, h_materialsCfg.orenNayarMaterialCount, &d_orenNayarMaterials, d_materialsCfg, &(d_materialsCfg->orenNayarMaterials));
+        copyTextureMaterialConfig(h_materialsCfg.orenNayarMaterials, h_materialsCfg.orenNayarMaterialCount, &d_orenNayarMaterials, d_materialsCfg, &(d_materialsCfg->orenNayarMaterials));
     }
 
     // Copy the scalar values from host to device for oren nayar materials count
     cudaMemcpy(&(d_materialsCfg->orenNayarMaterialCount), &(h_materialsCfg.orenNayarMaterialCount), sizeof(int8_t), cudaMemcpyHostToDevice);
 
 
-    // Phong material
+    // Phong materials
     if (h_materialsCfg.phongMaterialCount > 0)
     {
         phongMaterialConfig* d_phongMaterials;
-        copyCommonMaterialConfig(h_materialsCfg.phongMaterials, h_materialsCfg.phongMaterialCount, &d_phongMaterials, d_materialsCfg, &(d_materialsCfg->phongMaterials));
+        copyPhongMaterialConfig(h_materialsCfg.phongMaterials, h_materialsCfg.phongMaterialCount, &d_phongMaterials, d_materialsCfg, &(d_materialsCfg->phongMaterials));
     }
 
     // Copy the scalar values from host to device for phong materials count
@@ -943,6 +1302,116 @@ lightsConfig* prepareLights(const lightsConfig& h_lightsCfg)
     return d_lightsCfg;
 }
 
+// Main function to prepare primitives
+primitivesConfig* preparePrimitives(const primitivesConfig& h_primitivesCfg)
+{
+    primitivesConfig* d_primitivesCfg;
+    cudaMalloc((void**)&d_primitivesCfg, sizeof(primitivesConfig));
+
+
+    // Sphere primitives
+    if (h_primitivesCfg.spherePrimitiveCount > 0)
+    {
+        spherePrimitiveConfig* d_spherePrimitives;
+        copyCommonPrimitiveConfig(h_primitivesCfg.spherePrimitives, h_primitivesCfg.spherePrimitiveCount, &d_spherePrimitives, d_primitivesCfg, &(d_primitivesCfg->spherePrimitives));
+    }
+
+    // Copy the scalar values from host to device for sphere primitives count
+    cudaMemcpy(&(d_primitivesCfg->spherePrimitiveCount), &(h_primitivesCfg.spherePrimitiveCount), sizeof(int8_t), cudaMemcpyHostToDevice);
+
+
+
+    // Plane primitives
+    if (h_primitivesCfg.planePrimitiveCount > 0)
+    {
+        planePrimitiveConfig* d_planePrimitives;
+        copyCommonPrimitiveConfig(h_primitivesCfg.planePrimitives, h_primitivesCfg.planePrimitiveCount, &d_planePrimitives, d_primitivesCfg, &(d_primitivesCfg->planePrimitives));
+    }
+
+    // Copy the scalar values from host to device for plane primitives count
+    cudaMemcpy(&(d_primitivesCfg->planePrimitiveCount), &(h_primitivesCfg.planePrimitiveCount), sizeof(int8_t), cudaMemcpyHostToDevice);
+
+
+    // Quad primitives
+    if (h_primitivesCfg.quadPrimitiveCount > 0)
+    {
+        quadPrimitiveConfig* d_quadPrimitives;
+        copyCommonPrimitiveConfig(h_primitivesCfg.quadPrimitives, h_primitivesCfg.quadPrimitiveCount, &d_quadPrimitives, d_primitivesCfg, &(d_primitivesCfg->quadPrimitives));
+    }
+
+    // Copy the scalar values from host to device for quad primitives count
+    cudaMemcpy(&(d_primitivesCfg->quadPrimitiveCount), &(h_primitivesCfg.quadPrimitiveCount), sizeof(int8_t), cudaMemcpyHostToDevice);
+
+
+    // Box primitives
+    if (h_primitivesCfg.boxPrimitiveCount > 0)
+    {
+        boxPrimitiveConfig* d_boxPrimitives;
+        copyCommonPrimitiveConfig(h_primitivesCfg.boxPrimitives, h_primitivesCfg.boxPrimitiveCount, &d_boxPrimitives, d_primitivesCfg, &(d_primitivesCfg->boxPrimitives));
+    }
+
+    // Copy the scalar values from host to device for box primitives count
+    cudaMemcpy(&(d_primitivesCfg->boxPrimitiveCount), &(h_primitivesCfg.boxPrimitiveCount), sizeof(int8_t), cudaMemcpyHostToDevice);
+
+
+    // Cone primitives
+    if (h_primitivesCfg.conePrimitiveCount > 0)
+    {
+        conePrimitiveConfig* d_conePrimitives;
+        copyCommonPrimitiveConfig(h_primitivesCfg.conePrimitives, h_primitivesCfg.conePrimitiveCount, &d_conePrimitives, d_primitivesCfg, &(d_primitivesCfg->conePrimitives));
+    }
+
+    // Copy the scalar values from host to device for cone primitives count
+    cudaMemcpy(&(d_primitivesCfg->conePrimitiveCount), &(h_primitivesCfg.conePrimitiveCount), sizeof(int8_t), cudaMemcpyHostToDevice);
+
+
+    // Cylinder primitives
+    if (h_primitivesCfg.cylinderPrimitiveCount > 0)
+    {
+        cylinderPrimitiveConfig* d_cylinderPrimitives;
+        copyCommonPrimitiveConfig(h_primitivesCfg.cylinderPrimitives, h_primitivesCfg.cylinderPrimitiveCount, &d_cylinderPrimitives, d_primitivesCfg, &(d_primitivesCfg->cylinderPrimitives));
+    }
+
+    // Copy the scalar values from host to device for cylinder primitives count
+    cudaMemcpy(&(d_primitivesCfg->cylinderPrimitiveCount), &(h_primitivesCfg.cylinderPrimitiveCount), sizeof(int8_t), cudaMemcpyHostToDevice);
+
+
+    // Disk primitives
+    if (h_primitivesCfg.diskPrimitiveCount > 0)
+    {
+        diskPrimitiveConfig* d_diskPrimitives;
+        copyCommonPrimitiveConfig(h_primitivesCfg.diskPrimitives, h_primitivesCfg.diskPrimitiveCount, &d_diskPrimitives, d_primitivesCfg, &(d_primitivesCfg->diskPrimitives));
+    }
+
+    // Copy the scalar values from host to device for disk primitives count
+    cudaMemcpy(&(d_primitivesCfg->diskPrimitiveCount), &(h_primitivesCfg.diskPrimitiveCount), sizeof(int8_t), cudaMemcpyHostToDevice);
+
+
+    // Torus primitives
+    if (h_primitivesCfg.torusPrimitiveCount > 0)
+    {
+        torusPrimitiveConfig* d_torusPrimitives;
+        copyCommonPrimitiveConfig(h_primitivesCfg.torusPrimitives, h_primitivesCfg.torusPrimitiveCount, &d_torusPrimitives, d_primitivesCfg, &(d_primitivesCfg->torusPrimitives));
+    }
+
+    // Copy the scalar values from host to device for torus primitives count
+    cudaMemcpy(&(d_primitivesCfg->torusPrimitiveCount), &(h_primitivesCfg.torusPrimitiveCount), sizeof(int8_t), cudaMemcpyHostToDevice);
+
+
+    // Volume primitives
+    if (h_primitivesCfg.volumePrimitiveCount > 0)
+    {
+        volumePrimitiveConfig* d_volumePrimitives;
+        copyVolumePrimitiveConfig(h_primitivesCfg.volumePrimitives, h_primitivesCfg.volumePrimitiveCount, &d_volumePrimitives, d_primitivesCfg, &(d_primitivesCfg->volumePrimitives));
+    }
+
+    // Copy the scalar values from host to device for volume primitives count
+    cudaMemcpy(&(d_primitivesCfg->volumePrimitiveCount), &(h_primitivesCfg.volumePrimitiveCount), sizeof(int8_t), cudaMemcpyHostToDevice);
+
+    return d_primitivesCfg;
+
+
+}
 
 void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int width, int height, int spp, int max_depth, int tx, int ty, const char* filepath)
 {
@@ -1008,6 +1477,7 @@ void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int widt
     texturesConfig* d_texturesCfg = prepareTextures(sceneCfg.texturesCfg);
     materialsConfig* d_materialsCfg = prepareMaterials(sceneCfg.materialsCfg);
     lightsConfig* d_lightsCfg = prepareLights(sceneCfg.lightsCfg);
+    primitivesConfig* d_primitivesCfg = preparePrimitives(sceneCfg.primitivesCfg);
 
 
 
@@ -1016,6 +1486,12 @@ void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int widt
 
     // Now copy the texturesConfig pointer from host to device sceneConfig
     cudaMemcpy(&d_sceneCfg->texturesCfg, d_texturesCfg, sizeof(texturesConfig), cudaMemcpyHostToDevice);
+
+    // Now copy the materialsConfig pointer from host to device sceneConfig
+    cudaMemcpy(&d_sceneCfg->materialsCfg, d_materialsCfg, sizeof(materialsConfig), cudaMemcpyHostToDevice);
+
+    // Now copy the primitivesConfig pointer from host to device sceneConfig
+    cudaMemcpy(&d_sceneCfg->primitivesCfg, d_primitivesCfg, sizeof(primitivesConfig), cudaMemcpyHostToDevice);
 
 
 

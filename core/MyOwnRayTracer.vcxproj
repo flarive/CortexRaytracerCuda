@@ -105,6 +105,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\cameras\orthographic_camera.cuh" />
+    <ClInclude Include="src\device_group.cuh" />
+    <ClInclude Include="src\scene_composer.cuh" />
+    <ClInclude Include="src\device_material.cuh" />
+    <ClInclude Include="src\device_texture.cuh" />
     <ClInclude Include="src\lights\directional_light.cuh" />
     <ClInclude Include="src\lights\light.cuh" />
     <ClInclude Include="src\lights\omni_light.cuh" />
@@ -166,6 +170,7 @@
     <ClInclude Include="src\scenes\scene_factory.h" />
     <ClInclude Include="src\scenes\scene_loader.h" />
     <ClInclude Include="src\scenes\scene_manager.h" />
+    <ClInclude Include="src\scene_factory.cuh" />
     <ClInclude Include="src\srenderer.h" />
     <ClInclude Include="src\textures\alpha_texture.cuh" />
     <ClInclude Include="src\textures\bump_texture.cuh" />

@@ -25,13 +25,14 @@ class scene_builder
         ~scene_builder() = default;
 
         [[nodiscard]] perspective_camera getCamera() const;
-        [[nodiscard]] hittable_list getSceneObjects() const;
+        //[[nodiscard]] hittable_list getSceneObjects() const;
 
         [[nodiscard]] imageConfig getImageConfig() const;
         [[nodiscard]] cameraConfig getCameraConfig() const;
         [[nodiscard]] lightsConfig getLightsConfig() const;
         [[nodiscard]] texturesConfig getTexturesConfig() const;
         [[nodiscard]] materialsConfig getMaterialsConfig() const;
+        [[nodiscard]] primitivesConfig getPrimitivesConfig() const;
 
         // Image
         //scene_builder& setImageConfig(const imageConfig& config);
@@ -93,20 +94,23 @@ class scene_builder
 
 
         // Primitives
-        scene_builder& addObject(hittable* obj);
-        scene_builder& addSphere(const char* name, point3 pos, float radius, const char* materialName, const uvmapping& uv, const char* group);
-        scene_builder& addQuad(const char* name, point3 position, vector3 u, vector3 v, const char* materialName, const uvmapping& uv, const char* group);
-        scene_builder& addPlane(const char* name, point3 p0, point3 p1, const char* materialName, const uvmapping& uv, const char* group);
-        scene_builder& addBox(const char* name, point3 p0, point3 p1, const char* materialName, const uvmapping& uv, const char* group = "");
-        scene_builder& addCylinder(const char* name, point3 pos, float radius, float height, const char* materialName, const uvmapping& uv, const char* group);
-        scene_builder& addCone(const char* name, point3 pos, float radius, float height, const char* materialName, const uvmapping& uv, const char* group);
-        scene_builder& addDisk(const char* name, point3 pos, float radius, float height, const char* materialName, const uvmapping& uv, const char* group);
-        scene_builder& addTorus(const char* name, point3 pos, float major_radius, float minor_radius, const char* materialName, const uvmapping& uv, const char* group);
-        scene_builder& addVolume(const char* name, const char* boundaryObjectName, float density, const char* textureName, const char* group);
-        scene_builder& addVolume(const char* name, const char* boundaryObjectName, float density, const color& rgb, const char* group);
+        //scene_builder& addObject(hittable* obj);
+        
+
+        scene_builder& initPrimitivesConfig(const uint32_t countSpherePrimitives, const uint32_t countPlanePrimitives, const uint32_t countQuadPrimitives, const uint32_t countBoxPrimitives, const uint32_t countConePrimitives, const uint32_t countCylinderPrimitives, const uint32_t countDiskPrimitives, const uint32_t countTorusPrimitives, const uint32_t countVolumePrimitives);
+
+        scene_builder& addSphere(const char* name, point3 pos, float radius, const char* materialName, const uvmapping& uv, const char* groupName);
+        scene_builder& addQuad(const char* name, point3 position, vector3 u, vector3 v, const char* materialName, const uvmapping& uv, const char* groupName);
+        scene_builder& addPlane(const char* name, point3 p0, point3 p1, const char* materialName, const uvmapping& uv, const char* groupName);
+        scene_builder& addBox(const char* name, point3 p0, point3 p1, const char* materialName, const uvmapping& uv, const char* groupName);
+        scene_builder& addCylinder(const char* name, point3 pos, float radius, float height, const char* materialName, const uvmapping& uv, const char* groupName);
+        scene_builder& addCone(const char* name, point3 pos, float radius, float height, const char* materialName, const uvmapping& uv, const char* groupName);
+        scene_builder& addDisk(const char* name, point3 pos, float radius, float height, const char* materialName, const uvmapping& uv, const char* groupName);
+        scene_builder& addTorus(const char* name, point3 pos, float major_radius, float minor_radius, const char* materialName, const uvmapping& uv, const char* groupName);
+        scene_builder& addVolume(const char* name, const char* boundaryObjectName, float density, const color& rgb, const char* textureName, const char* groupName);
 
         // Meshes
-        scene_builder& addMesh(const char* name, point3 pos, const char* filepath, const char* materialName, bool use_mtl, bool use_smoothing, const char* group);
+        scene_builder& addMesh(const char* name, point3 pos, const char* filepath, const char* materialName, bool use_mtl, bool use_smoothing, const char* groupName);
 
         // Groups
         scene_builder& addGroup(const char* name, bool& found);
@@ -122,12 +126,13 @@ class scene_builder
         lightsConfig m_lightsConfig{};
         texturesConfig m_texturesConfig{};
         materialsConfig m_materialsConfig{};
+        primitivesConfig m_primitivesConfig{};
 
-		std::map<std::string, texture*> m_textures{};
-		std::map<std::string, material*> m_materials{};
-        std::map<std::string, hittable_list*> m_groups{};
-		hittable_list m_objects{};
+		//std::map<std::string, texture*> m_textures{};
+		//std::map<std::string, material*> m_materials{};
+  //      std::map<std::string, hittable_list*> m_groups{};
+		//hittable_list m_objects{};
 
-        material* fetchMaterial(const char* name);
-        texture* fetchTexture(const char* name);
+  //      material* fetchMaterial(const char* name);
+  //      texture* fetchTexture(const char* name);
 };

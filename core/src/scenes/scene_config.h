@@ -284,39 +284,13 @@ typedef struct {
 
 typedef struct {
     const char* name;
-    float _x0;
-    float _x1;
-    float _y0;
-    float _y1;
-    float _k;
+    point3 point1;
+    point3 point2;
     const char* materialName;
     uvmapping mapping;
     const char* groupName;
-} xyPlanePrimitiveConfig;
+} planePrimitiveConfig;
 
-typedef struct {
-    const char* name;
-    float _x0;
-    float _x1;
-    float _z0;
-    float _z1;
-    float _k;
-    const char* materialName;
-    uvmapping mapping;
-    const char* groupName;
-} xzPlanePrimitiveConfig;
-
-typedef struct {
-    const char* name;
-    float _y0;
-    float _y1;
-    float _z0;
-    float _z1;
-    float _k;
-    const char* materialName;
-    uvmapping mapping;
-    const char* groupName;
-} yzPlanePrimitiveConfig;
 
 typedef struct {
     const char* name;
@@ -342,6 +316,7 @@ typedef struct {
     point3 position;
     float radius;
     const char* materialName;
+    uvmapping mapping;
     const char* groupName;
 } spherePrimitiveConfig;
 
@@ -409,17 +384,9 @@ typedef struct {
     uint8_t quadPrimitiveCount;
     uint8_t quadPrimitiveCapacity;
 
-    xyPlanePrimitiveConfig* xyPlanePrimitives;
-    uint8_t xyPlanePrimitiveCount;
-    uint8_t xyPlanePrimitiveCapacity;
-
-    xzPlanePrimitiveConfig* xzPlanePrimitives;
-    uint8_t xzPlanePrimitiveCount;
-    uint8_t xzPlanePrimitiveCapacity;
-
-    yzPlanePrimitiveConfig* yzPlanePrimitives;
-    uint8_t yzPlanePrimitiveCount;
-    uint8_t yzPlanePrimitiveCapacity;
+    planePrimitiveConfig* planePrimitives;
+    uint8_t planePrimitiveCount;
+    uint8_t planePrimitiveCapacity;
 
     cylinderPrimitiveConfig* cylinderPrimitives;
     uint8_t cylinderPrimitiveCount;

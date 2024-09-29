@@ -77,7 +77,7 @@ sceneConfig scene_manager::load_scene(const render_parameters& params)
     fullCfg.lightsCfg = scene.getLightsConfig();
     fullCfg.texturesCfg = scene.getTexturesConfig();
     fullCfg.materialsCfg = scene.getMaterialsConfig();
-
+    fullCfg.primitivesCfg = scene.getPrimitivesConfig();
 
 
 

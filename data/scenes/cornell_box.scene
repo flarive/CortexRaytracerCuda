@@ -243,6 +243,55 @@ primitives:
         }
     );
 
+    # List of spheres
+    spheres: (
+        
+        {
+            name = "MySphere1"
+            position = { x = -3.3; y = 0.0; z = -1.0; };
+            radius = 0.5;
+            material = "red_material";
+            uvmapping = { scale_u = 1.0; scale_v = 1.0; offset_u = 0.0; offset_v = 0.0; repeat_u = 2.0; repeat_v = 2.0; };
+        },
+        {
+            name = "MySphere2"
+            position = { x = -2.2; y = 0.0; z = -1.0; };
+            radius = 0.5;
+            material = "red_material";
+            uvmapping = { scale_u = 11.0; scale_v = 11.0; offset_u = 4.0; offset_v = 4.0; repeat_u = 22.0; repeat_v = 22.0; };
+        },
+        {
+            name = "MySphere3"
+            position = { x = -1.1; y = 0.0; z = -1.0; };
+            radius = 0.5;
+            material = "red_material";
+        },
+        {
+            name = "MySphere4"
+            position = { x = 0.0; y = 0.0; z = -1.0; };
+            radius = 0.5;
+            material = "red_material";
+        },
+        {
+            name = "MySphere5"
+            position = { x = 1.1; y = 0.0; z = -1.0; };
+            radius = 0.5;
+            material = "red_material";
+        },
+        {
+            name = "MySphere6"
+            position = { x = 2.2; y = 0.0; z = -1.0; };
+            radius = 0.5;
+            material = "red_material";
+        },
+        {
+            name = "MySphere7"
+            position = { x = 3.3; y = 0.0; z = -1.0; };
+            radius = 0.5;
+            material = "red_material";
+        }
+    );
+
     # List of boxes
     boxes: (
         {

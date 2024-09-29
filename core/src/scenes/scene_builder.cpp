@@ -71,10 +71,10 @@ perspective_camera scene_builder::getCamera() const
     return cam;
 }
 
-hittable_list scene_builder::getSceneObjects() const
-{
-  return this->m_objects;
-}
+//hittable_list scene_builder::getSceneObjects() const
+//{
+//  return this->m_objects;
+//}
 
 imageConfig scene_builder::getImageConfig() const
 {
@@ -159,6 +159,11 @@ texturesConfig scene_builder::getTexturesConfig() const
 materialsConfig scene_builder::getMaterialsConfig() const
 {
     return this->m_materialsConfig;
+}
+
+primitivesConfig scene_builder::getPrimitivesConfig() const
+{
+    return this->m_primitivesConfig;
 }
 
 scene_builder& scene_builder::cameraAspectRatio(std::string aspectRatio)
@@ -984,349 +989,593 @@ scene_builder& scene_builder::addSpotLight(const point3& pos, const vector3& dir
     return *this;
 }
 
-scene_builder& scene_builder::addObject(hittable* obj)
+//scene_builder& scene_builder::addObject(hittable* obj)
+//{
+//  this->m_objects.add(obj);
+//  return *this;
+//}
+
+
+scene_builder& scene_builder::initPrimitivesConfig(const uint32_t countSpherePrimitives, const uint32_t countPlanePrimitives, const uint32_t countQuadPrimitives, const uint32_t countBoxPrimitives, const uint32_t countConePrimitives, const uint32_t countCylinderPrimitives, const uint32_t countDiskPrimitives, const uint32_t countTorusPrimitives, const uint32_t countVolumePrimitives)
 {
-  this->m_objects.add(obj);
-  return *this;
+    m_primitivesConfig.spherePrimitiveCount = 0;
+    m_primitivesConfig.spherePrimitiveCapacity = countSpherePrimitives;
+    m_primitivesConfig.spherePrimitives = new spherePrimitiveConfig[countSpherePrimitives];
+
+    m_primitivesConfig.planePrimitiveCount = 0;
+    m_primitivesConfig.planePrimitiveCapacity = countPlanePrimitives;
+    m_primitivesConfig.planePrimitives = new planePrimitiveConfig[countPlanePrimitives];
+
+    m_primitivesConfig.quadPrimitiveCount = 0;
+    m_primitivesConfig.quadPrimitiveCapacity = countQuadPrimitives;
+    m_primitivesConfig.quadPrimitives = new quadPrimitiveConfig[countQuadPrimitives];
+
+    m_primitivesConfig.boxPrimitiveCount = 0;
+    m_primitivesConfig.boxPrimitiveCapacity = countBoxPrimitives;
+    m_primitivesConfig.boxPrimitives = new boxPrimitiveConfig[countBoxPrimitives];
+
+    m_primitivesConfig.conePrimitiveCount = 0;
+    m_primitivesConfig.conePrimitiveCapacity = countConePrimitives;
+    m_primitivesConfig.conePrimitives = new conePrimitiveConfig[countConePrimitives];
+
+    m_primitivesConfig.cylinderPrimitiveCount = 0;
+    m_primitivesConfig.cylinderPrimitiveCapacity = countCylinderPrimitives;
+    m_primitivesConfig.cylinderPrimitives = new cylinderPrimitiveConfig[countCylinderPrimitives];
+
+    m_primitivesConfig.diskPrimitiveCount = 0;
+    m_primitivesConfig.diskPrimitiveCapacity = countDiskPrimitives;
+    m_primitivesConfig.diskPrimitives = new diskPrimitiveConfig[countDiskPrimitives];
+
+    m_primitivesConfig.torusPrimitiveCount = 0;
+    m_primitivesConfig.torusPrimitiveCapacity = countTorusPrimitives;
+    m_primitivesConfig.torusPrimitives = new torusPrimitiveConfig[countTorusPrimitives];
+
+    m_primitivesConfig.volumePrimitiveCount = 0;
+    m_primitivesConfig.volumePrimitiveCapacity = countVolumePrimitives;
+    m_primitivesConfig.volumePrimitives = new volumePrimitiveConfig[countVolumePrimitives];
+
+    return *this;
 }
 
-scene_builder& scene_builder::addSphere(const char* name, point3 pos, float radius, const char* materialName, const uvmapping& uv, const char* group)
+scene_builder& scene_builder::addSphere(const char* name, point3 pos, float radius, const char* materialName, const uvmapping& uv, const char* groupName)
 {
-    auto sphere = scene_factory::createSphere(name, pos, radius, fetchMaterial(materialName), uv);
+    //auto sphere = scene_factory::createSphere(name, pos, radius, fetchMaterial(materialName), uv);
 
-    if (group != nullptr && group[0] != '\0')
+    //if (groupName != nullptr && groupName[0] != '\0')
+    //{
+    //    auto it = this->m_groups.find(groupName);
+    //    if (it != this->m_groups.end())
+    //    {
+    //        // add to existing group is found
+    //        hittable_list* grp = it->second;
+    //        if (grp) { grp->add(sphere); }
+    //    }
+    //    else
+    //    {
+    //        // create group if not found
+    //        this->m_groups.emplace(groupName, new hittable_list(sphere));
+    //    }
+    //}
+    //else
+    //{
+    //    this->m_objects.add(sphere);
+    //}
+
+    // Get current count of sphere primitives
+    int c = this->m_primitivesConfig.spherePrimitiveCount;
+
+    if (m_primitivesConfig.spherePrimitiveCount < m_primitivesConfig.spherePrimitiveCapacity)
     {
-        auto it = this->m_groups.find(group);
-        if (it != this->m_groups.end())
-        {
-            // add to existing group is found
-            hittable_list* grp = it->second;
-            if (grp) { grp->add(sphere); }
-        }
-        else
-        {
-            // create group if not found
-            this->m_groups.emplace(group, new hittable_list(sphere));
-        }
+        // When assigning the name, allocate memory and copy the string
+        size_t length1 = strlen(name) + 1;  // +1 for null terminator
+        char* name_copy = new char[length1]; // Allocate memory for the name
+        strcpy(name_copy, name);  // Copy the string
+
+        size_t length2 = strlen(materialName) + 1;  // +1 for null terminator
+        char* materialName_copy = new char[length2]; // Allocate memory
+        strcpy(materialName_copy, materialName);  // Copy the string
+
+        size_t length3 = strlen(groupName) + 1;  // +1 for null terminator
+        char* groupName_copy = new char[length3]; // Allocate memory
+        strcpy(groupName_copy, groupName);  // Copy the string
+
+        m_primitivesConfig.spherePrimitives[c] = spherePrimitiveConfig{ name_copy, pos, radius, materialName_copy, uv, groupName_copy };
+        m_primitivesConfig.spherePrimitiveCount++;
     }
-    else
-    {
-        this->m_objects.add(sphere);
+    else {
+        // Handle error, for example, log a message or throw an exception
+        std::cerr << "Exceeded maximum number of sphere primitives." << std::endl;
     }
 
 	return *this;
 }
 
-scene_builder& scene_builder::addPlane(const char* name, point3 p0, point3 p1, const char* materialName, const uvmapping& uv, const char* group)
+scene_builder& scene_builder::addPlane(const char* name, point3 p0, point3 p1, const char* materialName, const uvmapping& uv, const char* groupName)
 {
-    auto plane = scene_factory::createPlane(name, p0, p1, fetchMaterial(materialName), uv);
-    
-    if (group != nullptr && group[0] != '\0')
-	{
-		auto it = this->m_groups.find(group);
-		if (it != this->m_groups.end())
-		{
-			// add to existing group is found
-            hittable_list* grp = it->second;
-			if (grp) { grp->add(plane); }
-		}
-		else
-		{
-			// create group if not found
-			this->m_groups.emplace(group, new hittable_list(plane));
-		}
-	}
-	else
-	{
-		this->m_objects.add(plane);
-	}
+ //   auto plane = scene_factory::createPlane(name, p0, p1, fetchMaterial(materialName), uv);
+ //   
+ //   if (groupName != nullptr && groupName[0] != '\0')
+	//{
+	//	auto it = this->m_groups.find(groupName);
+	//	if (it != this->m_groups.end())
+	//	{
+	//		// add to existing group is found
+ //           hittable_list* grp = it->second;
+	//		if (grp) { grp->add(plane); }
+	//	}
+	//	else
+	//	{
+	//		// create group if not found
+	//		this->m_groups.emplace(groupName, new hittable_list(plane));
+	//	}
+	//}
+	//else
+	//{
+	//	this->m_objects.add(plane);
+	//}
 
-    return *this;
-}
+    // Get current count of plane primitives
+    int c = this->m_primitivesConfig.planePrimitiveCount;
 
-scene_builder& scene_builder::addQuad(const char* name, point3 position, vector3 u, vector3 v, const char* materialName, const uvmapping& uv, const char* group)
-{
-    auto quad = scene_factory::createQuad(name, position, u, v, fetchMaterial(materialName), uv);
-    
-    if (group != nullptr && group[0] != '\0')
-	{
-		auto it = this->m_groups.find(group);
-		if (it != this->m_groups.end())
-		{
-			// add to existing group is found
-            hittable_list* grp = it->second;
-			if (grp) { grp->add(quad); }
-		}
-		else
-		{
-			// create group if not found
-			this->m_groups.emplace(group, new hittable_list(quad));
-		}
-	}
-	else
-	{
-		this->m_objects.add(quad);
-	}
-
-    return *this;
-}
-
-scene_builder& scene_builder::addBox(const char* name, point3 p0, point3 p1, const char* materialName, const uvmapping& uv, const char* group)
-{
-    auto box = scene_factory::createBox(name, p0, p1, fetchMaterial(materialName), uv);
-
-    if (group != nullptr && group[0] != '\0')
+    if (m_primitivesConfig.planePrimitiveCount < m_primitivesConfig.planePrimitiveCapacity)
     {
-        auto it = this->m_groups.find(group);
+        // When assigning the name, allocate memory and copy the string
+        size_t length1 = strlen(name) + 1;  // +1 for null terminator
+        char* name_copy = new char[length1]; // Allocate memory for the name
+        strcpy(name_copy, name);  // Copy the string
 
-        if (it != this->m_groups.end())
-        {
-            // if key is found
-            hittable_list* grp = it->second;
-            if (grp)
-            {
-                grp->add(box);
-            }
-        }
-        else
-        {
-            // if key is not found
-            this->m_groups.emplace(group, new hittable_list(box));
-        }
+        size_t length2 = strlen(materialName) + 1;  // +1 for null terminator
+        char* materialName_copy = new char[length2]; // Allocate memory
+        strcpy(materialName_copy, materialName);  // Copy the string
+
+        size_t length3 = strlen(groupName) + 1;  // +1 for null terminator
+        char* groupName_copy = new char[length3]; // Allocate memory
+        strcpy(groupName_copy, groupName);  // Copy the string
+
+        m_primitivesConfig.planePrimitives[c] = planePrimitiveConfig{ name_copy, p0, p1, materialName_copy, uv, groupName_copy };
+        m_primitivesConfig.planePrimitiveCount++;
     }
-    else
-    {
-        this->m_objects.add(box);
+    else {
+        // Handle error, for example, log a message or throw an exception
+        std::cerr << "Exceeded maximum number of planes primitives." << std::endl;
     }
 
     return *this;
 }
 
-scene_builder& scene_builder::addCylinder(const char* name, point3 pos, float radius, float height, const char* materialName, const uvmapping& uv, const char* group)
+scene_builder& scene_builder::addQuad(const char* name, point3 position, vector3 u, vector3 v, const char* materialName, const uvmapping& uv, const char* groupName)
 {
-    auto cylinder = scene_factory::createCylinder(name, pos, radius, height, fetchMaterial(materialName), uv);
-    
-    if (group != nullptr && group[0] != '\0')
-	{
-		auto it = this->m_groups.find(group);
+ //   auto quad = scene_factory::createQuad(name, position, u, v, fetchMaterial(materialName), uv);
+ //   
+ //   if (groupName != nullptr && groupName[0] != '\0')
+	//{
+	//	auto it = this->m_groups.find(groupName);
+	//	if (it != this->m_groups.end())
+	//	{
+	//		// add to existing group is found
+ //           hittable_list* grp = it->second;
+	//		if (grp) { grp->add(quad); }
+	//	}
+	//	else
+	//	{
+	//		// create group if not found
+	//		this->m_groups.emplace(groupName, new hittable_list(quad));
+	//	}
+	//}
+	//else
+	//{
+	//	this->m_objects.add(quad);
+	//}
 
-		if (it != this->m_groups.end())
-		{
-			// if key is found
-            hittable_list* grp = it->second;
-			if (grp)
-			{
-				grp->add(cylinder);
-			}
-		}
-		else
-		{
-			// if key is not found
-			this->m_groups.emplace(group, new hittable_list(cylinder));
-		}
-	}
-	else
-	{
-		this->m_objects.add(cylinder);
-	}
+    // Get current count of quad primitives
+    int c = this->m_primitivesConfig.quadPrimitiveCount;
+
+    if (m_primitivesConfig.quadPrimitiveCount < m_primitivesConfig.quadPrimitiveCapacity)
+    {
+        // When assigning the name, allocate memory and copy the string
+        size_t length1 = strlen(name) + 1;  // +1 for null terminator
+        char* name_copy = new char[length1]; // Allocate memory for the name
+        strcpy(name_copy, name);  // Copy the string
+
+        size_t length2 = strlen(materialName) + 1;  // +1 for null terminator
+        char* materialName_copy = new char[length2]; // Allocate memory
+        strcpy(materialName_copy, materialName);  // Copy the string
+
+        size_t length3 = strlen(groupName) + 1;  // +1 for null terminator
+        char* groupName_copy = new char[length3]; // Allocate memory
+        strcpy(groupName_copy, groupName);  // Copy the string
+
+        m_primitivesConfig.quadPrimitives[c] = quadPrimitiveConfig{ name_copy, position, u, v, materialName_copy, uv, groupName_copy };
+        m_primitivesConfig.quadPrimitiveCount++;
+    }
+    else {
+        // Handle error, for example, log a message or throw an exception
+        std::cerr << "Exceeded maximum number of quad primitives." << std::endl;
+    }
+
+    return *this;
+}
+
+scene_builder& scene_builder::addBox(const char* name, point3 p0, point3 p1, const char* materialName, const uvmapping& uv, const char* groupName)
+{
+    //auto box = scene_factory::createBox(name, p0, p1, fetchMaterial(materialName), uv);
+
+    //if (groupName != nullptr && groupName[0] != '\0')
+    //{
+    //    auto it = this->m_groups.find(groupName);
+
+    //    if (it != this->m_groups.end())
+    //    {
+    //        // if key is found
+    //        hittable_list* grp = it->second;
+    //        if (grp)
+    //        {
+    //            grp->add(box);
+    //        }
+    //    }
+    //    else
+    //    {
+    //        // if key is not found
+    //        this->m_groups.emplace(groupName, new hittable_list(box));
+    //    }
+    //}
+    //else
+    //{
+    //    this->m_objects.add(box);
+    //}
+
+    // Get current count of box primitives
+    int c = this->m_primitivesConfig.boxPrimitiveCount;
+
+    if (m_primitivesConfig.boxPrimitiveCount < m_primitivesConfig.boxPrimitiveCapacity)
+    {
+        // When assigning the name, allocate memory and copy the string
+        size_t length1 = strlen(name) + 1;  // +1 for null terminator
+        char* name_copy = new char[length1]; // Allocate memory for the name
+        strcpy(name_copy, name);  // Copy the string
+
+        size_t length2 = strlen(materialName) + 1;  // +1 for null terminator
+        char* materialName_copy = new char[length2]; // Allocate memory
+        strcpy(materialName_copy, materialName);  // Copy the string
+
+        size_t length3 = strlen(groupName) + 1;  // +1 for null terminator
+        char* groupName_copy = new char[length3]; // Allocate memory
+        strcpy(groupName_copy, groupName);  // Copy the string
+
+        m_primitivesConfig.boxPrimitives[c] = boxPrimitiveConfig{ name_copy, p0, p1, materialName_copy, uv, groupName_copy };
+        m_primitivesConfig.boxPrimitiveCount++;
+    }
+    else {
+        // Handle error, for example, log a message or throw an exception
+        std::cerr << "Exceeded maximum number of box primitives." << std::endl;
+    }
+
+    return *this;
+}
+
+scene_builder& scene_builder::addCylinder(const char* name, point3 pos, float radius, float height, const char* materialName, const uvmapping& uv, const char* groupName)
+{
+ //   auto cylinder = scene_factory::createCylinder(name, pos, radius, height, fetchMaterial(materialName), uv);
+ //   
+ //   if (groupName != nullptr && groupName[0] != '\0')
+	//{
+	//	auto it = this->m_groups.find(groupName);
+
+	//	if (it != this->m_groups.end())
+	//	{
+	//		// if key is found
+ //           hittable_list* grp = it->second;
+	//		if (grp)
+	//		{
+	//			grp->add(cylinder);
+	//		}
+	//	}
+	//	else
+	//	{
+	//		// if key is not found
+	//		this->m_groups.emplace(groupName, new hittable_list(cylinder));
+	//	}
+	//}
+	//else
+	//{
+	//	this->m_objects.add(cylinder);
+	//}
+
+    // Get current count of cylinder primitives
+    int c = this->m_primitivesConfig.cylinderPrimitiveCount;
+
+    if (m_primitivesConfig.cylinderPrimitiveCount < m_primitivesConfig.cylinderPrimitiveCapacity)
+    {
+        // When assigning the name, allocate memory and copy the string
+        size_t length1 = strlen(name) + 1;  // +1 for null terminator
+        char* name_copy = new char[length1]; // Allocate memory for the name
+        strcpy(name_copy, name);  // Copy the string
+
+        size_t length2 = strlen(materialName) + 1;  // +1 for null terminator
+        char* materialName_copy = new char[length2]; // Allocate memory
+        strcpy(materialName_copy, materialName);  // Copy the string
+
+        size_t length3 = strlen(groupName) + 1;  // +1 for null terminator
+        char* groupName_copy = new char[length3]; // Allocate memory
+        strcpy(groupName_copy, groupName);  // Copy the string
+
+        m_primitivesConfig.cylinderPrimitives[c] = cylinderPrimitiveConfig{ name_copy, pos, radius, height, materialName_copy, uv, groupName_copy };
+        m_primitivesConfig.cylinderPrimitiveCount++;
+    }
+    else {
+        // Handle error, for example, log a message or throw an exception
+        std::cerr << "Exceeded maximum number of cylinder primitives." << std::endl;
+    }
         
     return *this;
 }
 
-scene_builder& scene_builder::addDisk(const char* name, point3 pos, float radius, float height, const char* materialName, const uvmapping& uv, const char* group)
+scene_builder& scene_builder::addDisk(const char* name, point3 pos, float radius, float height, const char* materialName, const uvmapping& uv, const char* groupName)
 {
-    auto disk = scene_factory::createDisk(name, pos, radius, height, fetchMaterial(materialName), uv);
+ //   auto disk = scene_factory::createDisk(name, pos, radius, height, fetchMaterial(materialName), uv);
+ //   
+ //   if (groupName != nullptr && groupName[0] != '\0')
+	//{
+	//	auto it = this->m_groups.find(groupName);
+
+	//	if (it != this->m_groups.end())
+	//	{
+	//		// if key is found
+ //           hittable_list* grp = it->second;
+	//		if (grp)
+	//		{
+	//			grp->add(disk);
+	//		}
+	//	}
+	//	else
+	//	{
+	//		// if key is not found
+	//		this->m_groups.emplace(groupName, new hittable_list(disk));
+	//	}
+	//}
+	//else
+	//{
+	//	this->m_objects.add(disk);
+	//}
+
+    // Get current count of disk primitives
+    int c = this->m_primitivesConfig.diskPrimitiveCount;
+
+    if (m_primitivesConfig.diskPrimitiveCount < m_primitivesConfig.diskPrimitiveCapacity)
+    {
+        // When assigning the name, allocate memory and copy the string
+        size_t length1 = strlen(name) + 1;  // +1 for null terminator
+        char* name_copy = new char[length1]; // Allocate memory for the name
+        strcpy(name_copy, name);  // Copy the string
+
+        size_t length2 = strlen(materialName) + 1;  // +1 for null terminator
+        char* materialName_copy = new char[length2]; // Allocate memory
+        strcpy(materialName_copy, materialName);  // Copy the string
+
+        size_t length3 = strlen(groupName) + 1;  // +1 for null terminator
+        char* groupName_copy = new char[length3]; // Allocate memory
+        strcpy(groupName_copy, groupName);  // Copy the string
+
+        m_primitivesConfig.diskPrimitives[c] = diskPrimitiveConfig{ name_copy, pos, radius, height, materialName_copy, uv, groupName_copy };
+        m_primitivesConfig.diskPrimitiveCount++;
+    }
+    else {
+        // Handle error, for example, log a message or throw an exception
+        std::cerr << "Exceeded maximum number of disk primitives." << std::endl;
+    }
+
+    return *this;
+}
+
+scene_builder& scene_builder::addTorus(const char* name, point3 pos, float major_radius, float minor_radius, const char* materialName, const uvmapping& uv, const char* groupName)
+{
+ //   auto torus = scene_factory::createTorus(name, pos, major_radius, minor_radius, fetchMaterial(materialName), uv);
+
+ //   if (groupName != nullptr && groupName[0] != '\0')
+	//{
+	//	auto it = this->m_groups.find(groupName);
+
+	//	if (it != this->m_groups.end())
+	//	{
+	//		// if key is found
+ //           hittable_list* grp = it->second;
+	//		if (grp)
+	//		{
+	//			grp->add(torus);
+	//		}
+	//	}
+	//	else
+	//	{
+	//		// if key is not found
+	//		this->m_groups.emplace(groupName, new hittable_list(torus));
+	//	}
+	//}
+	//else
+	//{
+	//	this->m_objects.add(torus);
+	//}
+
+    // Get current count of torus primitives
+    int c = this->m_primitivesConfig.torusPrimitiveCount;
+
+    if (m_primitivesConfig.torusPrimitiveCount < m_primitivesConfig.torusPrimitiveCapacity)
+    {
+        // When assigning the name, allocate memory and copy the string
+        size_t length1 = strlen(name) + 1;  // +1 for null terminator
+        char* name_copy = new char[length1]; // Allocate memory for the name
+        strcpy(name_copy, name);  // Copy the string
+
+        size_t length2 = strlen(materialName) + 1;  // +1 for null terminator
+        char* materialName_copy = new char[length2]; // Allocate memory
+        strcpy(materialName_copy, materialName);  // Copy the string
+
+        size_t length3 = strlen(groupName) + 1;  // +1 for null terminator
+        char* groupName_copy = new char[length3]; // Allocate memory
+        strcpy(groupName_copy, groupName);  // Copy the string
+
+        m_primitivesConfig.torusPrimitives[c] = torusPrimitiveConfig{ name_copy, pos, major_radius, minor_radius, materialName_copy, uv, groupName_copy };
+        m_primitivesConfig.torusPrimitiveCount++;
+    }
+    else {
+        // Handle error, for example, log a message or throw an exception
+        std::cerr << "Exceeded maximum number of torus primitives." << std::endl;
+    }
     
-    if (group != nullptr && group[0] != '\0')
-	{
-		auto it = this->m_groups.find(group);
-
-		if (it != this->m_groups.end())
-		{
-			// if key is found
-            hittable_list* grp = it->second;
-			if (grp)
-			{
-				grp->add(disk);
-			}
-		}
-		else
-		{
-			// if key is not found
-			this->m_groups.emplace(group, new hittable_list(disk));
-		}
-	}
-	else
-	{
-		this->m_objects.add(disk);
-	}
-
     return *this;
 }
 
-scene_builder& scene_builder::addTorus(const char* name, point3 pos, float major_radius, float minor_radius, const char* materialName, const uvmapping& uv, const char* group)
+scene_builder& scene_builder::addCone(const char* name, point3 pos, float radius, float height, const char* materialName, const uvmapping& uv, const char* groupName)
 {
-    auto torus = scene_factory::createTorus(name, pos, major_radius, minor_radius, fetchMaterial(materialName), uv);
+ //   auto cone = scene_factory::createCone(name, pos, height, radius, fetchMaterial(materialName), uv);
+ //   
+ //   if (groupName != nullptr && groupName[0] != '\0')
+	//{
+	//	auto it = this->m_groups.find(groupName);
 
-    if (group != nullptr && group[0] != '\0')
-	{
-		auto it = this->m_groups.find(group);
+	//	if (it != this->m_groups.end())
+	//	{
+	//		// if key is found
+ //           hittable_list* grp = it->second;
+	//		if (grp)
+	//		{
+	//			grp->add(cone);
+	//		}
+	//	}
+	//	else
+	//	{
+	//		// if key is not found
+	//		this->m_groups.emplace(groupName, new hittable_list(cone));
+	//	}
+	//}
+	//else
+	//{
+	//	this->m_objects.add(cone);
+	//}
 
-		if (it != this->m_groups.end())
-		{
-			// if key is found
-            hittable_list* grp = it->second;
-			if (grp)
-			{
-				grp->add(torus);
-			}
-		}
-		else
-		{
-			// if key is not found
-			this->m_groups.emplace(group, new hittable_list(torus));
-		}
-	}
-	else
-	{
-		this->m_objects.add(torus);
-	}
-    
-    return *this;
-}
+    // Get current count of cone primitives
+    int c = this->m_primitivesConfig.conePrimitiveCount;
 
-scene_builder& scene_builder::addCone(const char* name, point3 pos, float radius, float height, const char* materialName, const uvmapping& uv, const char* group)
-{
-    auto cone = scene_factory::createCone(name, pos, height, radius, fetchMaterial(materialName), uv);
-    
-    if (group != nullptr && group[0] != '\0')
-	{
-		auto it = this->m_groups.find(group);
-
-		if (it != this->m_groups.end())
-		{
-			// if key is found
-            hittable_list* grp = it->second;
-			if (grp)
-			{
-				grp->add(cone);
-			}
-		}
-		else
-		{
-			// if key is not found
-			this->m_groups.emplace(group, new hittable_list(cone));
-		}
-	}
-	else
-	{
-		this->m_objects.add(cone);
-	}
-
-    return *this;
-}
-
-scene_builder& scene_builder::addVolume(const char* name, const char* boundaryObjectName, float density, const char* textureName, const char* group)
-{
-    auto boundaryObject = this->m_objects.get(boundaryObjectName);
-    if (boundaryObject)
+    if (m_primitivesConfig.conePrimitiveCount < m_primitivesConfig.conePrimitiveCapacity)
     {
-        auto volume = scene_factory::createVolume(name, boundaryObject, density, fetchTexture(textureName));
+        // When assigning the name, allocate memory and copy the string
+        size_t length1 = strlen(name) + 1;  // +1 for null terminator
+        char* name_copy = new char[length1]; // Allocate memory for the name
+        strcpy(name_copy, name);  // Copy the string
 
-        if (group != nullptr && group[0] != '\0')
-		{
-			auto it = this->m_groups.find(group);
+        size_t length2 = strlen(materialName) + 1;  // +1 for null terminator
+        char* materialName_copy = new char[length2]; // Allocate memory
+        strcpy(materialName_copy, materialName);  // Copy the string
 
-			if (it != this->m_groups.end())
-			{
-				// if key is found
-                hittable_list* grp = it->second;
-				if (grp)
-				{
-					grp->add(volume);
-				}
-			}
-			else
-			{
-				// if key is not found
-				this->m_groups.emplace(group, new hittable_list(volume));
-			}
-		}
-		else
-		{
-			this->m_objects.add(volume);
-		}
+        size_t length3 = strlen(groupName) + 1;  // +1 for null terminator
+        char* groupName_copy = new char[length3]; // Allocate memory
+        strcpy(groupName_copy, groupName);  // Copy the string
 
-        this->m_objects.remove(boundaryObject);
+        m_primitivesConfig.conePrimitives[c] = conePrimitiveConfig{ name_copy, pos, radius, height, materialName_copy, uv, groupName_copy };
+        m_primitivesConfig.planePrimitiveCount++;
+    }
+    else {
+        // Handle error, for example, log a message or throw an exception
+        std::cerr << "Exceeded maximum number of cone primitives." << std::endl;
     }
 
     return *this;
 }
 
-scene_builder& scene_builder::addVolume(const char* name, const char* boundaryObjectName, float density, const color& rgb, const char* group)
+scene_builder& scene_builder::addVolume(const char* name, const char* boundaryObjectName, float density, const color& rgb, const char* textureName, const char* groupName)
 {
-    auto boundaryObject = this->m_objects.get(boundaryObjectName);
-    if (boundaryObject)
+  //  auto boundaryObject = this->m_objects.get(boundaryObjectName);
+  //  if (boundaryObject)
+  //  {
+  //      auto volume = scene_factory::createVolume(name, boundaryObject, density, fetchTexture(textureName));
+
+  //      if (groupName != nullptr && groupName[0] != '\0')
+		//{
+		//	auto it = this->m_groups.find(groupName);
+
+		//	if (it != this->m_groups.end())
+		//	{
+		//		// if key is found
+  //              hittable_list* grp = it->second;
+		//		if (grp)
+		//		{
+		//			grp->add(volume);
+		//		}
+		//	}
+		//	else
+		//	{
+		//		// if key is not found
+		//		this->m_groups.emplace(groupName, new hittable_list(volume));
+		//	}
+		//}
+		//else
+		//{
+		//	this->m_objects.add(volume);
+		//}
+
+  //      this->m_objects.remove(boundaryObject);
+  //  }
+
+    // Get current count of volume primitives
+    int c = this->m_primitivesConfig.volumePrimitiveCount;
+
+    if (m_primitivesConfig.volumePrimitiveCount < m_primitivesConfig.volumePrimitiveCapacity)
     {
-        auto volume = scene_factory::createVolume(name, boundaryObject, density, rgb);
+        // When assigning the name, allocate memory and copy the string
+        size_t length1 = strlen(name) + 1;  // +1 for null terminator
+        char* name_copy = new char[length1]; // Allocate memory for the name
+        strcpy(name_copy, name);  // Copy the string
 
-        if (group != nullptr && group[0] != '\0')
-		{
-			auto it = this->m_groups.find(group);
+        size_t length2 = strlen(boundaryObjectName) + 1;  // +1 for null terminator
+        char* boundaryObjectName_copy = new char[length2]; // Allocate memory
+        strcpy(boundaryObjectName_copy, boundaryObjectName);  // Copy the string
 
-			if (it != this->m_groups.end())
-			{
-				// if key is found
-                hittable_list* grp = it->second;
-				if (grp)
-				{
-					grp->add(volume);
-				}
-			}
-			else
-			{
-				// if key is not found
-				this->m_groups.emplace(group, new hittable_list(volume));
-			}
-		}
-		else
-		{
-			this->m_objects.add(volume);
-		}
+        size_t length3 = strlen(textureName) + 1;  // +1 for null terminator
+        char* textureName_copy = new char[length3]; // Allocate memory
+        strcpy(textureName_copy, textureName);  // Copy the string
 
-        this->m_objects.remove(boundaryObject);
+        size_t length4 = strlen(groupName) + 1;  // +1 for null terminator
+        char* groupName_copy = new char[length4]; // Allocate memory
+        strcpy(groupName_copy, groupName);  // Copy the string
+
+        m_primitivesConfig.volumePrimitives[c] = volumePrimitiveConfig{ name_copy, boundaryObjectName_copy, density, rgb, textureName_copy, groupName_copy };
+        m_primitivesConfig.volumePrimitiveCount++;
+    }
+    else {
+        // Handle error, for example, log a message or throw an exception
+        std::cerr << "Exceeded maximum number of volume primitives." << std::endl;
     }
 
     return *this;
 }
 
-scene_builder& scene_builder::addMesh(const char* name, point3 pos, const char* filepath, const char* materialName, bool use_mtl, bool use_smoothing, const char* group)
+
+scene_builder& scene_builder::addMesh(const char* name, point3 pos, const char* filepath, const char* materialName, bool use_mtl, bool use_smoothing, const char* groupName)
 {
-    auto mesh = scene_factory::createMesh(name, pos, filepath, fetchMaterial(materialName), use_mtl, use_smoothing);
+    //auto mesh = scene_factory::createMesh(name, pos, filepath, fetchMaterial(materialName), use_mtl, use_smoothing);
 
-    if (group != nullptr && group[0] != '\0')
-    {
-        auto it = this->m_groups.find(group);
+    //if (groupName != nullptr && groupName[0] != '\0')
+    //{
+    //    auto it = this->m_groups.find(groupName);
 
-        if (it != this->m_groups.end())
-        {
-            // if key is found
-            hittable_list* grp = it->second;
-            if (grp)
-            {
-                grp->add(mesh);
-            }
-        }
-        else
-        {
-            // if key is not found
-            this->m_groups.emplace(group, new hittable_list(mesh));
-        }
-    }
-    else
-    {
-        this->m_objects.add(mesh);
-    }
+    //    if (it != this->m_groups.end())
+    //    {
+    //        // if key is found
+    //        hittable_list* grp = it->second;
+    //        if (grp)
+    //        {
+    //            grp->add(mesh);
+    //        }
+    //    }
+    //    else
+    //    {
+    //        // if key is not found
+    //        this->m_groups.emplace(groupName, new hittable_list(mesh));
+    //    }
+    //}
+    //else
+    //{
+    //    this->m_objects.add(mesh);
+    //}
 
 	return *this;
 }
@@ -1335,179 +1584,179 @@ scene_builder& scene_builder::addGroup(const char* name, bool& isUsed)
 {
     isUsed = false;
     
-    auto it = this->m_groups.find(name);
+    //auto it = this->m_groups.find(name);
 
-    if (it != this->m_groups.end())
-    {
-        hittable_list* group_objects = it->second;
-        if (group_objects)
-        {
-            // ?????????????????????????
-            int seed = 7896333;
-            thrust::minstd_rand rng(seed);
+    //if (it != this->m_groups.end())
+    //{
+    //    hittable_list* group_objects = it->second;
+    //    if (group_objects)
+    //    {
+    //        // ?????????????????????????
+    //        int seed = 7896333;
+    //        thrust::minstd_rand rng(seed);
 
-            
-            auto bvh_group = new bvh_node(group_objects->objects, 0, group_objects->object_count, rng, name);
-            this->m_objects.add(bvh_group);
+    //        
+    //        auto bvh_group = new bvh_node(group_objects->objects, 0, group_objects->object_count, rng, name);
+    //        this->m_objects.add(bvh_group);
 
-            isUsed = true;
-        }
-    }
+    //        isUsed = true;
+    //    }
+    //}
     
     return *this;
 }
 
 scene_builder& scene_builder::translate(const vector3& vector, const char* name)
 {
-    if (name != nullptr && name[0] != '\0')
-    {
-        hittable* found = this->m_objects.get(name);
-        if (found)
-        {
-            found = new rt::translate(found, vector);
-        }
-        else
-        {
-            // search in groups
-            for (auto& group : this->m_groups)
-            {
-                hittable* found2 = group.second->get(name);
-                if (found2)
-                {
-                    found2 = new rt::translate(found2, vector);
-                    break;
-                }
-            }
-        }
-    }
-    else
-    {
-        hittable* back = this->m_objects.back();
-        std::string n = back->getName();
-        if (n == name)
-        {
-            hittable* tmp = this->m_objects.back();
-            tmp = new rt::translate(back, vector);
-        }
-    }
+    //if (name != nullptr && name[0] != '\0')
+    //{
+    //    hittable* found = this->m_objects.get(name);
+    //    if (found)
+    //    {
+    //        found = new rt::translate(found, vector);
+    //    }
+    //    else
+    //    {
+    //        // search in groups
+    //        for (auto& group : this->m_groups)
+    //        {
+    //            hittable* found2 = group.second->get(name);
+    //            if (found2)
+    //            {
+    //                found2 = new rt::translate(found2, vector);
+    //                break;
+    //            }
+    //        }
+    //    }
+    //}
+    //else
+    //{
+    //    hittable* back = this->m_objects.back();
+    //    std::string n = back->getName();
+    //    if (n == name)
+    //    {
+    //        hittable* tmp = this->m_objects.back();
+    //        tmp = new rt::translate(back, vector);
+    //    }
+    //}
 
     return *this;
 }
 
 scene_builder& scene_builder::rotate(const vector3& vector, const char* name)
 {
-    if (name != nullptr && name[0] != '\0')
-    {
-        hittable* found = this->m_objects.get(name);
-        if (found)
-        {
-            found = new rt::rotate(found, vector);
-        }
-        else
-        {
-            // search in groups
-            for (auto& group : this->m_groups)
-            {
-                hittable* found2 = group.second->get(name);
-                if (found2)
-                {
-                    found2 = new rt::rotate(found2, vector);
-                    break;
-                }
-            }
-        }
-    }
-    else
-    {
-        hittable* back = this->m_objects.back();
-        char* n = back->getName();
-        if (n == name)
-        {
-            hittable* tmp = this->m_objects.back();
-            tmp = new rt::rotate(back, vector);
-        }
-    }
+    //if (name != nullptr && name[0] != '\0')
+    //{
+    //    hittable* found = this->m_objects.get(name);
+    //    if (found)
+    //    {
+    //        found = new rt::rotate(found, vector);
+    //    }
+    //    else
+    //    {
+    //        // search in groups
+    //        for (auto& group : this->m_groups)
+    //        {
+    //            hittable* found2 = group.second->get(name);
+    //            if (found2)
+    //            {
+    //                found2 = new rt::rotate(found2, vector);
+    //                break;
+    //            }
+    //        }
+    //    }
+    //}
+    //else
+    //{
+    //    hittable* back = this->m_objects.back();
+    //    char* n = back->getName();
+    //    if (n == name)
+    //    {
+    //        hittable* tmp = this->m_objects.back();
+    //        tmp = new rt::rotate(back, vector);
+    //    }
+    //}
 
     return *this;
 }
 
 scene_builder& scene_builder::scale(const vector3& vector, const char* name)
 {
-    if (name != nullptr && name[0] != '\0')
-    {
-        hittable* found = this->m_objects.get(name);
-        if (found)
-        {
-            found = new  rt::scale(found, vector);
-        }
-        else
-        {
-            // search in groups
-            for (auto& group : this->m_groups)
-            {
-                hittable* found2 = group.second->get(name);
-                if (found2)
-                {
-                    found2 = new rt::scale(found2, vector);
-                    break;
-                }
-            }
-        }
-    }
-    else
-    {
-        hittable* back = this->m_objects.back();
-        std::string n = back->getName();
-        if (n == name)
-        {
-            hittable* tmp = this->m_objects.back();
-            tmp= new rt::scale(back, vector);
-        }
-    }
+    //if (name != nullptr && name[0] != '\0')
+    //{
+    //    hittable* found = this->m_objects.get(name);
+    //    if (found)
+    //    {
+    //        found = new  rt::scale(found, vector);
+    //    }
+    //    else
+    //    {
+    //        // search in groups
+    //        for (auto& group : this->m_groups)
+    //        {
+    //            hittable* found2 = group.second->get(name);
+    //            if (found2)
+    //            {
+    //                found2 = new rt::scale(found2, vector);
+    //                break;
+    //            }
+    //        }
+    //    }
+    //}
+    //else
+    //{
+    //    hittable* back = this->m_objects.back();
+    //    std::string n = back->getName();
+    //    if (n == name)
+    //    {
+    //        hittable* tmp = this->m_objects.back();
+    //        tmp= new rt::scale(back, vector);
+    //    }
+    //}
 
     return *this;
 }
 
-material* scene_builder::fetchMaterial(const char* name)
-{
-    if (name != nullptr && name[0] != '\0')
-    {
-        auto it = this->m_materials.find(name);
-
-        if (it != this->m_materials.end())
-        {
-            // if key is found
-            return it->second;
-        }
-        else
-        {
-            // if key is not found
-            std::cerr << "[WARN] Material " << name << " not found !" << std::endl;
-            return nullptr;
-        }
-    }
-
-    return nullptr;
-}
-
-texture* scene_builder::fetchTexture(const char* name)
-{
-    if (name != nullptr && name[0] != '\0')
-    {
-        auto it = this->m_textures.find(name);
-
-        if (it != this->m_textures.end())
-        {
-            // if key is found
-            return it->second;
-        }
-        else
-        {
-            // if key is not found
-            std::cerr << "[WARN] Texture " << name << " not found !" << std::endl;
-            return nullptr;
-        }
-    }
-
-    return nullptr;
-}
+//material* scene_builder::fetchMaterial(const char* name)
+//{
+//    if (name != nullptr && name[0] != '\0')
+//    {
+//        auto it = this->m_materials.find(name);
+//
+//        if (it != this->m_materials.end())
+//        {
+//            // if key is found
+//            return it->second;
+//        }
+//        else
+//        {
+//            // if key is not found
+//            std::cerr << "[WARN] Material " << name << " not found !" << std::endl;
+//            return nullptr;
+//        }
+//    }
+//
+//    return nullptr;
+//}
+//
+//texture* scene_builder::fetchTexture(const char* name)
+//{
+//    if (name != nullptr && name[0] != '\0')
+//    {
+//        auto it = this->m_textures.find(name);
+//
+//        if (it != this->m_textures.end())
+//        {
+//            // if key is found
+//            return it->second;
+//        }
+//        else
+//        {
+//            // if key is not found
+//            std::cerr << "[WARN] Texture " << name << " not found !" << std::endl;
+//            return nullptr;
+//        }
+//    }
+//
+//    return nullptr;
+//}
