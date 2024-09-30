@@ -4,7 +4,7 @@
 
 
 
-#include "utilities/mesh_loader.cuh"
+//#include "utilities/mesh_loader.cuh"
 
 
 
@@ -28,41 +28,41 @@
 class scene_factory
 {
 public:
-	__device__ scene_factory() = delete;
+    __host__ __device__ scene_factory() = delete;
 
-	__device__ static hittable* createBox(const char* name, const point3& p0, const point3& p1, material* material, const uvmapping& uv);
+    __host__ __device__ static hittable* createBox(const char* name, const point3& p0, const point3& p1, material* material, const uvmapping& uv);
 
-	__device__ static hittable* createCylinder(const char* name, const point3& center, float radius, float height, material* material, const uvmapping& uv);
+    __host__ __device__ static hittable* createCylinder(const char* name, const point3& center, float radius, float height, material* material, const uvmapping& uv);
 
-	__device__ static hittable* createSphere(const char* name, const point3& center, float radius, material* material, const uvmapping& uv);
+    __host__ __device__ static hittable* createSphere(const char* name, const point3& center, float radius, material* material, const uvmapping& uv);
 
-	__device__ static hittable* createCone(const char* name, const point3& center, float height, float radius, material* material, const uvmapping& uv);
+    __host__ __device__ static hittable* createCone(const char* name, const point3& center, float height, float radius, material* material, const uvmapping& uv);
 
-	__device__ static hittable* createDisk(const char* name, const point3& center, float height, float radius, material* material, const uvmapping& uv);
+    __host__ __device__ static hittable* createDisk(const char* name, const point3& center, float height, float radius, material* material, const uvmapping& uv);
 
-	__device__ static hittable* createTorus(const char* name, const point3& center, float major_radius, float minor_radius, material* material, const uvmapping& uv);
+    __host__ __device__ static hittable* createTorus(const char* name, const point3& center, float major_radius, float minor_radius, material* material, const uvmapping& uv);
 
-	__device__ static hittable* createQuad(const char* name, const point3& position, const vector3 u, const vector3 v, material* material, const uvmapping& uv);
+    __host__ __device__ static hittable* createQuad(const char* name, const point3& position, const vector3 u, const vector3 v, material* material, const uvmapping& uv);
 
-	__device__ static hittable* createPlane(const char* name, const point3& p0, point3 p1, material* material, const uvmapping& uv);
+    __host__ __device__ static hittable* createPlane(const char* name, const point3& p0, point3 p1, material* material, const uvmapping& uv);
 
-	__device__ static hittable* createVolume(const char* name, hittable* boundary, float density, texture* texture);
+    __host__ __device__ static hittable* createVolume(const char* name, hittable* boundary, float density, texture* texture);
 
-	__device__ static hittable* createVolume(const char* name, hittable* boundary, float density, const color& rgb);
+    __host__ __device__ static hittable* createVolume(const char* name, hittable* boundary, float density, const color& rgb);
 
-	__device__ static hittable* createMesh(const char* name, const point3& center, const char* filepath, material* material, const bool use_mtl, const bool use_smoothing);
+    __host__ __device__ static hittable* createMesh(const char* name, const point3& center, const char* filepath, material* material, const bool use_mtl, const bool use_smoothing);
 
-	__device__ static hittable* createDirectionalLight(const char* name, const point3& pos, const vector3& u, const vector3& v, float intensity, color rgb, bool invisible);
+    __host__ __device__ static hittable* createDirectionalLight(const char* name, const point3& pos, const vector3& u, const vector3& v, float intensity, color rgb, bool invisible);
 
-	__device__ static hittable* createOmniDirectionalLight(const char* name, const point3& pos, float radius, float intensity, color rgb, bool invisible);
+    __host__ __device__ static hittable* createOmniDirectionalLight(const char* name, const point3& pos, float radius, float intensity, color rgb, bool invisible);
 
-	__device__ static hittable* createSpotLight(const char* name, const point3& pos, const vector3& dir, float cutoff, float falloff, float intensity, float radius, color rgb, bool invisible);
+    __host__ __device__ static hittable* createSpotLight(const char* name, const point3& pos, const vector3& dir, float cutoff, float falloff, float intensity, float radius, color rgb, bool invisible);
 };
 
 
 
 
-__device__ hittable* scene_factory::createBox(
+__host__ __device__ hittable* scene_factory::createBox(
         const char* name,
         const point3 &p0,
         const point3 &p1,
@@ -72,7 +72,7 @@ __device__ hittable* scene_factory::createBox(
     return new box(p0, p1, material, uv, name);
 }
 
-__device__ hittable* scene_factory::createCylinder(
+__host__ __device__ hittable* scene_factory::createCylinder(
         const char* name,
         const point3 &center,
         float radius,
@@ -83,7 +83,7 @@ __device__ hittable* scene_factory::createCylinder(
     return new cylinder(center, radius, height, material, uv);
 }
 
-__device__ hittable* scene_factory::createDisk(
+__host__ __device__ hittable* scene_factory::createDisk(
         const char* name,
         const point3& center,
         float radius,
@@ -94,7 +94,7 @@ __device__ hittable* scene_factory::createDisk(
     return new disk(center, radius, height, material, uv);
 }
 
-__device__ hittable* scene_factory::createTorus(
+__host__ __device__ hittable* scene_factory::createTorus(
         const char* name,
         const point3& center,
         float major_radius,
@@ -105,7 +105,7 @@ __device__ hittable* scene_factory::createTorus(
     return new torus(center, major_radius, minor_radius, material, uv);
 }
 
-__device__ hittable* scene_factory::createSphere(
+__host__ __device__ hittable* scene_factory::createSphere(
         const char* name,
         const point3& center,
         float radius,
@@ -115,7 +115,7 @@ __device__ hittable* scene_factory::createSphere(
     return new sphere(center, radius, material, uv, name);
 }
 
-__device__ hittable* scene_factory::createCone(
+__host__ __device__ hittable* scene_factory::createCone(
         const char* name,
         const point3& center,
         float height,
@@ -126,7 +126,7 @@ __device__ hittable* scene_factory::createCone(
     return new cone(center, radius, height, material, uv, name);
 }
 
-__device__ hittable* scene_factory::createPlane(
+__host__ __device__ hittable* scene_factory::createPlane(
     const char* name,
     const point3 &p0,
     point3 p1,
@@ -166,10 +166,10 @@ __device__ hittable* scene_factory::createPlane(
         return new xy_rect(x0, x1, y0, y1, z, material, uv);
     }
 
-    throw std::runtime_error("a plane should always be created aligned to one of the x, y, or z axes");
+    return nullptr;
 }
 
-__device__ hittable* scene_factory::createQuad(
+__host__ __device__ hittable* scene_factory::createQuad(
     const char* name,
     const point3& position,
     const vector3 u,
@@ -180,7 +180,7 @@ __device__ hittable* scene_factory::createQuad(
     return new quad(position, u, v, material, uv, name);
 }
 
-__device__ hittable* scene_factory::createVolume(
+__host__ __device__ hittable* scene_factory::createVolume(
     const char* name,
     hittable* boundary,
     float density,
@@ -189,7 +189,7 @@ __device__ hittable* scene_factory::createVolume(
     return new volume(boundary, density, texture, name);
 }
 
-__device__ hittable* scene_factory::createVolume(
+__host__ __device__ hittable* scene_factory::createVolume(
     const char* name,
     hittable* boundary,
     float density,
@@ -198,7 +198,7 @@ __device__ hittable* scene_factory::createVolume(
     return new volume(boundary, density, rgb, name);
 }
 
-__device__ hittable* scene_factory::createMesh(
+__host__ __device__ hittable* scene_factory::createMesh(
     const char* name,
 	const point3& center,
 	const char* filepath,
@@ -218,17 +218,17 @@ __device__ hittable* scene_factory::createMesh(
     return mesh;
 }
 
-__device__ hittable* scene_factory::createDirectionalLight(const char* name, const point3& pos, const vector3& u, const vector3& v, float intensity, color rgb, bool invisible)
+__host__ __device__ hittable* scene_factory::createDirectionalLight(const char* name, const point3& pos, const vector3& u, const vector3& v, float intensity, color rgb, bool invisible)
 {
     return new directional_light(pos, u, v, intensity, rgb, name, invisible);
 }
 
-__device__ hittable* scene_factory::createOmniDirectionalLight(const char* name, const point3& pos, float radius, float intensity, color rgb, bool invisible)
+__host__ __device__ hittable* scene_factory::createOmniDirectionalLight(const char* name, const point3& pos, float radius, float intensity, color rgb, bool invisible)
 {
     return new omni_light(pos, radius, intensity, rgb, name, invisible);
 }
 
-__device__ hittable* scene_factory::createSpotLight(const char* name, const point3& pos, const vector3& dir, float cutoff, float falloff, float intensity, float radius, color rgb, bool invisible)
+__host__ __device__ hittable* scene_factory::createSpotLight(const char* name, const point3& pos, const vector3& dir, float cutoff, float falloff, float intensity, float radius, color rgb, bool invisible)
 {
     return new spot_light(pos, dir, cutoff, falloff, intensity, radius, rgb, name, invisible);
 }

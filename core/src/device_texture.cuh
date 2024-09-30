@@ -8,10 +8,10 @@ public:
 	const char* name = nullptr;
 	texture* value = nullptr;
 	
-	__device__ device_texture()
+	__host__ __device__ device_texture()
 	{
 
 	}
 
-	__device__ ~device_texture() = default;
+	__host__ __device__ ~device_texture() = default;
 };

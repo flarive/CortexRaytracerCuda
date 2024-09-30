@@ -126,7 +126,7 @@ void check_cuda(cudaError_t result, char const* const func, const char* const fi
     }
 }
 
-__global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittable_list **elights,  camera **cam, sampler **aa_sampler, int width, int height, float ratio, int spp, int sqrt_spp, image_texture** texture, int seed)
+__global__ void load_scene(sceneConfig* sceneCfg, scene_composer* composer, hittable_list **elist, hittable_list **elights,  camera **cam, sampler **aa_sampler, int width, int height, float ratio, int spp, int sqrt_spp, image_texture** texture, int seed)
 {
     if (threadIdx.x == 0 && blockIdx.x == 0)
     {
@@ -135,11 +135,13 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
         thrust::uniform_real_distribution<float> uniform_dist(0.0f, 1.0f);
 
 
-        //*myscene = new scene();
-
         *elights = new hittable_list();
 
         *elist = new hittable_list();
+
+
+
+
 
         // LIGHTS
         printf("[GPU] %i omni lights found\n", sceneCfg->lightsCfg.omniLightCount);
@@ -282,6 +284,8 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
         for (int i = 0; i < sceneCfg->materialsCfg.lambertianMaterialCount; i++)
         {
             lambertianMaterialConfig lambertianMaterial = sceneCfg->materialsCfg.lambertianMaterials[i];
+            composer->addLambertianMaterial(lambertianMaterial);
+
             printf("[GPU] lambertianMaterial%d %s %g/%g/%g %s\n", i,
                 lambertianMaterial.name,
                 lambertianMaterial.rgb.r(), lambertianMaterial.rgb.g(), lambertianMaterial.rgb.b(),
@@ -359,6 +363,8 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
         for (int i = 0; i < sceneCfg->primitivesCfg.spherePrimitiveCount; i++)
         {
             spherePrimitiveConfig spherePrimitive = sceneCfg->primitivesCfg.spherePrimitives[i];
+            composer->addSphere(spherePrimitive);
+
             printf("[GPU] spherePrimitive%d %s %g/%g/%g %g/%g %g/%g %g/%g %g %s %s\n", i,
                 spherePrimitive.name,
                 spherePrimitive.position.x, spherePrimitive.position.y, spherePrimitive.position.z,
@@ -373,6 +379,8 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
         for (int i = 0; i < sceneCfg->primitivesCfg.planePrimitiveCount; i++)
         {
             planePrimitiveConfig planePrimitive = sceneCfg->primitivesCfg.planePrimitives[i];
+            composer->addPlane(planePrimitive);
+
             printf("[GPU] planePrimitive%d %s %g/%g/%g %g/%g/%g %g/%g %g/%g %g/%g %s %s\n", i,
                 planePrimitive.name,
                 planePrimitive.point1.x, planePrimitive.point1.y, planePrimitive.point1.z,
@@ -387,6 +395,8 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
         for (int i = 0; i < sceneCfg->primitivesCfg.quadPrimitiveCount; i++)
         {
             quadPrimitiveConfig quadPrimitive = sceneCfg->primitivesCfg.quadPrimitives[i];
+            composer->addQuad(quadPrimitive);
+
             printf("[GPU] quadPrimitive%d %s %g/%g/%g %g/%g/%g %g/%g/%g %g/%g %g/%g %g/%g %s %s\n", i,
                 quadPrimitive.name,
                 quadPrimitive.position.x, quadPrimitive.position.y, quadPrimitive.position.z,
@@ -487,26 +497,35 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
 
 
 
+        hittable_list obj = composer->getObjects();
+        for (int w = 0; w < obj.object_count; w++)
+        {
+            auto sss = obj.objects[w];
+            (*elist)->add(sss);
+        }
 
 
-        (*elist)->add(new rt::flip_normals(new yz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(color(0.12, 0.45, 0.15))), "MyLeft")));
-        (*elist)->add(new yz_rect(0, 555, 0, 555, 0, new lambertian(new solid_color_texture(color(0.65, 0.05, 0.05))), "MyRight"));
-        (*elist)->add(new xz_rect(0, 555, 0, 555, 0, new lambertian(new solid_color_texture(color(0.73, 0.73, 0.73))), "MyGround"));
-        (*elist)->add(new rt::flip_normals(new xz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(color(0.73, 0.73, 0.73))), "MyTop")));
-        (*elist)->add(new rt::flip_normals(new xz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(color(0.73, 0.73, 0.73))), "MyBottom")));
+        
+
+
+
+
+        //(*elist)->add(new rt::flip_normals(new yz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(color(0.12, 0.45, 0.15))), "MyLeft")));
+        //(*elist)->add(new yz_rect(0, 555, 0, 555, 0, new lambertian(new solid_color_texture(color(0.65, 0.05, 0.05))), "MyRight"));
+        //(*elist)->add(new xz_rect(0, 555, 0, 555, 0, new lambertian(new solid_color_texture(color(0.73, 0.73, 0.73))), "MyGround"));
+        //(*elist)->add(new rt::flip_normals(new xz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(color(0.73, 0.73, 0.73))), "MyTop")));
+        //(*elist)->add(new rt::flip_normals(new xz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(color(0.73, 0.73, 0.73))), "MyBottom")));
         
         // back
-        (*elist)->add(new quad(point3(0,0,555), vector3(555,0,0), vector3(0,555,0), new lambertian(new solid_color_texture(color(0.73, 0.73, 0.73))), "MyBack"));
+        //(*elist)->add(new quad(point3(0,0,555), vector3(555,0,0), vector3(0,555,0), new lambertian(new solid_color_texture(color(0.73, 0.73, 0.73))), "MyBack"));
 
 
         // box
         (*elist)->add(new rt::translate(new box(point3(0.0f, 0.0f, 200.0f), vector3(165, 330, 165), new lambertian(*texture), "MyBox"), vector3(120,0,320)));
         
         // sphere
-        (*elist)->add(new sphere(point3(350.0f, 50.0f, 295.0f), 100.0f, new lambertian(*texture), "MySphere"));
+        //(*elist)->add(new sphere(point3(350.0f, 50.0f, 295.0f), 100.0f, new lambertian(*texture), "MySphere"));
 
-        // torus
-        //(*elist)->add(new torus(point3(200.0f, 50.0f, 295.0f), 3.0f, 1.0f, new lambertian(*texture), "MyTorus"));
 
         // light
         (*elist)->add(new directional_light(point3(278, 554, 332), vector3(-305, 0, 0), vector3(0, 0, -305), 1.0f, color(10.0, 10.0, 10.0), "MyLight", true));
@@ -1495,9 +1514,19 @@ void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int widt
 
 
 
+    //scene_composer* h_composer = new scene_composer();  // Initialize scene composer
+    //scene_composer** d_composer;
+    //checkCudaErrors(cudaMalloc((void**)&d_composer, sizeof(scene_composer*)));
+    //cudaMemcpy(d_composer, &h_composer, sizeof(scene_composer*), cudaMemcpyHostToDevice);
 
 
-    // Building the world
+    scene_composer* d_composer;
+
+    // Allocate memory on the device for the top-level `sceneConfig` struct
+    cudaMalloc((void**)&d_composer, sizeof(sceneConfig));
+
+
+    // World
     hittable_list **elist;
     checkCudaErrors(cudaMalloc((void**)&elist, sizeof(hittable_list*)));
 
@@ -1513,7 +1542,9 @@ void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int widt
 
 
 
-    load_scene<<<single_block, single_thread>>>(d_sceneCfg, elist, elights, cam, aa_sampler, width, height, ratio, spp, sqrt_spp, texture, 1984);
+
+
+    load_scene<<<single_block, single_thread>>>(d_sceneCfg, d_composer, elist, elights, cam, aa_sampler, width, height, ratio, spp, sqrt_spp, texture, 1984);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 

@@ -8,10 +8,14 @@ public:
 	const char* name = nullptr;
 	material* value = nullptr;
 	
-	__device__ device_material()
+	__host__ __device__ device_material()
 	{
-
 	}
 
-	__device__ ~device_material() = default;
+	__host__ __device__ device_material(const char* _name, material* _value)
+		: name(_name), value(_value)
+	{
+	}
+
+	__host__ __device__ ~device_material() = default;
 };

@@ -8,10 +8,10 @@ public:
 	const char* name = nullptr;
 	hittable_list* value = nullptr;
 
-	__device__ device_group()
+	__host__ __device__ device_group()
 	{
 
 	}
 
-	__device__ ~device_group() = default;
+	__host__ __device__ ~device_group() = default;
 };
