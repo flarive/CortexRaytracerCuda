@@ -141,7 +141,7 @@ __host__ __device__ hittable* scene_factory::createPlane(
         float z0 = p0.z < p1.z ? p0.z : p1.z;
         float z1 = p0.z < p1.z ? p1.z : p0.z;
 
-        return new yz_rect(y0, y1, z0, z1, x, material, uv);
+        return new yz_rect(y0, y1, z0, z1, x, material, uv, name);
     }
 
     if (p0.y == p1.y)
@@ -152,7 +152,7 @@ __host__ __device__ hittable* scene_factory::createPlane(
         float z0 = p0.z < p1.z ? p0.z : p1.z;
         float z1 = p0.z < p1.z ? p1.z : p0.z;
 
-        return new xz_rect(x0, x1, z0, z1, y, material, uv);
+        return new xz_rect(x0, x1, z0, z1, y, material, uv, name);
     }
 
     if (p0.z == p1.z)
@@ -163,7 +163,7 @@ __host__ __device__ hittable* scene_factory::createPlane(
         float y0 = p0.y < p1.y ? p0.y : p1.y;
         float y1 = p0.y < p1.y ? p1.y : p0.y;
 
-        return new xy_rect(x0, x1, y0, y1, z, material, uv);
+        return new xy_rect(x0, x1, y0, y1, z, material, uv, name);
     }
 
     return nullptr;

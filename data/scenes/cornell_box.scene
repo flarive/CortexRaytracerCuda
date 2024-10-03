@@ -35,65 +35,6 @@ lights:
             intensity = 1.5;
             color = { r = 15.0; g = 15.0; b = 15.0; };
             invisible = true;
-        },
-        {
-            name = "QuadLight2";
-            position = { x = 278.0; y = 554.0; z = 332.0; };
-            u = { x = -130.0; y = 0.0; z = 0.0; };
-            v = { x = 0.0; y = 0.0; z = -105.0; };
-            intensity = 2.8;
-            color = { r = 15.0; g = 15.0; b = 15.0; };
-            invisible = true;
-        }
-    ),
-    omnis: (
-        {
-            name = "MyOmniLight1";
-            position = { x = 0.0; y = 8.0; z = 5.0; };
-            radius = 3.0;
-            intensity = 2.0;
-            color = { r = 1.0; g = 1.0; b = 1.0; };
-            invisible = true;
-        },
-        {
-            name = "MyOmniLight2";
-            position = { x = 0.0; y = 8.0; z = 5.0; };
-            radius = 4.0;
-            intensity = 2.0;
-            color = { r = 1.0; g = 1.0; b = 1.0; };
-            invisible = true;
-        },
-        {
-            name = "MyOmniLight3";
-            position = { x = 0.0; y = 8.0; z = 5.0; };
-            radius = 5.0;
-            intensity = 2.0;
-            color = { r = 1.0; g = 1.0; b = 1.0; };
-            invisible = true;
-        }
-    ),
-    spots: (
-        {
-            name = "SpotLight1";
-            position = { x = 0.0; y = 5.0; z = 0.0; };
-            direction = { x = 0.0; y = 1.0; z = 0.0; };
-            cutoff = 50.0;
-            falloff = 0.0;
-            intensity = 8.0;
-            radius = 0.5;
-            color = { r = 4.0; g = 4.0; b = 4.0; };
-            invisible = false;
-        },
-        {
-            name = "SpotLight2";
-            position = { x = 0.0; y = 5.0; z = 0.0; };
-            direction = { x = 0.0; y = 1.0; z = 0.0; };
-            cutoff = 50.0;
-            falloff = 0.0;
-            intensity = 16.0;
-            radius = 0.5;
-            color = { r = 4.0; g = 4.0; b = 4.0; };
-            invisible = false;
         }
     )
 }
@@ -104,81 +45,12 @@ textures:
         {
             name = "groud_texture";
             scale = 4.0;
-        },
-        {
-            name = "groud_texture2";
-            scale = 8.0;
         }
     ),
     solidColor: (
         {
             name = "white_texture";
             color = { r = 0.73; g = 0.73; b = 0.73; };
-        },
-        {
-            name = "white_texture2";
-            color = { r = 0.13; g = 0.73; b = 0.73; };
-        }
-    ),
-    gradientColor: (
-        {
-            name = "gradient_color_texture";
-            color1 = { r = 1.0; g = 0.0; b = 0.0; };
-            color2 = { r = 0.0; g = 1.0; b = 1.0; };
-            vertical = true;
-            hsv = false;
-        },
-        {
-            name = "gradient_color_texture2";
-            color1 = { r = 1.0; g = 0.0; b = 0.0; };
-            color2 = { r = 0.0; g = 1.0; b = 1.0; };
-            vertical = false;
-            hsv = true;
-        }
-    ),
-    checker: (
-        {
-            name = "checker_image_texture";
-            oddTextureName = "image_texture_1";
-            evenTextureName = "image_texture_2";
-            scale = 0.3;
-        },
-        {
-            name = "checker_color_texture";
-            oddColor = { r = 1.0; g = 1.0; b = 1.0; };
-            evenColor = { r = 0.0; g = 0.0; b = 0.0; };
-            scale = 0.2;
-        }
-    ),
-    image: (
-        {
-            name = "angel_diffuse_texture";
-            filepath = "../../data/models/angel_diffuse.jpg";
-        },
-        {
-            name = "angel_specular_texture";
-            filepath = "../../data/models/angel_specular.jpg";
-        }
-    ),
-    bump: (
-        {
-            name = "angel_bump_texture";
-            filepath = "../../data/models/angel_bump.jpg";
-            strength = 5.0;
-        }
-    ),
-    normal: (
-        {
-            name = "angel_normal_texture";
-            filepath = "../../data/models/angel_normal.jpg";
-            strength = 1.0;
-        }
-    ),
-    displacement: (
-        {
-            name = "angel_displacement_texture";
-            filepath = "../../data/models/angel_displacement.jpg";
-            strength = 11.0;
         }
     )
 }
@@ -196,7 +68,7 @@ materials:
         },
         {
             name = "white_material";
-            texture = "white_texture";
+            color = { r = 1.0; g = 1.0; b = 1.0; };
         }
     )
 }
@@ -240,55 +112,6 @@ primitives:
             u = { x = 555.0; y = 0.0; z = 0.0; };
             v = { x = 0.0; y = 555.0; z = 0.0; };
             material = "white_material";
-        }
-    );
-
-    # List of spheres
-    spheres: (
-        
-        {
-            name = "MySphere1"
-            position = { x = -3.3; y = 0.0; z = -1.0; };
-            radius = 0.5;
-            material = "red_material";
-            uvmapping = { scale_u = 1.0; scale_v = 1.0; offset_u = 0.0; offset_v = 0.0; repeat_u = 2.0; repeat_v = 2.0; };
-        },
-        {
-            name = "MySphere2"
-            position = { x = -2.2; y = 0.0; z = -1.0; };
-            radius = 0.5;
-            material = "red_material";
-            uvmapping = { scale_u = 11.0; scale_v = 11.0; offset_u = 4.0; offset_v = 4.0; repeat_u = 22.0; repeat_v = 22.0; };
-        },
-        {
-            name = "MySphere3"
-            position = { x = -1.1; y = 0.0; z = -1.0; };
-            radius = 0.5;
-            material = "red_material";
-        },
-        {
-            name = "MySphere4"
-            position = { x = 0.0; y = 0.0; z = -1.0; };
-            radius = 0.5;
-            material = "red_material";
-        },
-        {
-            name = "MySphere5"
-            position = { x = 1.1; y = 0.0; z = -1.0; };
-            radius = 0.5;
-            material = "red_material";
-        },
-        {
-            name = "MySphere6"
-            position = { x = 2.2; y = 0.0; z = -1.0; };
-            radius = 0.5;
-            material = "red_material";
-        },
-        {
-            name = "MySphere7"
-            position = { x = 3.3; y = 0.0; z = -1.0; };
-            radius = 0.5;
-            material = "red_material";
         }
     );
 

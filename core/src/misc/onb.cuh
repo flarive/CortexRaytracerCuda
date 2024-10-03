@@ -64,7 +64,7 @@ public:
 
 	__device__ void build_from_w(const vector3& n);
 
-	__device__ inline vector3 Normal() const
+	__host__ __device__ inline vector3 Normal() const
 	{
 		return w();
 	}

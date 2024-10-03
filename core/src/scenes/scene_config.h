@@ -190,34 +190,31 @@ typedef struct {
 
 
 
-
-
-
-typedef struct {
+struct materialConfig {
     const char* name;
+};
+
+
+struct lambertianMaterialConfig : public materialConfig {
     const char* textureName;
     color rgb;
-} lambertianMaterialConfig;
+};
 
-typedef struct {
-    const char* name;
+struct metalMaterialConfig : public materialConfig {
     color rgb;
     float fuzziness;
-} metalMaterialConfig;
+};
 
-typedef struct {
-    const char* name;
+struct dielectricMaterialConfig : public materialConfig {
     float refraction;
-} dielectricMaterialConfig;
+};
 
-typedef struct {
-    const char* name;
+struct isotropicMaterialConfig : public materialConfig {
     color rgb;
     const char* textureName;
-} isotropicMaterialConfig;
+};
 
-typedef struct {
-    const char* name;
+struct anisotropicMaterialConfig : public materialConfig {
     color rgb;
     float nuf;
     float nvf;
@@ -225,18 +222,16 @@ typedef struct {
     const char* specularTextureName;
     const char* exponentTextureName;
     float roughness;
-} anisotropicMaterialConfig;
+};
 
-typedef struct {
-    const char* name;
+struct orenNayarMaterialConfig : public materialConfig {
     color rgb;
     const char* textureName;
     float albedo_temp;
     float roughness;
-} orenNayarMaterialConfig;
+};
 
-typedef struct {
-    const char* name;
+struct phongMaterialConfig : public materialConfig {
     const char* diffuseTextureName;
     const char* specularTextureName;
     const char* bumpTextureName;
@@ -246,7 +241,7 @@ typedef struct {
     const char* emissiveTextureName;
     color ambientColor;
     float shininess;
-} phongMaterialConfig;
+};
 
 
 
