@@ -52,7 +52,13 @@ textures:
             name = "white_texture";
             color = { r = 0.73; g = 0.73; b = 0.73; };
         }
-    )
+    ),
+    image: (
+        {
+            name = "cow_diffuse_texture";
+            filepath = "e:\\uv_mapper_no_numbers.jpg";
+        }
+    ),
 }
 
 materials:
@@ -69,6 +75,10 @@ materials:
         {
             name = "white_material";
             color = { r = 1.0; g = 1.0; b = 1.0; };
+        },
+        {
+            name = "cow_diffuse_material";
+            texture = "cow_diffuse_texture";
         }
     )
 }
@@ -112,6 +122,16 @@ primitives:
             u = { x = 555.0; y = 0.0; z = 0.0; };
             v = { x = 0.0; y = 555.0; z = 0.0; };
             material = "white_material";
+        }
+    );
+
+    spheres: (
+        {
+            name = "Sphere1"
+            position = { x = 190.0; y = 90.0; z = 190.0; };
+            radius = 90.0;
+            material = "cow_diffuse_material";
+            active = true;
         }
     );
 

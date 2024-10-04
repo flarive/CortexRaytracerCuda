@@ -90,6 +90,12 @@ __host__ __device__ inline hittable* hittable_list::back()
 
 __host__ __device__ inline void hittable_list::add(hittable* e)
 {
+    if (e == nullptr)
+    {
+        printf("Cannot add null hittable object\n");
+        return;
+    }
+    
     if (object_capacity <= object_count)
     {
         hittable** new_list = new hittable*[object_count == 0 ? 2 : object_count * 2];

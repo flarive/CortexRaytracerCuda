@@ -112,7 +112,15 @@ __host__ __device__ hittable* scene_factory::createSphere(
         material* material,
         const uvmapping& uv)
 {
-    return new sphere(center, radius, material, uv, name);
+    sphere* obj = new sphere(center, radius, material, uv, name);
+
+    if (obj == nullptr)
+    {
+        printf("Error: create sphere is null.\n");
+        return nullptr;
+    }
+
+    return obj;
 }
 
 __host__ __device__ hittable* scene_factory::createCone(

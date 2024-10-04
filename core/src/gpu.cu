@@ -125,7 +125,17 @@ void check_cuda(cudaError_t result, char const* const func, const char* const fi
     }
 }
 
-__device__ texture* fetchTexture(sceneConfig* sceneCfg, const char* textureName)
+// move in cuda helpers
+__device__ int strcmp_device(const char* str1, const char* str2)
+{
+    while (*str1 && (*str1 == *str2)) {
+        str1++;
+        str2++;
+    }
+    return *(unsigned char*)str1 - *(unsigned char*)str2;
+}
+
+__device__ texture* fetchTexture(sceneConfig* sceneCfg, bitmap_image** images, const char* textureName)
 {
     for (int i = 0; i < sceneCfg->texturesCfg.solidColorTextureCount; i++)
     {
@@ -134,7 +144,7 @@ __device__ texture* fetchTexture(sceneConfig* sceneCfg, const char* textureName)
             solidColorTexture.name,
             solidColorTexture.rgb.r(), solidColorTexture.rgb.g(), solidColorTexture.rgb.b());
 
-        if (solidColorTexture.name == textureName)
+        if (strcmp_device(solidColorTexture.name, textureName) == 0)
         {
             return new solid_color_texture(solidColorTexture.rgb);
         }
@@ -150,7 +160,7 @@ __device__ texture* fetchTexture(sceneConfig* sceneCfg, const char* textureName)
             gradientColorTexture.vertical,
             gradientColorTexture.hsv);
 
-        if (gradientColorTexture.name == textureName)
+        if (strcmp_device(gradientColorTexture.name, textureName) == 0)
         {
             return new gradient_texture(gradientColorTexture.color1, gradientColorTexture.color2, gradientColorTexture.vertical, gradientColorTexture.hsv);
         }
@@ -163,9 +173,10 @@ __device__ texture* fetchTexture(sceneConfig* sceneCfg, const char* textureName)
             imageTexture.name,
             imageTexture.filepath);
 
-        if (imageTexture.name == textureName)
+        if (strcmp_device(imageTexture.name, textureName) == 0)
         {
-            //return new image_texture(imageTexture.filepath);
+            bitmap_image img = *(images[0]);
+            return new image_texture(img);
         }
     }
 
@@ -180,7 +191,7 @@ __device__ texture* fetchTexture(sceneConfig* sceneCfg, const char* textureName)
             checkerTexture.evenTextureName,
             checkerTexture.scale);
 
-        if (checkerTexture.name == textureName)
+        if (strcmp_device(checkerTexture.name, textureName) == 0)
         {
             return new checker_texture(checkerTexture.scale, checkerTexture.oddColor, checkerTexture.evenColor);
         }
@@ -193,7 +204,7 @@ __device__ texture* fetchTexture(sceneConfig* sceneCfg, const char* textureName)
             noiseTexture.name,
             noiseTexture.scale);
 
-        if (noiseTexture.name == textureName)
+        if (strcmp_device(noiseTexture.name, textureName) == 0)
         {
             return new perlin_noise_texture(noiseTexture.scale);
         }
@@ -207,7 +218,7 @@ __device__ texture* fetchTexture(sceneConfig* sceneCfg, const char* textureName)
             bumpTexture.filepath,
             bumpTexture.strength);
 
-        if (bumpTexture.name == textureName)
+        if (strcmp_device(bumpTexture.name, textureName) == 0)
         {
             //return new bump_texture(bumpTexture.filepath);
         }
@@ -221,7 +232,7 @@ __device__ texture* fetchTexture(sceneConfig* sceneCfg, const char* textureName)
             normalTexture.filepath,
             normalTexture.strength);
 
-        if (normalTexture.name == textureName)
+        if (strcmp_device(normalTexture.name, textureName) == 0)
         {
             //return new normal_texture(bumpTexture.filepath);
         }
@@ -235,7 +246,7 @@ __device__ texture* fetchTexture(sceneConfig* sceneCfg, const char* textureName)
             displacementTexture.filepath,
             displacementTexture.strength);
 
-        if (displacementTexture.name == textureName)
+        if (strcmp_device(displacementTexture.name, textureName) == 0)
         {
             //return new normal_texture(bumpTexture.filepath);
         }
@@ -249,7 +260,7 @@ __device__ texture* fetchTexture(sceneConfig* sceneCfg, const char* textureName)
             alphaTexture.filepath,
             alphaTexture.doubleSided);
 
-        if (alphaTexture.name == textureName)
+        if (strcmp_device(alphaTexture.name, textureName) == 0)
         {
             //return new alpha_texture(bumpTexture.filepath);
         }
@@ -263,23 +274,15 @@ __device__ texture* fetchTexture(sceneConfig* sceneCfg, const char* textureName)
             emissiveTexture.filepath,
             emissiveTexture.strength);
 
-        if (emissiveTexture.name == textureName)
+        if (strcmp_device(emissiveTexture.name, textureName) == 0)
         {
             //return new emissive_texture(bumpTexture.filepath);
         }
     }
 }
 
-__device__ int strcmp_device(const char* str1, const char* str2)
-{
-    while (*str1 && (*str1 == *str2)) {
-        str1++;
-        str2++;
-    }
-    return *(unsigned char*)str1 - *(unsigned char*)str2;
-}
 
-__device__ material* fetchMaterial(sceneConfig* sceneCfg, const char* materialName)
+__device__ material* fetchMaterial(sceneConfig* sceneCfg, bitmap_image** images, const char* materialName)
 {
     for (int i = 0; i < sceneCfg->materialsCfg.lambertianMaterialCount; i++)
     {
@@ -291,7 +294,18 @@ __device__ material* fetchMaterial(sceneConfig* sceneCfg, const char* materialNa
 
         if (strcmp_device(lambertianMaterial.name, materialName) == 0)
         {
-            return new lambertian(lambertianMaterial.rgb);
+            if (lambertianMaterial.textureName != nullptr && lambertianMaterial.textureName[0] != '\0')
+            {
+                texture* tex = fetchTexture(sceneCfg, images, lambertianMaterial.textureName);
+                if (tex)
+                {
+                    return new lambertian(tex);
+                }
+            }
+            else
+            {
+                return new lambertian(lambertianMaterial.rgb);
+            }
         }
     }
 
@@ -332,7 +346,7 @@ __device__ material* fetchMaterial(sceneConfig* sceneCfg, const char* materialNa
 
         if (strcmp_device(isotropicMaterial.name, materialName) == 0)
         {
-            if (isotropicMaterial.textureName)
+            if (isotropicMaterial.textureName != nullptr && isotropicMaterial.textureName[0] != '\0')
                 return new isotropic(isotropicMaterial.rgb);
             else
                 return new isotropic(isotropicMaterial.rgb);
@@ -395,7 +409,7 @@ __device__ material* fetchMaterial(sceneConfig* sceneCfg, const char* materialNa
     }
 }
 
-__global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittable_list **elights,  camera **cam, sampler **aa_sampler, int width, int height, float ratio, int spp, int sqrt_spp, image_texture** texture, int seed)
+__global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittable_list **elights,  camera **cam, sampler **aa_sampler, int width, int height, float ratio, int spp, int sqrt_spp, bitmap_image** images, int num_textures, int seed)
 {
     if (threadIdx.x == 0 && blockIdx.x == 0)
     {
@@ -407,6 +421,22 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
         *elights = new hittable_list();
 
         *elist = new hittable_list();
+
+
+
+
+        // TEXTURES DATA
+        // You can access individual textures like this:
+        // textures[0] -> first texture
+        // textures[1] -> second texture
+        // num_textures -> number of textures
+        // Example usage:
+        //for (int i = 0; i < num_textures; ++i)
+        //{
+        //    // Process each texture as needed
+        //    bitmap_image* current_texture = images[i];
+        //    // Use current_texture in the scene (e.g., for material or texture mapping)
+        //}
 
 
 
@@ -458,7 +488,7 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
         {
             spherePrimitiveConfig spherePrimitive = sceneCfg->primitivesCfg.spherePrimitives[i];
 
-            material* mat = fetchMaterial(sceneCfg, spherePrimitive.materialName);
+            material* mat = fetchMaterial(sceneCfg, images, spherePrimitive.materialName);
 
             if (mat)
                 (*elist)->add(scene_factory::createSphere(spherePrimitive.name, spherePrimitive.position, spherePrimitive.radius, mat, spherePrimitive.mapping));
@@ -478,7 +508,7 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
         {
             planePrimitiveConfig planePrimitive = sceneCfg->primitivesCfg.planePrimitives[i];
 
-            material* mat = fetchMaterial(sceneCfg, planePrimitive.materialName);
+            material* mat = fetchMaterial(sceneCfg, images, planePrimitive.materialName);
 
             if (mat)
                 (*elist)->add(scene_factory::createPlane(planePrimitive.name, planePrimitive.point1, planePrimitive.point2, mat, planePrimitive.mapping));
@@ -498,7 +528,7 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
         {
             quadPrimitiveConfig quadPrimitive = sceneCfg->primitivesCfg.quadPrimitives[i];
             
-            material* mat = fetchMaterial(sceneCfg, quadPrimitive.materialName);
+            material* mat = fetchMaterial(sceneCfg, images, quadPrimitive.materialName);
             
             if (mat)
                 (*elist)->add(scene_factory::createQuad(quadPrimitive.name, quadPrimitive.position, quadPrimitive.u, quadPrimitive.v, mat, quadPrimitive.mapping));
@@ -518,6 +548,13 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
         for (int i = 0; i < sceneCfg->primitivesCfg.boxPrimitiveCount; i++)
         {
             boxPrimitiveConfig boxPrimitive = sceneCfg->primitivesCfg.boxPrimitives[i];
+
+            material* mat = fetchMaterial(sceneCfg, images, boxPrimitive.materialName);
+
+            if (mat)
+                (*elist)->add(scene_factory::createBox(boxPrimitive.name, boxPrimitive.position, boxPrimitive.size, mat, boxPrimitive.mapping));
+
+
             printf("[GPU] boxPrimitive%d %s %g/%g/%g %g/%g/%g %g/%g %g/%g %g/%g %s %s\n", i,
                 boxPrimitive.name,
                 boxPrimitive.position.x, boxPrimitive.position.y, boxPrimitive.position.z,
@@ -627,7 +664,7 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
 
 
         // box
-        (*elist)->add(new rt::translate(new box(point3(0.0f, 0.0f, 200.0f), vector3(165, 330, 165), new lambertian(*texture), "MyBox"), vector3(120,0,320)));
+        (*elist)->add(new rt::translate(new box(point3(0.0f, 0.0f, 200.0f), vector3(165, 330, 165), new lambertian(new image_texture(*(images[0]))), "MyBox"), vector3(120,0,320)));
         
         // sphere
         //(*elist)->add(new sphere(point3(350.0f, 50.0f, 295.0f), 100.0f, new lambertian(*texture), "MySphere"));
@@ -673,10 +710,11 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
     }
 }
 
-__global__ void texture_init(unsigned char* tex_data, int width, int height, int channels, image_texture** tex)
+__global__ void texture_init(unsigned char* tex_data, int width, int height, int channels, bitmap_image** tex)
 {
-    if (threadIdx.x == 0 && blockIdx.x == 0) {
-        *tex = new image_texture(bitmap_image(tex_data, width, height, channels));
+    if (threadIdx.x == 0 && blockIdx.x == 0)
+    {
+        *tex = new bitmap_image(tex_data, width, height, channels);
     }
 }
 
@@ -1550,37 +1588,32 @@ void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int widt
     int sqrt_spp = static_cast<int>(sqrt(spp));
     
 
-
-    int bytes_per_pixel = 3;
-    int tex_x, tex_y, tex_n;
-    unsigned char *tex_data_host = stbi_load("e:\\uv_mapper_no_numbers.jpg", &tex_x, &tex_y, &tex_n, bytes_per_pixel);
-    if (!tex_data_host) {
-        std::cerr << "[ERROR] Failed to load texture." << std::endl;
-        return;
-    }
-
-    unsigned char *tex_data;
-    checkCudaErrors(cudaMallocManaged(&tex_data, tex_x * tex_y * tex_n * sizeof(unsigned char)));
-    checkCudaErrors(cudaMemcpy(tex_data, tex_data_host, tex_x * tex_y * tex_n * sizeof(unsigned char), cudaMemcpyHostToDevice));
-
-
-
     dim3 single_block(1, 1);
     dim3 single_thread(1, 1);
 
 
+    //int bytes_per_pixel = 3;
+    //int tex_x, tex_y, tex_n;
+    //unsigned char *tex_data_host = stbi_load("e:\\uv_mapper_no_numbers.jpg", &tex_x, &tex_y, &tex_n, bytes_per_pixel);
+    //if (!tex_data_host) {
+    //    std::cerr << "[ERROR] Failed to load texture." << std::endl;
+    //    return;
+    //}
 
-    image_texture**texture;
-    checkCudaErrors(cudaMalloc((void **)&texture, sizeof(image_texture*)));
-    texture_init<<<single_block, single_thread>>>(tex_data, tex_x, tex_y, tex_n, texture);
+    //unsigned char *tex_data;
+    //checkCudaErrors(cudaMallocManaged(&tex_data, tex_x * tex_y * tex_n * sizeof(unsigned char)));
+    //checkCudaErrors(cudaMemcpy(tex_data, tex_data_host, tex_x * tex_y * tex_n * sizeof(unsigned char), cudaMemcpyHostToDevice));
 
+    //image_texture** h_texture;
+    //checkCudaErrors(cudaMalloc((void **)&h_texture, sizeof(image_texture*)));
+    //texture_init<<<single_block, single_thread>>>(tex_data, tex_x, tex_y, tex_n, h_texture);
 
 
 
 
     // Allocating CUDA memory
-    color* image;
-    checkCudaErrors(cudaMallocManaged((void**)&image, width * height * sizeof(color)));
+    color* d_output;
+    checkCudaErrors(cudaMallocManaged((void**)&d_output, width * height * sizeof(color)));
 
 
     scene* world_device;
@@ -1588,7 +1621,44 @@ void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int widt
     //checkCudaErrors(cudaMemcpy(world_device, &world, sizeof(scene), cudaMemcpyHostToDevice));
 
 
+    int bytes_per_pixel = 3;
 
+    // Number of images (textures)
+    int num_textures = sceneCfg.texturesCfg.imageTextureCount;
+
+    // Allocate space for texture pointers on the device
+    bitmap_image** h_textures;
+    checkCudaErrors(cudaMalloc((void**)&h_textures, num_textures * sizeof(bitmap_image*)));
+
+    // Loop over all images and load them
+    for (int i = 0; i < num_textures; ++i)
+    {
+        int tex_x, tex_y, tex_n;
+        imageTextureConfig imageTexture = sceneCfg.texturesCfg.imageTextures[i];
+        unsigned char* tex_data_host = stbi_load(imageTexture.filepath, &tex_x, &tex_y, &tex_n, bytes_per_pixel);
+        if (!tex_data_host) {
+            std::cerr << "[ERROR] Failed to load texture: " << imageTexture.filepath << std::endl;
+            return;
+        }
+
+        // Allocate managed memory for texture data on device
+        unsigned char* tex_data;
+        checkCudaErrors(cudaMallocManaged(&tex_data, tex_x * tex_y * tex_n * sizeof(unsigned char)));
+        checkCudaErrors(cudaMemcpy(tex_data, tex_data_host, tex_x * tex_y * tex_n * sizeof(unsigned char), cudaMemcpyHostToDevice));
+
+        // Initialize texture on device
+        bitmap_image** h_texture;
+        checkCudaErrors(cudaMalloc((void**)&h_texture, sizeof(bitmap_image*)));
+        texture_init<<<single_block, single_thread>>>(tex_data, tex_x, tex_y, tex_n, h_texture);
+        checkCudaErrors(cudaGetLastError());
+        checkCudaErrors(cudaDeviceSynchronize());
+
+        // Store the pointer to the current texture in the array
+        checkCudaErrors(cudaMemcpy(&h_textures[i], h_texture, sizeof(bitmap_image*), cudaMemcpyDeviceToDevice));
+
+        // Free the host-side texture after copying to the device
+        stbi_image_free(tex_data_host);
+    }
 
 
 
@@ -1640,7 +1710,7 @@ void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int widt
 
 
 
-    load_scene<<<single_block, single_thread>>>(d_sceneCfg, elist, elights, cam, aa_sampler, width, height, ratio, spp, sqrt_spp, texture, 1984);
+    load_scene<<<single_block, single_thread>>>(d_sceneCfg, elist, elights, cam, aa_sampler, width, height, ratio, spp, sqrt_spp, h_textures, num_textures, 1984);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
@@ -1651,7 +1721,7 @@ void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int widt
     printf("[INFO] Render with %u/%u blocks of %u/%u threads\n", render_blocks.x, render_blocks.y, render_threads.x, render_threads.y);
 
 
-    render<<<render_blocks, render_threads>>>(world_device, image, width, height, spp, sqrt_spp, max_depth, elist, elights, cam, aa_sampler, 2580);
+    render<<<render_blocks, render_threads>>>(world_device, d_output, width, height, spp, sqrt_spp, max_depth, elist, elights, cam, aa_sampler, 2580);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
@@ -1672,9 +1742,9 @@ void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int widt
         for (int i = 0; i < width; i++) {
             size_t pixel_index = j * width + i;
 
-            imageHost[(height - j - 1) * width * 3 + i * 3] = (uint8_t)image[pixel_index].r();
-            imageHost[(height - j - 1) * width * 3 + i * 3 + 1] = (uint8_t)image[pixel_index].g();
-            imageHost[(height - j - 1) * width * 3 + i * 3 + 2] = (uint8_t)image[pixel_index].b();
+            imageHost[(height - j - 1) * width * 3 + i * 3] = (uint8_t)d_output[pixel_index].r();
+            imageHost[(height - j - 1) * width * 3 + i * 3 + 1] = (uint8_t)d_output[pixel_index].g();
+            imageHost[(height - j - 1) * width * 3 + i * 3 + 2] = (uint8_t)d_output[pixel_index].b();
         }
     }
 
@@ -1690,7 +1760,7 @@ void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int widt
     checkCudaErrors(cudaFree(elist));
     checkCudaErrors(cudaFree(world_device));
     checkCudaErrors(cudaFree(aa_sampler));
-    checkCudaErrors(cudaFree(image));
+    checkCudaErrors(cudaFree(d_output));
     checkCudaErrors(cudaFree(d_sceneCfg));
 }
 

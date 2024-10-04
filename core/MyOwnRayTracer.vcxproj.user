@@ -8,7 +8,7 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>-width 512 -height 512 -ratio 1:1 -spp 100 -maxdepth 100 -scene ..\..\data\scenes\crate_mesh_mtl.scene -mode 2 -save e:\\save.png</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-width 512 -height 512 -ratio 1:1 -spp 100 -maxdepth 50 -scene ..\data\scenes\cornell_box.scene -mode 2 -save e:\\save.png</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>
