@@ -57,8 +57,16 @@ textures:
         {
             name = "cow_diffuse_texture";
             filepath = "e:\\uv_mapper_no_numbers.jpg";
+        },
+        {
+            name = "tex1";
+            filepath = "E:\\MyProjects\\MyOwnRaytracerCuda2\\data\\models\\cushion_albedo.jpg";
+        },
+        {
+            name = "tex2";
+            filepath = "E:\\MyProjects\\MyOwnRaytracerCuda2\\data\\models\\rusted_metal1.jpg";
         }
-    ),
+    )
 }
 
 materials:
@@ -79,6 +87,14 @@ materials:
         {
             name = "cow_diffuse_material";
             texture = "cow_diffuse_texture";
+        },
+        {
+            name = "tex_material1";
+            texture = "tex1";
+        },
+        {
+            name = "tex_material2";
+            texture = "tex2";
         }
     )
 }
@@ -128,7 +144,7 @@ primitives:
     spheres: (
         {
             name = "Sphere1"
-            position = { x = 190.0; y = 90.0; z = 190.0; };
+            position = { x = 340.0; y = 90.0; z = 190.0; };
             radius = 90.0;
             material = "cow_diffuse_material";
             active = true;
@@ -141,7 +157,7 @@ primitives:
             name = "Box1";
             position = { x = 0.0; y = 0.0; z = 0.0; };
             size = { x = 165.0; y = 330.0; z = 165.0; };
-            material = "white_material";
+            material = "tex_material1";
             transform =
             {
                 #rotate = { x = 0.0; y = -15.0; z = 0.0; };
@@ -152,7 +168,7 @@ primitives:
             name = "Box2";
             position = { x = 0.0; y = 0.0; z = 0.0; };
             size = { x = 165.0; y = 165.0; z = 165.0; };
-            material = "white_material";
+            material = "tex_material2";
             transform =
             {
                 #rotate = { x = 0.0; y = 18.0; z = 0.0; };

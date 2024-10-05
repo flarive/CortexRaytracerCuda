@@ -4,6 +4,7 @@
 #include "../materials/material.cuh"
 #include "../primitives/hittable.cuh"
 #include "../misc/vector3.cuh"
+#include "../misc/transform.cuh"
 #include "../utilities/uvmapping.cuh"
 #include "../misc/color.cuh"
 #include "../textures/texture.cuh"
@@ -99,15 +100,15 @@ class scene_builder
 
         scene_builder& initPrimitivesConfig(const uint32_t countSpherePrimitives, const uint32_t countPlanePrimitives, const uint32_t countQuadPrimitives, const uint32_t countBoxPrimitives, const uint32_t countConePrimitives, const uint32_t countCylinderPrimitives, const uint32_t countDiskPrimitives, const uint32_t countTorusPrimitives, const uint32_t countVolumePrimitives);
 
-        scene_builder& addSphere(const char* name, point3 pos, float radius, const char* materialName, const uvmapping& uv, const char* groupName);
-        scene_builder& addQuad(const char* name, point3 position, vector3 u, vector3 v, const char* materialName, const uvmapping& uv, const char* groupName);
-        scene_builder& addPlane(const char* name, point3 p0, point3 p1, const char* materialName, const uvmapping& uv, const char* groupName);
-        scene_builder& addBox(const char* name, point3 p0, point3 p1, const char* materialName, const uvmapping& uv, const char* groupName);
-        scene_builder& addCylinder(const char* name, point3 pos, float radius, float height, const char* materialName, const uvmapping& uv, const char* groupName);
-        scene_builder& addCone(const char* name, point3 pos, float radius, float height, const char* materialName, const uvmapping& uv, const char* groupName);
-        scene_builder& addDisk(const char* name, point3 pos, float radius, float height, const char* materialName, const uvmapping& uv, const char* groupName);
-        scene_builder& addTorus(const char* name, point3 pos, float major_radius, float minor_radius, const char* materialName, const uvmapping& uv, const char* groupName);
-        scene_builder& addVolume(const char* name, const char* boundaryObjectName, float density, const color& rgb, const char* textureName, const char* groupName);
+        scene_builder& addSphere(const char* name, point3 pos, float radius, const char* materialName, const uvmapping& uv, const char* groupName, const rt::transform& trs);
+        scene_builder& addQuad(const char* name, point3 position, vector3 u, vector3 v, const char* materialName, const uvmapping& uv, const char* groupName, const rt::transform& trs);
+        scene_builder& addPlane(const char* name, point3 p0, point3 p1, const char* materialName, const uvmapping& uv, const char* groupName, const rt::transform& trs);
+        scene_builder& addBox(const char* name, point3 p0, point3 p1, const char* materialName, const uvmapping& uv, const char* groupName, const rt::transform& trs);
+        scene_builder& addCylinder(const char* name, point3 pos, float radius, float height, const char* materialName, const uvmapping& uv, const char* groupName, const rt::transform& trs);
+        scene_builder& addCone(const char* name, point3 pos, float radius, float height, const char* materialName, const uvmapping& uv, const char* groupName, const rt::transform& trs);
+        scene_builder& addDisk(const char* name, point3 pos, float radius, float height, const char* materialName, const uvmapping& uv, const char* groupName, const rt::transform& trs);
+        scene_builder& addTorus(const char* name, point3 pos, float major_radius, float minor_radius, const char* materialName, const uvmapping& uv, const char* groupName, const rt::transform& trs);
+        scene_builder& addVolume(const char* name, const char* boundaryObjectName, float density, const color& rgb, const char* textureName, const char* groupName, const rt::transform& trs);
 
         // Meshes
         scene_builder& addMesh(const char* name, point3 pos, const char* filepath, const char* materialName, bool use_mtl, bool use_smoothing, const char* groupName);

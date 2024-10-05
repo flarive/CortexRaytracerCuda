@@ -31,7 +31,7 @@ private:
   void loadMeshes(scene_builder& builder, const libconfig::Setting& setting);
   void loadGroups(scene_builder& builder, const libconfig::Setting& setting);
 
-  void applyTransform(const libconfig::Setting& primitive, scene_builder& builder, const char* name);
+  rt::transform applyTransform(const libconfig::Setting& primitive, scene_builder& builder, const char* name);
   point3 getPoint(const libconfig::Setting& setting);
   vector3 getVector(const libconfig::Setting& setting);
   color getColor(const libconfig::Setting& setting);

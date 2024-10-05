@@ -411,35 +411,32 @@ void scene_loader::loadMeshes(scene_builder& builder, const libconfig::Setting& 
 
 void scene_loader::loadGroups(scene_builder& builder, const libconfig::Setting& setting)
 {
-	for (int i = 0; i < setting.getLength(); i++)
-	{
-		const libconfig::Setting& group = setting[i];
-		std::string name;
+	//for (int i = 0; i < setting.getLength(); i++)
+	//{
+	//	const libconfig::Setting& group = setting[i];
+	//	std::string name;
 
-		if (group.exists("name"))
-			group.lookupValue("name", name);
+	//	if (group.exists("name"))
+	//		group.lookupValue("name", name);
 
-		bool groupIsUsed = false;
-		builder.addGroup(name.c_str(), groupIsUsed);
+	//	bool groupIsUsed = false;
+	//	builder.addGroup(name.c_str(), groupIsUsed);
 
-		if (groupIsUsed)
-			applyTransform(group, builder, name.c_str());
-	}
+	//	if (groupIsUsed)
+	//		applyTransform(group, builder, name.c_str());
+	//}
 }
 	
-void scene_loader::applyTransform(const libconfig::Setting& primitive, scene_builder& builder, const char* name)
+rt::transform scene_loader::applyTransform(const libconfig::Setting& primitive, scene_builder& builder, const char* name)
 {
+	rt::transform transform;
+	
 	if (primitive.exists("transform"))
 	{
-		rt::transform transform = this->getTransform(primitive["transform"]);
-
-		if (transform.hasTranslate())
-			builder.translate(transform.getTranslate(), name);
-		if (transform.hasRotate())
-			builder.rotate(transform.getRotate(), name);
-		if (transform.hasScale())
-			builder.scale(transform.getScale(), name);
+		transform = this->getTransform(primitive["transform"]);
 	}
+
+	return transform;
 }
 
 void scene_loader::addImageTexture(const libconfig::Setting& textures, scene_builder& builder)
@@ -1146,9 +1143,8 @@ void scene_loader::addSpherePrimitives(const libconfig::Setting& primitives, sce
 
 			if (active)
 			{
-				builder.addSphere(name.c_str(), position, radius, materialName.c_str(), uv, groupName.c_str());
-
-				//applyTransform(primitive, builder, name.c_str());
+				rt::transform transform = applyTransform(primitive, builder, name.c_str());
+				builder.addSphere(name.c_str(), position, radius, materialName.c_str(), uv, groupName.c_str(), transform);
 			}
 		}
 	}
@@ -1189,9 +1185,8 @@ void scene_loader::addPlanePrimitives(const libconfig::Setting& primitives, scen
 
 			if (active)
 			{
-				builder.addPlane(name.c_str(), point1, point2, materialName.c_str(), uv, groupName.c_str());
-
-				//applyTransform(primitive, builder, name.c_str());
+				rt::transform transform = applyTransform(primitive, builder, name.c_str());
+				builder.addPlane(name.c_str(), point1, point2, materialName.c_str(), uv, groupName.c_str(), transform);
 			}
 		}
 	}
@@ -1235,9 +1230,8 @@ void scene_loader::addQuadPrimitives(const libconfig::Setting& primitives, scene
 
 			if (active)
 			{
-				builder.addQuad(name.c_str(), position, u, v, materialName.c_str(), uv, groupName.c_str());
-
-				//applyTransform(primitive, builder, name.c_str());
+				rt::transform transform = applyTransform(primitive, builder, name.c_str());
+				builder.addQuad(name.c_str(), position, u, v, materialName.c_str(), uv, groupName.c_str(), transform);
 			}
 		}
 	}
@@ -1278,9 +1272,8 @@ void scene_loader::addBoxPrimitives(const libconfig::Setting& primitives, scene_
 
 			if (active)
 			{
-				builder.addBox(name.c_str(), position, size, materialName.c_str(), uv, groupName.c_str());
-
-				//applyTransform(primitive, builder, name.c_str());
+				rt::transform transform = applyTransform(primitive, builder, name.c_str());
+				builder.addBox(name.c_str(), position, size, materialName.c_str(), uv, groupName.c_str(), transform);
 			}
 		}
 	}
@@ -1324,9 +1317,8 @@ void scene_loader::addConePrimitives(const libconfig::Setting& primitives, scene
 
 			if (active)
 			{
-				builder.addCone(name.c_str(), position, radius, height, materialName.c_str(), uv, groupName.c_str());
-
-				//applyTransform(primitive, builder, name.c_str());
+				rt::transform transform = applyTransform(primitive, builder, name.c_str());
+				builder.addCone(name.c_str(), position, radius, height, materialName.c_str(), uv, groupName.c_str(), transform);
 			}
 		}
 	}
@@ -1370,9 +1362,8 @@ void scene_loader::addCylinderPrimitives(const libconfig::Setting& primitives, s
 
 			if (active)
 			{
-				builder.addCylinder(name.c_str(), position, radius, height, materialName.c_str(), uv, groupName.c_str());
-
-				//applyTransform(primitive, builder, name.c_str());
+				rt::transform transform = applyTransform(primitive, builder, name.c_str());
+				builder.addCylinder(name.c_str(), position, radius, height, materialName.c_str(), uv, groupName.c_str(), transform);
 			}
 		}
 	}
@@ -1416,9 +1407,8 @@ void scene_loader::addDiskPrimitives(const libconfig::Setting& primitives, scene
 
 			if (active)
 			{
-				builder.addDisk(name.c_str(), position, radius, height, materialName.c_str(), uv, groupName.c_str());
-
-				//applyTransform(primitive, builder, name.c_str());
+				rt::transform transform = applyTransform(primitive, builder, name.c_str());
+				builder.addDisk(name.c_str(), position, radius, height, materialName.c_str(), uv, groupName.c_str(), transform);
 			}
 		}
 	}
@@ -1462,9 +1452,8 @@ void scene_loader::addTorusPrimitives(const libconfig::Setting& primitives, scen
 
 			if (active)
 			{
-				builder.addTorus(name.c_str(), position, major_radius, minor_radius, materialName.c_str(), uv, groupName.c_str());
-
-				//applyTransform(primitive, builder, name.c_str());
+				rt::transform transform = applyTransform(primitive, builder, name.c_str());
+				builder.addTorus(name.c_str(), position, major_radius, minor_radius, materialName.c_str(), uv, groupName.c_str(), transform);
 			}
 		}
 	}
@@ -1502,9 +1491,8 @@ void scene_loader::addVolumePrimitives(const libconfig::Setting& primitives, sce
 
 			if (active)
 			{
-				builder.addVolume(name.c_str(), boundary.c_str(), density, rgb, textureName.c_str(), groupName.c_str());
-
-				//applyTransform(primitive, builder, name.c_str());
+				rt::transform transform = applyTransform(primitive, builder, name.c_str());
+				builder.addVolume(name.c_str(), boundary.c_str(), density, rgb, textureName.c_str(), groupName.c_str(), transform);
 			}
 		}
 	}

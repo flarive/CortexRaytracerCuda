@@ -2,25 +2,26 @@
 
 #include "../misc/vector3.cuh"
 #include "../misc/color.cuh"
+#include "../misc/transform.cuh"
 #include "../utilities/uvmapping.cuh"
 
 
-typedef struct {
+struct imageBackgroundConfig  {
     color rgb;
     const char* filepath;
     bool is_skybox;
-} imageBackgroundConfig;
+};
 
-typedef struct {
+struct imageConfig {
     int height;
     int width;
     int depth;
     int spp;
     imageBackgroundConfig background;
     const char* outputFilePath;
-} imageConfig;
+};
 
-typedef struct {
+struct cameraConfig {
     float aspectRatio;
     float openingTime;
     point3 lookFrom;
@@ -31,21 +32,22 @@ typedef struct {
     bool isOrthographic;
     float fov; // for perspective cams
     float orthoHeight; // for orthographic cams
-} cameraConfig;
+};
 
 
+//struct lightConfig{
+//};
 
-
-typedef struct {
+struct omniLightConfig {
     point3 position;
     float radius;
     float intensity;
     color rgb;
     const char* name;
     bool invisible;
-} omniLightConfig;
+};
 
-typedef struct {
+struct directionalLightConfig {
     point3 position;
     vector3 u;
     vector3 v;
@@ -53,9 +55,9 @@ typedef struct {
     color rgb;
     const char* name;
     bool invisible;
-} directionalLightConfig;
+};
 
-typedef struct {
+struct spotLightConfig {
     point3 position;
     vector3 direction;
     float cutoff;
@@ -65,9 +67,11 @@ typedef struct {
     color rgb;
     const char* name;
     bool invisible;
-} spotLightConfig;
+};
 
-typedef struct {
+
+
+struct lightsConfig {
     omniLightConfig* omniLights;
     uint8_t omniLightCount;
     uint8_t omniLightCapacity;
@@ -79,74 +83,72 @@ typedef struct {
     spotLightConfig* spotLights;
     uint8_t spotLightCount;
     uint8_t spotLightCapacity;
-} lightsConfig;
+};
 
 
 
 
-typedef struct {
+
+
+struct textureConfig {
     const char* name;
+};
+
+struct solidColorTextureConfig : public textureConfig {
     color rgb;
-} solidColorTextureConfig;
+};
 
-typedef struct {
-    const char* name;
+struct imageTextureConfig : public textureConfig {
     const char* filepath;
-} imageTextureConfig;
+};
 
-typedef struct {
-    const char* name;
+struct noiseTextureConfig : public textureConfig {
     float scale;
-} noiseTextureConfig;
+};
 
-typedef struct {
-    const char* name;
+struct gradientColorTextureConfig : public textureConfig {
     color color1;
     color color2;
     bool vertical;
     bool hsv;
-} gradientColorTextureConfig;
+};
 
-typedef struct {
-    const char* name;
+struct checkerTextureConfig : public textureConfig {
     const char* oddTextureName;
     const char* evenTextureName;
     color oddColor;
     color evenColor;
     float scale;
-} checkerTextureConfig;
+};
 
-typedef struct {
-    const char* name;
+struct bumpTextureConfig : public textureConfig {
     const char* filepath;
     float strength;
-} bumpTextureConfig;
+};
 
-typedef struct {
-    const char* name;
+struct normalTextureConfig : public textureConfig {
     const char* filepath;
     float strength;
-} normalTextureConfig;
+};
 
-typedef struct {
-    const char* name;
+struct displacementTextureConfig : public textureConfig {
     const char* filepath;
     float strength;
-} displacementTextureConfig;
+};
 
-typedef struct {
-    const char* name;
+struct alphaTextureConfig : public textureConfig {
     const char* filepath;
     bool doubleSided;
-} alphaTextureConfig;
+};
 
-typedef struct {
-    const char* name;
+struct emissiveTextureConfig : public textureConfig {
     const char* filepath;
     float strength;
-} emissiveTextureConfig;
+};
 
-typedef struct {
+
+
+struct texturesConfig {
     solidColorTextureConfig* solidColorTextures;
     uint8_t solidColorTextureCount;
     uint8_t solidColorTextureCapacity;
@@ -186,7 +188,9 @@ typedef struct {
     emissiveTextureConfig* emissiveTextures;
     uint8_t emissiveTextureCount;
     uint8_t emissiveTextureCapacity;
-} texturesConfig;
+};
+
+
 
 
 
@@ -246,7 +250,7 @@ struct phongMaterialConfig : public materialConfig {
 
 
 
-typedef struct {
+struct materialsConfig {
     lambertianMaterialConfig* lambertianMaterials;
     uint8_t lambertianMaterialCount;
     uint8_t lambertianMaterialCapacity;
@@ -274,29 +278,43 @@ typedef struct {
     phongMaterialConfig* phongMaterials;
     uint8_t phongMaterialCount;
     uint8_t phongMaterialCapacity;
-} materialsConfig;
+};
 
 
-typedef struct {
+
+//struct transformConfig
+// {
+//    vector3 translate;
+//    vector3 rotate;
+//    vector3 scale;
+//};
+
+
+//struct primitiveConfig {
+//};
+
+struct planePrimitiveConfig {
     const char* name;
     point3 point1;
     point3 point2;
     const char* materialName;
     uvmapping mapping;
     const char* groupName;
-} planePrimitiveConfig;
+    rt::transform transform;
+};
 
 
-typedef struct {
+struct boxPrimitiveConfig {
     const char* name;
     point3 position;
     vector3 size;
     const char* materialName;
     uvmapping mapping;
     const char* groupName;
-} boxPrimitiveConfig;
+    rt::transform transform;
+};
 
-typedef struct {
+struct quadPrimitiveConfig {
     const char* name;
     point3 position;
     vector3 u;
@@ -304,28 +322,20 @@ typedef struct {
     const char* materialName;
     uvmapping mapping;
     const char* groupName;
-} quadPrimitiveConfig;
+    rt::transform transform;
+};
 
-typedef struct {
+struct spherePrimitiveConfig {
     const char* name;
     point3 position;
     float radius;
     const char* materialName;
     uvmapping mapping;
     const char* groupName;
-} spherePrimitiveConfig;
+    rt::transform transform;
+};
 
-typedef struct {
-    const char* name;
-    point3 position;
-    float radius;
-    float height;
-    const char* materialName;
-    uvmapping mapping;
-    const char* groupName;
-} cylinderPrimitiveConfig;
-
-typedef struct {
+struct cylinderPrimitiveConfig {
     const char* name;
     point3 position;
     float radius;
@@ -333,9 +343,21 @@ typedef struct {
     const char* materialName;
     uvmapping mapping;
     const char* groupName;
-} conePrimitiveConfig;
+    rt::transform transform;
+};
 
-typedef struct {
+struct conePrimitiveConfig {
+    const char* name;
+    point3 position;
+    float radius;
+    float height;
+    const char* materialName;
+    uvmapping mapping;
+    const char* groupName;
+    rt::transform transform;
+};
+
+struct torusPrimitiveConfig {
     const char* name;
     point3 position;
     float major_radius;
@@ -343,9 +365,10 @@ typedef struct {
     const char* materialName;
     uvmapping mapping;
     const char* groupName;
-} torusPrimitiveConfig;
+    rt::transform transform;
+};
 
-typedef struct {
+struct diskPrimitiveConfig {
     const char* name;
     point3 position;
     float radius;
@@ -353,20 +376,22 @@ typedef struct {
     const char* materialName;
     uvmapping mapping;
     const char* groupName;
-} diskPrimitiveConfig;
+    rt::transform transform;
+};
 
-typedef struct {
+struct volumePrimitiveConfig {
     const char* name;
     const char* boundaryName;
     float density;
     color rgb;
     const char* textureName;
     const char* groupName;
-} volumePrimitiveConfig;
+    rt::transform transform;
+};
 
 
 
-typedef struct {
+struct primitivesConfig {
     spherePrimitiveConfig* spherePrimitives;
     uint8_t spherePrimitiveCount;
     uint8_t spherePrimitiveCapacity;
@@ -402,16 +427,15 @@ typedef struct {
     volumePrimitiveConfig* volumePrimitives;
     uint8_t volumePrimitiveCount;
     uint8_t volumePrimitiveCapacity;
-
-} primitivesConfig;
-
+};
 
 
-typedef struct {
+
+struct sceneConfig {
     imageConfig imageCfg;
     cameraConfig cameraCfg;
     lightsConfig lightsCfg;
     texturesConfig texturesCfg;
 	materialsConfig materialsCfg;
     primitivesConfig primitivesCfg;
-} sceneConfig;
+};

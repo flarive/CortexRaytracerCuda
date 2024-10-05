@@ -30,27 +30,27 @@ class scene_factory
 public:
     __host__ __device__ scene_factory() = delete;
 
-    __host__ __device__ static hittable* createBox(const char* name, const point3& p0, const point3& p1, material* material, const uvmapping& uv);
+    __host__ __device__ static hittable* applyTransform(hittable* primitive, const rt::transform& trs);
 
-    __host__ __device__ static hittable* createCylinder(const char* name, const point3& center, float radius, float height, material* material, const uvmapping& uv);
+    __host__ __device__ static hittable* createBox(const char* name, const point3& p0, const point3& p1, material* material, const uvmapping& uv, const rt::transform& trs);
 
-    __host__ __device__ static hittable* createSphere(const char* name, const point3& center, float radius, material* material, const uvmapping& uv);
+    __host__ __device__ static hittable* createCylinder(const char* name, const point3& center, float radius, float height, material* material, const uvmapping& uv, const rt::transform& trs);
 
-    __host__ __device__ static hittable* createCone(const char* name, const point3& center, float height, float radius, material* material, const uvmapping& uv);
+    __host__ __device__ static hittable* createSphere(const char* name, const point3& center, float radius, material* material, const uvmapping& uv, const rt::transform& trs);
 
-    __host__ __device__ static hittable* createDisk(const char* name, const point3& center, float height, float radius, material* material, const uvmapping& uv);
+    __host__ __device__ static hittable* createCone(const char* name, const point3& center, float height, float radius, material* material, const uvmapping& uv, const rt::transform& trs);
 
-    __host__ __device__ static hittable* createTorus(const char* name, const point3& center, float major_radius, float minor_radius, material* material, const uvmapping& uv);
+    __host__ __device__ static hittable* createDisk(const char* name, const point3& center, float height, float radius, material* material, const uvmapping& uv, const rt::transform& trs);
 
-    __host__ __device__ static hittable* createQuad(const char* name, const point3& position, const vector3 u, const vector3 v, material* material, const uvmapping& uv);
+    __host__ __device__ static hittable* createTorus(const char* name, const point3& center, float major_radius, float minor_radius, material* material, const uvmapping& uv, const rt::transform& trs);
 
-    __host__ __device__ static hittable* createPlane(const char* name, const point3& p0, point3 p1, material* material, const uvmapping& uv);
+    __host__ __device__ static hittable* createQuad(const char* name, const point3& position, const vector3 u, const vector3 v, material* material, const uvmapping& uv, const rt::transform& trs);
 
-    __host__ __device__ static hittable* createVolume(const char* name, hittable* boundary, float density, texture* texture);
+    __host__ __device__ static hittable* createPlane(const char* name, const point3& p0, point3 p1, material* material, const uvmapping& uv, const rt::transform& trs);
 
-    __host__ __device__ static hittable* createVolume(const char* name, hittable* boundary, float density, const color& rgb);
+    __host__ __device__ static hittable* createVolume(const char* name, hittable* boundary, float density, const color& rgb, texture* texture, const rt::transform& trs);
 
-    __host__ __device__ static hittable* createMesh(const char* name, const point3& center, const char* filepath, material* material, const bool use_mtl, const bool use_smoothing);
+    __host__ __device__ static hittable* createMesh(const char* name, const point3& center, const char* filepath, material* material, const bool use_mtl, const bool use_smoothing, const rt::transform& trs);
 
     __host__ __device__ static hittable* createDirectionalLight(const char* name, const point3& pos, const vector3& u, const vector3& v, float intensity, color rgb, bool invisible);
 
@@ -60,27 +60,53 @@ public:
 };
 
 
+__host__ __device__ hittable* scene_factory::applyTransform(hittable* primitive, const rt::transform& trs)
+{
+    if (primitive)
+    {
+        if (trs.hasTranslate())
+        {
+            primitive = new rt::translate(primitive, trs.getTranslate());
+        }
+
+        if (trs.hasRotate())
+        {
+            primitive = new rt::rotate(primitive, trs.getRotate());
+        }
+
+        if (trs.hasScale())
+        {
+            primitive = new rt::scale(primitive, trs.getScale());
+        }
+    }
+    
+    return primitive;
+}
 
 
 __host__ __device__ hittable* scene_factory::createBox(
         const char* name,
-        const point3 &p0,
-        const point3 &p1,
+        const point3& p0,
+        const point3& p1,
         material* material,
-        const uvmapping& uv)
+        const uvmapping& uv,
+        const rt::transform& trs)
 {
-    return new box(p0, p1, material, uv, name);
+    auto primitive = new box(p0, p1, material, uv, name);
+    return applyTransform(primitive, trs);
 }
 
 __host__ __device__ hittable* scene_factory::createCylinder(
         const char* name,
-        const point3 &center,
+        const point3& center,
         float radius,
         float height,
         material* material,
-        const uvmapping& uv)
+        const uvmapping& uv,
+        const rt::transform& trs)
 {
-    return new cylinder(center, radius, height, material, uv);
+    auto primitive = new cylinder(center, radius, height, material, uv);
+    return applyTransform(primitive, trs);
 }
 
 __host__ __device__ hittable* scene_factory::createDisk(
@@ -89,9 +115,11 @@ __host__ __device__ hittable* scene_factory::createDisk(
         float radius,
         float height,
         material* material,
-        const uvmapping& uv)
+        const uvmapping& uv,
+        const rt::transform& trs)
 {
-    return new disk(center, radius, height, material, uv);
+    auto primitive = new disk(center, radius, height, material, uv);
+    return applyTransform(primitive, trs);
 }
 
 __host__ __device__ hittable* scene_factory::createTorus(
@@ -100,9 +128,11 @@ __host__ __device__ hittable* scene_factory::createTorus(
         float major_radius,
         float minor_radius,
         material* material,
-        const uvmapping& uv)
+        const uvmapping& uv,
+        const rt::transform& trs)
 {
-    return new torus(center, major_radius, minor_radius, material, uv);
+    auto primitive = new torus(center, major_radius, minor_radius, material, uv);
+    return applyTransform(primitive, trs);
 }
 
 __host__ __device__ hittable* scene_factory::createSphere(
@@ -110,17 +140,11 @@ __host__ __device__ hittable* scene_factory::createSphere(
         const point3& center,
         float radius,
         material* material,
-        const uvmapping& uv)
+        const uvmapping& uv,
+        const rt::transform& trs)
 {
-    sphere* obj = new sphere(center, radius, material, uv, name);
-
-    if (obj == nullptr)
-    {
-        printf("Error: create sphere is null.\n");
-        return nullptr;
-    }
-
-    return obj;
+    auto primitive = new sphere(center, radius, material, uv, name);
+    return applyTransform(primitive, trs);
 }
 
 __host__ __device__ hittable* scene_factory::createCone(
@@ -129,9 +153,11 @@ __host__ __device__ hittable* scene_factory::createCone(
         float height,
         float radius,
         material* material,
-        const uvmapping& uv)
+        const uvmapping& uv,
+        const rt::transform& trs)
 {
-    return new cone(center, radius, height, material, uv, name);
+    auto primitive = new cone(center, radius, height, material, uv, name);
+    return applyTransform(primitive, trs);
 }
 
 __host__ __device__ hittable* scene_factory::createPlane(
@@ -139,7 +165,8 @@ __host__ __device__ hittable* scene_factory::createPlane(
     const point3 &p0,
     point3 p1,
     material* material,
-    const uvmapping& uv)
+    const uvmapping& uv,
+    const rt::transform& trs)
 {
     if (p0.x == p1.x)
     {
@@ -149,7 +176,8 @@ __host__ __device__ hittable* scene_factory::createPlane(
         float z0 = p0.z < p1.z ? p0.z : p1.z;
         float z1 = p0.z < p1.z ? p1.z : p0.z;
 
-        return new yz_rect(y0, y1, z0, z1, x, material, uv, name);
+        auto primitive = new yz_rect(y0, y1, z0, z1, x, material, uv, name);
+        return applyTransform(primitive, trs);
     }
 
     if (p0.y == p1.y)
@@ -160,7 +188,8 @@ __host__ __device__ hittable* scene_factory::createPlane(
         float z0 = p0.z < p1.z ? p0.z : p1.z;
         float z1 = p0.z < p1.z ? p1.z : p0.z;
 
-        return new xz_rect(x0, x1, z0, z1, y, material, uv, name);
+        auto primitive = new xz_rect(x0, x1, z0, z1, y, material, uv, name);
+        return applyTransform(primitive, trs);
     }
 
     if (p0.z == p1.z)
@@ -171,7 +200,8 @@ __host__ __device__ hittable* scene_factory::createPlane(
         float y0 = p0.y < p1.y ? p0.y : p1.y;
         float y1 = p0.y < p1.y ? p1.y : p0.y;
 
-        return new xy_rect(x0, x1, y0, y1, z, material, uv, name);
+        auto primitive = new xy_rect(x0, x1, y0, y1, z, material, uv, name);
+        return applyTransform(primitive, trs);
     }
 
     return nullptr;
@@ -183,27 +213,29 @@ __host__ __device__ hittable* scene_factory::createQuad(
     const vector3 u,
     const vector3 v,
     material* material,
-    const uvmapping& uv)
+    const uvmapping& uv,
+    const rt::transform& trs)
 {
-    return new quad(position, u, v, material, uv, name);
+    auto primitive = new quad(position, u, v, material, uv, name);
+    return applyTransform(primitive, trs);
 }
 
 __host__ __device__ hittable* scene_factory::createVolume(
     const char* name,
     hittable* boundary,
     float density,
-    texture* texture)
+    const color& rgb,
+    texture* texture,
+    const rt::transform& trs)
 {
-    return new volume(boundary, density, texture, name);
-}
+    volume* primitive = nullptr;
 
-__host__ __device__ hittable* scene_factory::createVolume(
-    const char* name,
-    hittable* boundary,
-    float density,
-    const color& rgb)
-{
-    return new volume(boundary, density, rgb, name);
+    if (texture != nullptr)
+        primitive = new volume(boundary, density, texture, name);
+    else
+        primitive = new volume(boundary, density, rgb, name);
+
+    return applyTransform(primitive, trs);
 }
 
 __host__ __device__ hittable* scene_factory::createMesh(
@@ -212,7 +244,8 @@ __host__ __device__ hittable* scene_factory::createMesh(
 	const char* filepath,
 	material* material,
 	const bool use_mtl,
-    const bool use_smoothing)
+    const bool use_smoothing,
+    const rt::transform& trs)
 {
     hittable* mesh = nullptr;
     

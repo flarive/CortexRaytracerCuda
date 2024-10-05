@@ -35,8 +35,6 @@
 #include "../primitives/translate.cuh"
 #include "../primitives/scale.cuh"
 
-
-
 #include <utility>
 
 #include "../utilities/math_utils.cuh"
@@ -1037,7 +1035,7 @@ scene_builder& scene_builder::initPrimitivesConfig(const uint32_t countSpherePri
     return *this;
 }
 
-scene_builder& scene_builder::addSphere(const char* name, point3 pos, float radius, const char* materialName, const uvmapping& uv, const char* groupName)
+scene_builder& scene_builder::addSphere(const char* name, point3 pos, float radius, const char* materialName, const uvmapping& uv, const char* groupName, const rt::transform& trs)
 {
     //auto sphere = scene_factory::createSphere(name, pos, radius, fetchMaterial(materialName), uv);
 
@@ -1079,7 +1077,7 @@ scene_builder& scene_builder::addSphere(const char* name, point3 pos, float radi
         char* groupName_copy = new char[length3]; // Allocate memory
         strcpy(groupName_copy, groupName);  // Copy the string
 
-        m_primitivesConfig.spherePrimitives[c] = spherePrimitiveConfig{ name_copy, pos, radius, materialName_copy, uv, groupName_copy };
+        m_primitivesConfig.spherePrimitives[c] = spherePrimitiveConfig{ name_copy, pos, radius, materialName_copy, uv, groupName_copy, trs };
         m_primitivesConfig.spherePrimitiveCount++;
     }
     else {
@@ -1090,7 +1088,7 @@ scene_builder& scene_builder::addSphere(const char* name, point3 pos, float radi
 	return *this;
 }
 
-scene_builder& scene_builder::addPlane(const char* name, point3 p0, point3 p1, const char* materialName, const uvmapping& uv, const char* groupName)
+scene_builder& scene_builder::addPlane(const char* name, point3 p0, point3 p1, const char* materialName, const uvmapping& uv, const char* groupName, const rt::transform& trs)
 {
  //   auto plane = scene_factory::createPlane(name, p0, p1, fetchMaterial(materialName), uv);
  //   
@@ -1132,7 +1130,7 @@ scene_builder& scene_builder::addPlane(const char* name, point3 p0, point3 p1, c
         char* groupName_copy = new char[length3]; // Allocate memory
         strcpy(groupName_copy, groupName);  // Copy the string
 
-        m_primitivesConfig.planePrimitives[c] = planePrimitiveConfig{ name_copy, p0, p1, materialName_copy, uv, groupName_copy };
+        m_primitivesConfig.planePrimitives[c] = planePrimitiveConfig{ name_copy, p0, p1, materialName_copy, uv, groupName_copy, trs };
         m_primitivesConfig.planePrimitiveCount++;
     }
     else {
@@ -1143,7 +1141,7 @@ scene_builder& scene_builder::addPlane(const char* name, point3 p0, point3 p1, c
     return *this;
 }
 
-scene_builder& scene_builder::addQuad(const char* name, point3 position, vector3 u, vector3 v, const char* materialName, const uvmapping& uv, const char* groupName)
+scene_builder& scene_builder::addQuad(const char* name, point3 position, vector3 u, vector3 v, const char* materialName, const uvmapping& uv, const char* groupName, const rt::transform& trs)
 {
  //   auto quad = scene_factory::createQuad(name, position, u, v, fetchMaterial(materialName), uv);
  //   
@@ -1185,7 +1183,7 @@ scene_builder& scene_builder::addQuad(const char* name, point3 position, vector3
         char* groupName_copy = new char[length3]; // Allocate memory
         strcpy(groupName_copy, groupName);  // Copy the string
 
-        m_primitivesConfig.quadPrimitives[c] = quadPrimitiveConfig{ name_copy, position, u, v, materialName_copy, uv, groupName_copy };
+        m_primitivesConfig.quadPrimitives[c] = quadPrimitiveConfig{ name_copy, position, u, v, materialName_copy, uv, groupName_copy, trs };
         m_primitivesConfig.quadPrimitiveCount++;
     }
     else {
@@ -1196,7 +1194,7 @@ scene_builder& scene_builder::addQuad(const char* name, point3 position, vector3
     return *this;
 }
 
-scene_builder& scene_builder::addBox(const char* name, point3 p0, point3 p1, const char* materialName, const uvmapping& uv, const char* groupName)
+scene_builder& scene_builder::addBox(const char* name, point3 position, point3 size, const char* materialName, const uvmapping& uv, const char* groupName, const rt::transform& trs)
 {
     //auto box = scene_factory::createBox(name, p0, p1, fetchMaterial(materialName), uv);
 
@@ -1242,7 +1240,9 @@ scene_builder& scene_builder::addBox(const char* name, point3 p0, point3 p1, con
         char* groupName_copy = new char[length3]; // Allocate memory
         strcpy(groupName_copy, groupName);  // Copy the string
 
-        m_primitivesConfig.boxPrimitives[c] = boxPrimitiveConfig{ name_copy, p0, p1, materialName_copy, uv, groupName_copy };
+        auto box = boxPrimitiveConfig{ name_copy, position, size, materialName_copy, uv, groupName_copy, trs };
+
+        m_primitivesConfig.boxPrimitives[c] = box;
         m_primitivesConfig.boxPrimitiveCount++;
     }
     else {
@@ -1253,7 +1253,7 @@ scene_builder& scene_builder::addBox(const char* name, point3 p0, point3 p1, con
     return *this;
 }
 
-scene_builder& scene_builder::addCylinder(const char* name, point3 pos, float radius, float height, const char* materialName, const uvmapping& uv, const char* groupName)
+scene_builder& scene_builder::addCylinder(const char* name, point3 pos, float radius, float height, const char* materialName, const uvmapping& uv, const char* groupName, const rt::transform& trs)
 {
  //   auto cylinder = scene_factory::createCylinder(name, pos, radius, height, fetchMaterial(materialName), uv);
  //   
@@ -1299,7 +1299,7 @@ scene_builder& scene_builder::addCylinder(const char* name, point3 pos, float ra
         char* groupName_copy = new char[length3]; // Allocate memory
         strcpy(groupName_copy, groupName);  // Copy the string
 
-        m_primitivesConfig.cylinderPrimitives[c] = cylinderPrimitiveConfig{ name_copy, pos, radius, height, materialName_copy, uv, groupName_copy };
+        m_primitivesConfig.cylinderPrimitives[c] = cylinderPrimitiveConfig{ name_copy, pos, radius, height, materialName_copy, uv, groupName_copy, trs };
         m_primitivesConfig.cylinderPrimitiveCount++;
     }
     else {
@@ -1310,7 +1310,7 @@ scene_builder& scene_builder::addCylinder(const char* name, point3 pos, float ra
     return *this;
 }
 
-scene_builder& scene_builder::addDisk(const char* name, point3 pos, float radius, float height, const char* materialName, const uvmapping& uv, const char* groupName)
+scene_builder& scene_builder::addDisk(const char* name, point3 pos, float radius, float height, const char* materialName, const uvmapping& uv, const char* groupName, const rt::transform& trs)
 {
  //   auto disk = scene_factory::createDisk(name, pos, radius, height, fetchMaterial(materialName), uv);
  //   
@@ -1356,7 +1356,7 @@ scene_builder& scene_builder::addDisk(const char* name, point3 pos, float radius
         char* groupName_copy = new char[length3]; // Allocate memory
         strcpy(groupName_copy, groupName);  // Copy the string
 
-        m_primitivesConfig.diskPrimitives[c] = diskPrimitiveConfig{ name_copy, pos, radius, height, materialName_copy, uv, groupName_copy };
+        m_primitivesConfig.diskPrimitives[c] = diskPrimitiveConfig{ name_copy, pos, radius, height, materialName_copy, uv, groupName_copy, trs };
         m_primitivesConfig.diskPrimitiveCount++;
     }
     else {
@@ -1367,7 +1367,7 @@ scene_builder& scene_builder::addDisk(const char* name, point3 pos, float radius
     return *this;
 }
 
-scene_builder& scene_builder::addTorus(const char* name, point3 pos, float major_radius, float minor_radius, const char* materialName, const uvmapping& uv, const char* groupName)
+scene_builder& scene_builder::addTorus(const char* name, point3 pos, float major_radius, float minor_radius, const char* materialName, const uvmapping& uv, const char* groupName, const rt::transform& trs)
 {
  //   auto torus = scene_factory::createTorus(name, pos, major_radius, minor_radius, fetchMaterial(materialName), uv);
 
@@ -1413,7 +1413,7 @@ scene_builder& scene_builder::addTorus(const char* name, point3 pos, float major
         char* groupName_copy = new char[length3]; // Allocate memory
         strcpy(groupName_copy, groupName);  // Copy the string
 
-        m_primitivesConfig.torusPrimitives[c] = torusPrimitiveConfig{ name_copy, pos, major_radius, minor_radius, materialName_copy, uv, groupName_copy };
+        m_primitivesConfig.torusPrimitives[c] = torusPrimitiveConfig{ name_copy, pos, major_radius, minor_radius, materialName_copy, uv, groupName_copy, trs };
         m_primitivesConfig.torusPrimitiveCount++;
     }
     else {
@@ -1424,7 +1424,7 @@ scene_builder& scene_builder::addTorus(const char* name, point3 pos, float major
     return *this;
 }
 
-scene_builder& scene_builder::addCone(const char* name, point3 pos, float radius, float height, const char* materialName, const uvmapping& uv, const char* groupName)
+scene_builder& scene_builder::addCone(const char* name, point3 pos, float radius, float height, const char* materialName, const uvmapping& uv, const char* groupName, const rt::transform& trs)
 {
  //   auto cone = scene_factory::createCone(name, pos, height, radius, fetchMaterial(materialName), uv);
  //   
@@ -1470,7 +1470,7 @@ scene_builder& scene_builder::addCone(const char* name, point3 pos, float radius
         char* groupName_copy = new char[length3]; // Allocate memory
         strcpy(groupName_copy, groupName);  // Copy the string
 
-        m_primitivesConfig.conePrimitives[c] = conePrimitiveConfig{ name_copy, pos, radius, height, materialName_copy, uv, groupName_copy };
+        m_primitivesConfig.conePrimitives[c] = conePrimitiveConfig{ name_copy, pos, radius, height, materialName_copy, uv, groupName_copy, trs };
         m_primitivesConfig.planePrimitiveCount++;
     }
     else {
@@ -1481,7 +1481,7 @@ scene_builder& scene_builder::addCone(const char* name, point3 pos, float radius
     return *this;
 }
 
-scene_builder& scene_builder::addVolume(const char* name, const char* boundaryObjectName, float density, const color& rgb, const char* textureName, const char* groupName)
+scene_builder& scene_builder::addVolume(const char* name, const char* boundaryObjectName, float density, const color& rgb, const char* textureName, const char* groupName, const rt::transform& trs)
 {
   //  auto boundaryObject = this->m_objects.get(boundaryObjectName);
   //  if (boundaryObject)
@@ -1537,7 +1537,7 @@ scene_builder& scene_builder::addVolume(const char* name, const char* boundaryOb
         char* groupName_copy = new char[length4]; // Allocate memory
         strcpy(groupName_copy, groupName);  // Copy the string
 
-        m_primitivesConfig.volumePrimitives[c] = volumePrimitiveConfig{ name_copy, boundaryObjectName_copy, density, rgb, textureName_copy, groupName_copy };
+        m_primitivesConfig.volumePrimitives[c] = volumePrimitiveConfig{ name_copy, boundaryObjectName_copy, density, rgb, textureName_copy, groupName_copy, trs };
         m_primitivesConfig.volumePrimitiveCount++;
     }
     else {

@@ -105,10 +105,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\cameras\orthographic_camera.cuh" />
-    <ClInclude Include="src\device_group.cuh" />
-    <ClInclude Include="src\scene_composer.cuh" />
-    <ClInclude Include="src\device_material.cuh" />
-    <ClInclude Include="src\device_texture.cuh" />
     <ClInclude Include="src\lights\directional_light.cuh" />
     <ClInclude Include="src\lights\light.cuh" />
     <ClInclude Include="src\lights\omni_light.cuh" />
