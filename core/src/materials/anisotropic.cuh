@@ -34,6 +34,8 @@ public:
 
     __host__ __device__ float scattering_pdf(const ray& r_in, const hit_record& rec, const ray& scattered) const override;
 
+	__device__ color emitted(const ray& r_in, const hit_record& rec, float u, float v, const point3& p, thrust::default_random_engine& rng) const override;
+
 	__host__ __device__ MaterialTypeID getTypeID() const override { return MaterialTypeID::materialAnisotropicType; }
 
 
@@ -49,9 +51,6 @@ private:
     // A higher exponent results in a smaller, tighter highlight while a lower exponent results in a broader flatter one.
     float m_nu = 0.0f;
     float m_nv = 0.0f;
-
-
-    __host__ __device__ color emitted(const ray& r_in, const hit_record& rec, float u, float v, const point3& p) const;
 };
 
 
@@ -93,7 +92,7 @@ __device__ inline bool anisotropic::scatter(const ray& r_in, const hittable_list
 	return true;
 }
 
-__host__ __device__ inline color anisotropic::emitted(const ray& r_in, const hit_record& rec, float u, float v, const point3& p) const
+__device__ inline color anisotropic::emitted(const ray& r_in, const hit_record& rec, float u, float v, const point3& p, thrust::default_random_engine& rng) const
 {
 	return color::black();
 }

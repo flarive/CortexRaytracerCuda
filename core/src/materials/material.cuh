@@ -90,7 +90,6 @@ public:
     __host__ __device__ texture* get_displacement_texture() const;
 
 protected:
-
     texture* m_diffuse_texture = nullptr;
     texture* m_specular_texture = nullptr;
     texture* m_normal_texture = nullptr;

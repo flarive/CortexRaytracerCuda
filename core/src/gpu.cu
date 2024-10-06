@@ -136,6 +136,36 @@ __device__ int strcmp_device(const char* str1, const char* str2)
 }
 
 
+
+__device__ size_t getTextureImageIndex(sceneConfig* sceneCfg, bitmap_image** images, const char* textureName)
+{
+    size_t index = 0;
+    
+    if (textureName == nullptr || textureName[0] == '\0')
+    {
+        printf("[GPU] Can't get image index for nameless texture\n");
+        return index;
+    }
+
+    for (int i = 0; i < sceneCfg->texturesCfg.imageTextureCount; i++)
+    {
+        imageTextureConfig imageTexture = sceneCfg->texturesCfg.imageTextures[i];
+
+        if (strcmp_device(imageTexture.name, textureName) == 0)
+        {
+            return index;
+        }
+
+        index++;
+    }
+
+    printf("[GPU] Can't get image index for texture %s\n", textureName);
+
+    return index;
+}
+
+
+
 /// <summary>
 /// Only spheres and box boundaries for the moment !!!
 /// </summary>
@@ -144,6 +174,12 @@ __device__ int strcmp_device(const char* str1, const char* str2)
 /// <returns></returns>
 __device__ hittable* fetchPrimitive(sceneConfig* sceneCfg, const char* primitiveName)
 {
+    if (primitiveName == nullptr || primitiveName[0] == '\0')
+    {
+        printf("[GPU] Can't fetch nameless primitive\n");
+        return nullptr;
+    }
+    
     auto defaultMaterial = new lambertian(new solid_color_texture(1.0f, 1.0f, 1.0f));
     
     for (int i = 0; i < sceneCfg->primitivesCfg.spherePrimitiveCount; i++)
@@ -167,176 +203,180 @@ __device__ hittable* fetchPrimitive(sceneConfig* sceneCfg, const char* primitive
     return nullptr;
 }
 
-__device__ texture* fetchTexture(sceneConfig* sceneCfg, bitmap_image** images, int image_index, const char* textureName)
+__device__ texture* fetchTexture(sceneConfig* sceneCfg, bitmap_image** images, size_t count_images, const char* textureName)
 {
+    if (textureName == nullptr || textureName[0] == '\0')
+    {
+        printf("[GPU] Can't fetch nameless texture\n");
+        return nullptr;
+    }
+    
     for (int i = 0; i < sceneCfg->texturesCfg.solidColorTextureCount; i++)
     {
         solidColorTextureConfig solidColorTexture = sceneCfg->texturesCfg.solidColorTextures[i];
-        printf("[GPU] solidColorTexture%d %s %g/%g/%g\n", i,
-            solidColorTexture.name,
-            solidColorTexture.rgb.r(), solidColorTexture.rgb.g(), solidColorTexture.rgb.b());
-
+        
         if (strcmp_device(solidColorTexture.name, textureName) == 0)
         {
-            return new solid_color_texture(solidColorTexture.rgb);
+            return scene_factory::createColorTexture(solidColorTexture.name, solidColorTexture.rgb);
         }
     }
 
     for (int i = 0; i < sceneCfg->texturesCfg.gradientColorTextureCount; i++)
     {
         gradientColorTextureConfig gradientColorTexture = sceneCfg->texturesCfg.gradientColorTextures[i];
-        printf("[GPU] gradientColorTexture%d %s %g/%g/%g %g/%g/%g %d %d\n", i,
-            gradientColorTexture.name,
-            gradientColorTexture.color1.r(), gradientColorTexture.color1.g(), gradientColorTexture.color1.b(),
-            gradientColorTexture.color2.r(), gradientColorTexture.color2.g(), gradientColorTexture.color2.b(),
-            gradientColorTexture.vertical,
-            gradientColorTexture.hsv);
-
+        
         if (strcmp_device(gradientColorTexture.name, textureName) == 0)
         {
-            return new gradient_texture(gradientColorTexture.color1, gradientColorTexture.color2, gradientColorTexture.vertical, gradientColorTexture.hsv);
+            return scene_factory::createGradientTexture(gradientColorTexture.name, gradientColorTexture.color1, gradientColorTexture.color2, gradientColorTexture.vertical, gradientColorTexture.hsv);
         }
     }
 
     for (int i = 0; i < sceneCfg->texturesCfg.imageTextureCount; i++)
     {
         imageTextureConfig imageTexture = sceneCfg->texturesCfg.imageTextures[i];
-        printf("[GPU] imageTexture%d %s %s\n", i,
-            imageTexture.name,
-            imageTexture.filepath);
-
+        
         if (strcmp_device(imageTexture.name, textureName) == 0)
         {
-            bitmap_image img = *(images[image_index]);
-            return new image_texture(img);
+            size_t image_index = getTextureImageIndex(sceneCfg, images, textureName);
+            if (image_index >= 0 && image_index < count_images)
+            {
+                bitmap_image img = *(images[image_index]);
+                return scene_factory::createImageTexture(imageTexture.name, imageTexture.filepath, img, true);
+            }
         }
     }
 
     for (int i = 0; i < sceneCfg->texturesCfg.checkerTextureCount; i++)
     {
         checkerTextureConfig checkerTexture = sceneCfg->texturesCfg.checkerTextures[i];
-        printf("[GPU] checkerTexture%d %s %g/%g/%g %g/%g/%g %s %s %g\n", i,
-            checkerTexture.name,
-            checkerTexture.oddColor.r(), checkerTexture.oddColor.g(), checkerTexture.oddColor.b(),
-            checkerTexture.evenColor.r(), checkerTexture.evenColor.g(), checkerTexture.evenColor.b(),
-            checkerTexture.oddTextureName,
-            checkerTexture.evenTextureName,
-            checkerTexture.scale);
 
         if (strcmp_device(checkerTexture.name, textureName) == 0)
         {
-            return new checker_texture(checkerTexture.scale, checkerTexture.oddColor, checkerTexture.evenColor);
+            texture* oddTexture = fetchTexture(sceneCfg, images, count_images, checkerTexture.oddTextureName);
+            texture* evenTexture = fetchTexture(sceneCfg, images, count_images, checkerTexture.evenTextureName);
+            
+            if (oddTexture != nullptr && evenTexture != nullptr)
+                return scene_factory::createCheckerTexture(checkerTexture.name, oddTexture, checkerTexture.oddTextureName, evenTexture, checkerTexture.evenTextureName, checkerTexture.scale);
+            else
+                return scene_factory::createCheckerTexture(checkerTexture.name, checkerTexture.oddColor, checkerTexture.evenColor, oddTexture, evenTexture, checkerTexture.scale);
         }
     }
 
     for (int i = 0; i < sceneCfg->texturesCfg.noiseTextureCount; i++)
     {
         noiseTextureConfig noiseTexture = sceneCfg->texturesCfg.noiseTextures[i];
-        printf("[GPU] noiseTexture%d %s %g\n", i,
-            noiseTexture.name,
-            noiseTexture.scale);
 
         if (strcmp_device(noiseTexture.name, textureName) == 0)
         {
-            return new perlin_noise_texture(noiseTexture.scale);
+            return scene_factory::createNoiseTexture(noiseTexture.name, noiseTexture.scale);
         }
     }
 
     for (int i = 0; i < sceneCfg->texturesCfg.bumpTextureCount; i++)
     {
         bumpTextureConfig bumpTexture = sceneCfg->texturesCfg.bumpTextures[i];
-        printf("[GPU] bumpTexture%d %s %s %g\n", i,
-            bumpTexture.name,
-            bumpTexture.filepath,
-            bumpTexture.strength);
+
 
         if (strcmp_device(bumpTexture.name, textureName) == 0)
         {
-            //return new bump_texture(bumpTexture.filepath);
+            size_t image_index = getTextureImageIndex(sceneCfg, images, textureName);
+            if (image_index >= 0 && image_index < count_images)
+            {
+                bitmap_image img = *(images[image_index]);
+                return scene_factory::createBumpTexture(bumpTexture.name, bumpTexture.filepath, img, bumpTexture.strength);
+            }
         }
     }
 
     for (int i = 0; i < sceneCfg->texturesCfg.normalTextureCount; i++)
     {
         normalTextureConfig normalTexture = sceneCfg->texturesCfg.normalTextures[i];
-        printf("[GPU] normalTexture%d %s %s %g\n", i,
-            normalTexture.name,
-            normalTexture.filepath,
-            normalTexture.strength);
 
         if (strcmp_device(normalTexture.name, textureName) == 0)
         {
-            //return new normal_texture(bumpTexture.filepath);
+            size_t image_index = getTextureImageIndex(sceneCfg, images, textureName);
+            if (image_index >= 0 && image_index < count_images)
+            {
+                bitmap_image img = *(images[image_index]);
+                return scene_factory::createNormalTexture(normalTexture.name, normalTexture.filepath, img, normalTexture.strength);
+            }
         }
     }
 
     for (int i = 0; i < sceneCfg->texturesCfg.displacementTextureCount; i++)
     {
         displacementTextureConfig displacementTexture = sceneCfg->texturesCfg.displacementTextures[i];
-        printf("[GPU] displacementTexture%d %s %s %g\n", i,
-            displacementTexture.name,
-            displacementTexture.filepath,
-            displacementTexture.strength);
 
         if (strcmp_device(displacementTexture.name, textureName) == 0)
         {
-            //return new normal_texture(bumpTexture.filepath);
+            size_t image_index = getTextureImageIndex(sceneCfg, images, textureName);
+            if (image_index >= 0 && image_index < count_images)
+            {
+                bitmap_image img = *(images[image_index]);
+                return scene_factory::createDisplaceTexture(displacementTexture.name, displacementTexture.filepath, img, displacementTexture.strength);
+            }
         }
     }
 
     for (int i = 0; i < sceneCfg->texturesCfg.alphaTextureCount; i++)
     {
         alphaTextureConfig alphaTexture = sceneCfg->texturesCfg.alphaTextures[i];
-        printf("[GPU] alphaTexture%d %s %s %d\n", i,
-            alphaTexture.name,
-            alphaTexture.filepath,
-            alphaTexture.doubleSided);
 
         if (strcmp_device(alphaTexture.name, textureName) == 0)
         {
-            //return new alpha_texture(bumpTexture.filepath);
+            size_t image_index = getTextureImageIndex(sceneCfg, images, textureName);
+            if (image_index >= 0 && image_index < count_images)
+            {
+                bitmap_image img = *(images[image_index]);
+                return scene_factory::createAlphaTexture(alphaTexture.name, alphaTexture.filepath, img, alphaTexture.doubleSided);
+            }
         }
     }
 
     for (int i = 0; i < sceneCfg->texturesCfg.emissiveTextureCount; i++)
     {
         emissiveTextureConfig emissiveTexture = sceneCfg->texturesCfg.emissiveTextures[i];
-        printf("[GPU] emissiveTexture%d %s %s %g\n", i,
-            emissiveTexture.name,
-            emissiveTexture.filepath,
-            emissiveTexture.strength);
 
         if (strcmp_device(emissiveTexture.name, textureName) == 0)
         {
-            //return new emissive_texture(bumpTexture.filepath);
+            size_t image_index = getTextureImageIndex(sceneCfg, images, textureName);
+            if (image_index >= 0 && image_index < count_images)
+            {
+                bitmap_image img = *(images[image_index]);
+                return scene_factory::createEmissiveTexture(emissiveTexture.name, emissiveTexture.filepath, img, emissiveTexture.strength);
+            }
         }
     }
+
+    return nullptr;
 }
 
 
-__device__ material* fetchMaterial(sceneConfig* sceneCfg, bitmap_image** images, const char* materialName)
+__device__ material* fetchMaterial(sceneConfig* sceneCfg, bitmap_image** images, size_t count_images, const char* materialName)
 {
+    if (materialName == nullptr || materialName[0] == '\0')
+    {
+        printf("[GPU] Can't fetch nameless material\n");
+        return nullptr;
+    }
+    
     for (int i = 0; i < sceneCfg->materialsCfg.lambertianMaterialCount; i++)
     {
         lambertianMaterialConfig lambertianMaterial = sceneCfg->materialsCfg.lambertianMaterials[i];
-        printf("[GPU] lambertianMaterial%d %s %g/%g/%g %s\n", i,
-            lambertianMaterial.name,
-            lambertianMaterial.rgb.r(), lambertianMaterial.rgb.g(), lambertianMaterial.rgb.b(),
-            lambertianMaterial.textureName);
 
         if (strcmp_device(lambertianMaterial.name, materialName) == 0)
         {
             if (lambertianMaterial.textureName != nullptr && lambertianMaterial.textureName[0] != '\0')
             {
-                texture* tex = fetchTexture(sceneCfg, images, 0, lambertianMaterial.textureName);
+                texture* tex = fetchTexture(sceneCfg, images, count_images, lambertianMaterial.textureName);
                 if (tex)
                 {
-                    return new lambertian(tex);
+                    return scene_factory::createLambertianMaterial(lambertianMaterial.name, lambertianMaterial.textureName, tex);
                 }
             }
             else
             {
-                return new lambertian(lambertianMaterial.rgb);
+                return scene_factory::createLambertianMaterial(lambertianMaterial.name, lambertianMaterial.rgb);
             }
         }
     }
@@ -344,122 +384,97 @@ __device__ material* fetchMaterial(sceneConfig* sceneCfg, bitmap_image** images,
     for (int i = 0; i < sceneCfg->materialsCfg.metalMaterialCount; i++)
     {
         metalMaterialConfig metalMaterial = sceneCfg->materialsCfg.metalMaterials[i];
-        printf("[GPU] metalMaterial%d %s %g/%g/%g %g\n", i,
-            metalMaterial.name,
-            metalMaterial.rgb.r(), metalMaterial.rgb.g(), metalMaterial.rgb.b(),
-            metalMaterial.fuzziness);
-
+        
         if (strcmp_device(metalMaterial.name, materialName) == 0)
         {
-            return new metal(metalMaterial.rgb, metalMaterial.fuzziness);
+            return scene_factory::createMetalMaterial(metalMaterial.name, metalMaterial.rgb, metalMaterial.fuzziness);
         }
     }
 
     for (int i = 0; i < sceneCfg->materialsCfg.dielectricMaterialCount; i++)
     {
         dielectricMaterialConfig glassMaterial = sceneCfg->materialsCfg.dielectricMaterials[i];
-        printf("[GPU] glassMaterial%d %s %g\n", i,
-            glassMaterial.name,
-            glassMaterial.refraction);
-
+        
         if (strcmp_device(glassMaterial.name, materialName) == 0)
         {
-            return new dielectric(glassMaterial.refraction);
+            return scene_factory::createDielectricMaterial(glassMaterial.name, glassMaterial.refraction);
         }
     }
 
     for (int i = 0; i < sceneCfg->materialsCfg.isotropicMaterialCount; i++)
     {
         isotropicMaterialConfig isotropicMaterial = sceneCfg->materialsCfg.isotropicMaterials[i];
-        printf("[GPU] isotropicMaterial%d %s %g/%g/%g %s\n", i,
-            isotropicMaterial.name,
-            isotropicMaterial.rgb.r(), isotropicMaterial.rgb.g(), isotropicMaterial.rgb.b(),
-            isotropicMaterial.textureName);
 
         if (strcmp_device(isotropicMaterial.name, materialName) == 0)
         {
             if (isotropicMaterial.textureName != nullptr && isotropicMaterial.textureName[0] != '\0')
-                return new isotropic(isotropicMaterial.rgb);
+            {
+                texture* tex = fetchTexture(sceneCfg, images, count_images, isotropicMaterial.textureName);
+
+                if (tex)
+                    return scene_factory::createIsotropicMaterial(isotropicMaterial.name, isotropicMaterial.textureName, tex);
+            }
             else
-                return new isotropic(isotropicMaterial.rgb);
+                return scene_factory::createIsotropicMaterial(isotropicMaterial.name, isotropicMaterial.rgb);
         }
     }
 
     for (int i = 0; i < sceneCfg->materialsCfg.anisotropicMaterialCount; i++)
     {
         anisotropicMaterialConfig anisotropicMaterial = sceneCfg->materialsCfg.anisotropicMaterials[i];
-        printf("[GPU] anisotropicMaterial%d %s %g/%g/%g %g %g %s %s %s %g\n", i,
-            anisotropicMaterial.name,
-            anisotropicMaterial.rgb.r(), anisotropicMaterial.rgb.g(), anisotropicMaterial.rgb.b(),
-            anisotropicMaterial.nuf,
-            anisotropicMaterial.nvf,
-            anisotropicMaterial.diffuseTextureName,
-            anisotropicMaterial.specularTextureName,
-            anisotropicMaterial.exponentTextureName,
-            anisotropicMaterial.roughness);
 
         if (strcmp_device(anisotropicMaterial.name, materialName) == 0)
         {
-            texture* diffuse_tex = fetchTexture(sceneCfg, images, 0, anisotropicMaterial.diffuseTextureName);
-            texture* specular_tex = fetchTexture(sceneCfg, images, 0, anisotropicMaterial.specularTextureName);
-            texture* exponent_tex = fetchTexture(sceneCfg, images, 0, anisotropicMaterial.exponentTextureName);
+            texture* diffuse_tex = fetchTexture(sceneCfg, images, count_images, anisotropicMaterial.diffuseTextureName);
+            texture* specular_tex = fetchTexture(sceneCfg, images, count_images, anisotropicMaterial.specularTextureName);
+            texture* exponent_tex = fetchTexture(sceneCfg, images, count_images, anisotropicMaterial.exponentTextureName);
             
             if (diffuse_tex)
-                return new anisotropic(anisotropicMaterial.nuf, anisotropicMaterial.nvf, diffuse_tex, specular_tex, exponent_tex);
+                return scene_factory::createAnisotropicMaterial(anisotropicMaterial.name, anisotropicMaterial.nuf, anisotropicMaterial.nvf, anisotropicMaterial.diffuseTextureName, diffuse_tex, anisotropicMaterial.specularTextureName, specular_tex, anisotropicMaterial.exponentTextureName, exponent_tex);
         }
     }
 
     for (int i = 0; i < sceneCfg->materialsCfg.orenNayarMaterialCount; i++)
     {
         orenNayarMaterialConfig orenNayarMaterial = sceneCfg->materialsCfg.orenNayarMaterials[i];
-        printf("[GPU] orenNayarMaterial%d %s %g/%g/%g %s %g %g\n", i,
-            orenNayarMaterial.name,
-            orenNayarMaterial.rgb.r(), orenNayarMaterial.rgb.g(), orenNayarMaterial.rgb.b(),
-            orenNayarMaterial.textureName,
-            orenNayarMaterial.roughness,
-            orenNayarMaterial.albedo_temp);
 
         if (strcmp_device(orenNayarMaterial.name, materialName) == 0)
         {
-            texture* diffuse_tex = fetchTexture(sceneCfg, images, 0, orenNayarMaterial.textureName);
+            texture* tex = fetchTexture(sceneCfg, images, count_images, orenNayarMaterial.textureName);
 
-            if (diffuse_tex)
-                return new oren_nayar(diffuse_tex, orenNayarMaterial.albedo_temp, orenNayarMaterial.roughness);
+            if (tex)
+                return scene_factory::createOrenNayarMaterial(orenNayarMaterial.name, orenNayarMaterial.rgb, orenNayarMaterial.roughness, orenNayarMaterial.albedo_temp);
+            else
+                return scene_factory::createOrenNayarMaterial(orenNayarMaterial.name, orenNayarMaterial.textureName, tex, orenNayarMaterial.roughness, orenNayarMaterial.albedo_temp);
         }
     }
 
     for (int i = 0; i < sceneCfg->materialsCfg.phongMaterialCount; i++)
     {
         phongMaterialConfig phongMaterial = sceneCfg->materialsCfg.phongMaterials[i];
-        printf("[GPU] phongMaterial%d %s %s %s %s %s %s %s %s %g/%g/%g %g\n", i,
-            phongMaterial.name,
-            phongMaterial.diffuseTextureName,
-            phongMaterial.specularTextureName,
-            phongMaterial.bumpTextureName,
-            phongMaterial.normalTextureName,
-            phongMaterial.displacementTextureName,
-            phongMaterial.alphaTextureName,
-            phongMaterial.emissiveTextureName,
-            phongMaterial.ambientColor.r(), phongMaterial.ambientColor.g(), phongMaterial.ambientColor.b(),
-            phongMaterial.shininess);
 
         if (strcmp_device(phongMaterial.name, materialName) == 0)
         {
-            texture* diffuse_tex = fetchTexture(sceneCfg, images, 0, phongMaterial.diffuseTextureName);
-            texture* specular_tex = fetchTexture(sceneCfg, images, 0, phongMaterial.specularTextureName);
-            texture* bump_tex = fetchTexture(sceneCfg, images, 0, phongMaterial.bumpTextureName);
-            texture* normal_tex = fetchTexture(sceneCfg, images, 0, phongMaterial.normalTextureName);
-            texture* displace_tex = fetchTexture(sceneCfg, images, 0, phongMaterial.displacementTextureName);
-            texture* alpha_tex = fetchTexture(sceneCfg, images, 0, phongMaterial.alphaTextureName);
-            texture* emissive_tex = fetchTexture(sceneCfg, images, 0, phongMaterial.emissiveTextureName);
+            texture* diffuse_tex = fetchTexture(sceneCfg, images, count_images, phongMaterial.diffuseTextureName);
+            texture* specular_tex = fetchTexture(sceneCfg, images, count_images, phongMaterial.specularTextureName);
+            texture* bump_tex = fetchTexture(sceneCfg, images, count_images, phongMaterial.bumpTextureName);
+            texture* normal_tex = fetchTexture(sceneCfg, images, count_images, phongMaterial.normalTextureName);
+            texture* displace_tex = fetchTexture(sceneCfg, images, count_images, phongMaterial.displacementTextureName);
+            texture* alpha_tex = fetchTexture(sceneCfg, images, count_images, phongMaterial.alphaTextureName);
+            texture* emissive_tex = fetchTexture(sceneCfg, images, count_images, phongMaterial.emissiveTextureName);
             
             if (diffuse_tex)
-                return new phong(diffuse_tex, specular_tex, bump_tex, normal_tex, displace_tex, alpha_tex, emissive_tex, phongMaterial.ambientColor, phongMaterial.shininess);
+                return scene_factory::createPhongMaterial(phongMaterial.name, phongMaterial.diffuseTextureName, diffuse_tex, phongMaterial.specularTextureName, specular_tex, phongMaterial.bumpTextureName, bump_tex, phongMaterial.normalTextureName, normal_tex, phongMaterial.displacementTextureName, displace_tex, phongMaterial.alphaTextureName, alpha_tex, phongMaterial.emissiveTextureName, emissive_tex, phongMaterial.ambientColor, phongMaterial.shininess);
         }
     }
+
+    return nullptr;
 }
 
-__global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittable_list **elights,  camera **cam, sampler **aa_sampler, int width, int height, float ratio, int spp, int sqrt_spp, bitmap_image** images, int num_textures, int seed)
+
+
+
+__global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittable_list **elights,  camera **cam, sampler **aa_sampler, int width, int height, float ratio, int spp, int sqrt_spp, bitmap_image** images, int count_images, int seed)
 {
     if (threadIdx.x == 0 && blockIdx.x == 0)
     {
@@ -475,21 +490,6 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
 
 
 
-        // TEXTURES DATA
-        // You can access individual textures like this:
-        // textures[0] -> first texture
-        // textures[1] -> second texture
-        // num_textures -> number of textures
-        // Example usage:
-        //for (int i = 0; i < num_textures; ++i)
-        //{
-        //    // Process each texture as needed
-        //    bitmap_image* current_texture = images[i];
-        //    // Use current_texture in the scene (e.g., for material or texture mapping)
-        //}
-
-
-
         // LIGHTS
         printf("[GPU] %i omni lights found\n", sceneCfg->lightsCfg.omniLightCount);
         printf("[GPU] %i dir lights found\n", sceneCfg->lightsCfg.dirLightCount);
@@ -498,38 +498,22 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
         for (int i = 0; i < sceneCfg->lightsCfg.omniLightCount; i++)
         {
             omniLightConfig omnilight = sceneCfg->lightsCfg.omniLights[i];
-            printf("[GPU] omnilight%d %g %s %g/%g/%g %g/%g/%g %g %d\n", i, 
-                omnilight.intensity, omnilight.name,
-                omnilight.position.x, omnilight.position.y, omnilight.position.z,
-                omnilight.rgb.r(), omnilight.rgb.g(), omnilight.rgb.b(),
-                omnilight.radius,
-                omnilight.invisible);
+
+            (*elist)->add(scene_factory::createOmniLight(omnilight.name, omnilight.position, omnilight.radius, omnilight.intensity, omnilight.rgb, omnilight.invisible));
         }
 
         for (int i = 0; i < sceneCfg->lightsCfg.dirLightCount; i++)
         {
             directionalLightConfig dirlight = sceneCfg->lightsCfg.dirLights[i];
-            printf("[GPU] dirlight%d %g %s %g/%g/%g %g/%g/%g %g/%g/%g %g/%g/%g %d\n", i, 
-                dirlight.intensity, dirlight.name,
-                dirlight.position.x, dirlight.position.y, dirlight.position.z,
-                dirlight.u.x, dirlight.u.y, dirlight.u.z,
-                dirlight.v.x, dirlight.v.y, dirlight.v.z,
-                dirlight.rgb.r(), dirlight.rgb.g(), dirlight.rgb.b(),
-                dirlight.invisible);
+
+            (*elist)->add(scene_factory::createDirLight(dirlight.name, dirlight.position, dirlight.u, dirlight.v, dirlight.intensity, dirlight.rgb, dirlight.invisible));
         }
 
         for (int i = 0; i < sceneCfg->lightsCfg.spotLightCount; i++)
         {
             spotLightConfig spotlight = sceneCfg->lightsCfg.spotLights[i];
-            printf("[GPU] spotlight%d %g %s %g/%g/%g %g/%g/%g %g %g %g %g/%g/%g %d\n", i, 
-                spotlight.intensity, spotlight.name,
-                spotlight.position.x, spotlight.position.y, spotlight.position.z,
-                spotlight.direction.x, spotlight.direction.y, spotlight.direction.z,
-                spotlight.cutoff,
-                spotlight.falloff,
-                spotlight.radius,
-                spotlight.rgb.r(), spotlight.rgb.g(), spotlight.rgb.b(),
-                spotlight.invisible);
+
+            (*elist)->add(scene_factory::createSpotLight(spotlight.name, spotlight.position, spotlight.direction, spotlight.cutoff, spotlight.falloff, spotlight.intensity, spotlight.radius, spotlight.rgb, spotlight.invisible));
         }
 
 
@@ -538,165 +522,80 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
         {
             spherePrimitiveConfig spherePrimitive = sceneCfg->primitivesCfg.spherePrimitives[i];
 
-            material* mat = fetchMaterial(sceneCfg, images, spherePrimitive.materialName);
+            material* mat = fetchMaterial(sceneCfg, images, count_images, spherePrimitive.materialName);
 
             if (mat)
                 (*elist)->add(scene_factory::createSphere(spherePrimitive.name, spherePrimitive.position, spherePrimitive.radius, mat, spherePrimitive.mapping, spherePrimitive.transform));
-
-            printf("[GPU] spherePrimitive%d %s %g/%g/%g %g/%g %g/%g %g/%g %g %s %s\n", i,
-                spherePrimitive.name,
-                spherePrimitive.position.x, spherePrimitive.position.y, spherePrimitive.position.z,
-                spherePrimitive.mapping.offset_u(), spherePrimitive.mapping.offset_v(),
-                spherePrimitive.mapping.repeat_u(), spherePrimitive.mapping.repeat_v(),
-                spherePrimitive.mapping.scale_u(), spherePrimitive.mapping.scale_v(),
-                spherePrimitive.radius,
-                spherePrimitive.materialName,
-                spherePrimitive.groupName);
         }
 
         for (int i = 0; i < sceneCfg->primitivesCfg.planePrimitiveCount; i++)
         {
             planePrimitiveConfig planePrimitive = sceneCfg->primitivesCfg.planePrimitives[i];
 
-            material* mat = fetchMaterial(sceneCfg, images, planePrimitive.materialName);
+            material* mat = fetchMaterial(sceneCfg, images, count_images, planePrimitive.materialName);
 
             if (mat)
                 (*elist)->add(scene_factory::createPlane(planePrimitive.name, planePrimitive.point1, planePrimitive.point2, mat, planePrimitive.mapping, planePrimitive.transform));
-
-            printf("[GPU] planePrimitive%d %s %g/%g/%g %g/%g/%g %g/%g %g/%g %g/%g %s %s\n", i,
-                planePrimitive.name,
-                planePrimitive.point1.x, planePrimitive.point1.y, planePrimitive.point1.z,
-                planePrimitive.point2.x, planePrimitive.point2.y, planePrimitive.point2.z,
-                planePrimitive.mapping.offset_u(), planePrimitive.mapping.offset_v(),
-                planePrimitive.mapping.repeat_u(), planePrimitive.mapping.repeat_v(),
-                planePrimitive.mapping.scale_u(), planePrimitive.mapping.scale_v(),
-                planePrimitive.materialName,
-                planePrimitive.groupName);
         }
 
         for (int i = 0; i < sceneCfg->primitivesCfg.quadPrimitiveCount; i++)
         {
             quadPrimitiveConfig quadPrimitive = sceneCfg->primitivesCfg.quadPrimitives[i];
             
-            material* mat = fetchMaterial(sceneCfg, images, quadPrimitive.materialName);
+            material* mat = fetchMaterial(sceneCfg, images, count_images, quadPrimitive.materialName);
             
             if (mat)
                 (*elist)->add(scene_factory::createQuad(quadPrimitive.name, quadPrimitive.position, quadPrimitive.u, quadPrimitive.v, mat, quadPrimitive.mapping, quadPrimitive.transform));
-
-            printf("[GPU] quadPrimitive%d %s %g/%g/%g %g/%g/%g %g/%g/%g %g/%g %g/%g %g/%g %s %s\n", i,
-                quadPrimitive.name,
-                quadPrimitive.position.x, quadPrimitive.position.y, quadPrimitive.position.z,
-                quadPrimitive.u.x, quadPrimitive.u.y, quadPrimitive.u.z,
-                quadPrimitive.v.x, quadPrimitive.v.y, quadPrimitive.v.z,
-                quadPrimitive.mapping.offset_u(), quadPrimitive.mapping.offset_v(),
-                quadPrimitive.mapping.repeat_u(), quadPrimitive.mapping.repeat_v(),
-                quadPrimitive.mapping.scale_u(), quadPrimitive.mapping.scale_v(),
-                quadPrimitive.materialName,
-                quadPrimitive.groupName);
         }
 
         for (int i = 0; i < sceneCfg->primitivesCfg.boxPrimitiveCount; i++)
         {
             boxPrimitiveConfig boxPrimitive = sceneCfg->primitivesCfg.boxPrimitives[i];
 
-            material* mat = fetchMaterial(sceneCfg, images, boxPrimitive.materialName);
+            material* mat = fetchMaterial(sceneCfg, images, count_images, boxPrimitive.materialName);
 
             if (mat)
                 (*elist)->add(scene_factory::createBox(boxPrimitive.name, boxPrimitive.position, boxPrimitive.size, mat, boxPrimitive.mapping, boxPrimitive.transform));
-
-            printf("[GPU] boxPrimitive%d %s %g/%g/%g %g/%g/%g %g/%g %g/%g %g/%g %s %s\n", i,
-                boxPrimitive.name,
-                boxPrimitive.position.x, boxPrimitive.position.y, boxPrimitive.position.z,
-                boxPrimitive.size.x, boxPrimitive.size.y, boxPrimitive.size.z,
-                boxPrimitive.mapping.offset_u(), boxPrimitive.mapping.offset_v(),
-                boxPrimitive.mapping.repeat_u(), boxPrimitive.mapping.repeat_v(),
-                boxPrimitive.mapping.scale_u(), boxPrimitive.mapping.scale_v(),
-                boxPrimitive.materialName,
-                boxPrimitive.groupName);
         }
 
         for (int i = 0; i < sceneCfg->primitivesCfg.conePrimitiveCount; i++)
         {
             conePrimitiveConfig conePrimitive = sceneCfg->primitivesCfg.conePrimitives[i];
 
-            material* mat = fetchMaterial(sceneCfg, images, conePrimitive.materialName);
+            material* mat = fetchMaterial(sceneCfg, images, count_images, conePrimitive.materialName);
 
             if (mat)
                 (*elist)->add(scene_factory::createCone(conePrimitive.name, conePrimitive.position, conePrimitive.height, conePrimitive.radius, mat, conePrimitive.mapping, conePrimitive.transform));
-
-            printf("[GPU] conePrimitive%d %s %g/%g/%g %g %g %g/%g %g/%g %g/%g %s %s\n", i,
-                conePrimitive.name,
-                conePrimitive.position.x, conePrimitive.position.y, conePrimitive.position.z,
-                conePrimitive.radius,
-                conePrimitive.height,
-                conePrimitive.mapping.offset_u(), conePrimitive.mapping.offset_v(),
-                conePrimitive.mapping.repeat_u(), conePrimitive.mapping.repeat_v(),
-                conePrimitive.mapping.scale_u(), conePrimitive.mapping.scale_v(),
-                conePrimitive.materialName,
-                conePrimitive.groupName);
         }
 
         for (int i = 0; i < sceneCfg->primitivesCfg.cylinderPrimitiveCount; i++)
         {
             cylinderPrimitiveConfig cylinderPrimitive = sceneCfg->primitivesCfg.cylinderPrimitives[i];
 
-            material* mat = fetchMaterial(sceneCfg, images, cylinderPrimitive.materialName);
+            material* mat = fetchMaterial(sceneCfg, images, count_images, cylinderPrimitive.materialName);
 
             if (mat)
                 (*elist)->add(scene_factory::createCylinder(cylinderPrimitive.name, cylinderPrimitive.position, cylinderPrimitive.height, cylinderPrimitive.radius, mat, cylinderPrimitive.mapping, cylinderPrimitive.transform));
-
-            printf("[GPU] cylinderPrimitive%d %s %g/%g/%g %g %g %g/%g %g/%g %g/%g %s %s\n", i,
-                cylinderPrimitive.name,
-                cylinderPrimitive.position.x, cylinderPrimitive.position.y, cylinderPrimitive.position.z,
-                cylinderPrimitive.radius,
-                cylinderPrimitive.height,
-                cylinderPrimitive.mapping.offset_u(), cylinderPrimitive.mapping.offset_v(),
-                cylinderPrimitive.mapping.repeat_u(), cylinderPrimitive.mapping.repeat_v(),
-                cylinderPrimitive.mapping.scale_u(), cylinderPrimitive.mapping.scale_v(),
-                cylinderPrimitive.materialName,
-                cylinderPrimitive.groupName);
         }
 
         for (int i = 0; i < sceneCfg->primitivesCfg.diskPrimitiveCount; i++)
         {
             diskPrimitiveConfig diskPrimitive = sceneCfg->primitivesCfg.diskPrimitives[i];
 
-            material* mat = fetchMaterial(sceneCfg, images, diskPrimitive.materialName);
+            material* mat = fetchMaterial(sceneCfg, images, count_images, diskPrimitive.materialName);
 
             if (mat)
                 (*elist)->add(scene_factory::createDisk(diskPrimitive.name, diskPrimitive.position, diskPrimitive.height, diskPrimitive.radius, mat, diskPrimitive.mapping, diskPrimitive.transform));
-
-            printf("[GPU] diskPrimitive%d %s %g/%g/%g %g %g %g/%g %g/%g %g/%g %s %s\n", i,
-                diskPrimitive.name,
-                diskPrimitive.position.x, diskPrimitive.position.y, diskPrimitive.position.z,
-                diskPrimitive.radius,
-                diskPrimitive.height,
-                diskPrimitive.mapping.offset_u(), diskPrimitive.mapping.offset_v(),
-                diskPrimitive.mapping.repeat_u(), diskPrimitive.mapping.repeat_v(),
-                diskPrimitive.mapping.scale_u(), diskPrimitive.mapping.scale_v(),
-                diskPrimitive.materialName,
-                diskPrimitive.groupName);
         }
 
         for (int i = 0; i < sceneCfg->primitivesCfg.torusPrimitiveCount; i++)
         {
             torusPrimitiveConfig torusPrimitive = sceneCfg->primitivesCfg.torusPrimitives[i];
 
-            material* mat = fetchMaterial(sceneCfg, images, torusPrimitive.materialName);
+            material* mat = fetchMaterial(sceneCfg, images, count_images, torusPrimitive.materialName);
 
             if (mat)
                 (*elist)->add(scene_factory::createTorus(torusPrimitive.name, torusPrimitive.position, torusPrimitive.major_radius, torusPrimitive.minor_radius, mat, torusPrimitive.mapping, torusPrimitive.transform));
-
-            printf("[GPU] torusPrimitive%d %s %g/%g/%g %g %g %g/%g %g/%g %g/%g %s %s\n", i,
-                torusPrimitive.name,
-                torusPrimitive.position.x, torusPrimitive.position.y, torusPrimitive.position.z,
-                torusPrimitive.minor_radius,
-                torusPrimitive.major_radius,
-                torusPrimitive.mapping.offset_u(), torusPrimitive.mapping.offset_v(),
-                torusPrimitive.mapping.repeat_u(), torusPrimitive.mapping.repeat_v(),
-                torusPrimitive.mapping.scale_u(), torusPrimitive.mapping.scale_v(),
-                torusPrimitive.materialName,
-                torusPrimitive.groupName);
         }
 
         for (int i = 0; i < sceneCfg->primitivesCfg.volumePrimitiveCount; i++)
@@ -704,55 +603,11 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
             volumePrimitiveConfig volumePrimitive = sceneCfg->primitivesCfg.volumePrimitives[i];
 
             hittable* boundary = fetchPrimitive(sceneCfg, volumePrimitive.boundaryName);
-            texture* tex = fetchTexture(sceneCfg, images, 0, volumePrimitive.textureName);
+            texture* tex = fetchTexture(sceneCfg, images, count_images, volumePrimitive.textureName);
             
             if (boundary && tex)
                 (*elist)->add(scene_factory::createVolume(volumePrimitive.name, boundary, volumePrimitive.density, volumePrimitive.rgb, tex, volumePrimitive.transform));
-
-            printf("[GPU] volumePrimitive%d %s %s %g %g/%g/%g %s %s\n", i,
-                volumePrimitive.name,
-                volumePrimitive.boundaryName,
-                volumePrimitive.density,
-                volumePrimitive.rgb.r(), volumePrimitive.rgb.g(), volumePrimitive.rgb.b(),
-                volumePrimitive.textureName,
-                volumePrimitive.groupName);
         }
-
-
-
-        //hittable_list obj = composer->getObjects();
-        //for (int w = 0; w < obj.object_count; w++)
-        //{
-        //    auto sss = obj.objects[w];
-        //    (*elist)->add(sss);
-        //}
-
-
-        
-
-
-
-
-        //(*elist)->add(new rt::flip_normals(new yz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(color(0.12, 0.45, 0.15))), "MyLeft")));
-        //(*elist)->add(new yz_rect(0, 555, 0, 555, 0, new lambertian(new solid_color_texture(color(0.65, 0.05, 0.05))), "MyRight"));
-        //(*elist)->add(new xz_rect(0, 555, 0, 555, 0, new lambertian(new solid_color_texture(color(0.73, 0.73, 0.73))), "MyGround"));
-        //(*elist)->add(new rt::flip_normals(new xz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(color(0.73, 0.73, 0.73))), "MyTop")));
-        //(*elist)->add(new rt::flip_normals(new xz_rect(0, 555, 0, 555, 555, new lambertian(new solid_color_texture(color(0.73, 0.73, 0.73))), "MyBottom")));
-        
-        // back
-        //(*elist)->add(new quad(point3(0,0,555), vector3(555,0,0), vector3(0,555,0), new lambertian(new solid_color_texture(color(0.73, 0.73, 0.73))), "MyBack"));
-
-
-        // box
-        //(*elist)->add(new rt::translate(new box(point3(0.0f, 0.0f, 200.0f), vector3(165, 330, 165), new lambertian(new image_texture(*(images[0]))), "MyBox"), vector3(120,0,320)));
-        
-        // sphere
-        //(*elist)->add(new sphere(point3(350.0f, 50.0f, 295.0f), 100.0f, new lambertian(*texture), "MySphere"));
-
-
-        // light
-        (*elist)->add(new directional_light(point3(278, 554, 332), vector3(-305, 0, 0), vector3(0, 0, -305), 1.0f, color(10.0, 10.0, 10.0), "MyLight", true));
-
 
 
 
@@ -769,21 +624,24 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
             }
         }
 
-        *cam = new perspective_camera();
+        if (!sceneCfg->cameraCfg.isOrthographic)
+            *cam = new perspective_camera();
+        else
+            *cam = new orthographic_camera();
+
         (*cam)->initialize(
-            vector3(278, 278, -800),
-            vector3(278, 278, 0),
-            vector3(0, 1, 0),
-            width,
-            ratio,
-            40.0f,
-            0.0f,
-            10.0f,
-            0.0f,
+            sceneCfg->cameraCfg.lookFrom,
+            sceneCfg->cameraCfg.lookAt,
+            sceneCfg->cameraCfg.upAxis,
+            sceneCfg->imageCfg.width,
+            sceneCfg->cameraCfg.aspectRatio,
+            sceneCfg->cameraCfg.fov,
+            sceneCfg->cameraCfg.aperture,
+            sceneCfg->cameraCfg.focus,
+            sceneCfg->cameraCfg.orthoHeight,
             0.0f,
             1.0f,
             sqrt_spp);
-
 
         // calculate bounding boxes to speed up ray computing
         *elist = new hittable_list(new bvh_node((*elist)->objects, 0, (*elist)->object_count, rng));
@@ -798,7 +656,7 @@ __global__ void image_init(unsigned char* tex_data, int width, int height, int c
     }
 }
 
-__global__ void render(scene* world_scene, color* fb, int width, int height, int spp, int sqrt_spp, int max_depth, hittable_list** world, hittable_list** lights, camera** cam, sampler** aa_sampler, int seed)
+__global__ void render(color* fb, int width, int height, int spp, int sqrt_spp, int max_depth, hittable_list** world, hittable_list** lights, camera** cam, sampler** aa_sampler, int seed)
 {
     int i = threadIdx.x + blockIdx.x * blockDim.x;
     int j = threadIdx.y + blockIdx.y * blockDim.y;
@@ -1296,8 +1154,6 @@ void copyLightConfig(const LightConfig* h_lights, int count, LightConfig** d_lig
     cudaMemcpy(d_lightsPtrOnDevice, d_lights, sizeof(LightConfig*), cudaMemcpyHostToDevice);
 }
 
-
-
 texturesConfig* prepareTextures(const texturesConfig& h_texturesCfg)
 {
     // Allocate and copy the textures data (for solid color, gradient color, image...)
@@ -1652,8 +1508,46 @@ primitivesConfig* preparePrimitives(const primitivesConfig& h_primitivesCfg)
     cudaMemcpy(&(d_primitivesCfg->volumePrimitiveCount), &(h_primitivesCfg.volumePrimitiveCount), sizeof(int8_t), cudaMemcpyHostToDevice);
 
     return d_primitivesCfg;
+}
 
 
+
+// Main function to prepare camera
+cameraConfig* prepareCamera(const cameraConfig& h_cameraCfg)
+{
+    cameraConfig* d_cameraCfg;
+    cudaMalloc((void**)&d_cameraCfg, sizeof(cameraConfig));
+
+    cudaMemcpy(&(d_cameraCfg->isOrthographic), &(h_cameraCfg.isOrthographic), sizeof(bool), cudaMemcpyHostToDevice);
+    cudaMemcpy(&(d_cameraCfg->lookAt), &(h_cameraCfg.lookAt), sizeof(point3), cudaMemcpyHostToDevice);
+    cudaMemcpy(&(d_cameraCfg->lookFrom), &(h_cameraCfg.lookFrom), sizeof(point3), cudaMemcpyHostToDevice);
+    cudaMemcpy(&(d_cameraCfg->upAxis), &(h_cameraCfg.upAxis), sizeof(point3), cudaMemcpyHostToDevice);
+    cudaMemcpy(&(d_cameraCfg->aspectRatio), &(h_cameraCfg.aspectRatio), sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(&(d_cameraCfg->focus), &(h_cameraCfg.focus), sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(&(d_cameraCfg->fov), &(h_cameraCfg.fov), sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(&(d_cameraCfg->aperture), &(h_cameraCfg.aperture), sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(&(d_cameraCfg->openingTime), &(h_cameraCfg.openingTime), sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(&(d_cameraCfg->orthoHeight), &(h_cameraCfg.orthoHeight), sizeof(float), cudaMemcpyHostToDevice);
+    
+    return d_cameraCfg;
+}
+
+
+
+// Main function to prepare output image
+imageConfig* prepareImage(const imageConfig& h_imageCfg)
+{
+    imageConfig* d_imageCfg;
+    cudaMalloc((void**)&d_imageCfg, sizeof(imageConfig));
+
+    cudaMemcpy(&(d_imageCfg->background), &(h_imageCfg.background), sizeof(imageBackgroundConfig), cudaMemcpyHostToDevice);
+    cudaMemcpy(&(d_imageCfg->width), &(h_imageCfg.width), sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemcpy(&(d_imageCfg->height), &(h_imageCfg.height), sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemcpy(&(d_imageCfg->outputFilePath), &(h_imageCfg.outputFilePath), sizeof(const char*), cudaMemcpyHostToDevice);
+    cudaMemcpy(&(d_imageCfg->spp), &(h_imageCfg.spp), sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemcpy(&(d_imageCfg->depth), &(h_imageCfg.depth), sizeof(int), cudaMemcpyHostToDevice);
+
+    return d_imageCfg;
 }
 
 void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int width, int height, int spp, int max_depth, int tx, int ty, const char* filepath)
@@ -1661,8 +1555,6 @@ void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int widt
     std::cout << "[INFO] Rendering " << width << "x" << height << " " << spp << " samples > " << filepath << std::endl;
 
     setupCuda(prop);
-
-
 
     float ratio = (float)height / (float)width;
     int sqrt_spp = static_cast<int>(sqrt(spp));
@@ -1677,26 +1569,21 @@ void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int widt
     color* d_output;
     checkCudaErrors(cudaMallocManaged((void**)&d_output, width * height * sizeof(color)));
 
-
-    scene* world_device;
-    checkCudaErrors(cudaMalloc((void**)&world_device, sizeof(scene)));
-    //checkCudaErrors(cudaMemcpy(world_device, &world, sizeof(scene), cudaMemcpyHostToDevice));
-
-
     int bytes_per_pixel = 3;
 
-    // Number of images (textures)
-    int num_textures = sceneCfg.texturesCfg.imageTextureCount;
+    // Number of images
+    int h_images_count = sceneCfg.texturesCfg.imageTextureCount;
 
-    // Allocate space for texture pointers on the device
-    bitmap_image** h_textures;
-    checkCudaErrors(cudaMalloc((void**)&h_textures, num_textures * sizeof(bitmap_image*)));
+    // Allocate space for images pointers on the device
+    bitmap_image** h_images;
+    checkCudaErrors(cudaMalloc((void**)&h_images, h_images_count * sizeof(bitmap_image*)));
 
     // Loop over all images and load them
-    for (int i = 0; i < num_textures; ++i)
+    for (int i = 0; i < h_images_count; ++i)
     {
         int tex_x, tex_y, tex_n;
         imageTextureConfig imageTexture = sceneCfg.texturesCfg.imageTextures[i];
+
         unsigned char* tex_data_host = stbi_load(imageTexture.filepath, &tex_x, &tex_y, &tex_n, bytes_per_pixel);
         if (!tex_data_host) {
             std::cerr << "[ERROR] Failed to load texture: " << imageTexture.filepath << std::endl;
@@ -1716,27 +1603,23 @@ void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int widt
         checkCudaErrors(cudaDeviceSynchronize());
 
         // Store the pointer to the current texture in the array
-        checkCudaErrors(cudaMemcpy(&h_textures[i], h_texture, sizeof(bitmap_image*), cudaMemcpyDeviceToDevice));
+        checkCudaErrors(cudaMemcpy(&h_images[i], h_texture, sizeof(bitmap_image*), cudaMemcpyDeviceToDevice));
 
         // Free the host-side texture after copying to the device
         stbi_image_free(tex_data_host);
     }
-
-
 
     sceneConfig* d_sceneCfg;
 
     // Allocate memory on the device for the top-level `sceneConfig` struct
     checkCudaErrors(cudaMalloc((void**)&d_sceneCfg, sizeof(sceneConfig)));
 
-
-    
     texturesConfig* d_texturesCfg = prepareTextures(sceneCfg.texturesCfg);
     materialsConfig* d_materialsCfg = prepareMaterials(sceneCfg.materialsCfg);
     lightsConfig* d_lightsCfg = prepareLights(sceneCfg.lightsCfg);
     primitivesConfig* d_primitivesCfg = preparePrimitives(sceneCfg.primitivesCfg);
-
-
+    cameraConfig* d_cameraCfg = prepareCamera(sceneCfg.cameraCfg);
+    imageConfig* d_imageCfg = prepareImage(sceneCfg.imageCfg);
 
     // Now copy the lightsConfig pointer from host to device sceneConfig
     checkCudaErrors(cudaMemcpy(&d_sceneCfg->lightsCfg, d_lightsCfg, sizeof(lightsConfig), cudaMemcpyHostToDevice));
@@ -1750,15 +1633,20 @@ void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int widt
     // Now copy the primitivesConfig pointer from host to device sceneConfig
     checkCudaErrors(cudaMemcpy(&d_sceneCfg->primitivesCfg, d_primitivesCfg, sizeof(primitivesConfig), cudaMemcpyHostToDevice));
 
+    // Now copy the cameraConfig pointer from host to device sceneConfig
+    checkCudaErrors(cudaMemcpy(&d_sceneCfg->cameraCfg, d_cameraCfg, sizeof(cameraConfig), cudaMemcpyHostToDevice));
+
+    // Now copy the imageConfig pointer from host to device sceneConfig
+    checkCudaErrors(cudaMemcpy(&d_sceneCfg->imageCfg, d_imageCfg, sizeof(imageConfig), cudaMemcpyHostToDevice));
 
 
 
 
     // World
-    hittable_list **elist;
+    hittable_list** elist;
     checkCudaErrors(cudaMalloc((void**)&elist, sizeof(hittable_list*)));
 
-    hittable_list **elights;
+    hittable_list** elights;
     checkCudaErrors(cudaMalloc((void**)&elights, sizeof(hittable_list*)));
     
     camera** cam;
@@ -1771,8 +1659,7 @@ void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int widt
 
 
 
-
-    load_scene<<<single_block, single_thread>>>(d_sceneCfg, elist, elights, cam, aa_sampler, width, height, ratio, spp, sqrt_spp, h_textures, num_textures, 1984);
+    load_scene<<<single_block, single_thread>>>(d_sceneCfg, elist, elights, cam, aa_sampler, width, height, ratio, spp, sqrt_spp, h_images, h_images_count, 1984);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
@@ -1783,10 +1670,13 @@ void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int widt
     printf("[INFO] Render with %u/%u blocks of %u/%u threads\n", render_blocks.x, render_blocks.y, render_threads.x, render_threads.y);
 
 
-    render<<<render_blocks, render_threads>>>(world_device, d_output, width, height, spp, sqrt_spp, max_depth, elist, elights, cam, aa_sampler, 2580);
+
+    render<<<render_blocks, render_threads>>>(d_output, width, height, spp, sqrt_spp, max_depth, elist, elights, cam, aa_sampler, 2580);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
+
+ 
 
     // little padding to avoid remaining black zone at the end of the render preview
     for (int jj = 0; jj < 4; jj++)
@@ -1813,6 +1703,8 @@ void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int widt
     // save image
     stbi_write_png(filepath, width, height, 3, imageHost, width * 3);
 
+
+
     // Clean up
     checkCudaErrors(cudaDeviceSynchronize());
     checkCudaErrors(cudaGetLastError());
@@ -1820,7 +1712,7 @@ void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int widt
     checkCudaErrors(cudaFree(cam));
     checkCudaErrors(cudaFree(elights));
     checkCudaErrors(cudaFree(elist));
-    checkCudaErrors(cudaFree(world_device));
+    //checkCudaErrors(cudaFree(world_device));
     checkCudaErrors(cudaFree(aa_sampler));
     checkCudaErrors(cudaFree(d_output));
     checkCudaErrors(cudaFree(d_sceneCfg));

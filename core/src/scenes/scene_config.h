@@ -23,12 +23,12 @@ struct imageConfig {
 
 struct cameraConfig {
     float aspectRatio;
-    float openingTime;
+    float openingTime; // ????????
     point3 lookFrom;
     point3 lookAt;
     point3 upAxis;
     float aperture;
-    float focus;
+    float focus; // focus distance
     bool isOrthographic;
     float fov; // for perspective cams
     float orthoHeight; // for orthographic cams
