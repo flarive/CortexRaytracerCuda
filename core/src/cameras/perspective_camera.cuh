@@ -40,6 +40,8 @@ public:
 
 __host__ __device__ inline void perspective_camera::initialize(vector3 lookfrom, vector3 lookat, vector3 vup, int width, float ratio, float vfov, float aperture, float focus_dist, float ortho_height, float t0, float t1, int sqrt_spp)
 {
+    is_orthographic = false;
+    
     image_width = width;
     aspect_ratio = ratio;
 
@@ -65,7 +67,6 @@ __host__ __device__ inline void perspective_camera::initialize(vector3 lookfrom,
 
     lens_radius = aperture / 2;
 
-    //sqrt_spp = static_cast<int>(glm::sqrt(samples_per_pixel));
     recip_sqrt_spp = 1.0f / sqrt_spp;
 
     // Calculate the u, v, w unit basis vectors for the camera coordinate frame.

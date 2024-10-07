@@ -461,16 +461,16 @@ void scene_loader::addImageTexture(const libconfig::Setting& textures, scene_bui
 
 			if (!filepath.empty())
 			{
-				//int bytes_per_pixel = 3;
-				//int tex_x, tex_y, tex_n;
-				//unsigned char* tex_data_host = stbi_load(filepath.c_str(), &tex_x, &tex_y, &tex_n, bytes_per_pixel);
-				//if (!tex_data_host) {
-				//	std::cerr << "[ERROR] Failed to load texture." << std::endl;
-				//	return;
-				//}
+				std::filesystem::path dir(std::filesystem::current_path());
+				std::filesystem::path file(filepath.c_str());
+				std::filesystem::path fullexternalProgramPath = dir / file;
 
-				//bitmap_image img = bitmap_image(tex_data_host, tex_x, tex_y, bytes_per_pixel);
-				builder.addImageTexture(name.c_str(), filepath.c_str());
+				auto fullAbsPath = std::filesystem::absolute(fullexternalProgramPath);
+
+				if (std::filesystem::exists(fullAbsPath))
+				{
+					builder.addImageTexture(name.c_str(), fullAbsPath.string().c_str());
+				}
 			}
 		}
 	}

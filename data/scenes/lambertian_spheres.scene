@@ -35,6 +35,7 @@ lights:
             intensity = 10.0;
             color = { r = 1.0; g = 1.0; b = 1.0; };
             invisible = true;
+            active = true;
         }
     ),
     omnis: (
@@ -43,8 +44,9 @@ lights:
             position = { x = 0.0; y = 2.0; z = 4.0; };
             radius = 0.2;
             intensity = 3.0;
-            color = { r = 0.0; g = 1.0; b = 1.0; };
-            invisible = false;
+            color = { r = 1.0; g = 1.0; b = 1.0; };
+            invisible = true;
+            active = true;
         }
     )
 }

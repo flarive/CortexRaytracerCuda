@@ -57,6 +57,8 @@ public:
 /// </summary>
 __host__ __device__ inline void orthographic_camera::initialize(vector3 lookfrom, vector3 lookat, vector3 vup, int width, float ratio, float vfov, float aperture, float focus_dist, float ortho_height, float t0, float t1, int sqrt_spp)
 {
+    is_orthographic = true;
+    
     image_width = width;
     aspect_ratio = ratio;
 

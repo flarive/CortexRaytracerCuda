@@ -734,12 +734,13 @@ __host__ __device__ hittable* scene_factory::applyTransform(hittable* primitive,
 __host__ __device__ hittable* scene_factory::createDirLight(const char* name, const point3& pos, const vector3& u, const vector3& v, float intensity, color rgb, bool invisible, bool debug)
 {
     if (debug)
-        printf("[GPU] dirlight %g %s %g/%g/%g %g/%g/%g %g/%g/%g %g/%g/%g %d\n",
-            intensity, name,
+        printf("[GPU] dirlight %s %g/%g/%g %g/%g/%g %g/%g/%g %g/%g/%g %g %d\n",
+            name,
             pos.x, pos.y, pos.z,
             u.x, u.y, u.z,
             v.x, v.y, v.z,
             rgb.r(), rgb.g(), rgb.b(),
+            intensity,
             invisible);
     
     return new directional_light(pos, u, v, intensity, rgb, name, invisible);
@@ -748,11 +749,12 @@ __host__ __device__ hittable* scene_factory::createDirLight(const char* name, co
 __host__ __device__ hittable* scene_factory::createOmniLight(const char* name, const point3& pos, float radius, float intensity, color rgb, bool invisible, bool debug)
 {
     if (debug)
-        printf("[GPU] omnilight %g %s %g/%g/%g %g/%g/%g %g %d\n",
-            intensity, name,
+        printf("[GPU] omnilight %s %g/%g/%g %g/%g/%g %g %g %d\n",
+            name,
             pos.x, pos.y, pos.z,
             rgb.r(), rgb.g(), rgb.b(),
             radius,
+            intensity,
             invisible);
     
     return new omni_light(pos, radius, intensity, rgb, name, invisible);
@@ -761,13 +763,14 @@ __host__ __device__ hittable* scene_factory::createOmniLight(const char* name, c
 __host__ __device__ hittable* scene_factory::createSpotLight(const char* name, const point3& pos, const vector3& dir, float cutoff, float falloff, float intensity, float radius, color rgb, bool invisible, bool debug)
 {
     if (debug)
-        printf("[GPU] spotlight %g %s %g/%g/%g %g/%g/%g %g %g %g %g/%g/%g %d\n",
-            intensity, name,
+        printf("[GPU] spotlight %s %g/%g/%g %g/%g/%g %g %g %g %g %g/%g/%g %d\n",
+            name,
             pos.x, pos.y, pos.z,
             dir.x, dir.y, dir.z,
             cutoff,
             falloff,
             radius,
+            intensity,
             rgb.r(), rgb.g(), rgb.b(),
             invisible);
     

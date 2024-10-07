@@ -137,9 +137,9 @@ __device__ int strcmp_device(const char* str1, const char* str2)
 
 
 
-__device__ size_t getTextureImageIndex(sceneConfig* sceneCfg, bitmap_image** images, const char* textureName)
+__device__ int getTextureImageIndex(sceneConfig* sceneCfg, bitmap_image** images, const char* textureName)
 {
-    size_t index = 0;
+    int index = 0;
     
     if (textureName == nullptr || textureName[0] == '\0')
     {
@@ -203,7 +203,7 @@ __device__ hittable* fetchPrimitive(sceneConfig* sceneCfg, const char* primitive
     return nullptr;
 }
 
-__device__ texture* fetchTexture(sceneConfig* sceneCfg, bitmap_image** images, size_t count_images, const char* textureName)
+__device__ texture* fetchTexture(sceneConfig* sceneCfg, bitmap_image** images, int count_images, const char* textureName)
 {
     if (textureName == nullptr || textureName[0] == '\0')
     {
@@ -237,7 +237,7 @@ __device__ texture* fetchTexture(sceneConfig* sceneCfg, bitmap_image** images, s
         
         if (strcmp_device(imageTexture.name, textureName) == 0)
         {
-            size_t image_index = getTextureImageIndex(sceneCfg, images, textureName);
+            int image_index = getTextureImageIndex(sceneCfg, images, textureName);
             if (image_index >= 0 && image_index < count_images)
             {
                 bitmap_image img = *(images[image_index]);
@@ -279,7 +279,7 @@ __device__ texture* fetchTexture(sceneConfig* sceneCfg, bitmap_image** images, s
 
         if (strcmp_device(bumpTexture.name, textureName) == 0)
         {
-            size_t image_index = getTextureImageIndex(sceneCfg, images, textureName);
+            int image_index = getTextureImageIndex(sceneCfg, images, textureName);
             if (image_index >= 0 && image_index < count_images)
             {
                 bitmap_image img = *(images[image_index]);
@@ -294,7 +294,7 @@ __device__ texture* fetchTexture(sceneConfig* sceneCfg, bitmap_image** images, s
 
         if (strcmp_device(normalTexture.name, textureName) == 0)
         {
-            size_t image_index = getTextureImageIndex(sceneCfg, images, textureName);
+            int image_index = getTextureImageIndex(sceneCfg, images, textureName);
             if (image_index >= 0 && image_index < count_images)
             {
                 bitmap_image img = *(images[image_index]);
@@ -309,7 +309,7 @@ __device__ texture* fetchTexture(sceneConfig* sceneCfg, bitmap_image** images, s
 
         if (strcmp_device(displacementTexture.name, textureName) == 0)
         {
-            size_t image_index = getTextureImageIndex(sceneCfg, images, textureName);
+            int image_index = getTextureImageIndex(sceneCfg, images, textureName);
             if (image_index >= 0 && image_index < count_images)
             {
                 bitmap_image img = *(images[image_index]);
@@ -324,7 +324,7 @@ __device__ texture* fetchTexture(sceneConfig* sceneCfg, bitmap_image** images, s
 
         if (strcmp_device(alphaTexture.name, textureName) == 0)
         {
-            size_t image_index = getTextureImageIndex(sceneCfg, images, textureName);
+            int image_index = getTextureImageIndex(sceneCfg, images, textureName);
             if (image_index >= 0 && image_index < count_images)
             {
                 bitmap_image img = *(images[image_index]);
@@ -339,7 +339,7 @@ __device__ texture* fetchTexture(sceneConfig* sceneCfg, bitmap_image** images, s
 
         if (strcmp_device(emissiveTexture.name, textureName) == 0)
         {
-            size_t image_index = getTextureImageIndex(sceneCfg, images, textureName);
+            int image_index = getTextureImageIndex(sceneCfg, images, textureName);
             if (image_index >= 0 && image_index < count_images)
             {
                 bitmap_image img = *(images[image_index]);
@@ -352,7 +352,7 @@ __device__ texture* fetchTexture(sceneConfig* sceneCfg, bitmap_image** images, s
 }
 
 
-__device__ material* fetchMaterial(sceneConfig* sceneCfg, bitmap_image** images, size_t count_images, const char* materialName)
+__device__ material* fetchMaterial(sceneConfig* sceneCfg, bitmap_image** images, int count_images, const char* materialName)
 {
     if (materialName == nullptr || materialName[0] == '\0')
     {
@@ -499,21 +499,21 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
         {
             omniLightConfig omnilight = sceneCfg->lightsCfg.omniLights[i];
 
-            (*elist)->add(scene_factory::createOmniLight(omnilight.name, omnilight.position, omnilight.radius, omnilight.intensity, omnilight.rgb, omnilight.invisible));
+            (*elist)->add(scene_factory::createOmniLight(omnilight.name, omnilight.position, omnilight.radius, omnilight.intensity, omnilight.rgb, omnilight.invisible, true));
         }
 
         for (int i = 0; i < sceneCfg->lightsCfg.dirLightCount; i++)
         {
             directionalLightConfig dirlight = sceneCfg->lightsCfg.dirLights[i];
 
-            (*elist)->add(scene_factory::createDirLight(dirlight.name, dirlight.position, dirlight.u, dirlight.v, dirlight.intensity, dirlight.rgb, dirlight.invisible));
+            (*elist)->add(scene_factory::createDirLight(dirlight.name, dirlight.position, dirlight.u, dirlight.v, dirlight.intensity, dirlight.rgb, dirlight.invisible, true));
         }
 
         for (int i = 0; i < sceneCfg->lightsCfg.spotLightCount; i++)
         {
             spotLightConfig spotlight = sceneCfg->lightsCfg.spotLights[i];
 
-            (*elist)->add(scene_factory::createSpotLight(spotlight.name, spotlight.position, spotlight.direction, spotlight.cutoff, spotlight.falloff, spotlight.intensity, spotlight.radius, spotlight.rgb, spotlight.invisible));
+            (*elist)->add(scene_factory::createSpotLight(spotlight.name, spotlight.position, spotlight.direction, spotlight.cutoff, spotlight.falloff, spotlight.intensity, spotlight.radius, spotlight.rgb, spotlight.invisible, true));
         }
 
 
@@ -625,9 +625,15 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
         }
 
         if (!sceneCfg->cameraCfg.isOrthographic)
+        {
             *cam = new perspective_camera();
+            (*cam)->vfov = sceneCfg->cameraCfg.fov;
+        }
         else
+        {
             *cam = new orthographic_camera();
+            (*cam)->ortho_height = sceneCfg->cameraCfg.orthoHeight;
+        }
 
         (*cam)->initialize(
             sceneCfg->cameraCfg.lookFrom,
@@ -635,13 +641,40 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
             sceneCfg->cameraCfg.upAxis,
             sceneCfg->imageCfg.width,
             sceneCfg->cameraCfg.aspectRatio,
-            sceneCfg->cameraCfg.fov,
+            sceneCfg->cameraCfg.fov, // perspective_camera only
             sceneCfg->cameraCfg.aperture,
             sceneCfg->cameraCfg.focus,
-            sceneCfg->cameraCfg.orthoHeight,
+            sceneCfg->cameraCfg.orthoHeight, // orthographic_camera only
             0.0f,
             1.0f,
             sqrt_spp);
+
+
+
+        (*cam)->samples_per_pixel = sceneCfg->imageCfg.spp; // denoiser quality
+        (*cam)->max_depth = sceneCfg->imageCfg.depth; // max nbr of bounces a ray can do
+        (*cam)->background_color = color(0.70f, 0.80f, 1.00f);
+
+
+    
+        // Background
+        //if (sceneCfg->imageCfg.background.filepath != nullptr)
+        //{
+        //    //auto background = new image_texture(imageCfg.background.filepath);
+        //    //cam->background_texture = background;
+        //    //cam->background_iskybox = imageCfg.background.is_skybox;
+
+        //    //if (imageCfg.background.is_skybox)
+        //    //    cam->background_pdf = new image_pdf(background);
+        //}
+        //else
+        //{
+            (*cam)->background_color = sceneCfg->imageCfg.background.rgb;
+        //}
+
+
+
+
 
         // calculate bounding boxes to speed up ray computing
         *elist = new hittable_list(new bvh_node((*elist)->objects, 0, (*elist)->object_count, rng));
@@ -741,7 +774,7 @@ void setupCuda(const cudaDeviceProp& prop)
 
 
 
-    const size_t newPrintfFifoSize = 10000000;
+    const size_t newPrintfFifoSize = 50000000;
 
     cudaError_t result4 = cudaDeviceSetLimit(cudaLimitPrintfFifoSize, newPrintfFifoSize);
     if (result4 != cudaSuccess) {
