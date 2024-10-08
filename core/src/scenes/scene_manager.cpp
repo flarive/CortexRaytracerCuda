@@ -41,7 +41,6 @@
 #include "../materials/diffuse_light.cuh"
 
 #include "../utilities/uvmapping.cuh"
-//#include "../utilities/mesh_loader.cuh"
 
 #include "../textures/solid_color_texture.cuh"
 #include "../textures/checker_texture.cuh"
@@ -50,7 +49,6 @@
 #include "../textures/gradient_texture.cuh"
 #include "../textures/alpha_texture.cuh"
 #include "../textures/bump_texture.cuh"
-//#include "../textures/roughness_texture.cuh"
 #include "../textures/normal_texture.cuh"
 
 #include "../pdf/image_pdf.cuh"
@@ -78,6 +76,7 @@ sceneConfig scene_manager::load_scene(const render_parameters& params)
     fullCfg.texturesCfg = scene.getTexturesConfig();
     fullCfg.materialsCfg = scene.getMaterialsConfig();
     fullCfg.primitivesCfg = scene.getPrimitivesConfig();
+    fullCfg.meshesCfg = scene.getMeshesConfig();
 
 
     // command line parameters are stronger than .scene parameters

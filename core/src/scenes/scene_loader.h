@@ -27,9 +27,9 @@ private:
   void loadCameraConfig(scene_builder& builder, const libconfig::Setting& setting);
   void loadTextures(scene_builder& builder, const libconfig::Setting& textures);
   void loadLights(scene_builder& builder, const libconfig::Setting& lights);
-  void loadMaterials(scene_builder& builder, const libconfig::Setting& setting);
-  void loadMeshes(scene_builder& builder, const libconfig::Setting& setting);
-  void loadGroups(scene_builder& builder, const libconfig::Setting& setting);
+  void loadMaterials(scene_builder& builder, const libconfig::Setting& materials);
+  void loadMeshes(scene_builder& builder, const libconfig::Setting& meshes);
+  void loadGroups(scene_builder& builder, const libconfig::Setting& groups);
 
   rt::transform applyTransform(const libconfig::Setting& primitive, scene_builder& builder, const char* name);
   point3 getPoint(const libconfig::Setting& setting);
@@ -48,6 +48,8 @@ private:
   void addDiskPrimitives(const libconfig::Setting& primitives, scene_builder& builder);
   void addTorusPrimitives(const libconfig::Setting& primitives, scene_builder& builder);
   void addVolumePrimitives(const libconfig::Setting& primitives, scene_builder& builder);
+
+  void addObjMeshes(const libconfig::Setting& meshes, scene_builder& builder);
 
 
   void addImageTexture(const libconfig::Setting& textures, scene_builder& builder);

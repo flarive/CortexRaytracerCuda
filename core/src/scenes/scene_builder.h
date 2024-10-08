@@ -11,9 +11,7 @@
 #include "../cameras/perspective_camera.cuh"
 #include "scene_config.h"
 
-
-//#include <string>
-#include <map>
+//#include <map>
 
 
 
@@ -34,6 +32,7 @@ class scene_builder
         [[nodiscard]] texturesConfig getTexturesConfig() const;
         [[nodiscard]] materialsConfig getMaterialsConfig() const;
         [[nodiscard]] primitivesConfig getPrimitivesConfig() const;
+        [[nodiscard]] meshesConfig getMeshesConfig() const;
 
         // Image
         //scene_builder& setImageConfig(const imageConfig& config);
@@ -95,9 +94,6 @@ class scene_builder
 
 
         // Primitives
-        //scene_builder& addObject(hittable* obj);
-        
-
         scene_builder& initPrimitivesConfig(const uint32_t countSpherePrimitives, const uint32_t countPlanePrimitives, const uint32_t countQuadPrimitives, const uint32_t countBoxPrimitives, const uint32_t countConePrimitives, const uint32_t countCylinderPrimitives, const uint32_t countDiskPrimitives, const uint32_t countTorusPrimitives, const uint32_t countVolumePrimitives);
 
         scene_builder& addSphere(const char* name, point3 pos, float radius, const char* materialName, const uvmapping& uv, const char* groupName, const rt::transform& trs);
@@ -111,15 +107,13 @@ class scene_builder
         scene_builder& addVolume(const char* name, const char* boundaryObjectName, float density, const color& rgb, const char* textureName, const char* groupName, const rt::transform& trs);
 
         // Meshes
-        scene_builder& addMesh(const char* name, point3 pos, const char* filepath, const char* materialName, bool use_mtl, bool use_smoothing, const char* groupName);
+        scene_builder& initMeshesConfig(const uint32_t countObjMeshes);
+
+        scene_builder& addObjMesh(const char* name, point3 pos, const char* filepath, const char* materialName, bool use_mtl, bool use_smoothing, const char* groupName, const rt::transform& trs);
 
         // Groups
         scene_builder& addGroup(const char* name, bool& found);
 
-        // Transform utils
-        scene_builder& translate(const vector3& vector, const char* name = nullptr);
-        scene_builder& rotate(const vector3& vector, const char* name = nullptr);
-        scene_builder& scale(const vector3& vector, const char* name = nullptr);
 
     protected:
 		imageConfig m_imageConfig{};
@@ -128,12 +122,5 @@ class scene_builder
         texturesConfig m_texturesConfig{};
         materialsConfig m_materialsConfig{};
         primitivesConfig m_primitivesConfig{};
-
-		//std::map<std::string, texture*> m_textures{};
-		//std::map<std::string, material*> m_materials{};
-  //      std::map<std::string, hittable_list*> m_groups{};
-		//hittable_list m_objects{};
-
-  //      material* fetchMaterial(const char* name);
-  //      texture* fetchTexture(const char* name);
+        meshesConfig m_meshesConfig{};
 };

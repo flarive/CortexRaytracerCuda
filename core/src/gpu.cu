@@ -54,6 +54,8 @@
 #include "primitives/scale.cuh"
 #include "primitives/flip_normals.cuh"
 
+#include "utilities/mesh_loader.cuh"
+
 
 #include "lights/light.cuh"
 #include "lights/omni_light.cuh"
@@ -474,7 +476,7 @@ __device__ material* fetchMaterial(sceneConfig* sceneCfg, bitmap_image** images,
 
 
 
-__global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittable_list **elights,  camera **cam, sampler **aa_sampler, int width, int height, float ratio, int spp, int sqrt_spp, bitmap_image** images, int count_images, int seed)
+__global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittable_list **elights, camera **cam, sampler **aa_sampler, int width, int height, float ratio, int spp, int sqrt_spp, bitmap_image** images, int count_images, int seed)
 {
     if (threadIdx.x == 0 && blockIdx.x == 0)
     {
@@ -610,11 +612,26 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
         }
 
 
+        // MESHES
+        for (int i = 0; i < sceneCfg->meshesCfg.objMeshCount; i++)
+        {
+            objMeshConfig objMesh = sceneCfg->meshesCfg.objMeshes[i];
+
+            material* mat = fetchMaterial(sceneCfg, images, count_images, objMesh.materialName);
+
+            if (mat)
+                (*elist)->add(scene_factory::createObjMesh(objMesh.name, objMesh.position, objMesh.filepath, mat, objMesh.use_mtl, objMesh.use_smoothing, objMesh.transform));
+        }
+
+
 
         // temp extract_emissive_objects
         for (int i = 0; i < (*elist)->object_count; i++)
         {
-            if ((*elist)->objects[i]->getTypeID() == HittableTypeID::lightDirectionalType)
+            if ((*elist)->objects[i]->getTypeID() == HittableTypeID::lightType
+                || (*elist)->objects[i]->getTypeID() == HittableTypeID::lightDirectionalType
+                || (*elist)->objects[i]->getTypeID() == HittableTypeID::lightSpotType
+                || (*elist)->objects[i]->getTypeID() == HittableTypeID::lightOmniType)
             {
                 light* derived = static_cast<light*>((*elist)->objects[i]);
                 if (derived)
@@ -774,7 +791,7 @@ void setupCuda(const cudaDeviceProp& prop)
 
 
 
-    const size_t newPrintfFifoSize = 50000000;
+    const size_t newPrintfFifoSize = 250000000;
 
     cudaError_t result4 = cudaDeviceSetLimit(cudaLimitPrintfFifoSize, newPrintfFifoSize);
     if (result4 != cudaSuccess) {
@@ -802,7 +819,7 @@ void copyStringToDevice(const char* hostString, char** deviceString)
 
 
 /// <summary>
-/// // Helper function to copy texture configuration
+/// Helper function to copy texture configuration
 /// </summary>
 template<typename TextureConfig>
 void copyCommonTextureConfig(const TextureConfig* h_textures, int count, TextureConfig** d_textures, texturesConfig* d_texturesCfg, TextureConfig** d_texturesPtrOnDevice)
@@ -1583,6 +1600,100 @@ imageConfig* prepareImage(const imageConfig& h_imageCfg)
     return d_imageCfg;
 }
 
+
+bitmap_image** load_images(const sceneConfig& sceneCfg, int width, int height, int h_images_count)
+{
+    int bytes_per_pixel = 3;
+
+    // Allocate space for images pointers on the device
+    bitmap_image** d_images;
+    checkCudaErrors(cudaMalloc((void**)&d_images, h_images_count * sizeof(bitmap_image*)));
+
+    // Loop over all images and load them
+    for (int i = 0; i < h_images_count; ++i)
+    {
+        int tex_x, tex_y, tex_n;
+        imageTextureConfig imageTexture = sceneCfg.texturesCfg.imageTextures[i];
+        // TO DO : add bump, normal, displace textures
+
+        unsigned char* tex_data_host = stbi_load(imageTexture.filepath, &tex_x, &tex_y, &tex_n, bytes_per_pixel);
+        if (!tex_data_host)
+        {
+            std::cerr << "[ERROR] Failed to load texture: " << imageTexture.filepath << std::endl;
+            continue;
+        }
+
+        // Allocate managed memory for texture data on device
+        unsigned char* tex_data;
+        checkCudaErrors(cudaMallocManaged(&tex_data, tex_x * tex_y * tex_n * sizeof(unsigned char)));
+        checkCudaErrors(cudaMemcpy(tex_data, tex_data_host, tex_x * tex_y * tex_n * sizeof(unsigned char), cudaMemcpyHostToDevice));
+
+        // Initialize texture on device
+        bitmap_image** d_image;
+        checkCudaErrors(cudaMalloc((void**)&d_image, sizeof(bitmap_image*)));
+        image_init<<<1, 1>>> (tex_data, tex_x, tex_y, tex_n, d_image);
+        checkCudaErrors(cudaGetLastError());
+        checkCudaErrors(cudaDeviceSynchronize());
+
+        // Store the pointer to the current texture in the array
+        checkCudaErrors(cudaMemcpy(&d_images[i], d_image, sizeof(bitmap_image*), cudaMemcpyDeviceToDevice));
+
+        // Free the host-side texture after copying to the device
+        stbi_image_free(tex_data_host);
+    }
+
+    return d_images;
+}
+
+
+mesh_loader::mesh_data** load_meshes(const sceneConfig& sceneCfg, int h_meshes_count)
+{
+    int bytes_per_pixel = 3;
+
+    // Allocate space for meshes pointers on the device
+    mesh_loader::mesh_data** d_meshes;
+    checkCudaErrors(cudaMalloc((void**)&d_meshes, h_meshes_count * sizeof(mesh_loader::mesh_data*)));
+
+    // Loop over all meshes and load them
+    for (int i = 0; i < h_meshes_count; ++i)
+    {
+        objMeshConfig objMesh = sceneCfg.meshesCfg.objMeshes[i];
+
+        mesh_loader::mesh_data data;
+        
+        if (mesh_loader::load_model_from_file(objMesh.filepath, data))
+        {
+            //hittable* temp = mesh_loader::convert_model_from_file(data, material, use_mtl, use_smoothing, name);
+        }
+        else
+        {
+            std::cerr << "[ERROR] Failed to load obj mesh: " << objMesh.filepath << std::endl;
+            continue;
+        }
+
+        // Allocate managed memory for texture data on device
+        //unsigned char* tex_data;
+        //checkCudaErrors(cudaMallocManaged(&tex_data, tex_x * tex_y * tex_n * sizeof(unsigned char)));
+        //checkCudaErrors(cudaMemcpy(tex_data, tex_data_host, tex_x * tex_y * tex_n * sizeof(unsigned char), cudaMemcpyHostToDevice));
+
+        //// Initialize texture on device
+        //bitmap_image** d_image;
+        //checkCudaErrors(cudaMalloc((void**)&d_image, sizeof(bitmap_image*)));
+        //image_init << <1, 1 >> > (tex_data, tex_x, tex_y, tex_n, d_image);
+        //checkCudaErrors(cudaGetLastError());
+        //checkCudaErrors(cudaDeviceSynchronize());
+
+        //// Store the pointer to the current texture in the array
+        //checkCudaErrors(cudaMemcpy(&d_images[i], d_image, sizeof(bitmap_image*), cudaMemcpyDeviceToDevice));
+
+        //// Free the host-side texture after copying to the device
+        //stbi_image_free(tex_data_host);
+    }
+
+    return d_meshes;
+}
+
+
 void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int width, int height, int spp, int max_depth, int tx, int ty, const char* filepath)
 {
     std::cout << "[INFO] Rendering " << width << "x" << height << " " << spp << " samples > " << filepath << std::endl;
@@ -1598,49 +1709,20 @@ void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int widt
 
 
 
-    // Allocating CUDA memory
+    // Allocating CUDA memory for render ouput
     color* d_output;
     checkCudaErrors(cudaMallocManaged((void**)&d_output, width * height * sizeof(color)));
 
-    int bytes_per_pixel = 3;
 
-    // Number of images
+    // Allocating CUDA memory for images
     int h_images_count = sceneCfg.texturesCfg.imageTextureCount;
+    bitmap_image** h_images = load_images(sceneCfg, width, height, h_images_count);
 
-    // Allocate space for images pointers on the device
-    bitmap_image** h_images;
-    checkCudaErrors(cudaMalloc((void**)&h_images, h_images_count * sizeof(bitmap_image*)));
 
-    // Loop over all images and load them
-    for (int i = 0; i < h_images_count; ++i)
-    {
-        int tex_x, tex_y, tex_n;
-        imageTextureConfig imageTexture = sceneCfg.texturesCfg.imageTextures[i];
+    // Allocating CUDA memory for meshes
+    int h_models_count = sceneCfg.meshesCfg.objMeshCount;
+    mesh_loader::mesh_data** h_meshes = load_meshes(sceneCfg, h_models_count);
 
-        unsigned char* tex_data_host = stbi_load(imageTexture.filepath, &tex_x, &tex_y, &tex_n, bytes_per_pixel);
-        if (!tex_data_host) {
-            std::cerr << "[ERROR] Failed to load texture: " << imageTexture.filepath << std::endl;
-            return;
-        }
-
-        // Allocate managed memory for texture data on device
-        unsigned char* tex_data;
-        checkCudaErrors(cudaMallocManaged(&tex_data, tex_x * tex_y * tex_n * sizeof(unsigned char)));
-        checkCudaErrors(cudaMemcpy(tex_data, tex_data_host, tex_x * tex_y * tex_n * sizeof(unsigned char), cudaMemcpyHostToDevice));
-
-        // Initialize texture on device
-        bitmap_image** h_texture;
-        checkCudaErrors(cudaMalloc((void**)&h_texture, sizeof(bitmap_image*)));
-        image_init<<<single_block, single_thread>>>(tex_data, tex_x, tex_y, tex_n, h_texture);
-        checkCudaErrors(cudaGetLastError());
-        checkCudaErrors(cudaDeviceSynchronize());
-
-        // Store the pointer to the current texture in the array
-        checkCudaErrors(cudaMemcpy(&h_images[i], h_texture, sizeof(bitmap_image*), cudaMemcpyDeviceToDevice));
-
-        // Free the host-side texture after copying to the device
-        stbi_image_free(tex_data_host);
-    }
 
     sceneConfig* d_sceneCfg;
 
@@ -1745,7 +1827,6 @@ void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int widt
     checkCudaErrors(cudaFree(cam));
     checkCudaErrors(cudaFree(elights));
     checkCudaErrors(cudaFree(elist));
-    //checkCudaErrors(cudaFree(world_device));
     checkCudaErrors(cudaFree(aa_sampler));
     checkCudaErrors(cudaFree(d_output));
     checkCudaErrors(cudaFree(d_sceneCfg));
@@ -1775,9 +1856,3 @@ void launchGPU(const sceneConfig& sceneCfg, int width, int height, int spp, int 
     //
     renderGPU(sceneCfg, prop, width, height, spp, max_depth, tx, ty, filepath);
 }
-
-
-//int main(int argc, char* argv[])
-//{
-//    launchGPU(256, 144, 10, 2, 16, 16, "e:\\ttt2.png", true);
-//}

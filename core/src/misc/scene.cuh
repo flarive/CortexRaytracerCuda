@@ -104,28 +104,22 @@ __host__ __device__ inline void scene::extract_emissive_objects()
 {
 	m_emissive_objects.clear();
 
-
-	printf("object_count : %i\n", m_world.object_count);
-
-
 	for (unsigned int i = 0; i < m_world.object_count; i++)
 	{
 		hittable* nnnnnnn = m_world.objects[i];
 		if (nnnnnnn)
 		{
-			if (m_world.objects[i]->getTypeID() == HittableTypeID::lightType || m_world.objects[i]->getTypeID() == HittableTypeID::lightOmniType || m_world.objects[i]->getTypeID() == HittableTypeID::lightDirectionalType || m_world.objects[i]->getTypeID() == HittableTypeID::lightSpotType)
+			if (m_world.objects[i]->getTypeID() == HittableTypeID::lightType
+				|| m_world.objects[i]->getTypeID() == HittableTypeID::lightOmniType
+				|| m_world.objects[i]->getTypeID() == HittableTypeID::lightDirectionalType
+				|| m_world.objects[i]->getTypeID() == HittableTypeID::lightSpotType)
 			{
 				light* derived = static_cast<light*>(m_world.objects[i]);
 				if (derived)
 				{
-					printf("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ FOUND LIGHT !!!\n");
 					m_emissive_objects.add(derived);
 				}
 			}
-		}
-		else
-		{
-			printf("NULL OBJ AT INDEX %i\n", i);
 		}
 	}
 }

@@ -50,7 +50,7 @@ public:
 
     __host__ __device__ static hittable* createVolume(const char* name, hittable* boundary, float density, const color& rgb, texture* texture, const rt::transform& trs, bool debug = false);
 
-    __host__ __device__ static hittable* createMesh(const char* name, const point3& center, const char* filepath, material* material, const bool use_mtl, const bool use_smoothing, const rt::transform& trs, bool debug = false);
+    __host__ __device__ static hittable* createObjMesh(const char* name, const point3& pos, const char* filepath, material* material, const bool use_mtl, const bool use_smoothing, const rt::transform& trs, bool debug = false);
 
     __host__ __device__ static hittable* createDirLight(const char* name, const point3& pos, const vector3& u, const vector3& v, float intensity, color rgb, bool invisible, bool debug = false);
 
@@ -369,9 +369,9 @@ __host__ __device__ hittable* scene_factory::createVolume(
     return applyTransform(primitive, trs);
 }
 
-__host__ __device__ hittable* scene_factory::createMesh(
+__host__ __device__ hittable* scene_factory::createObjMesh(
     const char* name,
-	const point3& center,
+	const point3& pos,
 	const char* filepath,
 	material* material,
 	const bool use_mtl,

@@ -8,8 +8,8 @@
 
 //#define STB_IMAGE_IMPLEMENTATION
 //#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include <stb/stb_image.h>
-#include <stb/stb_image_write.h>
+//#include <stb/stb_image.h>
+//#include <stb/stb_image_write.h>
 
 
 
@@ -366,13 +366,26 @@ void scene_loader::loadCameraConfig(scene_builder& builder, const libconfig::Set
 	}
 }
 
-void scene_loader::loadMeshes(scene_builder& builder, const libconfig::Setting& setting)
+void scene_loader::loadMeshes(scene_builder& builder, const libconfig::Setting& meshes)
 {
-	if (setting.exists("obj"))
+	uint8_t countObjMeshes = 0;
+
+	if (meshes.exists("obj"))
+		countObjMeshes = meshes["obj"].getLength();
+
+
+	builder.initMeshesConfig(countObjMeshes);
+
+	addObjMeshes(meshes, builder);
+}
+
+void scene_loader::addObjMeshes(const libconfig::Setting& meshes, scene_builder& builder)
+{
+	if (meshes.exists("obj"))
 	{
-		for (int i = 0; i < setting["obj"].getLength(); i++)
+		for (int i = 0; i < meshes["obj"].getLength(); i++)
 		{
-			const libconfig::Setting& mesh = setting["obj"][i];
+			const libconfig::Setting& mesh = meshes["obj"][i];
 			std::string name;
 			std::string filePath;
 			point3 position{};
@@ -401,15 +414,14 @@ void scene_loader::loadMeshes(scene_builder& builder, const libconfig::Setting& 
 
 			if (active)
 			{
-				builder.addMesh(name.c_str(), position, filePath.c_str(), materialName.c_str(), use_mtl, use_smoothing, groupName.c_str());
-
-				applyTransform(mesh, builder, name.c_str());
+				rt::transform transform = applyTransform(mesh, builder, name.c_str());
+				builder.addObjMesh(name.c_str(), position, filePath.c_str(), materialName.c_str(), use_mtl, use_smoothing, groupName.c_str(), transform);
 			}
 		}
 	}
 }
 
-void scene_loader::loadGroups(scene_builder& builder, const libconfig::Setting& setting)
+void scene_loader::loadGroups(scene_builder& builder, const libconfig::Setting& groups)
 {
 	//for (int i = 0; i < setting.getLength(); i++)
 	//{

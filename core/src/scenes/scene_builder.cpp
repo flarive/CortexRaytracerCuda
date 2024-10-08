@@ -164,6 +164,11 @@ primitivesConfig scene_builder::getPrimitivesConfig() const
     return this->m_primitivesConfig;
 }
 
+meshesConfig scene_builder::getMeshesConfig() const
+{
+    return this->m_meshesConfig;
+}
+
 scene_builder& scene_builder::cameraAspectRatio(std::string aspectRatio)
 {
     float ratio = getRatio(aspectRatio.c_str());
@@ -276,8 +281,6 @@ scene_builder& scene_builder::initTexturesConfig(const uint32_t countSolidColor,
 
 scene_builder& scene_builder::addSolidColorTexture(const char* textureName, color rgb)
 {
-    //this->m_textures[textureName] = new solid_color_texture(rgb);
-
     // Get current count of solid color textures
     int c = m_texturesConfig.solidColorTextureCount;
 
@@ -301,8 +304,6 @@ scene_builder& scene_builder::addSolidColorTexture(const char* textureName, colo
 
 scene_builder& scene_builder::addGradientColorTexture(const char* textureName, color color1, color color2, bool aligned_v, bool hsv)
 {
-	//this->m_textures[textureName] = new gradient_texture(color1, color2, aligned_v, hsv);
-
     // Get current count of gradient color textures
     int c = m_texturesConfig.gradientColorTextureCount;
 
@@ -326,8 +327,6 @@ scene_builder& scene_builder::addGradientColorTexture(const char* textureName, c
 
 scene_builder& scene_builder::addCheckerTexture(const char* textureName, float scale, const char* oddTextureName, const char* evenTextureName, color oddColor, color evenColor)
 {
-	//this->m_textures[textureName] = new checker_texture(scale, oddColor, evenColor);
-
     // Get current count of checker textures
     int c = m_texturesConfig.checkerTextureCount;
 
@@ -369,9 +368,6 @@ scene_builder& scene_builder::addCheckerTexture(const char* textureName, float s
 
 scene_builder& scene_builder::addImageTexture(const char* textureName, const char* filepath)
 {
-    //this->m_textures[textureName] = new image_texture(img);
-
-
     // Get current count of gradient color textures
     int c = m_texturesConfig.imageTextureCount;
 
@@ -399,9 +395,6 @@ scene_builder& scene_builder::addImageTexture(const char* textureName, const cha
 
 scene_builder& scene_builder::addNormalTexture(const char* textureName, const char* filepath, float strength)
 {
-    /*auto normal_tex = new image_texture(img);
-    this->m_textures[textureName] = new normal_texture(normal_tex, strength);*/
-
     // Get current count of normal textures
     int c = m_texturesConfig.normalTextureCount;
 
@@ -429,9 +422,6 @@ scene_builder& scene_builder::addNormalTexture(const char* textureName, const ch
 
 scene_builder& scene_builder::addDisplacementTexture(const char* textureName, const char* filepath, float strength)
 {
-    //auto displace_tex = new image_texture(img);
-    //this->m_textures[textureName] = new displacement_texture(displace_tex, strength);
-
     // Get current count of displacement textures
     int c = m_texturesConfig.displacementTextureCount;
 
@@ -459,8 +449,6 @@ scene_builder& scene_builder::addDisplacementTexture(const char* textureName, co
 
 scene_builder& scene_builder::addNoiseTexture(const char* textureName, float scale)
 {
-    //this->m_textures[textureName] = new perlin_noise_texture(scale);
-
     // Get current count of perlin noise textures
     int c = m_texturesConfig.noiseTextureCount;
 
@@ -484,9 +472,6 @@ scene_builder& scene_builder::addNoiseTexture(const char* textureName, float sca
 
 scene_builder& scene_builder::addBumpTexture(const char* textureName, const char* filepath, float strength)
 {
-    /*auto bump_tex = new image_texture(img);
-    this->m_textures[textureName] = new bump_texture(bump_tex, strength);*/
-
     // Get current count of bump textures
     int c = m_texturesConfig.bumpTextureCount;
 
@@ -514,9 +499,6 @@ scene_builder& scene_builder::addBumpTexture(const char* textureName, const char
 
 scene_builder& scene_builder::addAlphaTexture(const char* textureName, const char* filepath, bool double_sided)
 {
-    /*auto alpha_tex = new image_texture(img);
-    this->m_textures[textureName] = new alpha_texture(alpha_tex, double_sided);*/
-
     // Get current count of alpha textures
     int c = m_texturesConfig.alphaTextureCount;
 
@@ -544,9 +526,6 @@ scene_builder& scene_builder::addAlphaTexture(const char* textureName, const cha
 
 scene_builder& scene_builder::addEmissiveTexture(const char* textureName, const char* filepath, float strength)
 {
-    //auto emissive_tex = new image_texture(img);
-    //this->m_textures[textureName] = new emissive_texture(emissive_tex, strength);
-
     // Get current count of emissive textures
     int c = m_texturesConfig.emissiveTextureCount;
 
@@ -614,8 +593,6 @@ scene_builder& scene_builder::initMaterialsConfig(const uint32_t countLambertian
 
 scene_builder& scene_builder::addLambertianMaterial(const char* materialName, const color& rgb, const char* textureName)
 {
-    //this->m_materials[materialName] = new lambertian(rgb);
-
     // Get current count of lambertian materials
     int c = m_materialsConfig.lambertianMaterialCount;
 
@@ -644,8 +621,6 @@ scene_builder& scene_builder::addLambertianMaterial(const char* materialName, co
 
 scene_builder& scene_builder::addMetalMaterial(const char* materialName, color rgb, float fuzz)
 {
-    //this->m_materials[materialName] = new metal(rgb, fuzz);
-
     // Get current count of metal materials
     int c = m_materialsConfig.metalMaterialCount;
 
@@ -669,8 +644,6 @@ scene_builder& scene_builder::addMetalMaterial(const char* materialName, color r
 
 scene_builder& scene_builder::addGlassMaterial(const char* materialName, float refraction)
 {
-    //this->m_materials[materialName] = new dielectric(refraction);
-
     // Get current count of glass materials
     int c = m_materialsConfig.dielectricMaterialCount;
 
@@ -694,16 +667,6 @@ scene_builder& scene_builder::addGlassMaterial(const char* materialName, float r
 
 scene_builder& scene_builder::addPhongMaterial(const char* materialName, const char* diffuseTextureName, const char* specularTextureName, const char* normalTextureName, const char* bumpTextureName, const char* displaceTextureName, const char* alphaTextureName, const char* emissiveTextureName, const color& ambient, float shininess)
 {
-    /*this->m_materials[materialName] = new phong(
-        fetchTexture(diffuseTextureName),
-        fetchTexture(specularTextureName),
-        fetchTexture(bumpTextureName),
-        fetchTexture(normalTextureName),
-        fetchTexture(displaceTextureName),
-        fetchTexture(alphaTextureName),
-        fetchTexture(emissiveTextureName),
-        ambient, shininess);*/
-
     // Get current count of phong materials
     int c = m_materialsConfig.phongMaterialCount;
 
@@ -755,8 +718,6 @@ scene_builder& scene_builder::addPhongMaterial(const char* materialName, const c
 
 scene_builder& scene_builder::addOrenNayarMaterial(const char* materialName, const color& rgb, const char* textureName, float albedo_temp, float roughness)
 {
-	//this->m_materials[materialName] = new oren_nayar(rgb, albedo_temp, roughness);
-
     // Get current count of oren nayar materials
     int c = m_materialsConfig.orenNayarMaterialCount;
 
@@ -786,8 +747,6 @@ scene_builder& scene_builder::addOrenNayarMaterial(const char* materialName, con
 
 scene_builder& scene_builder::addIsotropicMaterial(const char* materialName, const color& rgb, const char* textureName)
 {
-    //this->m_materials[materialName] = new isotropic(rgb);
-
     // Get current count of isotropic materials
     int c = m_materialsConfig.isotropicMaterialCount;
 
@@ -815,9 +774,6 @@ scene_builder& scene_builder::addIsotropicMaterial(const char* materialName, con
 
 scene_builder& scene_builder::addAnisotropicMaterial(const char* materialName, float nu, float nv, const color& rgb, const char* diffuseTextureName, const char* specularTextureName, const char* exponentTextureName)
 {
-    /*auto diffuse_tex = new solid_color_texture(rgb);
-    this->m_materials[materialName] = new anisotropic(nu, nv, diffuse_tex, nullptr, nullptr);*/
-
     // Get current count of anisotropic materials
     int c = m_materialsConfig.anisotropicMaterialCount;
 
@@ -882,18 +838,6 @@ scene_builder& scene_builder::initLightsConfig(const uint32_t countOmni, const u
 
 scene_builder& scene_builder::addDirectionalLight(const point3& pos, const vector3& u, const vector3& v, float intensity, color rgb, bool invisible, const char* name)
 {
-    /*this->m_objects.add(
-        scene_factory::createDirectionalLight(
-            name,
-            pos,
-            u,
-            v,
-            intensity,
-            rgb,
-            invisible
-        )
-    );*/
-
     // Get current count of directional lights
     int c = this->m_lightsConfig.dirLightCount;
 
@@ -917,18 +861,6 @@ scene_builder& scene_builder::addDirectionalLight(const point3& pos, const vecto
 
 scene_builder& scene_builder::addOmniDirectionalLight(const point3& pos, float radius, float intensity, color rgb, bool invisible, const char* name)
 {
-    //this->m_objects.add(
-    //    scene_factory::createOmniDirectionalLight(
-    //        name,
-    //        pos,
-    //        radius,
-    //        intensity,
-    //        rgb,
-    //        invisible
-    //    )
-    //);
-
-
     // Get current count of omni lights
     int c = this->m_lightsConfig.omniLightCount;
 
@@ -952,20 +884,6 @@ scene_builder& scene_builder::addOmniDirectionalLight(const point3& pos, float r
 
 scene_builder& scene_builder::addSpotLight(const point3& pos, const vector3& dir, float cutoff, float falloff, float intensity, float radius, color rgb, bool invisible, const char* name)
 {
-//    this->m_objects.add(
-//        scene_factory::createSpotLight(
-//            name,
-//            pos,
-//            dir,
-//            cutoff,
-//            falloff,
-//            intensity,
-//            radius,
-//            rgb,
-//            invisible
-//        )
-//    );
-
     // Get current count of spot lights
     int c = this->m_lightsConfig.spotLightCount;
 
@@ -986,12 +904,6 @@ scene_builder& scene_builder::addSpotLight(const point3& pos, const vector3& dir
 
     return *this;
 }
-
-//scene_builder& scene_builder::addObject(hittable* obj)
-//{
-//  this->m_objects.add(obj);
-//  return *this;
-//}
 
 
 scene_builder& scene_builder::initPrimitivesConfig(const uint32_t countSpherePrimitives, const uint32_t countPlanePrimitives, const uint32_t countQuadPrimitives, const uint32_t countBoxPrimitives, const uint32_t countConePrimitives, const uint32_t countCylinderPrimitives, const uint32_t countDiskPrimitives, const uint32_t countTorusPrimitives, const uint32_t countVolumePrimitives)
@@ -1037,28 +949,6 @@ scene_builder& scene_builder::initPrimitivesConfig(const uint32_t countSpherePri
 
 scene_builder& scene_builder::addSphere(const char* name, point3 pos, float radius, const char* materialName, const uvmapping& uv, const char* groupName, const rt::transform& trs)
 {
-    //auto sphere = scene_factory::createSphere(name, pos, radius, fetchMaterial(materialName), uv);
-
-    //if (groupName != nullptr && groupName[0] != '\0')
-    //{
-    //    auto it = this->m_groups.find(groupName);
-    //    if (it != this->m_groups.end())
-    //    {
-    //        // add to existing group is found
-    //        hittable_list* grp = it->second;
-    //        if (grp) { grp->add(sphere); }
-    //    }
-    //    else
-    //    {
-    //        // create group if not found
-    //        this->m_groups.emplace(groupName, new hittable_list(sphere));
-    //    }
-    //}
-    //else
-    //{
-    //    this->m_objects.add(sphere);
-    //}
-
     // Get current count of sphere primitives
     int c = this->m_primitivesConfig.spherePrimitiveCount;
 
@@ -1090,28 +980,6 @@ scene_builder& scene_builder::addSphere(const char* name, point3 pos, float radi
 
 scene_builder& scene_builder::addPlane(const char* name, point3 p0, point3 p1, const char* materialName, const uvmapping& uv, const char* groupName, const rt::transform& trs)
 {
- //   auto plane = scene_factory::createPlane(name, p0, p1, fetchMaterial(materialName), uv);
- //   
- //   if (groupName != nullptr && groupName[0] != '\0')
-	//{
-	//	auto it = this->m_groups.find(groupName);
-	//	if (it != this->m_groups.end())
-	//	{
-	//		// add to existing group is found
- //           hittable_list* grp = it->second;
-	//		if (grp) { grp->add(plane); }
-	//	}
-	//	else
-	//	{
-	//		// create group if not found
-	//		this->m_groups.emplace(groupName, new hittable_list(plane));
-	//	}
-	//}
-	//else
-	//{
-	//	this->m_objects.add(plane);
-	//}
-
     // Get current count of plane primitives
     int c = this->m_primitivesConfig.planePrimitiveCount;
 
@@ -1143,28 +1011,6 @@ scene_builder& scene_builder::addPlane(const char* name, point3 p0, point3 p1, c
 
 scene_builder& scene_builder::addQuad(const char* name, point3 position, vector3 u, vector3 v, const char* materialName, const uvmapping& uv, const char* groupName, const rt::transform& trs)
 {
- //   auto quad = scene_factory::createQuad(name, position, u, v, fetchMaterial(materialName), uv);
- //   
- //   if (groupName != nullptr && groupName[0] != '\0')
-	//{
-	//	auto it = this->m_groups.find(groupName);
-	//	if (it != this->m_groups.end())
-	//	{
-	//		// add to existing group is found
- //           hittable_list* grp = it->second;
-	//		if (grp) { grp->add(quad); }
-	//	}
-	//	else
-	//	{
-	//		// create group if not found
-	//		this->m_groups.emplace(groupName, new hittable_list(quad));
-	//	}
-	//}
-	//else
-	//{
-	//	this->m_objects.add(quad);
-	//}
-
     // Get current count of quad primitives
     int c = this->m_primitivesConfig.quadPrimitiveCount;
 
@@ -1196,32 +1042,6 @@ scene_builder& scene_builder::addQuad(const char* name, point3 position, vector3
 
 scene_builder& scene_builder::addBox(const char* name, point3 position, point3 size, const char* materialName, const uvmapping& uv, const char* groupName, const rt::transform& trs)
 {
-    //auto box = scene_factory::createBox(name, p0, p1, fetchMaterial(materialName), uv);
-
-    //if (groupName != nullptr && groupName[0] != '\0')
-    //{
-    //    auto it = this->m_groups.find(groupName);
-
-    //    if (it != this->m_groups.end())
-    //    {
-    //        // if key is found
-    //        hittable_list* grp = it->second;
-    //        if (grp)
-    //        {
-    //            grp->add(box);
-    //        }
-    //    }
-    //    else
-    //    {
-    //        // if key is not found
-    //        this->m_groups.emplace(groupName, new hittable_list(box));
-    //    }
-    //}
-    //else
-    //{
-    //    this->m_objects.add(box);
-    //}
-
     // Get current count of box primitives
     int c = this->m_primitivesConfig.boxPrimitiveCount;
 
@@ -1255,32 +1075,6 @@ scene_builder& scene_builder::addBox(const char* name, point3 position, point3 s
 
 scene_builder& scene_builder::addCylinder(const char* name, point3 pos, float radius, float height, const char* materialName, const uvmapping& uv, const char* groupName, const rt::transform& trs)
 {
- //   auto cylinder = scene_factory::createCylinder(name, pos, radius, height, fetchMaterial(materialName), uv);
- //   
- //   if (groupName != nullptr && groupName[0] != '\0')
-	//{
-	//	auto it = this->m_groups.find(groupName);
-
-	//	if (it != this->m_groups.end())
-	//	{
-	//		// if key is found
- //           hittable_list* grp = it->second;
-	//		if (grp)
-	//		{
-	//			grp->add(cylinder);
-	//		}
-	//	}
-	//	else
-	//	{
-	//		// if key is not found
-	//		this->m_groups.emplace(groupName, new hittable_list(cylinder));
-	//	}
-	//}
-	//else
-	//{
-	//	this->m_objects.add(cylinder);
-	//}
-
     // Get current count of cylinder primitives
     int c = this->m_primitivesConfig.cylinderPrimitiveCount;
 
@@ -1312,32 +1106,6 @@ scene_builder& scene_builder::addCylinder(const char* name, point3 pos, float ra
 
 scene_builder& scene_builder::addDisk(const char* name, point3 pos, float radius, float height, const char* materialName, const uvmapping& uv, const char* groupName, const rt::transform& trs)
 {
- //   auto disk = scene_factory::createDisk(name, pos, radius, height, fetchMaterial(materialName), uv);
- //   
- //   if (groupName != nullptr && groupName[0] != '\0')
-	//{
-	//	auto it = this->m_groups.find(groupName);
-
-	//	if (it != this->m_groups.end())
-	//	{
-	//		// if key is found
- //           hittable_list* grp = it->second;
-	//		if (grp)
-	//		{
-	//			grp->add(disk);
-	//		}
-	//	}
-	//	else
-	//	{
-	//		// if key is not found
-	//		this->m_groups.emplace(groupName, new hittable_list(disk));
-	//	}
-	//}
-	//else
-	//{
-	//	this->m_objects.add(disk);
-	//}
-
     // Get current count of disk primitives
     int c = this->m_primitivesConfig.diskPrimitiveCount;
 
@@ -1369,32 +1137,6 @@ scene_builder& scene_builder::addDisk(const char* name, point3 pos, float radius
 
 scene_builder& scene_builder::addTorus(const char* name, point3 pos, float major_radius, float minor_radius, const char* materialName, const uvmapping& uv, const char* groupName, const rt::transform& trs)
 {
- //   auto torus = scene_factory::createTorus(name, pos, major_radius, minor_radius, fetchMaterial(materialName), uv);
-
- //   if (groupName != nullptr && groupName[0] != '\0')
-	//{
-	//	auto it = this->m_groups.find(groupName);
-
-	//	if (it != this->m_groups.end())
-	//	{
-	//		// if key is found
- //           hittable_list* grp = it->second;
-	//		if (grp)
-	//		{
-	//			grp->add(torus);
-	//		}
-	//	}
-	//	else
-	//	{
-	//		// if key is not found
-	//		this->m_groups.emplace(groupName, new hittable_list(torus));
-	//	}
-	//}
-	//else
-	//{
-	//	this->m_objects.add(torus);
-	//}
-
     // Get current count of torus primitives
     int c = this->m_primitivesConfig.torusPrimitiveCount;
 
@@ -1426,32 +1168,6 @@ scene_builder& scene_builder::addTorus(const char* name, point3 pos, float major
 
 scene_builder& scene_builder::addCone(const char* name, point3 pos, float radius, float height, const char* materialName, const uvmapping& uv, const char* groupName, const rt::transform& trs)
 {
- //   auto cone = scene_factory::createCone(name, pos, height, radius, fetchMaterial(materialName), uv);
- //   
- //   if (groupName != nullptr && groupName[0] != '\0')
-	//{
-	//	auto it = this->m_groups.find(groupName);
-
-	//	if (it != this->m_groups.end())
-	//	{
-	//		// if key is found
- //           hittable_list* grp = it->second;
-	//		if (grp)
-	//		{
-	//			grp->add(cone);
-	//		}
-	//	}
-	//	else
-	//	{
-	//		// if key is not found
-	//		this->m_groups.emplace(groupName, new hittable_list(cone));
-	//	}
-	//}
-	//else
-	//{
-	//	this->m_objects.add(cone);
-	//}
-
     // Get current count of cone primitives
     int c = this->m_primitivesConfig.conePrimitiveCount;
 
@@ -1483,38 +1199,6 @@ scene_builder& scene_builder::addCone(const char* name, point3 pos, float radius
 
 scene_builder& scene_builder::addVolume(const char* name, const char* boundaryObjectName, float density, const color& rgb, const char* textureName, const char* groupName, const rt::transform& trs)
 {
-  //  auto boundaryObject = this->m_objects.get(boundaryObjectName);
-  //  if (boundaryObject)
-  //  {
-  //      auto volume = scene_factory::createVolume(name, boundaryObject, density, fetchTexture(textureName));
-
-  //      if (groupName != nullptr && groupName[0] != '\0')
-		//{
-		//	auto it = this->m_groups.find(groupName);
-
-		//	if (it != this->m_groups.end())
-		//	{
-		//		// if key is found
-  //              hittable_list* grp = it->second;
-		//		if (grp)
-		//		{
-		//			grp->add(volume);
-		//		}
-		//	}
-		//	else
-		//	{
-		//		// if key is not found
-		//		this->m_groups.emplace(groupName, new hittable_list(volume));
-		//	}
-		//}
-		//else
-		//{
-		//	this->m_objects.add(volume);
-		//}
-
-  //      this->m_objects.remove(boundaryObject);
-  //  }
-
     // Get current count of volume primitives
     int c = this->m_primitivesConfig.volumePrimitiveCount;
 
@@ -1549,33 +1233,46 @@ scene_builder& scene_builder::addVolume(const char* name, const char* boundaryOb
 }
 
 
-scene_builder& scene_builder::addMesh(const char* name, point3 pos, const char* filepath, const char* materialName, bool use_mtl, bool use_smoothing, const char* groupName)
+scene_builder& scene_builder::initMeshesConfig(const uint32_t countObjMeshes)
 {
-    //auto mesh = scene_factory::createMesh(name, pos, filepath, fetchMaterial(materialName), use_mtl, use_smoothing);
+    m_meshesConfig.objMeshCount = 0;
+    m_meshesConfig.objMeshCapacity = countObjMeshes;
+    m_meshesConfig.objMeshes = new objMeshConfig[countObjMeshes];
 
-    //if (groupName != nullptr && groupName[0] != '\0')
-    //{
-    //    auto it = this->m_groups.find(groupName);
+    return *this;
+}
 
-    //    if (it != this->m_groups.end())
-    //    {
-    //        // if key is found
-    //        hittable_list* grp = it->second;
-    //        if (grp)
-    //        {
-    //            grp->add(mesh);
-    //        }
-    //    }
-    //    else
-    //    {
-    //        // if key is not found
-    //        this->m_groups.emplace(groupName, new hittable_list(mesh));
-    //    }
-    //}
-    //else
-    //{
-    //    this->m_objects.add(mesh);
-    //}
+scene_builder& scene_builder::addObjMesh(const char* name, point3 pos, const char* filepath, const char* materialName, bool use_mtl, bool use_smoothing, const char* groupName, const rt::transform& trs)
+{
+    // Get current count of obj meshes
+    int c = this->m_meshesConfig.objMeshCount;
+
+    if (m_meshesConfig.objMeshCount < m_meshesConfig.objMeshCapacity)
+    {
+        // When assigning the name, allocate memory and copy the string
+        size_t length1 = strlen(name) + 1;  // +1 for null terminator
+        char* name_copy = new char[length1]; // Allocate memory for the name
+        strcpy(name_copy, name);  // Copy the string
+
+        size_t length2 = strlen(filepath) + 1;  // +1 for null terminator
+        char* filepath_copy = new char[length2]; // Allocate memory
+        strcpy(filepath_copy, filepath);  // Copy the string
+
+        size_t length3 = strlen(materialName) + 1;  // +1 for null terminator
+        char* materialName_copy = new char[length3]; // Allocate memory
+        strcpy(materialName_copy, materialName);  // Copy the string
+
+        size_t length4 = strlen(groupName) + 1;  // +1 for null terminator
+        char* groupName_copy = new char[length4]; // Allocate memory
+        strcpy(groupName_copy, groupName);  // Copy the string
+
+        m_meshesConfig.objMeshes[c] = objMeshConfig{ name_copy, pos, filepath_copy, materialName_copy, use_mtl, use_smoothing, groupName_copy, trs };
+        m_meshesConfig.objMeshCount++;
+    }
+    else {
+        // Handle error, for example, log a message or throw an exception
+        std::cerr << "Exceeded maximum number of obj meshes." << std::endl;
+    }
 
 	return *this;
 }
@@ -1605,158 +1302,3 @@ scene_builder& scene_builder::addGroup(const char* name, bool& isUsed)
     
     return *this;
 }
-
-scene_builder& scene_builder::translate(const vector3& vector, const char* name)
-{
-    //if (name != nullptr && name[0] != '\0')
-    //{
-    //    hittable* found = this->m_objects.get(name);
-    //    if (found)
-    //    {
-    //        found = new rt::translate(found, vector);
-    //    }
-    //    else
-    //    {
-    //        // search in groups
-    //        for (auto& group : this->m_groups)
-    //        {
-    //            hittable* found2 = group.second->get(name);
-    //            if (found2)
-    //            {
-    //                found2 = new rt::translate(found2, vector);
-    //                break;
-    //            }
-    //        }
-    //    }
-    //}
-    //else
-    //{
-    //    hittable* back = this->m_objects.back();
-    //    std::string n = back->getName();
-    //    if (n == name)
-    //    {
-    //        hittable* tmp = this->m_objects.back();
-    //        tmp = new rt::translate(back, vector);
-    //    }
-    //}
-
-    return *this;
-}
-
-scene_builder& scene_builder::rotate(const vector3& vector, const char* name)
-{
-    //if (name != nullptr && name[0] != '\0')
-    //{
-    //    hittable* found = this->m_objects.get(name);
-    //    if (found)
-    //    {
-    //        found = new rt::rotate(found, vector);
-    //    }
-    //    else
-    //    {
-    //        // search in groups
-    //        for (auto& group : this->m_groups)
-    //        {
-    //            hittable* found2 = group.second->get(name);
-    //            if (found2)
-    //            {
-    //                found2 = new rt::rotate(found2, vector);
-    //                break;
-    //            }
-    //        }
-    //    }
-    //}
-    //else
-    //{
-    //    hittable* back = this->m_objects.back();
-    //    char* n = back->getName();
-    //    if (n == name)
-    //    {
-    //        hittable* tmp = this->m_objects.back();
-    //        tmp = new rt::rotate(back, vector);
-    //    }
-    //}
-
-    return *this;
-}
-
-scene_builder& scene_builder::scale(const vector3& vector, const char* name)
-{
-    //if (name != nullptr && name[0] != '\0')
-    //{
-    //    hittable* found = this->m_objects.get(name);
-    //    if (found)
-    //    {
-    //        found = new  rt::scale(found, vector);
-    //    }
-    //    else
-    //    {
-    //        // search in groups
-    //        for (auto& group : this->m_groups)
-    //        {
-    //            hittable* found2 = group.second->get(name);
-    //            if (found2)
-    //            {
-    //                found2 = new rt::scale(found2, vector);
-    //                break;
-    //            }
-    //        }
-    //    }
-    //}
-    //else
-    //{
-    //    hittable* back = this->m_objects.back();
-    //    std::string n = back->getName();
-    //    if (n == name)
-    //    {
-    //        hittable* tmp = this->m_objects.back();
-    //        tmp= new rt::scale(back, vector);
-    //    }
-    //}
-
-    return *this;
-}
-
-//material* scene_builder::fetchMaterial(const char* name)
-//{
-//    if (name != nullptr && name[0] != '\0')
-//    {
-//        auto it = this->m_materials.find(name);
-//
-//        if (it != this->m_materials.end())
-//        {
-//            // if key is found
-//            return it->second;
-//        }
-//        else
-//        {
-//            // if key is not found
-//            std::cerr << "[WARN] Material " << name << " not found !" << std::endl;
-//            return nullptr;
-//        }
-//    }
-//
-//    return nullptr;
-//}
-//
-//texture* scene_builder::fetchTexture(const char* name)
-//{
-//    if (name != nullptr && name[0] != '\0')
-//    {
-//        auto it = this->m_textures.find(name);
-//
-//        if (it != this->m_textures.end())
-//        {
-//            // if key is found
-//            return it->second;
-//        }
-//        else
-//        {
-//            // if key is not found
-//            std::cerr << "[WARN] Texture " << name << " not found !" << std::endl;
-//            return nullptr;
-//        }
-//    }
-//
-//    return nullptr;
-//}

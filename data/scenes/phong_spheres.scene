@@ -10,6 +10,7 @@ image:
     {
         color = { r = 0.0; g = 0.0; b = 0.0; };
     };
+};
 
 # Configuration of the camera
 camera:

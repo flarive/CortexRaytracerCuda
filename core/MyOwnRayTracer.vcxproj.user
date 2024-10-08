@@ -4,7 +4,7 @@
     <ShowAllFiles>false</ShowAllFiles>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-width 512 -height 512 -ratio 1:1 -spp 100 -maxdepth 50 -scene ..\data\scenes\lambertian_spheres.scene -mode 2 -save e:\\save.png</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-width 512 -height 512 -ratio 1:1 -spp 100 -maxdepth 50 -scene ..\data\scenes\all_lights_types.scene -mode 2 -save e:\\save.png</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

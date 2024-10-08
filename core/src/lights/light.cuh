@@ -15,9 +15,6 @@ public:
 
     __host__ __device__ virtual ~light() = default;
 
-    //__host__ __device__ double getIntensity() const;
-    //__host__ __device__ color getColor() const;
-    //__host__ __device__ virtual point3 getPosition() const;
 
 
     __host__ __device__ inline float getIntensity() const

@@ -431,6 +431,24 @@ struct primitivesConfig {
 
 
 
+struct objMeshConfig {
+    const char* name;
+    point3 position;
+    const char* filepath;
+    const char* materialName;
+    bool use_mtl;
+    bool use_smoothing;
+    const char* groupName;
+    rt::transform transform;
+};
+
+struct meshesConfig {
+    objMeshConfig* objMeshes;
+    uint8_t objMeshCount;
+    uint8_t objMeshCapacity;
+};
+
+
 struct sceneConfig {
     imageConfig imageCfg;
     cameraConfig cameraCfg;
@@ -438,4 +456,5 @@ struct sceneConfig {
     texturesConfig texturesCfg;
 	materialsConfig materialsCfg;
     primitivesConfig primitivesCfg;
+    meshesConfig meshesCfg;
 };

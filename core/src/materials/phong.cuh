@@ -86,7 +86,6 @@ __device__ inline bool phong::scatter(const ray& r_in, const hittable_list& ligh
         || lights.objects[0]->getTypeID() == HittableTypeID::lightOmniType 
         || lights.objects[0]->getTypeID() == HittableTypeID::lightSpotType)
     {
-        printf("YESSSSSSSSSSS !!!!\n");
         mylight = static_cast<light*>(lights.objects[0]);
     }
     else
