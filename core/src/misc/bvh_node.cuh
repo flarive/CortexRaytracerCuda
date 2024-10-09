@@ -35,7 +35,7 @@ __device__ void bubble_sort(hittable** e, int n) {
 class bvh_node : public hittable
 {
 public:
-    __device__ bvh_node(hittable** src_objects, int start, int end, thrust::default_random_engine& rng, const char* name = nullptr);
+    __host__ __device__ bvh_node(hittable** src_objects, int start, int end, thrust::default_random_engine& rng, const char* name = nullptr);
 
     __device__ bool hit(const ray& r, interval ray_t, hit_record& rec, int depth, int max_depth, thrust::default_random_engine& rng) const override;
     __host__ __device__ aabb bounding_box() const override;
@@ -60,7 +60,7 @@ private:
     __host__ __device__ static void swap(hittable** a, hittable** b);
 };
 
-__device__ inline bvh_node::bvh_node(hittable** src_objects, int start, int end, thrust::default_random_engine& rng, const char* name) {
+__host__ __device__ inline bvh_node::bvh_node(hittable** src_objects, int start, int end, thrust::default_random_engine& rng, const char* name) {
     if (name != nullptr)
         setName(name);
     else

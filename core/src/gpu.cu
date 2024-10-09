@@ -84,6 +84,14 @@
 #include <stb/stb_image_write.h>
 
 
+// Structure to hold the mesh data (vertices, normals, indices)
+struct MeshData {
+    float* d_vertices;  // Device pointer for vertices
+    float* d_normals;   // Device pointer for normals
+    int* d_indices;     // Device pointer for indices
+    size_t num_vertices;
+    size_t num_indices;
+};
 
 
 // https://github.com/Belval/raytracing
@@ -1610,16 +1618,16 @@ bitmap_image** load_images(const sceneConfig& sceneCfg, int width, int height, i
     checkCudaErrors(cudaMalloc((void**)&d_images, h_images_count * sizeof(bitmap_image*)));
 
     // Loop over all images and load them
-    for (int i = 0; i < h_images_count; ++i)
+    for (int i = 0; i < sceneCfg.texturesCfg.imageTextureCount; ++i)
     {
         int tex_x, tex_y, tex_n;
         imageTextureConfig imageTexture = sceneCfg.texturesCfg.imageTextures[i];
         // TO DO : add bump, normal, displace textures
 
         unsigned char* tex_data_host = stbi_load(imageTexture.filepath, &tex_x, &tex_y, &tex_n, bytes_per_pixel);
-        if (!tex_data_host)
+        if (tex_data_host == nullptr)
         {
-            std::cerr << "[ERROR] Failed to load texture: " << imageTexture.filepath << std::endl;
+            printf("[ERROR] Failed to load texture: %s\n", imageTexture.filepath);
             continue;
         }
 
@@ -1645,53 +1653,145 @@ bitmap_image** load_images(const sceneConfig& sceneCfg, int width, int height, i
     return d_images;
 }
 
-
-mesh_loader::mesh_data** load_meshes(const sceneConfig& sceneCfg, int h_meshes_count)
+// Function to load OBJ file using tinyobjloader
+bool loadOBJ(const std::string& inputfile, MeshData& meshData)
 {
-    int bytes_per_pixel = 3;
+    tinyobj::attrib_t attrib;
+    std::vector<tinyobj::shape_t> shapes;
+    std::vector<tinyobj::material_t> materials;
+    std::string warn, err;
 
-    // Allocate space for meshes pointers on the device
-    mesh_loader::mesh_data** d_meshes;
-    checkCudaErrors(cudaMalloc((void**)&d_meshes, h_meshes_count * sizeof(mesh_loader::mesh_data*)));
+    // Load the .obj file
+    bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, inputfile.c_str());
 
-    // Loop over all meshes and load them
-    for (int i = 0; i < h_meshes_count; ++i)
-    {
-        objMeshConfig objMesh = sceneCfg.meshesCfg.objMeshes[i];
-
-        mesh_loader::mesh_data data;
-        
-        if (mesh_loader::load_model_from_file(objMesh.filepath, data))
-        {
-            //hittable* temp = mesh_loader::convert_model_from_file(data, material, use_mtl, use_smoothing, name);
-        }
-        else
-        {
-            std::cerr << "[ERROR] Failed to load obj mesh: " << objMesh.filepath << std::endl;
-            continue;
-        }
-
-        // Allocate managed memory for texture data on device
-        //unsigned char* tex_data;
-        //checkCudaErrors(cudaMallocManaged(&tex_data, tex_x * tex_y * tex_n * sizeof(unsigned char)));
-        //checkCudaErrors(cudaMemcpy(tex_data, tex_data_host, tex_x * tex_y * tex_n * sizeof(unsigned char), cudaMemcpyHostToDevice));
-
-        //// Initialize texture on device
-        //bitmap_image** d_image;
-        //checkCudaErrors(cudaMalloc((void**)&d_image, sizeof(bitmap_image*)));
-        //image_init << <1, 1 >> > (tex_data, tex_x, tex_y, tex_n, d_image);
-        //checkCudaErrors(cudaGetLastError());
-        //checkCudaErrors(cudaDeviceSynchronize());
-
-        //// Store the pointer to the current texture in the array
-        //checkCudaErrors(cudaMemcpy(&d_images[i], d_image, sizeof(bitmap_image*), cudaMemcpyDeviceToDevice));
-
-        //// Free the host-side texture after copying to the device
-        //stbi_image_free(tex_data_host);
+    if (!warn.empty()) {
+        std::cout << "Warning: " << warn << std::endl;
+    }
+    if (!err.empty()) {
+        std::cerr << "Error: " << err << std::endl;
+        return false;
+    }
+    if (!ret) {
+        return false;
     }
 
-    return d_meshes;
+    // Extract vertices and indices
+    std::vector<float> vertices;
+    std::vector<float> normals;
+    std::vector<int> indices;
+
+    // Loop over shapes
+    for (size_t s = 0; s < shapes.size(); s++) {
+        // Loop over faces (triangle faces)
+        size_t index_offset = 0;
+        for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
+            int fv = shapes[s].mesh.num_face_vertices[f];
+
+            // Loop over vertices in the face.
+            for (size_t v = 0; v < fv; v++) {
+                // Access to vertex
+                tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
+
+                // Vertex positions
+                vertices.push_back(attrib.vertices[3 * idx.vertex_index + 0]);
+                vertices.push_back(attrib.vertices[3 * idx.vertex_index + 1]);
+                vertices.push_back(attrib.vertices[3 * idx.vertex_index + 2]);
+
+                // Normals (if available)
+                if (idx.normal_index >= 0) {
+                    normals.push_back(attrib.normals[3 * idx.normal_index + 0]);
+                    normals.push_back(attrib.normals[3 * idx.normal_index + 1]);
+                    normals.push_back(attrib.normals[3 * idx.normal_index + 2]);
+                }
+
+                // Indices
+                indices.push_back(static_cast<int>(index_offset + v));
+            }
+            index_offset += fv;
+        }
+    }
+
+    // Allocate and copy data to the device (GPU)
+    meshData.num_vertices = vertices.size();
+    meshData.num_indices = indices.size();
+
+    // Allocate GPU memory
+    cudaMalloc(&meshData.d_vertices, vertices.size() * sizeof(float));
+    cudaMalloc(&meshData.d_normals, normals.size() * sizeof(float));
+    cudaMalloc(&meshData.d_indices, indices.size() * sizeof(int));
+
+    // Copy data to GPU
+    cudaMemcpy(meshData.d_vertices, vertices.data(), vertices.size() * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(meshData.d_normals, normals.data(), normals.size() * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(meshData.d_indices, indices.data(), indices.size() * sizeof(int), cudaMemcpyHostToDevice);
+
+    return true;
 }
+
+
+__global__ void processVertices(const float* vertices, const float* normals, const int* indices, size_t num_vertices)
+{
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (idx < num_vertices / 3) { // Since each vertex has 3 components (x, y, z)
+        float x = vertices[3 * idx];
+        float y = vertices[3 * idx + 1];
+        float z = vertices[3 * idx + 2];
+
+        // You can do more processing here, for now we will just print them
+        printf("Vertex %d: x = %f, y = %f, z = %f\n", idx, x, y, z);
+    }
+}
+
+//mesh_loader::mesh_data** load_meshes(const sceneConfig& sceneCfg, int h_meshes_count)
+//{
+//    // Allocate space for meshes pointers on the device
+//    mesh_loader::mesh_data** d_meshes;
+//    checkCudaErrors(cudaMalloc((void**)&d_meshes, h_meshes_count * sizeof(mesh_loader::mesh_data*)));
+//
+//    // Loop over all meshes and load them
+//    for (int i = 0; i < h_meshes_count; ++i)
+//    {
+//        objMeshConfig objMesh = sceneCfg.meshesCfg.objMeshes[i];
+//
+//        mesh_loader::mesh_data data;
+//        if (mesh_loader::load_model_from_file(objMesh.filepath, data))
+//        {
+//            //hittable* temp = mesh_loader::convert_model_from_file(data, material, use_mtl, use_smoothing, name);
+//        }
+//        else
+//        {
+//            printf("[ERROR] Failed to load obj mesh: %s\n", objMesh.filepath);
+//            continue;
+//        }
+//
+//        for (int j = 0; j < data.shapes.size(); ++j)
+//        {
+//            auto mm = data.shapes[j];
+//        }
+//
+//
+//        // Allocate managed memory for mesh data on device
+//        //unsigned char* tex_data;
+//        //checkCudaErrors(cudaMallocManaged(&tex_data, tex_x * tex_y * tex_n * sizeof(unsigned char)));
+//        //checkCudaErrors(cudaMemcpy(tex_data, tex_data_host, tex_x * tex_y * tex_n * sizeof(unsigned char), cudaMemcpyHostToDevice));
+//
+//        // Initialize mesh on device
+//        //bitmap_image** d_image;
+//        //checkCudaErrors(cudaMalloc((void**)&d_image, sizeof(bitmap_image*)));
+//        //image_init << <1, 1 >> > (tex_data, tex_x, tex_y, tex_n, d_image);
+//        //checkCudaErrors(cudaGetLastError());
+//        //checkCudaErrors(cudaDeviceSynchronize());
+//
+//        //// Store the pointer to the current texture in the array
+//        //checkCudaErrors(cudaMemcpy(&d_images[i], d_image, sizeof(bitmap_image*), cudaMemcpyDeviceToDevice));
+//
+//        //// Free the host-side texture after copying to the device
+//        //stbi_image_free(tex_data_host);
+//    }
+//
+//    return d_meshes;
+//}
 
 
 void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int width, int height, int spp, int max_depth, int tx, int ty, const char* filepath)
@@ -1720,8 +1820,28 @@ void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int widt
 
 
     // Allocating CUDA memory for meshes
-    int h_models_count = sceneCfg.meshesCfg.objMeshCount;
-    mesh_loader::mesh_data** h_meshes = load_meshes(sceneCfg, h_models_count);
+    /*int h_models_count = sceneCfg.meshesCfg.objMeshCount;
+    mesh_loader::mesh_data** h_meshes = load_meshes(sceneCfg, h_models_count);*/
+
+    // Load the OBJ file
+    MeshData meshData;
+    if (!loadOBJ("C:\\Users\\flarive\\Documents\\Visual Studio 2022\\Projects\\RTC2\\data\\models\\crate.obj", meshData)) {
+        std::cerr << "Failed to load the OBJ file!" << std::endl;
+        return;
+    }
+
+    // Set up kernel launch parameters
+    int blockSize8 = 256;
+    int numBlocks8 = (meshData.num_vertices / 3 + blockSize8 - 1) / blockSize8;
+
+    // Launch the kernel
+    processVertices<<<numBlocks8, blockSize8>>>(meshData.d_vertices, meshData.d_normals, meshData.d_indices, meshData.num_vertices);
+
+    // Wait for the GPU to finish
+    cudaDeviceSynchronize();
+
+
+
 
 
     sceneConfig* d_sceneCfg;
@@ -1820,7 +1940,7 @@ void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int widt
 
 
 
-    // Clean up
+    // Free GPU memory
     checkCudaErrors(cudaDeviceSynchronize());
     checkCudaErrors(cudaGetLastError());
     
@@ -1830,6 +1950,11 @@ void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int widt
     checkCudaErrors(cudaFree(aa_sampler));
     checkCudaErrors(cudaFree(d_output));
     checkCudaErrors(cudaFree(d_sceneCfg));
+
+    
+    cudaFree(meshData.d_vertices);
+    cudaFree(meshData.d_normals);
+    cudaFree(meshData.d_indices);
 }
 
 

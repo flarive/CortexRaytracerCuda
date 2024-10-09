@@ -44,25 +44,26 @@ textures:
     image: (
         {
             name = "ground_texture";
-            filepath = "../../data/textures/scifi_floor2.png";
+            #filepath = "../data/textures/scifi_floor2.png";
+            filepath = "../data/models/rusted_metal1.jpg";
         },
         {
             name = "crate_diffuse_texture";
-            filepath = "../../data/models/crate_diffuse.jpg";
+            filepath = "../data/models/crate_diffuse.jpg";
         },
         {
             name = "crate_specular_texture";
-            filepath = "../../data/models/crate_specular.jpg";
+            filepath = "../data/models/crate_specular.jpg";
         },
         {
             name = "crate_bump_texture";
-            filepath = "../../data/models/crate_bump.jpg";
+            filepath = "../data/models/crate_bump.jpg";
         }
     ),
     normal: (
         {
             name = "crate_normal_texture";
-            filepath = "../../data/models/crate_normal.jpg";
+            filepath = "../data/models/crate_normal.jpg";
             strength = 0.005;
         }
     )
@@ -95,7 +96,7 @@ meshes:
     obj: (
         {
             name = "MyCrate"
-            filepath = "../../data/models/crate.obj";
+            filepath = "../data/models/crate.obj";
             position = { x = 0.0; y = 0.0; z = 0.0; };
             material = "crate_material";
             use_mtl = false;

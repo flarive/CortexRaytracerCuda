@@ -16,7 +16,6 @@
 #include "../misc/bvh_node.cuh"
 
 #include <array>
-#include <filesystem>
 
 
 class mesh_loader
@@ -44,9 +43,9 @@ public:
     /// <param name="use_mtl"></param>
     /// <param name="shade_smooth"></param>
     /// <returns></returns>
-    static bool load_model_from_file(std::string filepath, mesh_data& mesh);
+    static bool load_model_from_file(const char* filepath, mesh_data& mesh);
 
-    static hittable* convert_model_from_file(mesh_data& data, material* model_material, bool use_mtl, bool shade_smooth, std::string name = "");
+    static hittable* convert_model_from_file(mesh_data& data, material* model_material, bool use_mtl, bool shade_smooth, const char* name = "");
 
     static color get_color(tinyobj::real_t* raws);
 
@@ -67,42 +66,29 @@ public:
 /// <param name="model_material"></param>
 /// <param name="use_mtl"></param>
 /// <param name="shade_smooth"></param>
-inline bool mesh_loader::load_model_from_file(std::string filepath, mesh_data& mesh)
+inline bool mesh_loader::load_model_from_file(const char* filepath, mesh_data& mesh)
 {
     // from https://github.com/mojobojo/OBJLoader/blob/master/example.cc
-    std::filesystem::path dir(std::filesystem::current_path());
-    std::filesystem::path file(filepath);
-    std::filesystem::path fullexternalProgramPath = dir / file;
+    
+    printf("[INFO] Loading obj file %s\n", filepath);
 
-    std::cout << "[INFO] Loading obj file " << fullexternalProgramPath.filename() << std::endl;
-
-    auto fullAbsPath = std::filesystem::absolute(fullexternalProgramPath);
-
-    if (!std::filesystem::exists(fullAbsPath))
-    {
-        std::cout << "[ERROR] obj file not found ! " << fullAbsPath.generic_string() << std::endl;
-        return false;
-    }
-
-
-    std::string inputfile = fullAbsPath.generic_string();
     // By default searches for mtl file in same dir as obj file, and triangulates
     tinyobj::ObjReaderConfig reader_config;
 
     tinyobj::ObjReader reader;
 
-    if (!reader.ParseFromFile(inputfile, reader_config))
+    if (!reader.ParseFromFile(filepath, reader_config))
     {
         if (!reader.Error().empty())
         {
-            std::cerr << "[ERROR] Loading obj file error: " << reader.Error();
+            printf("[ERROR] Loading obj file error: %s\n", reader.Error());
         }
         exit(1);
     }
 
     if (!reader.Warning().empty())
     {
-        std::cerr << "[WARN] Loading obj file warning: " << reader.Warning();
+        printf("[WARN] Loading obj file warning: %s\n", reader.Warning());
     }
 
     try
@@ -123,7 +109,7 @@ inline bool mesh_loader::load_model_from_file(std::string filepath, mesh_data& m
 }
 
 
-inline hittable* mesh_loader::convert_model_from_file(mesh_data& data, material* model_material, bool use_mtl, bool shade_smooth, std::string name)
+inline hittable* mesh_loader::convert_model_from_file(mesh_data& data, material* model_material, bool use_mtl, bool shade_smooth, const char* name)
 {
     hittable_list model_output;
 
@@ -254,7 +240,7 @@ inline hittable* mesh_loader::convert_model_from_file(mesh_data& data, material*
 
         // group all object triangles in a bvh node
         //model_output.add(std::make_shared<bvh_node>(shape_triangles, 0, 1));
-        model_output.add(new bvh_node(shape_triangles.objects, 0, shape_triangles.object_count, rng, name.c_str()));
+        model_output.add(new bvh_node(shape_triangles.objects, 0, shape_triangles.object_count, rng, name));
     }
 
     std::cout << "[INFO] End building obj file" << std::endl;
@@ -262,7 +248,7 @@ inline hittable* mesh_loader::convert_model_from_file(mesh_data& data, material*
 
     // group all objects in the .obj file in a single bvh node
     //return std::make_shared<bvh_node>(model_output, 0, 1);
-    return new bvh_node(model_output.objects, 0, model_output.object_count, rng, name.c_str());
+    return new bvh_node(model_output.objects, 0, model_output.object_count, rng, name);
 }
 
 /// <summary>

@@ -411,11 +411,23 @@ void scene_loader::addObjMeshes(const libconfig::Setting& meshes, scene_builder&
 				mesh.lookupValue("group", groupName);
 			if (mesh.exists("active"))
 				mesh.lookupValue("active", active);
+			
+			std::filesystem::path dir(std::filesystem::current_path());
+			std::filesystem::path file(filePath.c_str());
+			std::filesystem::path fullexternalProgramPath = dir / file;
+
+			auto fullAbsPath = std::filesystem::absolute(fullexternalProgramPath);
+
+			if (!std::filesystem::exists(fullAbsPath))
+			{
+				std::cout << "[ERROR] obj file not found ! " << fullAbsPath << std::endl;
+				return;
+			}
 
 			if (active)
 			{
 				rt::transform transform = applyTransform(mesh, builder, name.c_str());
-				builder.addObjMesh(name.c_str(), position, filePath.c_str(), materialName.c_str(), use_mtl, use_smoothing, groupName.c_str(), transform);
+				builder.addObjMesh(name.c_str(), position, fullAbsPath.string().c_str(), materialName.c_str(), use_mtl, use_smoothing, groupName.c_str(), transform);
 			}
 		}
 	}
@@ -479,10 +491,13 @@ void scene_loader::addImageTexture(const libconfig::Setting& textures, scene_bui
 
 				auto fullAbsPath = std::filesystem::absolute(fullexternalProgramPath);
 
-				if (std::filesystem::exists(fullAbsPath))
+				if (!std::filesystem::exists(fullAbsPath))
 				{
-					builder.addImageTexture(name.c_str(), fullAbsPath.string().c_str());
+					std::cout << "[ERROR] image texture file not found ! " << fullAbsPath << std::endl;
+					return;
 				}
+
+				builder.addImageTexture(name.c_str(), fullAbsPath.string().c_str());
 			}
 		}
 	}
