@@ -1659,6 +1659,8 @@ bitmap_image** load_images(const sceneConfig& sceneCfg, int width, int height, i
     return d_images;
 }
 
+
+
 // Function to load OBJ file using tinyobjloader
 // Function to load a single OBJ file using tinyobjloader
 bool loadOBJ(const std::string& inputfile, MeshData& meshData)
@@ -1715,13 +1717,13 @@ bool loadOBJ(const std::string& inputfile, MeshData& meshData)
     meshData.num_vertices = vertices.size();
     meshData.num_indices = indices.size();
 
-    cudaMalloc(&meshData.d_vertices, vertices.size() * sizeof(float));
-    cudaMalloc(&meshData.d_normals, normals.size() * sizeof(float));
-    cudaMalloc(&meshData.d_indices, indices.size() * sizeof(int));
+    checkCudaErrors(cudaMalloc(&meshData.d_vertices, vertices.size() * sizeof(float)));
+    checkCudaErrors(cudaMalloc(&meshData.d_normals, normals.size() * sizeof(float)));
+    checkCudaErrors(cudaMalloc(&meshData.d_indices, indices.size() * sizeof(int)));
 
-    cudaMemcpy(meshData.d_vertices, vertices.data(), vertices.size() * sizeof(float), cudaMemcpyHostToDevice);
-    cudaMemcpy(meshData.d_normals, normals.data(), normals.size() * sizeof(float), cudaMemcpyHostToDevice);
-    cudaMemcpy(meshData.d_indices, indices.data(), indices.size() * sizeof(int), cudaMemcpyHostToDevice);
+    checkCudaErrors(cudaMemcpy(meshData.d_vertices, vertices.data(), vertices.size() * sizeof(float), cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(meshData.d_normals, normals.data(), normals.size() * sizeof(float), cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(meshData.d_indices, indices.data(), indices.size() * sizeof(int), cudaMemcpyHostToDevice));
 
     return true;
 }
@@ -1756,6 +1758,42 @@ __global__ void processMultipleMeshes(const MeshData* meshes, size_t num_meshes)
     }
 }
 
+SceneData load_meshes(const sceneConfig& sceneCfg, int h_meshes_count)
+{
+    SceneData sceneData;
+
+    // List of OBJ files to load
+    std::vector<std::string> objFiles = {
+        "E:\\MyProjects\\MyOwnRaytracerCuda2\\data\\models\\crate.obj",
+        "E:\\MyProjects\\MyOwnRaytracerCuda2\\data\\models\\cushion.obj" };
+
+    if (!loadMultipleOBJs(objFiles, sceneData)) {
+        std::cerr << "Failed to load one or more OBJ files!" << std::endl;
+        return sceneData;
+    }
+
+    // Allocate device memory for MeshData array
+    MeshData* d_meshes;
+    checkCudaErrors(cudaMalloc(&d_meshes, sceneData.meshes.size() * sizeof(MeshData)));
+
+    // Copy MeshData from host to device
+    checkCudaErrors(cudaMemcpy(d_meshes, sceneData.meshes.data(), sceneData.meshes.size() * sizeof(MeshData), cudaMemcpyHostToDevice));
+
+    // Set up kernel launch parameters
+    int blockSize = 256;
+    int numBlocks = (sceneData.meshes[0].num_vertices / 3 + blockSize - 1) / blockSize;
+
+    // Launch the kernel
+    processMultipleMeshes<<<numBlocks, blockSize>>>(d_meshes, sceneData.meshes.size());
+
+    // Wait for GPU to finish
+    cudaDeviceSynchronize();
+
+    // Free the device MeshData array
+    cudaFree(d_meshes);
+
+    return sceneData;
+}
 
 void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int width, int height, int spp, int max_depth, int tx, int ty, const char* filepath)
 {
@@ -1781,36 +1819,39 @@ void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int widt
     int h_images_count = sceneCfg.texturesCfg.imageTextureCount;
     bitmap_image** h_images = load_images(sceneCfg, width, height, h_images_count);
 
+    int h_meshes_count = sceneCfg.meshesCfg.objMeshCount;
+    SceneData h_meshes = load_meshes(sceneCfg, h_meshes_count);
+
 
     // Allocating CUDA memory for meshes
-    SceneData sceneData;
+    //SceneData sceneData;
 
-    // List of OBJ files to load
-    std::vector<std::string> objFiles = { 
-        "E:\\MyProjects\\MyOwnRaytracerCuda2\\data\\models\\crate.obj", 
-        "E:\\MyProjects\\MyOwnRaytracerCuda2\\data\\models\\cushion.obj" };
+    //// List of OBJ files to load
+    //std::vector<std::string> objFiles = { 
+    //    "E:\\MyProjects\\MyOwnRaytracerCuda2\\data\\models\\crate.obj", 
+    //    "E:\\MyProjects\\MyOwnRaytracerCuda2\\data\\models\\cushion.obj" };
 
-    if (!loadMultipleOBJs(objFiles, sceneData)) {
-        std::cerr << "Failed to load one or more OBJ files!" << std::endl;
-        return;
-    }
+    //if (!loadMultipleOBJs(objFiles, sceneData)) {
+    //    std::cerr << "Failed to load one or more OBJ files!" << std::endl;
+    //    return;
+    //}
 
-    // Allocate device memory for MeshData array
-    MeshData* d_meshes;
-    cudaMalloc(&d_meshes, sceneData.meshes.size() * sizeof(MeshData));
+    //// Allocate device memory for MeshData array
+    //MeshData* d_meshes;
+    //cudaMalloc(&d_meshes, sceneData.meshes.size() * sizeof(MeshData));
 
-    // Copy MeshData from host to device
-    cudaMemcpy(d_meshes, sceneData.meshes.data(), sceneData.meshes.size() * sizeof(MeshData), cudaMemcpyHostToDevice);
+    //// Copy MeshData from host to device
+    //cudaMemcpy(d_meshes, sceneData.meshes.data(), sceneData.meshes.size() * sizeof(MeshData), cudaMemcpyHostToDevice);
 
-    // Set up kernel launch parameters
-    int blockSize = 256;
-    int numBlocks = (sceneData.meshes[0].num_vertices / 3 + blockSize - 1) / blockSize;
+    //// Set up kernel launch parameters
+    //int blockSize = 256;
+    //int numBlocks = (sceneData.meshes[0].num_vertices / 3 + blockSize - 1) / blockSize;
 
-    // Launch the kernel
-    processMultipleMeshes<<<numBlocks, blockSize>>>(d_meshes, sceneData.meshes.size());
+    //// Launch the kernel
+    //processMultipleMeshes<<<numBlocks, blockSize>>>(d_meshes, sceneData.meshes.size());
 
-    // Wait for GPU to finish
-    cudaDeviceSynchronize();
+    //// Wait for GPU to finish
+    //cudaDeviceSynchronize();
 
 
 
@@ -1925,14 +1966,14 @@ void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int widt
 
     
     // Free GPU memory for each mesh
-    for (const auto& mesh : sceneData.meshes) {
+    for (const auto& mesh : h_meshes.meshes) {
         cudaFree(mesh.d_vertices);
         cudaFree(mesh.d_normals);
         cudaFree(mesh.d_indices);
     }
 
     // Free the device MeshData array
-    cudaFree(d_meshes);
+    //cudaFree(d_meshes);
 }
 
 
