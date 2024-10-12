@@ -81,14 +81,14 @@ inline bool mesh_loader::load_model_from_file(const char* filepath, mesh_data& m
     {
         if (!reader.Error().empty())
         {
-            printf("[ERROR] Loading obj file error: %s\n", reader.Error());
+            printf("[ERROR] Loading obj file error: %s\n", reader.Error().c_str());
         }
         exit(1);
     }
 
     if (!reader.Warning().empty())
     {
-        printf("[WARN] Loading obj file warning: %s\n", reader.Warning());
+        printf("[WARN] Loading obj file warning: %s\n", reader.Warning().c_str());
     }
 
     try
