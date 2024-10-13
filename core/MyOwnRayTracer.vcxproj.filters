@@ -4,9 +4,6 @@
     <ClInclude Include="src\misc\aabb.cuh">
       <Filter>Headers\misc</Filter>
     </ClInclude>
-    <ClInclude Include="src\misc\bvh_node.cuh">
-      <Filter>Headers\misc</Filter>
-    </ClInclude>
     <ClInclude Include="src\misc\constants.cuh">
       <Filter>Headers\misc</Filter>
     </ClInclude>
@@ -262,6 +259,9 @@
     </ClInclude>
     <ClInclude Include="src\scene_factory.cuh">
       <Filter>Sources\renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\misc\bvh_node.cuh">
+      <Filter>Headers\misc</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

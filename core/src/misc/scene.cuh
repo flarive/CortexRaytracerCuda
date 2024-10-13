@@ -26,7 +26,7 @@ public:
 	__host__ __device__ camera* get_camera();
 
 	__host__ __device__ void extract_emissive_objects();
-	__device__ void build_optimized_world(thrust::default_random_engine& rng);
+	//__device__ void build_optimized_world(thrust::default_random_engine& rng);
 
 private:
 	hittable_list m_world;
@@ -79,21 +79,21 @@ __host__ __device__ inline void scene::set_camera(camera* _camera)
 	m_camera = _camera;
 }
 
-__device__ inline void scene::build_optimized_world(thrust::default_random_engine& rng)
-{
-	if (m_world.object_count == 0)
-	{
-		printf("no objs to optmize !!!\n");
-		m_world = hittable_list();
-		return;
-	}
-	
-	// calculate bounding boxes to speed up ray computing
-	hittable* ppp = new bvh_node(m_world.objects, 0, m_world.object_count, rng);
-	m_world = hittable_list(ppp);
-
-	printf("after build_optimized_world\n");
-}
+//__device__ inline void scene::build_optimized_world(thrust::default_random_engine& rng)
+//{
+//	if (m_world.object_count == 0)
+//	{
+//		printf("no objs to optmize !!!\n");
+//		m_world = hittable_list();
+//		return;
+//	}
+//	
+//	// calculate bounding boxes to speed up ray computing
+//	hittable* ppp = new bvh_node(m_world.objects, 0, m_world.object_count, rng);
+//	m_world = hittable_list(ppp);
+//
+//	printf("after build_optimized_world\n");
+//}
 
 __host__ __device__ inline const hittable_list& scene::get_world()
 {

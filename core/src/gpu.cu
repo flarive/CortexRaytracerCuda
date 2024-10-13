@@ -4,7 +4,8 @@
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 #include <curand_kernel.h>
-#include <thrust/random.h>
+#include <thrust/random.h> // Thrust random library
+#include <thrust/device_vector.h>
 
 
 #include "misc/vector3.cuh"
@@ -57,6 +58,7 @@
 #include "utilities/mesh_loader.cuh"
 
 
+
 #include "lights/light.cuh"
 #include "lights/omni_light.cuh"
 #include "lights/directional_light.cuh"
@@ -83,22 +85,6 @@
 #include <stb/stb_image.h>
 #include <stb/stb_image_write.h>
 
-
-// Structure to hold the mesh data (vertices, normals, indices)
-// Structure to hold mesh data for a single OBJ file
-struct mesh_data {
-    float* vertices;
-    float* normals;
-    int* indices;
-    size_t num_vertices;
-    size_t num_indices;
-};
-
-// Structure to hold data for multiple meshes (multiple OBJ files)
-struct scene_data {
-    mesh_data** meshes;
-    size_t num_meshes;
-};
 
 
 // https://github.com/Belval/raytracing
@@ -368,7 +354,6 @@ __device__ texture* fetchTexture(sceneConfig* sceneCfg, bitmap_image** images, i
     return nullptr;
 }
 
-
 __device__ material* fetchMaterial(sceneConfig* sceneCfg, bitmap_image** images, int count_images, const char* materialName)
 {
     if (materialName == nullptr || materialName[0] == '\0')
@@ -490,8 +475,10 @@ __device__ material* fetchMaterial(sceneConfig* sceneCfg, bitmap_image** images,
 
 
 
-
-__global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittable_list **elights, camera **cam, sampler **aa_sampler, int width, int height, float ratio, int spp, int sqrt_spp, bitmap_image** images, int count_images, mesh_data** meshes, int count_meshes, int seed)
+/// <summary>
+/// Kernel method to load/prepare a scene
+/// </summary>
+__global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittable_list **elights, camera **cam, sampler **aa_sampler, int width, int height, float ratio, int spp, int sqrt_spp, bitmap_image** images, int count_images, obj_mesh_data** meshes, int count_meshes, int seed)
 {
     if (threadIdx.x == 0 && blockIdx.x == 0)
     {
@@ -506,43 +493,6 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
 
 
 
-
-        // Loop through each mesh
-        for (int m = 0; m < count_meshes; ++m)
-        {
-            mesh_data* mesh = meshes[m];  // Get the current mesh
-
-            if (!mesh) {
-                printf("Invalid mesh pointer at index %d\n", m);
-                continue;
-            }
-
-            printf("Processing Mesh %d with %zu vertices and %zu indices.\n", m, mesh->num_vertices, mesh->num_indices);
-
-            // Loop through the vertices of the current mesh
-            for (size_t v = 0; v < mesh->num_vertices / 3; ++v) {  // Each vertex has 3 components (x, y, z)
-                float x = mesh->vertices[3 * v];
-                float y = mesh->vertices[3 * v + 1];
-                float z = mesh->vertices[3 * v + 2];
-
-                printf("Mesh %d - Vertex %zu: x = %f, y = %f, z = %f\n", m, v, x, y, z);
-
-                // Here you can add the vertices to the scene, for example, add them as triangles to elist
-                // (*elist)->add(new mesh_triangle(...));  // Depending on your implementation
-            }
-
-            // You can also process indices if needed
-            for (size_t i = 0; i < mesh->num_indices / 3; ++i) {  // Assuming triangles (3 indices per face)
-                int idx1 = mesh->indices[3 * i];
-                int idx2 = mesh->indices[3 * i + 1];
-                int idx3 = mesh->indices[3 * i + 2];
-
-                printf("Mesh %d - Triangle %zu: idx1 = %d, idx2 = %d, idx3 = %d\n", m, i, idx1, idx2, idx3);
-
-                // Again, add to your scene's hittable list if needed
-                // (*elist)->add(new triangle(mesh->d_vertices[idx1], mesh->d_vertices[idx2], mesh->d_vertices[idx3], ...));
-            }
-        }
 
 
 
@@ -673,9 +623,57 @@ __global__ void load_scene(sceneConfig* sceneCfg, hittable_list **elist, hittabl
 
             material* mat = fetchMaterial(sceneCfg, images, count_images, objMesh.materialName);
 
-            if (mat)
-                (*elist)->add(scene_factory::createObjMesh(objMesh.name, objMesh.position, objMesh.filepath, mat, objMesh.use_mtl, objMesh.use_smoothing, objMesh.transform));
+            if (count_meshes > 0)
+            {
+                obj_mesh_data* mesh_data = meshes[0];
+
+                if (mat && mesh_data)
+                    (*elist)->add(scene_factory::createObjMesh(objMesh.name, mesh_data, objMesh.position, objMesh.filepath, mat, objMesh.use_mtl, objMesh.use_smoothing, objMesh.transform));
+
+                printf("WAAAAAAAAAAAAAAAAAA !!!!!!!!!\n");
+            }
         }
+
+
+
+
+        //// Loop through each mesh
+        //for (int m = 0; m < count_meshes; ++m)
+        //{
+        //    obj_mesh_data* mesh = meshes[m];  // Get the current mesh
+
+        //    if (!mesh) {
+        //        printf("Invalid mesh pointer at index %d\n", m);
+        //        continue;
+        //    }
+
+        //    printf("Processing Mesh %d with %zu vertices and %zu indices.\n", m, mesh->num_vertices, mesh->num_indices);
+
+        //    // Loop through the vertices of the current mesh
+        //    for (size_t v = 0; v < mesh->num_vertices / 3; ++v) {  // Each vertex has 3 components (x, y, z)
+        //        float x = mesh->vertices[3 * v];
+        //        float y = mesh->vertices[3 * v + 1];
+        //        float z = mesh->vertices[3 * v + 2];
+
+        //        printf("Mesh %d - Vertex %zu: x = %f, y = %f, z = %f\n", m, v, x, y, z);
+
+        //        // Here you can add the vertices to the scene, for example, add them as triangles to elist
+        //        // (*elist)->add(new mesh_triangle(...));  // Depending on your implementation
+        //    }
+
+        //    // You can also process indices if needed
+        //    for (size_t i = 0; i < mesh->num_indices / 3; ++i) {  // Assuming triangles (3 indices per face)
+        //        int idx1 = mesh->indices[3 * i];
+        //        int idx2 = mesh->indices[3 * i + 1];
+        //        int idx3 = mesh->indices[3 * i + 2];
+
+        //        printf("Mesh %d - Triangle %zu: idx1 = %d, idx2 = %d, idx3 = %d\n", m, i, idx1, idx2, idx3);
+
+        //        // Again, add to your scene's hittable list if needed
+        //        // (*elist)->add(new triangle(mesh->d_vertices[idx1], mesh->d_vertices[idx2], mesh->d_vertices[idx3], ...));
+        //    }
+        //}
+
 
 
 
@@ -1193,6 +1191,57 @@ void copyVolumePrimitiveConfig(const PrimitiveConfig* h_primitives, int count, P
 }
 
 
+
+/// <summary>
+/// // Helper function to copy mesh configuration
+/// </summary>
+template<typename MeshConfig>
+void copyMeshConfig(const MeshConfig* h_meshes, int count, MeshConfig** d_meshes, meshesConfig* d_meshesCfg, MeshConfig** d_meshesPtrOnDevice)
+{
+    // 1. Allocate memory for the array on the device
+    cudaMalloc((void**)d_meshes, count * sizeof(MeshConfig));
+
+    // 2. Copy the array contents from host to device
+    cudaMemcpy(*d_meshes, h_meshes, count * sizeof(MeshConfig), cudaMemcpyHostToDevice);
+
+    // 3. Allocate memory and copy the names for each primitive
+    for (int i = 0; i < count; i++)
+    {
+        // Copy name
+        const char* hostName = h_meshes[i].name;  // Get the string from the host
+        char* d_name;
+        copyStringToDevice(hostName, &d_name);  // Use reusable function for name
+        cudaMemcpy(&((*d_meshes)[i].name), &d_name, sizeof(char*), cudaMemcpyHostToDevice);
+
+        // Copy filepath
+        const char* hostFilepath = h_meshes[i].filepath;  // Get the string from the host
+        char* d_filepath;
+        copyStringToDevice(hostFilepath, &d_filepath);  // Use reusable function for group name
+        cudaMemcpy(&((*d_meshes)[i].filepath), &d_filepath, sizeof(char*), cudaMemcpyHostToDevice);
+
+        // Copy materialName
+        const char* hostMaterialName = h_meshes[i].materialName;  // Get the string from the host
+        char* d_materialName;
+        copyStringToDevice(hostMaterialName, &d_materialName);  // Use reusable function for group name
+        cudaMemcpy(&((*d_meshes)[i].materialName), &d_materialName, sizeof(char*), cudaMemcpyHostToDevice);
+
+        // Copy groupName
+        const char* hostGroupName = h_meshes[i].groupName;  // Get the string from the host
+        char* d_groupName;
+        copyStringToDevice(hostGroupName, &d_groupName);  // Use reusable function for group name
+        cudaMemcpy(&((*d_meshes)[i].groupName), &d_groupName, sizeof(char*), cudaMemcpyHostToDevice);
+
+        /*const char* filepath;
+        const char* materialName;
+        const char* groupName;*/
+    }
+
+    // 4. Update the device-side config to point to the array on the device
+    cudaMemcpy(d_meshesPtrOnDevice, d_meshes, sizeof(MeshConfig*), cudaMemcpyHostToDevice);
+}
+
+
+
 /// <summary>
 /// // Helper function to copy texture configuration
 /// </summary>
@@ -1616,6 +1665,27 @@ primitivesConfig* preparePrimitives(const primitivesConfig& h_primitivesCfg)
 
 
 
+// Main function to prepare meshes
+meshesConfig* prepareMeshes(const meshesConfig& h_meshesCfg)
+{
+    meshesConfig* d_meshesCfg;
+    cudaMalloc((void**)&d_meshesCfg, sizeof(meshesConfig));
+
+
+    // Sphere primitives
+    if (h_meshesCfg.objMeshCount > 0)
+    {
+        objMeshConfig* d_objMeshes;
+        copyMeshConfig(h_meshesCfg.objMeshes, h_meshesCfg.objMeshCount, &d_objMeshes, d_meshesCfg, &(d_meshesCfg->objMeshes));
+    }
+
+    // Copy the scalar values from host to device for sphere primitives count
+    cudaMemcpy(&(d_meshesCfg->objMeshCount), &(h_meshesCfg.objMeshCount), sizeof(int8_t), cudaMemcpyHostToDevice);
+
+    return d_meshesCfg;
+}
+
+
 // Main function to prepare camera
 cameraConfig* prepareCamera(const cameraConfig& h_cameraCfg)
 {
@@ -1703,48 +1773,68 @@ bitmap_image** load_images(const sceneConfig& sceneCfg, int width, int height, i
 
 // Function to load OBJ file using tinyobjloader
 // Function to load a single OBJ file using tinyobjloader
-bool loadOBJ(const std::string& inputfile, mesh_data& meshData)
+bool loadOBJ(const std::string& inputfile, obj_mesh_data& meshData)
 {
-    tinyobj::attrib_t attrib;
-    std::vector<tinyobj::shape_t> shapes;
-    std::vector<tinyobj::material_t> materials;
-    std::string warn, err;
+    mesh_loader::mesh_data data;
+    bool ret = mesh_loader::load_model_from_file(inputfile.c_str(), data);
 
-    // Load the .obj file
-    bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, inputfile.c_str());
-
-    if (!warn.empty()) {
-        std::cout << "Warning: " << warn << std::endl;
-    }
-    if (!err.empty()) {
-        std::cerr << "Error: " << err << std::endl;
+    if (!ret)
         return false;
-    }
-    if (!ret) {
-        return false;
-    }
 
-    // Extract vertices and indices
+    // Extract vertices, normals and indices to temp vectors
     std::vector<float> vertices;
     std::vector<float> normals;
     std::vector<int> indices;
+    std::vector<float> texcoords;
+    std::vector<int> num_face_vertices;
 
-    for (size_t s = 0; s < shapes.size(); s++) {
+
+    
+    
+
+
+
+    // loop shapes
+    for (size_t s = 0; s < data.num_shapes; s++)
+    {
         size_t index_offset = 0;
-        for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
-            int fv = shapes[s].mesh.num_face_vertices[f];
 
-            for (size_t v = 0; v < fv; v++) {
-                tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
+        meshData.name = data.shapes[s].name.c_str();
 
-                vertices.push_back(attrib.vertices[3 * idx.vertex_index + 0]);
-                vertices.push_back(attrib.vertices[3 * idx.vertex_index + 1]);
-                vertices.push_back(attrib.vertices[3 * idx.vertex_index + 2]);
+        size_t num_faces = data.shapes[s].mesh.num_face_vertices.size();
+        //meshData.num_face_vertices_size = num_faces;
+        
+        // Loop over faces (polygons)
+        for (size_t f = 0; f < num_faces; f++)
+        {
+            //const int fv = 3; // Assuming triangulated faces
+            int fv = data.shapes[s].mesh.num_face_vertices[f]; // Assuming triangulated faces
+            num_face_vertices.push_back(fv);
 
-                if (idx.normal_index >= 0) {
-                    normals.push_back(attrib.normals[3 * idx.normal_index + 0]);
-                    normals.push_back(attrib.normals[3 * idx.normal_index + 1]);
-                    normals.push_back(attrib.normals[3 * idx.normal_index + 2]);
+            // Ensure face has 3 vertices
+            assert(data.shapes[s].mesh.num_face_vertices[f] == fv);
+            
+            
+            // Loop over vertices in the face
+            for (size_t v = 0; v < fv; v++)
+            {
+                tinyobj::index_t idx = data.shapes[s].mesh.indices[index_offset + v];
+
+                vertices.push_back(data.attributes.vertices[3 * idx.vertex_index + 0]);
+                vertices.push_back(data.attributes.vertices[3 * idx.vertex_index + 1]);
+                vertices.push_back(data.attributes.vertices[3 * idx.vertex_index + 2]);
+
+                if (idx.normal_index >= 0)
+                {
+                    normals.push_back(data.attributes.normals[3 * idx.normal_index + 0]);
+                    normals.push_back(data.attributes.normals[3 * idx.normal_index + 1]);
+                    normals.push_back(data.attributes.normals[3 * idx.normal_index + 2]);
+                }
+
+                if (idx.texcoord_index >= 0)
+                {
+                    texcoords.push_back(data.attributes.texcoords[2 * idx.texcoord_index + 0]);
+                    texcoords.push_back(data.attributes.texcoords[2 * idx.texcoord_index + 1]);
                 }
 
                 indices.push_back(static_cast<int>(index_offset + v));
@@ -1753,32 +1843,55 @@ bool loadOBJ(const std::string& inputfile, mesh_data& meshData)
         }
     }
 
+
+    // loop materials
+    for (size_t m = 0; m < data.num_materials; m++)
+    {
+        // TO DO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //data.materials[m].alpha_texname
+    }
+
+
     // Allocate and copy data to the device (GPU)
-    meshData.num_vertices = vertices.size();
-    meshData.num_indices = indices.size();
+    meshData.num_vertices = (unsigned int)vertices.size();
+    meshData.num_indices = (unsigned int)indices.size();
+    meshData.num_normals = (unsigned int)normals.size();
+    meshData.num_texcoords = (unsigned int)texcoords.size();
+    meshData.num_face_vertices_size = (unsigned int)num_face_vertices.size();
+    meshData.count_total_vertices = (unsigned int)(data.attributes.vertices.size() / 3);
+
 
     checkCudaErrors(cudaMalloc(&meshData.vertices, vertices.size() * sizeof(float)));
     checkCudaErrors(cudaMalloc(&meshData.normals, normals.size() * sizeof(float)));
     checkCudaErrors(cudaMalloc(&meshData.indices, indices.size() * sizeof(int)));
+    checkCudaErrors(cudaMalloc(&meshData.texcoords, texcoords.size() * sizeof(float)));
+    checkCudaErrors(cudaMalloc(&meshData.num_face_vertices, num_face_vertices.size() * sizeof(int)));
+
 
     checkCudaErrors(cudaMemcpy(meshData.vertices, vertices.data(), vertices.size() * sizeof(float), cudaMemcpyHostToDevice));
     checkCudaErrors(cudaMemcpy(meshData.normals, normals.data(), normals.size() * sizeof(float), cudaMemcpyHostToDevice));
     checkCudaErrors(cudaMemcpy(meshData.indices, indices.data(), indices.size() * sizeof(int), cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(meshData.texcoords, texcoords.data(), texcoords.size() * sizeof(float), cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(meshData.num_face_vertices, num_face_vertices.data(), num_face_vertices.size() * sizeof(int), cudaMemcpyHostToDevice));
 
     return true;
 }
 
+
+
 // Function to load multiple OBJ files and allocate MeshData array
-bool loadMultipleOBJs(const std::vector<std::string>& files, scene_data& sceneData)
+bool loadMultipleOBJs(const std::vector<std::string>& files, obj_scene_data& sceneData)
 {
-    sceneData.num_meshes = files.size();
+    sceneData.num_meshes = (unsigned int)files.size();
 
     // Allocate host memory for MeshData pointers (on the host)
-    sceneData.meshes = (mesh_data**)malloc(sceneData.num_meshes * sizeof(mesh_data*));
+    sceneData.meshes = (obj_mesh_data**)malloc(sceneData.num_meshes * sizeof(obj_mesh_data*));
 
-    for (size_t i = 0; i < sceneData.num_meshes; ++i) {
-        sceneData.meshes[i] = (mesh_data*)malloc(sizeof(mesh_data));
-        if (!loadOBJ(files[i], *(sceneData.meshes[i]))) {
+    for (size_t i = 0; i < sceneData.num_meshes; ++i)
+    {
+        sceneData.meshes[i] = (obj_mesh_data*)malloc(sizeof(obj_mesh_data));
+        if (!loadOBJ(files[i], *(sceneData.meshes[i])))
+        {
             std::cerr << "Failed to load OBJ file: " << files[i] << std::endl;
             return false;
         }
@@ -1788,12 +1901,12 @@ bool loadMultipleOBJs(const std::vector<std::string>& files, scene_data& sceneDa
 }
 
 // CUDA Kernel to process vertices of multiple meshes
-__global__ void processMultipleMeshes(mesh_data** meshes, size_t num_meshes)
+__global__ void processMultipleMeshes(obj_mesh_data** meshes, size_t num_meshes)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
     for (size_t m = 0; m < num_meshes; ++m) {
-        const mesh_data& mesh = *(meshes[m]);
+        const obj_mesh_data& mesh = *(meshes[m]);
         if (idx < mesh.num_vertices / 3) {  // Each vertex has 3 components (x, y, z)
             float x = mesh.vertices[3 * idx];
             float y = mesh.vertices[3 * idx + 1];
@@ -1804,28 +1917,39 @@ __global__ void processMultipleMeshes(mesh_data** meshes, size_t num_meshes)
     }
 }
 
-mesh_data** load_meshes(const sceneConfig& sceneCfg, int h_meshes_count)
+obj_mesh_data** load_meshes(const sceneConfig& sceneCfg, int h_meshes_count)
 {
-    scene_data sceneData;
-    mesh_data** d_meshes = nullptr;
+    obj_scene_data sceneData;
+    obj_mesh_data** d_meshes = nullptr;
 
     // List of OBJ files to load
-    std::vector<std::string> objFiles = { "E:\\MyProjects\\MyOwnRaytracerCuda2\\data\\models\\crate.obj" };
+    std::vector<std::string> objFiles{};
+
+    if (sceneCfg.meshesCfg.objMeshCount > 0)
+    {
+        for (int m = 0; m < sceneCfg.meshesCfg.objMeshCount; m++)
+        {
+            objMeshConfig meshCfg = sceneCfg.meshesCfg.objMeshes[m];
+            objFiles.push_back(std::string(meshCfg.filepath));
+        }
+    }
 
     // Load the OBJ files into sceneData
-    if (!loadMultipleOBJs(objFiles, sceneData)) {
+    if (!loadMultipleOBJs(objFiles, sceneData))
+    {
         std::cerr << "Failed to load one or more OBJ files!" << std::endl;
         return nullptr;
     }
 
     // Allocate device memory for the MeshData** (array of MeshData*)
-    checkCudaErrors(cudaMalloc(&d_meshes, sceneData.num_meshes * sizeof(mesh_data*)));
+    checkCudaErrors(cudaMalloc(&d_meshes, sceneData.num_meshes * sizeof(obj_mesh_data*)));
 
-    for (int i = 0; i < sceneData.num_meshes; ++i) {
-        mesh_data* d_mesh;
+    for (unsigned int i = 0; i < sceneData.num_meshes; ++i)
+    {
+        obj_mesh_data* d_mesh = nullptr;
 
         // Allocate memory for each MeshData* on the device
-        checkCudaErrors(cudaMalloc(&d_mesh, sizeof(mesh_data)));
+        checkCudaErrors(cudaMalloc(&d_mesh, sizeof(obj_mesh_data)));
 
         // Allocate memory for vertices on the device and copy them
         float* d_vertices;
@@ -1838,14 +1962,14 @@ mesh_data** load_meshes(const sceneConfig& sceneCfg, int h_meshes_count)
         checkCudaErrors(cudaMemcpy(d_indices, sceneData.meshes[i]->indices, sceneData.meshes[i]->num_indices * sizeof(int), cudaMemcpyHostToDevice));
 
         // Copy the mesh structure to the device
-        mesh_data tempMesh = *sceneData.meshes[i];  // Copy current mesh data
+        obj_mesh_data tempMesh = *sceneData.meshes[i];  // Copy current mesh data
         tempMesh.vertices = d_vertices;          // Use device pointers for vertices
         tempMesh.indices = d_indices;            // Use device pointers for indices
 
-        checkCudaErrors(cudaMemcpy(d_mesh, &tempMesh, sizeof(mesh_data), cudaMemcpyHostToDevice));
+        checkCudaErrors(cudaMemcpy(d_mesh, &tempMesh, sizeof(obj_mesh_data), cudaMemcpyHostToDevice));
 
         // Copy the pointer to the device mesh into the device array
-        checkCudaErrors(cudaMemcpy(&d_meshes[i], &d_mesh, sizeof(mesh_data*), cudaMemcpyHostToDevice));
+        checkCudaErrors(cudaMemcpy(&d_meshes[i], &d_mesh, sizeof(obj_mesh_data*), cudaMemcpyHostToDevice));
     }
 
     // Ensure everything is synchronized before returning
@@ -1880,7 +2004,7 @@ void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int widt
     bitmap_image** h_images = load_images(sceneCfg, width, height, h_images_count);
 
     int h_meshes_count = sceneCfg.meshesCfg.objMeshCount;
-    mesh_data** h_meshes = load_meshes(sceneCfg, h_meshes_count);
+    obj_mesh_data** h_meshes = load_meshes(sceneCfg, h_meshes_count);
 
     
 
@@ -1893,8 +2017,10 @@ void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int widt
     materialsConfig* d_materialsCfg = prepareMaterials(sceneCfg.materialsCfg);
     lightsConfig* d_lightsCfg = prepareLights(sceneCfg.lightsCfg);
     primitivesConfig* d_primitivesCfg = preparePrimitives(sceneCfg.primitivesCfg);
+    meshesConfig* d_meshesConfig = prepareMeshes(sceneCfg.meshesCfg);
     cameraConfig* d_cameraCfg = prepareCamera(sceneCfg.cameraCfg);
     imageConfig* d_imageCfg = prepareImage(sceneCfg.imageCfg);
+   
 
     // Now copy the lightsConfig pointer from host to device sceneConfig
     checkCudaErrors(cudaMemcpy(&d_sceneCfg->lightsCfg, d_lightsCfg, sizeof(lightsConfig), cudaMemcpyHostToDevice));
@@ -1908,11 +2034,16 @@ void renderGPU(const sceneConfig& sceneCfg, const cudaDeviceProp& prop, int widt
     // Now copy the primitivesConfig pointer from host to device sceneConfig
     checkCudaErrors(cudaMemcpy(&d_sceneCfg->primitivesCfg, d_primitivesCfg, sizeof(primitivesConfig), cudaMemcpyHostToDevice));
 
+    // Now copy the meshesConfig pointer from host to device sceneConfig
+    checkCudaErrors(cudaMemcpy(&d_sceneCfg->meshesCfg, d_meshesConfig, sizeof(meshesConfig), cudaMemcpyHostToDevice));
+
     // Now copy the cameraConfig pointer from host to device sceneConfig
     checkCudaErrors(cudaMemcpy(&d_sceneCfg->cameraCfg, d_cameraCfg, sizeof(cameraConfig), cudaMemcpyHostToDevice));
 
     // Now copy the imageConfig pointer from host to device sceneConfig
     checkCudaErrors(cudaMemcpy(&d_sceneCfg->imageCfg, d_imageCfg, sizeof(imageConfig), cudaMemcpyHostToDevice));
+
+    
 
 
 

@@ -65,9 +65,10 @@
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
       <Include>$(SolutionDir)libs</Include>
-      <AdditionalOptions>-Xcudafe="--diag_suppress=20012 --diag_suppress=20013 --diag_suppress=20015 --diag_suppress=20208 --diag_suppress=1866 --diag_suppress=550" %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>--extended-lambda -Xcudafe="--diag_suppress=20012 --diag_suppress=20013 --diag_suppress=20015 --diag_suppress=20208 --diag_suppress=1866 --diag_suppress=550" %(AdditionalOptions)</AdditionalOptions>
       <GenerateLineInfo>false</GenerateLineInfo>
       <PtxAsOptionV>false</PtxAsOptionV>
+      <CodeGeneration>%(CodeGeneration)</CodeGeneration>
     </CudaCompile>
     <CudaLink>
       <GPUDebugInfo>true</GPUDebugInfo>
@@ -97,7 +98,7 @@
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
       <Include>$(SolutionDir)libs</Include>
-      <AdditionalOptions>-Xcudafe="--diag_suppress=20012 --diag_suppress=20013 --diag_suppress=20015 --diag_suppress=20208 --diag_suppress=1866 --diag_suppress=550" %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>--extended-lambda -Xcudafe="--diag_suppress=20012 --diag_suppress=20013 --diag_suppress=20015 --diag_suppress=20208 --diag_suppress=1866 --diag_suppress=550" %(AdditionalOptions)</AdditionalOptions>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>

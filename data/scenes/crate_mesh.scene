@@ -81,9 +81,9 @@ materials:
         {
             name = "crate_material";
             diffuseTexture = "crate_diffuse_texture";
-            specularTexture = "crate_specular_texture";
+            #specularTexture = "crate_specular_texture";
             #bumpTexture = "crate_bump_texture";
-            normalTexture = "crate_normal_texture";
+            #normalTexture = "crate_normal_texture";
             ambientColor = { r = 0.0; g = 0.0; b = 0.0; };
             shininess = 0.0;
         }

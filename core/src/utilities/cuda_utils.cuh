@@ -43,3 +43,7 @@ __host__ __device__ inline const char* concat(const char* str1, const char* str2
     // Return the concatenated string
     return result;
 }
+
+__host__ __device__ inline float ffmin(float a, float b) { return a < b ? a : b; }
+__host__ __device__ inline float ffmax(float a, float b) { return a > b ? a : b; }
+

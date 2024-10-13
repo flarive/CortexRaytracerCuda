@@ -2,9 +2,10 @@
 
 #include "ray.cuh"
 #include "../utilities/interval.cuh"
+#include "../utilities/cuda_utils.cuh"
 
-__host__ __device__ inline float ffmin(float a, float b) { return a < b ? a : b; }
-__host__ __device__ inline float ffmax(float a, float b) { return a > b ? a : b; }
+//__host__ __device__ inline float ffmin(float a, float b) { return a < b ? a : b; }
+//__host__ __device__ inline float ffmax(float a, float b) { return a > b ? a : b; }
 
 class aabb
 {
@@ -83,23 +84,29 @@ public:
 
 
 
-    __host__ __device__ inline bool hit(const ray& r, interval ray_t) const;
+    __host__ __device__ bool hit(const ray& r, interval ray_t) const;
 
 
 
     interval x, y, z;
 };
 
-__device__ inline aabb surrounding_box(aabb box0, aabb box1) {
-    vector3 small(ffmin(box0.min().x, box1.min().x),
-               ffmin(box0.min().y, box1.min().y),
-               ffmin(box0.min().z, box1.min().z));
-    vector3 big(ffmax(box0.max().x, box1.max().x),
-             ffmax(box0.max().y, box1.max().y),
-             ffmax(box0.max().z, box1.max().z));
-    return aabb(small, big);
-}
 
+//__host__ __device__ inline aabb surrounding_box(aabb box0, aabb box1)
+//{
+//    //vector3 small(ffmin(box0.min().x, box1.min().x),
+//    //           ffmin(box0.min().y, box1.min().y),
+//    //           ffmin(box0.min().z, box1.min().z));
+//    //vector3 big(ffmax(box0.max().x, box1.max().x),
+//    //         ffmax(box0.max().y, box1.max().y),
+//    //         ffmax(box0.max().z, box1.max().z));
+//
+//    vector3 small(0, 0, 0);
+//    vector3 big(0, 0, 0);;
+//
+//
+//    return aabb(small, big);
+//}
 
 
 
@@ -131,7 +138,7 @@ __host__ __device__ inline vector3 aabb::max() const
     return vector3(x.max, y.max, z.max);
 }
 
-__host__ __device__ bool aabb::hit(const ray& r, interval ray_t) const
+__host__ __device__ inline bool aabb::hit(const ray& r, interval ray_t) const
 {
     for (int a = 0; a < 3; a++)
     {
